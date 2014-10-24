@@ -1,0 +1,248 @@
+#include "MainFrame.h"
+#include "MyUtil.h"
+
+
+///////////////////////////////
+SortByKey_STL SortByKey_STL::instance = SortByKey_STL();
+//////////////////////
+void _scalingLoadPara(vector<Vec2d>& scalePara)
+{
+	scalePara.clear();
+	FILE* fps = fopen("_scale_para.txt", "r");
+	for(int i=0; i<NUM_FEATURE; i++) {
+		double a, b;
+		fscanf(fps, "%lf,%lf", &a, &b);
+		Vec2d  v;
+		v.val[0] = a;
+		v.val[1] = b;
+		scalePara.push_back(v);
+		//gpOutput->ShowMessage("%f  %f", a, b);
+	}
+	fclose(fps);
+}
+
+void _scalingData(Mat& mData, vector<Vec2d>& scalePara)
+{
+	int cols = mData.cols;
+	for(int i=0; i<cols; i++) {
+		Mat mC = mData.col(i);
+		double alpha, beta;
+		alpha = scalePara[i].val[0];
+		beta = scalePara[i].val[1];
+		mC.convertTo(mC, CV_32F, alpha, beta);
+	}
+
+	//Mat mC = mData.col(cols);
+	//double min, max, alpha, beta;
+	//minMaxLoc(mC, &min, &max);
+	//alpha = 2.0/(max-min);
+	//beta = -(2*min/(max-min) +1.);
+	//mC.convertTo(mC, CV_32F, alpha, beta);
+
+}
+void _scalingTraining(Mat& mData)
+{
+	FILE* fp = fopen("_scale_para.txt", "w");
+	int cols = mData.cols;
+	for(int i=0; i<cols; i++) {
+		Mat mC = mData.col(i);
+		//Mat mN;
+		double min, max, alpha, beta;
+		minMaxLoc(mC, &min, &max);
+		alpha = 2.0/(max-min);
+		beta = -(2*min/(max-min) +1.);
+		mC.convertTo(mC, CV_32F, alpha, beta);
+		//mN.copyTo(mData.col(i));
+		fprintf(fp, "%f, %f\n", alpha, beta);
+	}
+	fclose(fp);
+	MainFrame ::myMsgOutput("scale training data, save parameters in _scale_para.txt");
+}
+
+
+ofstream fileOutputStream;		// this must be kept somewhere global
+void _redirectStandardOutputToFile ( string filePath, bool toPromptAlso )
+{
+	std::streambuf* sbuf = cout.rdbuf();
+	if(fileOutputStream.is_open() )  fileOutputStream.close();
+	fileOutputStream.open( filePath.c_str() );
+	cout.rdbuf(fileOutputStream.rdbuf());
+	if ( toPromptAlso )
+		cout.rdbuf(sbuf);
+}
+
+void _OutputBinaryMat(cv::Mat m, char *filename)
+{
+	int lines = m.rows;
+	int cols = m.cols;
+	int i, j, channel, depth;
+
+	depth = m.depth();
+	channel = m.channels();
+	if(channel !=1) 	return;
+
+	FILE *fp = fopen(filename, "wb");
+	if(fp==NULL) {
+		wxMessageOutputMessageBox().Printf(_T("cannot create output file"));
+		return;
+	}
+	switch(depth) {
+		case CV_8U:
+		case CV_8S:
+			fwrite(m.data, sizeof(uchar), lines*cols, fp);
+			break;
+		case CV_16U:
+		case CV_16S:
+			fwrite(m.data, sizeof(short), lines*cols, fp);
+			break;
+		case CV_32S:				
+		case CV_32F:
+			fwrite(m.data, sizeof(float), lines*cols, fp);
+			break;
+		case CV_64F:
+			fwrite(m.data, sizeof(double), lines*cols, fp);
+			break;
+	}
+
+
+	fclose(fp);
+}
+
+
+void _OutputMat(cv::Mat m, char *filename, bool bAppend)
+{
+	FILE *fp;
+	if(bAppend)
+		fp = fopen(filename, "a");
+	else
+		fp = fopen(filename, "w");
+	if(fp==NULL) {
+		wxMessageOutputMessageBox().Printf(_T("cannot create output file"));
+		return;
+	}
+
+	int lines = m.rows;
+	int cols = m.cols;
+	int i, j, channel, depth;
+
+	depth = m.depth();
+	channel = m.channels();
+	if(channel !=1) return;
+
+	for(i=0; i<lines; i++) {
+		for(j=0; j<cols; j++) {
+			switch(depth) {
+			case CV_8U:
+				fprintf(fp, "%d", m.at<uchar>(i, j)); break;
+			case CV_8S:
+				fprintf(fp, "%d", m.at<char>(i, j)); break;
+			case CV_16U:
+			case CV_16S:
+				fprintf(fp, "%d", m.at<short>(i, j)); break;
+			case CV_32S:
+				fprintf(fp, "%d", m.at<int>(i, j)); break;
+			case CV_32F:
+				fprintf(fp, "%f", m.at<float>(i, j)); break;
+			case CV_64F:
+				fprintf(fp, "%f", m.at<double>(i, j)); break;	
+			}
+			if(j!=cols-1) fprintf(fp, ", ");
+		}
+		fprintf(fp, "\n");
+	}
+
+	fclose(fp);
+
+//	gpOutput->ShowMessage("output file: %s, rows %d, cols %d\n", filename, lines, cols);
+}
+
+
+void _rgbMat2hsvMat(cv::Mat &mRGB, cv::Mat &mHSV, bool plus360)
+// h: 0..360, s: 0..1, v: 0..max(r,g,b)
+{
+	int type = mRGB.type();
+	if(type != CV_8UC3) return;
+
+	int rows = mRGB.rows;
+	int cols = mRGB.cols;
+
+	mHSV.create(rows, cols, CV_32FC3);
+
+	for(int y=0; y<rows; y++) {
+		for(int x=0; x<cols; x++) {
+
+			cv::Vec3b c = mRGB.at<cv::Vec3b>(y, x);
+			uchar b = c.val[0];
+			uchar g = c.val[1];
+			uchar r = c.val[2];
+			float h, s, v;
+			rgb2hsv(r, g, b, h, s, v, plus360);
+
+			cv::Vec3f hsv;
+			hsv.val[0] = h;
+			hsv.val[1] = s;
+			hsv.val[2] = v;
+			mHSV.at<cv::Vec3f>(y, x) = hsv;
+		}
+	}
+		
+}
+
+void rgb2hsv(uchar r, uchar g, uchar b, float &h, float &s, float &v, bool plus360)
+{
+	struct rgb_color {
+		float r, g, b;    /* Channel intensities between 0.0 and 1.0 */
+	};
+    float min, max;//, delta;
+	float rgb_min, rgb_max;
+
+	struct rgb_color rgb;
+	rgb.r = r;
+	rgb.g = g;
+	rgb.b = b;
+
+    min = r < g ? r : g;
+    min = min  < b ? min  : b;
+
+    max = r > g ? r : g;
+    max = max  > b ? max  : b;
+
+	v = max;    
+	if(v ==0) {
+		h = s = 0;
+		return;
+	}
+
+	/* Normalize value to 1 */
+	rgb.r /= v;
+	rgb.g /= v;
+	rgb.b /= v;
+	rgb_min = MIN3(rgb.r, rgb.g, rgb.b);
+	rgb_max = MAX3(rgb.r, rgb.g, rgb.b);
+
+	// <<compute saturation>>=
+	s = rgb_max - rgb_min;
+	if (s == 0) {
+		h = 0;
+		return ;
+	}
+
+	/* Normalize saturation to 1 */
+	rgb.r = (rgb.r - rgb_min)/(rgb_max - rgb_min);
+	rgb.g = (rgb.g - rgb_min)/(rgb_max - rgb_min);
+	rgb.b = (rgb.b - rgb_min)/(rgb_max - rgb_min);
+	rgb_min = MIN3(rgb.r, rgb.g, rgb.b);
+	rgb_max = MAX3(rgb.r, rgb.g, rgb.b);
+
+	/* Compute hue */
+	if (rgb_max == rgb.r) {
+		h = 0.0 + 60.0*(rgb.g - rgb.b);
+		if (h < 0.0 && plus360) {
+			h += 360.0;
+		}
+	} else if (rgb_max == rgb.g) {
+		h = 120.0 + 60.0*(rgb.b - rgb.r);
+	} else /* rgb_max == rgb.b */ {
+		h = 240.0 + 60.0*(rgb.r - rgb.g);
+	}
+}
