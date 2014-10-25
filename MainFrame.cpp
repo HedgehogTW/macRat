@@ -47,7 +47,7 @@ MainFrame::MainFrame(wxWindow* parent)
 	
 	this->Connect(wxID_FILE1, wxID_FILE9, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrame::OnMRUFile), NULL, this);
 	
-	SetSize(700, 750);
+	SetSize(700, 650);
 	Center();
 	
 	// optical flow

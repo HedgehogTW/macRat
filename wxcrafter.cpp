@@ -115,7 +115,7 @@ MainFrameBaseClass::MainFrameBaseClass(wxWindow* parent, wxWindowID id, const wx
     m_statusBar->SetFieldsCount(1);
     this->SetStatusBar(m_statusBar);
     
-    SetSizeHints(700,750);
+    SetSizeHints(700,400);
     if ( GetSizer() ) {
          GetSizer()->Fit(this);
     }
