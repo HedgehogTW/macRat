@@ -1,6 +1,7 @@
 #Project Setting
 *.project
 *.workspace
+*.mk
 .codelite
 
 # Compiled Object files
