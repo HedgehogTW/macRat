@@ -108,8 +108,14 @@ void MainFrame::OnAbout(wxCommandEvent& event)
 	::wxAboutBox(info);
 }
 void MainFrame::OnFileOpen(wxCommandEvent& event)
-{
-	static wxString strInitDir (m_FileHistory->GetHistoryFile(0));
+{	
+	wxString  strHistoryFile;
+	if(m_FileHistory->GetCount() >0) 
+		strHistoryFile= m_FileHistory->GetHistoryFile(0);
+	else
+		strHistoryFile= wxEmptyString;
+	
+	static wxString strInitDir (strHistoryFile);
 	wxString dirName = wxDirSelector("Choose a folder", strInitDir); //"E:\\Image_Data\\Mouse\\");
 	if(dirName.empty())  return;
 	m_FileHistory->AddFileToHistory(dirName);	
