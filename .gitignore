@@ -3,6 +3,7 @@
 *.workspace
 *.mk
 .codelite
+.DS_Store
 
 # Compiled Object files
 *.slo
