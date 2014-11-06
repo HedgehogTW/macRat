@@ -127,9 +127,15 @@ void MainFrame::openFile(wxString &dirName)
 	m_strSourcePath = dirName;
 	myMsgOutput( "Load " + dirName + "\n");
 
+	int num;
 	bool  bRet = false;
-	m_Rat.readData(dirName);
+	num = m_Rat.readData(dirName);
 
+	if(num <=0)  {
+		wxLogMessage("read images failed");
+		return;
+	}
+	
 	bRet = m_Rat.horizontalLine();
 
 	if(bRet ==false) {
