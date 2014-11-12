@@ -128,7 +128,8 @@ void MainFrame::openFile(wxString &dirName)
 	myMsgOutput( "Load " + dirName + "\n");
 
 	bool  bRet = false;
-	m_Rat.readData(dirName);
+	if(m_Rat.readData(dirName) <=0) 
+		return;
 
 	bRet = m_Rat.horizontalLine();
 
@@ -145,6 +146,9 @@ void MainFrame::openFile(wxString &dirName)
 	
 	updateOutData(m_Rat.getSrcImg(0));
 
+
+	wxString title = dirName.AfterLast('\\');
+	SetTitle(wxString("Dataset: ") << title);
 
 	myMsgOutput("After preprocessing, %d frames are used, size w%d, h%d\n",
 		m_nSlices, m_Rat.m_szImg.width, m_Rat.m_szImg.height );	
