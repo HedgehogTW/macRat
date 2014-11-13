@@ -654,7 +654,66 @@ float CRat::findMaxMotion(Mat& mFlowROI, cv::Point& ptDiff)
 	}
 	return mv;
 }
+void CRat::saveEarImage(int slice, bool bLeft)
+{
+	int w = m_vecMat[0].cols;
+	int h = m_vecMat[0].rows;
+	
+	TwoPts ptEar = m_vecEarPair[slice];
+	Point pt1, pt2;
+	if(bLeft){
+		pt1 = Point(ptEar.ptL-m_offsetEar);
+		pt2 = Point(ptEar.ptL+m_offsetEar);
+		if(pt1.x <0) pt1.x = 0;
+		if(pt1.y <0) pt1.y = 0;
+		if(pt2.x >= w) pt2.x = w-1;
+		if(pt2.y >= h) pt2.y = h-1;	
 
+	}else{
+		pt1 = Point(ptEar.ptL-m_offsetEar);
+		pt2 = Point(ptEar.ptL+m_offsetEar);
+		if(pt1.x <0) pt1.x = 0;
+		if(pt1.y <0) pt1.y = 0;
+		if(pt2.x >= w) pt2.x = w-1;
+		if(pt2.y >= h) pt2.y = h-1;	
+	
+	}
+	Mat mROI(m_vecMat[slice], Rect(pt1, pt2));
+	
+	cv::Mat	 cvMat;
+	cv::Mat	 cvMatGray;
+	wxString outpath; 
+
+#if defined(unix) || defined(__unix) || defined(__unix__) || defined(__APPLE__) 
+	outpath = m_strSrcPath + "/" + subpath;
+#else
+	outpath = m_strSrcPath + "\\" + subpath;
+#endif	
+	wxFileName fileName = m_strSrcPath;
+	wxString  fName = fileName.GetName();
+	wxFileName dataName(m_strSrcPath, "_"+fName+ "_motion.csv");
+
+
+	if(vecM.size() ==0) return;
+
+	if(wxDirExists(outpath)==false) {
+		if(wxMkdir(outpath)==false) {
+			wxString str;
+			str.Printf("Create output directory error, %s", outpath);
+			wxLogMessage(str);
+			return;
+		}
+	}
+
+	for(int i=0; i<vecM.size(); i++) {
+		wxFileName fileName = wxString(m_vFilenames[i]);
+		fileName.AppendDir(subpath);
+		wxFileName savePath = fileName.GetPath();
+		wxFileName saveName(savePath.GetFullPath(), fileName.GetFullName());
+		imwrite(saveName.GetFullPath().ToStdString(), vecM[i]);
+	}
+	
+}
 void CRat::Opticalflow(int nPyrLayers, int nWinSize, int nIter, int nNeighbor, double dblSigma, int nFrameSteps)
 {
 	m_vecFlow.clear();
@@ -1334,14 +1393,17 @@ void CRat::findMouseEars(int numFrame, Point ptEarL, Point ptEarR)
 		bShow = true;
 	}
 
-
+	Point ptNewEarL, ptNewEarR;
+	ptNewEarL = ptEarL;
+	ptNewEarR = ptEarR;
+	
 	int foundEar = 0;
 	//#pragma omp parallel for 
 	for (int i = is; i < it; i++)
 	{
-		// detect eyes
+		// detect ears
 		vector<vector<cv::Point> > vecContour;
-		int idxEar = detectEars(m_vecMat[i], vecContour, ptEarL, ptEarR, bShow);
+		int idxEar = detectEars(m_vecMat[i], vecContour, ptNewEarL, ptNewEarR, bShow);
 		if (idxEar < 0) {
 			MainFrame:: myMsgOutput("cannot detect ear pair, frame %d\n", i + 1);
 			foundEar--;

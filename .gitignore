@@ -4,6 +4,7 @@
 *.mk
 .codelite
 .DS_Store
+Debug
 
 # Compiled Object files
 *.slo
