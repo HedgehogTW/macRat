@@ -351,6 +351,9 @@ void MainFrame::OnRatProcess(wxCommandEvent& event)
 	m_Rat.motionAnalysis(m_nFrameSteps);
 	//m_Rat.graylevelDiff(m_nFrameSteps);
 	updateOutData(m_Rat.getResultImg(0));
+	
+	m_Rat.saveEarImage();
+	
 	wxEndBusyCursor();
 
 	wxFileName fileName = m_strSourcePath;
@@ -528,29 +531,7 @@ void MainFrame::OnRatLoadResult(wxCommandEvent& event)
 
 	gnuplotShow(fileName.GetName(), nBeginLight, nTwoLight, earLM, earRM, eye);	
 }
-void MainFrame::saveEarMotionImg(vector<double>& earLM, vector<double>& earRM)
-{
-	int  n = earLM.size();
-	double maxVal = 0;
-	int maxIdx = 0;
-	bool bLeftBig = true;
-	for(int i=0; i<n; i++) {
-		if(earLM[i] > maxVal) {
-			maxVal = earLM[i];
-			maxIdx = i;
-		}
-	}
-	n = earRM.size();
-	for(int i=0; i<n; i++) {
-		if(earRM[i] > maxVal) {
-			maxVal = earRM[i];
-			maxIdx = i;
-			bLeftBig = false;
-		}
-	}	
-	m_Rat.saveEarImage(maxIdx, bLeftBig);
 
-}
 void MainFrame::smoothData(vector<double>& inData, vector<double>& outData, int bw)
 {
 	int  n = inData.size();	

@@ -73,6 +73,10 @@ int CRat::readData(wxString inputPath)
 	m_vecMat.clear();
 	m_vFilenames.clear();
 	for(unsigned int i=0; i<files.size(); i++ ) {
+		wxFileName fileName = files[i];
+		wxString  fName = fileName.GetName();
+		char firstChar = fName[0];
+		if(firstChar=='_') continue;
 		//MainFrame::myMsgOutput(files[i]+ "\n");
 		std::string strStd = files[i].ToStdString();
 		cvMat = cv::imread(strStd, CV_LOAD_IMAGE_UNCHANGED);
@@ -654,14 +658,35 @@ float CRat::findMaxMotion(Mat& mFlowROI, cv::Point& ptDiff)
 	}
 	return mv;
 }
-void CRat::saveEarImage(int slice, bool bLeft)
+void CRat::saveEarImage()
 {
+	int  n = m_vecLEarMotion.size();
+	double maxVal = 0;
+	int maxIdx = 0;
+	bool bLeftBig = true;
+	for(int i=0; i<n; i++) {
+		if(m_vecLEarMotion[i] > maxVal) {
+			maxVal = m_vecLEarMotion[i];
+			maxIdx = i;
+		}
+	}
+	
+	n = m_vecREarMotion.size();
+	for(int i=0; i<n; i++) {
+		if(m_vecREarMotion[i] > maxVal) {
+			maxVal = m_vecREarMotion[i];
+			maxIdx = i;
+			bLeftBig = false;
+		}
+	}	
+
+//////////////////////////////////////////	
 	int w = m_vecMat[0].cols;
 	int h = m_vecMat[0].rows;
 	
-	TwoPts ptEar = m_vecEarPair[slice];
+	TwoPts ptEar = m_vecEarPair[maxIdx];
 	Point pt1, pt2;
-	if(bLeft){
+	if(bLeftBig){
 		pt1 = Point(ptEar.ptL-m_offsetEar);
 		pt2 = Point(ptEar.ptL+m_offsetEar);
 		if(pt1.x <0) pt1.x = 0;
@@ -678,41 +703,21 @@ void CRat::saveEarImage(int slice, bool bLeft)
 		if(pt2.y >= h) pt2.y = h-1;	
 	
 	}
-	Mat mROI(m_vecMat[slice], Rect(pt1, pt2));
 	
-	cv::Mat	 cvMat;
-	cv::Mat	 cvMatGray;
-	wxString outpath; 
+	//////////////////////////////////////////////////////
+	
+	Mat mROI(m_vecMat[maxIdx], Rect(pt1, pt2));
+	
 
-#if defined(unix) || defined(__unix) || defined(__unix__) || defined(__APPLE__) 
-	outpath = m_strSrcPath + "/" + subpath;
-#else
-	outpath = m_strSrcPath + "\\" + subpath;
-#endif	
-	wxFileName fileName = m_strSrcPath;
+	wxFileName fileName = wxString(m_vFilenames[maxIdx]);
 	wxString  fName = fileName.GetName();
-	wxFileName dataName(m_strSrcPath, "_"+fName+ "_motion.csv");
-
-
-	if(vecM.size() ==0) return;
-
-	if(wxDirExists(outpath)==false) {
-		if(wxMkdir(outpath)==false) {
-			wxString str;
-			str.Printf("Create output directory error, %s", outpath);
-			wxLogMessage(str);
-			return;
-		}
-	}
-
-	for(int i=0; i<vecM.size(); i++) {
-		wxFileName fileName = wxString(m_vFilenames[i]);
-		fileName.AppendDir(subpath);
-		wxFileName savePath = fileName.GetPath();
-		wxFileName saveName(savePath.GetFullPath(), fileName.GetFullName());
-		imwrite(saveName.GetFullPath().ToStdString(), vecM[i]);
-	}
+	wxFileName saveName(m_strSrcPath, "_"+fName+ "_ear.bmp");
+	imwrite(saveName.GetFullPath().ToStdString(), mROI);
 	
+	wxString str;
+	str.Printf("save name: %s\n", saveName.GetFullPath());
+	MainFrame:: myMsgOutput(str);
+
 }
 void CRat::Opticalflow(int nPyrLayers, int nWinSize, int nIter, int nNeighbor, double dblSigma, int nFrameSteps)
 {

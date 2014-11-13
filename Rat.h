@@ -14,7 +14,7 @@
 #include "itkMetaImageIO.h"
 
 #define NUM_FEATURE	 6
-#define EAR_RECT	50
+#define EAR_RECT	40
 
 using namespace std;
 using namespace cv;
@@ -107,7 +107,7 @@ public:
 	void	removeUnlikeBendingPts(vector<int> &vecBendingIdx, vector<float>& curvature, int k);
 
 	Mat		accumulate();
-	void 	saveEarImage(int slice, bool bLeft);
+	void 	saveEarImage();
 	
 public:
 	vector <Mat> m_vecMat;
