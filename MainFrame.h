@@ -38,6 +38,9 @@ public:
 
 	void	recognizeLeftRight(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR);
 	
+	void 	smoothData(vector<double>& inData, vector<double>& outData, int bw=5);
+	void	saveEarMotionImg(vector<double>& earLM, vector<double>& earRM);
+	
 	deque<Point>& 	getEyePts() { return m_dqEyePts; }
 	deque<Point>& 	getEarPts() { return m_dqEarPts; }
 	

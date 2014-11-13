@@ -107,6 +107,8 @@ public:
 	void	removeUnlikeBendingPts(vector<int> &vecBendingIdx, vector<float>& curvature, int k);
 
 	Mat		accumulate();
+	void 	saveEarImage(int slice, bool bLeft);
+	
 public:
 	vector <Mat> m_vecMat;
 	vector <Mat> m_vecDest;

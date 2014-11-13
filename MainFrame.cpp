@@ -13,6 +13,8 @@
 #include "DlgOptical.h"
 #include "gnuplot_i.hpp"
 
+#include "KDE.h"
+
 using namespace std;
 using namespace cv;
 
@@ -422,6 +424,12 @@ void MainFrame::gnuplotShow(const char* title, int nBeginLight, int nTwoLight,
 	double maxY2 = *std::max_element(earRM.begin(), earRM.end());
 	max_y = MAX(maxY1, maxY2);
 	max_y = MAX(max_y, 10);
+/*
+	vector<double> kdeLEar;
+	vector<double> kdeREar;
+	smoothData(earLM, kdeLEar, 2);
+	smoothData(earRM, kdeREar, 2);
+*/
 
 	try{
 		static Gnuplot g1("lines");
@@ -433,9 +441,9 @@ void MainFrame::gnuplotShow(const char* title, int nBeginLight, int nTwoLight,
 		g1.set_style("lines").plot_x(eye, "Eye");
 		g1.set_style("lines").plot_x(earLM, "Left Ear");
 		g1.set_style("lines").plot_x(earRM, "Right Ear");
-		//g1.set_style("lines").plot_x(earLG, "LEarGrayDiff");
-		//g1.set_style("lines").plot_x(earRG, "REarGrayDiff");
-
+//		g1.set_style("lines").plot_x(kdeLEar, "kdeLEar");
+//		g1.set_style("lines").plot_x(kdeREar, "kdeREar");
+//		g1.savetops();
 		if (nBeginLight > 0 && nTwoLight>0) {
 			std::vector<double> x_light;
 			std::vector<double> y;
@@ -444,6 +452,8 @@ void MainFrame::gnuplotShow(const char* title, int nBeginLight, int nTwoLight,
 			x_light.push_back(nBeginLight);
 			x_light.push_back(nTwoLight);
 			g1.set_style("impulses").plot_xy(x_light, y, "lantern");
+			
+
 		}
 	}
 	catch (...) {
@@ -517,4 +527,42 @@ void MainFrame::OnRatLoadResult(wxCommandEvent& event)
 	wxFileName fileName = filename;
 
 	gnuplotShow(fileName.GetName(), nBeginLight, nTwoLight, earLM, earRM, eye);	
+}
+void MainFrame::saveEarMotionImg(vector<double>& earLM, vector<double>& earRM)
+{
+	int  n = earLM.size();
+	double maxVal = 0;
+	int maxIdx = 0;
+	bool bLeftBig = true;
+	for(int i=0; i<n; i++) {
+		if(earLM[i] > maxVal) {
+			maxVal = earLM[i];
+			maxIdx = i;
+		}
+	}
+	n = earRM.size();
+	for(int i=0; i<n; i++) {
+		if(earRM[i] > maxVal) {
+			maxVal = earRM[i];
+			maxIdx = i;
+			bLeftBig = false;
+		}
+	}	
+	m_Rat.saveEarImage(maxIdx, bLeftBig);
+
+}
+void MainFrame::smoothData(vector<double>& inData, vector<double>& outData, int bw)
+{
+	int  n = inData.size();	
+
+	double* pData = inData.data();
+
+	double  *out = new double[n];
+
+	CKDE::MSKernel kde_kernel = CKDE::Gaussian;
+	
+	CKDE kde1x(pData, out, n);
+	kde1x.KernelDensityEstimation(kde_kernel, bw);
+
+	outData.assign (out,out+n);	
 }
