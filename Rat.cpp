@@ -706,7 +706,7 @@ void CRat::saveEarImage()
 	
 	//////////////////////////////////////////////////////
 	
-	Mat mROI(m_vecMat[maxIdx], Rect(pt1, pt2));
+	Mat mROI(m_vecDest[maxIdx], Rect(pt1, pt2));
 	
 
 	wxFileName fileName = wxString(m_vFilenames[maxIdx]);
