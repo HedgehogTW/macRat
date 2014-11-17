@@ -322,16 +322,15 @@ void MainFrame::OnRatProcess(wxCommandEvent& event)
 	
 	int nFrameNum = -1;
 	wxBeginBusyCursor();
-
-	m_Rat.findMouseEyes(nFrameNum, ptEyeL, ptEyeR);
-	m_Rat.findMouseEars(nFrameNum, ptEarL, ptEarR);
-
-	m_Rat.motionAnalysis(m_nFrameSteps);
+	m_Rat.graylevelDiff(ptEyeL, ptEyeR, ptEarL, ptEarR, m_nFrameSteps);
 	
-	m_Rat.graylevelDiff(m_nFrameSteps);
+//	m_Rat.findMouseEyes(nFrameNum, ptEyeL, ptEyeR);
+//	m_Rat.findMouseEars(nFrameNum, ptEarL, ptEarR);
+	
+	
 	updateOutData(m_Rat.getResultImg(0));
 	
-	m_Rat.saveEarImage();
+//	m_Rat.saveEarImage();
 	
 	wxEndBusyCursor();
 
@@ -350,6 +349,7 @@ void MainFrame::OnRatProcess(wxCommandEvent& event)
 		wxMessageBox("Open output file failed:"+dataName.GetFullName(), "error");
 		return;
 	}
+/*	
 	int  n = m_Rat.m_vecLEarMotion.size();
 
 	fprintf(fp, "%d, %d, %d\n",n, m_Rat.m_idxLightBegin, m_Rat.m_idxTwoLight);
@@ -359,6 +359,7 @@ void MainFrame::OnRatProcess(wxCommandEvent& event)
 			m_Rat.m_vecREarMotion[i],
 			m_Rat.m_vecEyeMotion[i]);
 	}
+*/ 
 	fclose(fp);	
 }
 
@@ -445,14 +446,15 @@ void MainFrame::gnuplotShow(const char* title, int nBeginLight, int nTwoLight,
 }
 void MainFrame::OnRatShowResults(wxCommandEvent& event)
 {
-	if (m_Rat.m_vecEyeMotion.empty()) {
+
+	if (m_Rat.m_vecLEarGrayDiff.empty()) {
 		wxMessageBox("no data", "Error");
 		return;
 	}
 
 	wxFileName fileName = m_strSourcePath;
 	gnuplotShow(fileName.GetName(), m_Rat.m_idxLightBegin, m_Rat.m_idxTwoLight,
-		m_Rat.m_vecLEarMotion, m_Rat.m_vecREarMotion, m_Rat.m_vecEyeMotion);
+		m_Rat.m_vecLEarGrayDiff, m_Rat.m_vecREarGrayDiff, m_Rat.m_vecLEyeGrayDiff);
 }
 void MainFrame::OnRatLoadResult(wxCommandEvent& event)
 {

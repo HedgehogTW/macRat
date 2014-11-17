@@ -74,9 +74,11 @@ public:
 
 	bool	horizontalLine();
 	bool	verticalLine();
+	
+	double 	errorSum(Mat &mDiff, Point ptEarL);
 
-	void	motionAnalysis(int nFrameSteps);
-	void	graylevelDiff(int  nFrameSteps);
+	void	graylevelDiff(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, int nFrameSteps);
+	
 	float	findMaxMotion(Mat& mROI, cv::Point& ptDiff);
 	float	findSumMotion(Mat& mFlowROI, cv::Point& ptDiff);
 
@@ -114,12 +116,9 @@ public:
 	Point	m_offsetEar; //(50, 50);
 	Point	m_offsetEye;
 
-	vector <double>  m_vecEyeMotion;
-	vector <double>  m_vecEyeMotionL;
-	vector <double>  m_vecEyeMotionR;
 
-	vector <double>  m_vecLEarMotion;
-	vector <double>  m_vecREarMotion;
+	vector <double>  m_vecLEyeGrayDiff;
+	vector <double>  m_vecREyeGrayDiff;
 
 	vector <double>  m_vecLEarGrayDiff;
 	vector <double>  m_vecREarGrayDiff;

@@ -44,10 +44,8 @@ void CRat::clearData()
 
 	m_vecLEarGrayDiff.clear();
 	m_vecREarGrayDiff.clear();
-
-	m_vecEyeMotion.clear();
-	m_vecLEarMotion.clear();
-	m_vecREarMotion.clear();
+	m_vecLEyeGrayDiff.clear();
+	m_vecREyeGrayDiff.clear();
 
 	m_vFilenames.clear();
 	m_nSlices = 0;
@@ -466,93 +464,56 @@ void CRat::prepareData()
 
 	saveResult("cage", m_vecMat);
 }
-
-void CRat::graylevelDiff(int  nFrameSteps)
+double CRat::errorSum(Mat &mDiff, Point ptEarL)
+{
+	int wImg = m_vecMat[0].cols;
+	int hImg = m_vecMat[0].rows;
+	
+	Point pt1 (ptEarL-m_offsetEar);
+	Point pt2 (ptEarL+m_offsetEar);
+	if(pt1.x <0) pt1.x = 0;
+	if(pt1.y <0) pt1.y = 0;
+	if(pt2.x >= wImg) pt2.x = wImg-1;
+	if(pt2.y >= hImg) pt2.y = hImg-1;
+	
+	Scalar sSum = cv::mean(mDiff);
+	
+	return sSum[0];
+}
+void CRat::graylevelDiff(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, int nFrameSteps)
 {
 	m_vecLEarGrayDiff.clear();
 	m_vecREarGrayDiff.clear();
-
-//	gpMainFrame->CreateProgressBar(0, m_nSlices, 1);
-//	CProgressCtrl *pb =  gpMainFrame->GetProgressBarCtrl();
-
+	m_vecLEyeGrayDiff.clear();
+	m_vecREyeGrayDiff.clear();
+	
 	int wImg = m_vecMat[0].cols;
 	int hImg = m_vecMat[0].rows;
 
+	Mat mSrc1, mSrc2, mDiff;
+	
+	mSrc1 = m_vecMat[0];
+	
 	for(int i=0; i<m_nSlices-nFrameSteps; i++) {
-		Mat mSrc1, mSrc2, mDiff;
-		Scalar sMean;
-
-		mSrc1 = m_vecMat[i];
+		double errSumL, errSumR;
 		mSrc2 = m_vecMat[i+nFrameSteps];
-
-		TwoPts ptEar = m_vecEarPair[i];
-		Point pt1 (ptEar.ptL-m_offsetEar);
-		Point pt2 (ptEar.ptL+m_offsetEar);
-		if(pt1.x <0) pt1.x = 0;
-		if(pt1.y <0) pt1.y = 0;
-		if(pt2.x >= wImg) pt2.x = wImg-1;
-		if(pt2.y >= hImg) pt2.y = hImg-1;
-
-		Mat mROILeft1(mSrc1, Rect(pt1, pt2));
-		Mat mROILeft2(mSrc2, Rect(pt1, pt2));
-        cv::absdiff(mROILeft1, mROILeft2, mDiff);
-		sMean = cv::mean(mDiff);
-		m_vecLEarGrayDiff.push_back(sMean[0]);
+		cv::absdiff(mSrc1, mSrc2, mDiff);
 		
-
-		pt1 = Point(ptEar.ptR-m_offsetEar);
-		pt2 = Point(ptEar.ptR+m_offsetEar);
-		if(pt1.x <0) pt1.x = 0;
-		if(pt1.y <0) pt1.y = 0;
-		if(pt2.x >= wImg) pt2.x = wImg-1;
-		if(pt2.y >= hImg) pt2.y = hImg-1;
-
-		Mat mROIRight1(mSrc1, Rect(pt1, pt2));
-		Mat mROIRight2(mSrc2, Rect(pt1, pt2));
-        cv::absdiff(mROIRight1, mROIRight2, mDiff);
-		sMean = cv::mean(mDiff);
-		m_vecREarGrayDiff.push_back(sMean[0]);
-
-//		pb->StepIt();
+		errSumL = errorSum(mDiff, ptEarL);
+		errSumR = errorSum(mDiff, ptEarR);
+		
+		m_vecLEarGrayDiff.push_back(errSumL);
+		m_vecREarGrayDiff.push_back(errSumR);
+		
+		errSumL = errorSum(mDiff, ptEyeL);
+		errSumR = errorSum(mDiff, ptEyeR);
+		
+		m_vecLEyeGrayDiff.push_back(errSumL);
+		m_vecREyeGrayDiff.push_back(errSumR);
 	}
-//	pb->SetPos(m_nSlices);
-//	gpMainFrame->DestroyProgressBar();
 }
 
-void CRat::motionAnalysis( int nFrameSteps)
-{
-	vector <TwoPts>  vecEyeDiff;
 
-	m_vecEyeMotion.clear();
-	m_vecEyeMotionL.clear();
-	m_vecEyeMotionR.clear();
-
-	m_vecLEarMotion.clear();
-	m_vecREarMotion.clear();
-
-	int sz = m_vecEyePair.size();
-	// compute eye position difference
-	for (int i = 0; i<sz - nFrameSteps; i++) {
-		Point ptL1 = m_vecEyePair[i].ptL;
-		Point ptR1 = m_vecEyePair[i].ptR;
-		Point ptL2 = m_vecEyePair[i+1].ptL;
-		Point ptR2 = m_vecEyePair[i+1].ptR;
-
-		Point diffL = ptL1 - ptL2;
-		Point diffR = ptR1 - ptR2;
-		float normL  = cv::norm(diffL);
-		float normR  = cv::norm(diffR);
-
-		float eyeMotion = (normL+normR)/2.0;
-		m_vecEyeMotion.push_back(eyeMotion);
-
-		TwoPts twoPtDiff;
-		twoPtDiff.ptL = diffL;
-		twoPtDiff.ptR = diffR;
-		vecEyeDiff.push_back(twoPtDiff);
-	}
-
-}
 float CRat::findSumMotion(Mat& mFlowROI, cv::Point& ptDiff)
 {
 	float sum = 0;
@@ -599,25 +560,25 @@ float CRat::findMaxMotion(Mat& mFlowROI, cv::Point& ptDiff)
 }
 void CRat::saveEarImage()
 {
-	int  n = m_vecLEarMotion.size();
+//	int  n = m_vecLEarMotion.size();
 	double maxVal = 0;
 	int maxIdx = 0;
 	bool bLeftBig = true;
-	for(int i=0; i<n; i++) {
-		if(m_vecLEarMotion[i] > maxVal) {
-			maxVal = m_vecLEarMotion[i];
-			maxIdx = i;
-		}
-	}
+//	for(int i=0; i<n; i++) {
+//		if(m_vecLEarMotion[i] > maxVal) {
+//			maxVal = m_vecLEarMotion[i];
+//			maxIdx = i;
+//		}
+//	}
 	
-	n = m_vecREarMotion.size();
-	for(int i=0; i<n; i++) {
-		if(m_vecREarMotion[i] > maxVal) {
-			maxVal = m_vecREarMotion[i];
-			maxIdx = i;
-			bLeftBig = false;
-		}
-	}	
+//	n = m_vecREarMotion.size();
+//	for(int i=0; i<n; i++) {
+//		if(m_vecREarMotion[i] > maxVal) {
+//			maxVal = m_vecREarMotion[i];
+//			maxIdx = i;
+//			bLeftBig = false;
+//		}
+//	}	
 
 //////////////////////////////////////////	
 	int w = m_vecMat[0].cols;
@@ -1253,9 +1214,6 @@ void CRat::findMouseEars(int numFrame, Point ptEarL, Point ptEarR)
 
 	m_vecEarPair.clear();
 	m_vecEarPair.resize(m_nSlices);
-
-//	gpMainFrame->CreateProgressBar(0, m_nSlices, 1);
-//	CProgressCtrl *pb = gpMainFrame->GetProgressBarCtrl();
 
 	MainFrame:: myMsgOutput("Process frame ...%d\n", numFrame);
 
