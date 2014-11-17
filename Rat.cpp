@@ -38,8 +38,6 @@ void CRat::clearData()
 {
 	m_vecMat.clear();
 	m_vecDest.clear();	
-	m_vecFlow.clear();	
-	m_vecFlowmap.clear();
 
 	m_vecEyePair.clear();
 	m_vecEarPair.clear();
@@ -477,8 +475,8 @@ void CRat::graylevelDiff(int  nFrameSteps)
 //	gpMainFrame->CreateProgressBar(0, m_nSlices, 1);
 //	CProgressCtrl *pb =  gpMainFrame->GetProgressBarCtrl();
 
-	int wImg = m_vecFlow[0].cols;
-	int hImg = m_vecFlow[0].rows;
+	int wImg = m_vecMat[0].cols;
+	int hImg = m_vecMat[0].rows;
 
 	for(int i=0; i<m_nSlices-nFrameSteps; i++) {
 		Mat mSrc1, mSrc2, mDiff;
@@ -554,65 +552,6 @@ void CRat::motionAnalysis( int nFrameSteps)
 		vecEyeDiff.push_back(twoPtDiff);
 	}
 
-	// compute ear motion
-	int w = m_vecFlow[0].cols;
-	int h = m_vecFlow[0].rows;
-	for(int i=0; i<sz-nFrameSteps; i++) {
-		TwoPts ptEar = m_vecEarPair[i];
-		Point pt1 (ptEar.ptL-m_offsetEar);
-		Point pt2 (ptEar.ptL+m_offsetEar);
-		if(pt1.x <0) pt1.x = 0;
-		if(pt1.y <0) pt1.y = 0;
-		if(pt2.x >= w) pt2.x = w-1;
-		if(pt2.y >= h) pt2.y = h-1;
-
-		Mat mROILeft(m_vecFlow[i], Rect(pt1, pt2));
-		float motion = findSumMotion(mROILeft, vecEyeDiff[i].ptL);
-		m_vecLEarMotion.push_back(motion);
-	}
-
-	for(int i=0; i<sz-nFrameSteps; i++) {
-		TwoPts ptEar = m_vecEarPair[i];
-		Point pt1 (ptEar.ptR-m_offsetEar);
-		Point pt2 (ptEar.ptR+m_offsetEar);
-		if(pt1.x <0) pt1.x = 0;
-		if(pt1.y <0) pt1.y = 0;
-		if(pt2.x >= w) pt2.x = w-1;
-		if(pt2.y >= h) pt2.y = h-1;
-
-		Mat mROIRight(m_vecFlow[i], Rect(pt1, pt2));
-		float motion = findSumMotion(mROIRight, vecEyeDiff[i].ptR);
-		m_vecREarMotion.push_back(motion);
-	}
-
-	// eye optical flow
-	for (int i = 0; i<sz - nFrameSteps; i++) {
-		TwoPts ptEye = m_vecEyePair[i];
-		Point pt1(ptEye.ptL - m_offsetEye);
-		Point pt2(ptEye.ptL + m_offsetEye);
-		if (pt1.x <0) pt1.x = 0;
-		if (pt1.y <0) pt1.y = 0;
-		if (pt2.x >= w) pt2.x = w - 1;
-		if (pt2.y >= h) pt2.y = h - 1;
-
-		Mat mROILeft(m_vecFlow[i], Rect(pt1, pt2));
-		float motion = findSumMotion(mROILeft, vecEyeDiff[i].ptL);
-		m_vecEyeMotionL.push_back(motion);
-	}
-
-	for (int i = 0; i<sz - nFrameSteps; i++) {
-		TwoPts ptEye = m_vecEyePair[i];
-		Point pt1(ptEye.ptR - m_offsetEar);
-		Point pt2(ptEye.ptR + m_offsetEar);
-		if (pt1.x <0) pt1.x = 0;
-		if (pt1.y <0) pt1.y = 0;
-		if (pt2.x >= w) pt2.x = w - 1;
-		if (pt2.y >= h) pt2.y = h - 1;
-
-		Mat mROIRight(m_vecFlow[i], Rect(pt1, pt2));
-		float motion = findSumMotion(mROIRight, vecEyeDiff[i].ptR);
-		m_vecEyeMotionR.push_back(motion);
-	}
 }
 float CRat::findSumMotion(Mat& mFlowROI, cv::Point& ptDiff)
 {
@@ -719,68 +658,7 @@ void CRat::saveEarImage()
 	MainFrame:: myMsgOutput(str);
 
 }
-void CRat::Opticalflow(int nPyrLayers, int nWinSize, int nIter, int nNeighbor, double dblSigma, int nFrameSteps)
-{
-	m_vecFlow.clear();
-	m_vecFlowmap.clear();
-	
-	m_vecFlow.resize(m_nSlices - nFrameSteps);
-	m_vecFlowmap.resize(m_nSlices - nFrameSteps);
 
-//	gpMainFrame->CreateProgressBar(0, m_nSlices, 1);
-//	CProgressCtrl *pb =  gpMainFrame->GetProgressBarCtrl();
-
-	clock_t start, finish;
-	double  duration;
-	start = clock();
-
-#pragma omp parallel for 
-	for(int i=0; i<m_nSlices-nFrameSteps; i++) {
-//		Mat mFlow, mFlowmapColor;
-		Mat mSrc1, mSrc2;
-		mSrc1 = m_vecMat[i];
-		mSrc2 = m_vecMat[i+nFrameSteps];
-		Mat& mFlow = m_vecFlow[i];
-		Mat& mFlowmapColor = m_vecFlowmap[i];
-
-        calcOpticalFlowFarneback(mSrc1, mSrc2, mFlow, 0.5, nPyrLayers, nWinSize, nIter, nNeighbor, dblSigma, 0);
-        cvtColor(mSrc1, mFlowmapColor, CV_GRAY2BGR);
-
-		drawOptFlowMap(mFlowmapColor, mFlow, 3, CV_RGB(0, 255, 0));
-
-		TwoPts ptEar = m_vecEarPair[i];
-		cv::rectangle(mFlowmapColor,ptEar.ptL-m_offsetEar, ptEar.ptL+m_offsetEar, cv::Scalar(0, 0, 255));
-		cv::rectangle(mFlowmapColor,ptEar.ptR-m_offsetEar, ptEar.ptR+m_offsetEar, cv::Scalar(0, 0, 255));
-        
-		//m_vecFlow.push_back(mFlow);
-		//m_vecFlowmap.push_back(mFlowmapColor);
-
-	//	pb->StepIt();
-	}
-	finish = clock();
-	duration = (double)(finish - start) / CLOCKS_PER_SEC;
-	int minutes = duration / 60;
-	int second = duration - minutes * 60;
-	MainFrame:: myMsgOutput("Opticalflow computation time: %02dm:%02ds\n", minutes, second);
-
-//	pb->SetPos(m_nSlices);
-//	gpMainFrame->DestroyProgressBar();
-
-	saveResult("flow", m_vecFlowmap);
-
-	MainFrame:: myMsgOutput("Opticalflow done, m_vecFlow size %d------\n", m_vecFlow.size());
-}
-
-void CRat::drawOptFlowMap(Mat& cflowmap, const Mat& flow,  int step, const Scalar& color)
-{
-    for(int y = 0; y < cflowmap.rows; y += step)
-        for(int x = 0; x < cflowmap.cols; x += step)
-        {
-            const Point2f& fxy = flow.at<Point2f>(y, x);
-            line(cflowmap, Point(x,y), Point(cvRound(x+fxy.x), cvRound(y+fxy.y)), color);
-            //circle(cflowmap, Point(x,y), 1, color, -1);
-        }
-}
 void CRat::locateEarPosition(Point& ptEarL, Point& ptEarR)
 {
 	m_vecEarPair.clear();

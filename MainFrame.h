@@ -103,12 +103,7 @@ protected:
 	bool	m_bFirstEyeIsLeft;
 	bool	m_bFirstEarIsLeft;
 	
-	// optical flow
-	long m_nIter ;
-	long m_nNeighbor ;
-	long m_nPyrLayers;
-	double m_dblSigma;
-	long m_nWinSize;
+
 	long m_nFrameSteps;	
 };
 #endif // MAINFRAME_H

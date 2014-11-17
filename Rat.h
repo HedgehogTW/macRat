@@ -64,8 +64,6 @@ public:
 	Size	getImgSize()  { return m_szImg; }
 	Mat &   getSrcImg(int idx) { return m_vecMat[idx]; }
 	Mat &   getResultImg(int idx) { return m_vecDest[idx]; }
-	Mat &   getOpticalFlowMap(int idx) { return m_vecFlowmap[idx]; }
-	Mat &   getOpticalFlow(int idx) { return m_vecFlow[idx]; }
 
 	int		getNumFrames()  { return m_nSlices; }
 	void	saveResult(const char *subpath, vector <Mat> &vecDest);
@@ -77,8 +75,6 @@ public:
 	bool	horizontalLine();
 	bool	verticalLine();
 
-	void	Opticalflow(int nPyrLayers, int nWinSize, int nIter, int nNeighbor, double dblSigma, int nFrameSteps);
-	void	drawOptFlowMap(Mat& cflowmap, const Mat& flow, int step, const Scalar& color);
 	void	motionAnalysis(int nFrameSteps);
 	void	graylevelDiff(int  nFrameSteps);
 	float	findMaxMotion(Mat& mROI, cv::Point& ptDiff);
@@ -112,8 +108,6 @@ public:
 public:
 	vector <Mat> m_vecMat;
 	vector <Mat> m_vecDest;
-	vector <Mat> m_vecFlow;
-	vector <Mat> m_vecFlowmap;
 
 	vector <TwoPts>  m_vecEyePair;
 	vector <TwoPts>  m_vecEarPair;

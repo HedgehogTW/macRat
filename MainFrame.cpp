@@ -10,7 +10,6 @@
 #include <wx/msgdlg.h> 
 #include <wx/filename.h>
 
-#include "DlgOptical.h"
 #include "gnuplot_i.hpp"
 
 #include "KDE.h"
@@ -52,12 +51,6 @@ MainFrame::MainFrame(wxWindow* parent)
 	SetSize(700, 650);
 	Center();
 	
-	// optical flow
-	m_nIter = 3;
-	m_nNeighbor = 3;
-	m_nPyrLayers= 1;
-	m_dblSigma = 0.8;
-	m_nWinSize = 3;
 	m_nFrameSteps = 2;	
 	
 	DeleteContents();
@@ -319,20 +312,6 @@ void MainFrame::OnRatProcess(wxCommandEvent& event)
 		return;
 	}
 	
-	DlgOptical  dlg(m_nPyrLayers, m_nWinSize, m_nIter, m_nNeighbor, m_dblSigma, m_nFrameSteps, this);
-	if(dlg.ShowModal()!=wxID_OK)  return;
-	
-	m_nIter  = dlg.getIter();
-	m_nNeighbor = dlg.getNeighbor();
-	m_nPyrLayers = dlg.getPyrLayers();
-	m_dblSigma = dlg.getSigma();
-	m_nWinSize = dlg.getWinSize();
-	m_nFrameSteps = dlg.getFrameSteps();	
-
-	myMsgOutput("Opticalflow: iter %d, neighbor %d, PyrLayers %d, Sigma %.2f, winSize %d, frame steps %d\n",
-		m_nIter, m_nNeighbor, m_nPyrLayers,  m_dblSigma, m_nWinSize, m_nFrameSteps);
-		
-		
 	Point ptEyeL, ptEyeR, ptEarL, ptEarR;
 	ptEyeL = m_dqEyePts[0];
 	ptEyeR = m_dqEyePts[1];
@@ -347,9 +326,9 @@ void MainFrame::OnRatProcess(wxCommandEvent& event)
 	m_Rat.findMouseEyes(nFrameNum, ptEyeL, ptEyeR);
 	m_Rat.findMouseEars(nFrameNum, ptEarL, ptEarR);
 
-	m_Rat.Opticalflow(m_nPyrLayers, m_nWinSize, m_nIter, m_nNeighbor, m_dblSigma, m_nFrameSteps );
 	m_Rat.motionAnalysis(m_nFrameSteps);
-	//m_Rat.graylevelDiff(m_nFrameSteps);
+	
+	m_Rat.graylevelDiff(m_nFrameSteps);
 	updateOutData(m_Rat.getResultImg(0));
 	
 	m_Rat.saveEarImage();
