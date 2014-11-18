@@ -5,10 +5,12 @@
 #include <sstream>
 #include <fstream>
 #include <opencv2/opencv.hpp>
+#include <vector>
 
 #include "Rat.h"
 
 using namespace cv;
+using namespace std;
 
 #define MIN3(x,y,z)  ((y) <= (z) ? \
                          ((x) <= (y) ? (x) : (y)) \
@@ -20,8 +22,12 @@ using namespace cv;
                      : \
                          ((x) >= (z) ? (x) : (z)))
 
-using namespace std;
-	
+
+void 	_gnuplotLine(const char* dataName, vector<double>& data);
+void 	_gnuplotLantern(const char* title, int nBeginLight, int nTwoLight);
+void 	_gnuplotPoint(const char* dataName, vector<double>& dataX, vector<double>& dataY);
+
+
 void	_scalingTraining(Mat& mTrainData);
 void	_scalingData(Mat& mData, vector<Vec2d>& scalePara);
 void	_scalingLoadPara(vector<Vec2d>& scalePara);

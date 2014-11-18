@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resource xmlns="http://www.wxwindows.org/wxxrc" version="2.3.0.1">
+  <object class="wxBitmap" name="ERASE01">ERASE01.png</object>
   <object class="wxBitmap" name="Mouse">Mouse.bmp</object>
-  <object class="wxBitmap" name="loadResult">loadResult.png</object>
+  <object class="wxBitmap" name="Picts Folder">Picts Folder.png</object>
   <object class="wxBitmap" name="result">result.png</object>
 </resource>

@@ -15,6 +15,8 @@
 #include "MyUtil.h"
 #include <gsl/gsl_fit.h>
 
+#include "BendPoint.h"
+
 using namespace cv;
 
 CRat::CRat()
@@ -28,6 +30,9 @@ CRat::CRat()
 	m_mean = m_stddev = 0;
 	m_nProcessFrame = -1;
 	m_classifier = 0;
+	
+	m_bFirstEyeIsLeft = true;
+	m_bFirstEarIsLeft = true;
 }
 
 
@@ -464,6 +469,120 @@ void CRat::prepareData()
 
 	saveResult("cage", m_vecMat);
 }
+
+void CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
+{
+	recognizeLeftRight(ptEyeL, ptEyeR, ptEarL, ptEarR);	
+	m_ptEyeL = ptEyeL;
+	m_ptEyeR = ptEyeR;
+	m_ptEarL = ptEarL;
+	m_ptEarR = ptEarR;
+
+	graylevelDiff(ptEyeL, ptEyeR, ptEarL, ptEarR);
+	
+	wxFileName fileName = m_strSrcPath;
+	const char* title =fileName.GetName();
+	_gnuplotLantern(title, m_idxLightBegin, m_idxTwoLight);
+	_gnuplotLine("LeftEar", m_vecLEarGrayDiff);
+		
+	vector<double> smooth;
+	smoothData(m_vecLEarGrayDiff, smooth, 1.5);	
+	_gnuplotLine("LeftEar_Smooth", smooth);
+	
+	///////////////////////////////////////////find bending points
+	int k = 3;
+	int angleTh = 170;
+	
+	int  npts = m_idxTwoLight+k*2;
+	vector<cv::Point> contour(npts);
+	for(int i=0; i<npts; i++) {
+		cv::Point p(i, smooth[i]*100+0.5);
+		contour[i] = p;
+		MainFrame:: myMsgOutput("[%d, %d] ", p.x, p.y);
+	}
+
+	CBendPoint  bendpt;
+	vector<float> curvature;
+	int szBending = bendpt.bendingPointsByCurvature(contour, k, angleTh, curvature);
+	MainFrame:: myMsgOutput("szBending %d\n", szBending);
+	
+	vector<double> peakX;
+	vector<double> peakY;
+	for(int i=0; i<szBending; i++) {	
+		cv::Point pt = contour[bendpt.m_bendingIdx[i]];
+		peakX.push_back(pt.x);
+		peakY.push_back((pt.y/100.0));	
+	
+		MainFrame:: myMsgOutput("[%d, %d]", pt.x, pt.y);
+	
+	}
+	_gnuplotPoint("point", peakX, peakY);
+	
+	///////////////////////////////////////////find bending points
+/*	int nSize = smooth.size();
+	int segLen = 5;
+	double threshold = 0.15;
+	int initX = 0;
+	int lastX = m_idxTwoLight;
+	
+	double * pOutput = smooth.data();
+	
+	CBendPoint  bendpt(pOutput, nSize, segLen);
+	bendpt.findAllBendPoints(initX, lastX, threshold);	
+	
+	int  numPeaks = bendpt.m_vPeak.size();
+	int  numNotches = bendpt.m_vNotch.size();	
+	
+	vector<double> peakX;
+	vector<double> peakY;
+	for(int i=0; i<numPeaks; i++) {
+		peakX.push_back(bendpt.m_vPeak[i].idx);
+		peakY.push_back(smooth[bendpt.m_vPeak[i].idx]);		
+	}
+	_gnuplotPoint("point", peakX, peakY);
+	
+	vector<double> notchX;
+	vector<double> notchY;
+	for(int i=0; i<numNotches; i++) {
+		notchX.push_back(bendpt.m_vNotch[i].idx);
+		notchY.push_back(smooth[bendpt.m_vNotch[i].idx]);		
+	}
+	_gnuplotPoint("point", notchX, notchY);	
+	 */ 
+}
+
+
+void CRat::recognizeLeftRight(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
+{
+	Point eyeCenter = (ptEyeL + ptEyeR) *0.5;
+	Point earCenter = (ptEarL + ptEarR) *0.5;
+
+	cv::Point u, v;
+	float angle;
+
+	// for ear
+	u = earCenter - eyeCenter;
+	v = ptEarL - eyeCenter;
+	angle = asin(u.cross(v) / (norm(u)*norm(v)));
+	if (angle < 0) {
+		Point t = ptEarR;
+		ptEarR = ptEarL;
+		ptEarL = t;
+		m_bFirstEarIsLeft = false;
+	}
+
+	// for eyes
+	v = ptEyeL - earCenter;
+	angle = asin(u.cross(v) / (norm(u)*norm(v)));
+	if (angle < 0) {
+		Point t = ptEyeR;
+		ptEyeR = ptEyeL;
+		ptEyeL = t;
+		m_bFirstEyeIsLeft = false;
+	}
+//	gpOutput->ShowMessage("angle %.2f\n", angle);
+}
+
 double CRat::errorSum(Mat &mDiff, Point ptEarL)
 {
 	int wImg = m_vecMat[0].cols;
@@ -476,38 +595,52 @@ double CRat::errorSum(Mat &mDiff, Point ptEarL)
 	if(pt2.x >= wImg) pt2.x = wImg-1;
 	if(pt2.y >= hImg) pt2.y = hImg-1;
 	
-	Scalar sSum = cv::mean(mDiff);
+	Mat mROI(mDiff, Rect(pt1, pt2));
+	
+	Scalar sSum = cv::mean(mROI);
 	
 	return sSum[0];
 }
-void CRat::graylevelDiff(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, int nFrameSteps)
+
+void CRat::smoothData(vector<double>& inData, vector<double>& outData, int bw)
+{
+	int  n = inData.size();	
+
+	double* pData = inData.data();
+
+	double  *out = new double[n];
+
+	CKDE::MSKernel kde_kernel = CKDE::Gaussian;
+	
+	CKDE kde1x(pData, out, n);
+	kde1x.KernelDensityEstimation(kde_kernel, bw);
+
+	outData.assign (out,out+n);	
+}
+
+void CRat::graylevelDiff(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 {
 	m_vecLEarGrayDiff.clear();
 	m_vecREarGrayDiff.clear();
 	m_vecLEyeGrayDiff.clear();
 	m_vecREyeGrayDiff.clear();
 	
-	int wImg = m_vecMat[0].cols;
-	int hImg = m_vecMat[0].rows;
-
 	Mat mSrc1, mSrc2, mDiff;
 	
-	mSrc1 = m_vecMat[0];
+	mSrc1 = m_vecMat[0]; //17
 	
-	for(int i=0; i<m_nSlices-nFrameSteps; i++) {
+	for(int i=0; i<m_nSlices; i++) {
 		double errSumL, errSumR;
-		mSrc2 = m_vecMat[i+nFrameSteps];
+		mSrc2 = m_vecMat[i];
 		cv::absdiff(mSrc1, mSrc2, mDiff);
 		
 		errSumL = errorSum(mDiff, ptEarL);
 		errSumR = errorSum(mDiff, ptEarR);
-		
 		m_vecLEarGrayDiff.push_back(errSumL);
 		m_vecREarGrayDiff.push_back(errSumR);
 		
 		errSumL = errorSum(mDiff, ptEyeL);
-		errSumR = errorSum(mDiff, ptEyeR);
-		
+		errSumR = errorSum(mDiff, ptEyeR);		
 		m_vecLEyeGrayDiff.push_back(errSumL);
 		m_vecREyeGrayDiff.push_back(errSumR);
 	}

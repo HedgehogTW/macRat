@@ -38,13 +38,13 @@ public:
 
 	void	recognizeLeftRight(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR);
 	
-	void 	smoothData(vector<double>& inData, vector<double>& outData, int bw=5);
+
 
 	
 	deque<Point>& 	getEyePts() { return m_dqEyePts; }
 	deque<Point>& 	getEarPts() { return m_dqEarPts; }
 	
-	void 	gnuplotShow(const char* title, int nBeginLight, int nTwoLight, vector<double>& earLM, vector<double>& earRM, vector<double>& eye);
+
 	
 	static void myMsgOutput(wxString szFormat,...) {
 		wxString strMsg;
@@ -66,6 +66,7 @@ public:
 	
 	
 protected:
+    virtual void OnEditClearMarks(wxCommandEvent& event);
     virtual void OnRatLoadResult(wxCommandEvent& event);
     virtual void OnRatShowResults(wxCommandEvent& event);
     virtual void OnRatProcess(wxCommandEvent& event);
@@ -100,8 +101,7 @@ protected:
 	bool    m_bMarkEar;
 	deque<Point>  m_dqEyePts;
 	deque<Point>  m_dqEarPts;
-	bool	m_bFirstEyeIsLeft;
-	bool	m_bFirstEarIsLeft;
+
 	
 
 	long m_nFrameSteps;	

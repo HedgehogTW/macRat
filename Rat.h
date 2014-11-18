@@ -75,9 +75,12 @@ public:
 	bool	horizontalLine();
 	bool	verticalLine();
 	
+	void	process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR);
+	void	recognizeLeftRight(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR);
+	void 	smoothData(vector<double>& inData, vector<double>& outData, int bw=5);
 	double 	errorSum(Mat &mDiff, Point ptEarL);
 
-	void	graylevelDiff(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, int nFrameSteps);
+	void	graylevelDiff(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR);
 	
 	float	findMaxMotion(Mat& mROI, cv::Point& ptDiff);
 	float	findSumMotion(Mat& mFlowROI, cv::Point& ptDiff);
@@ -116,7 +119,14 @@ public:
 	Point	m_offsetEar; //(50, 50);
 	Point	m_offsetEye;
 
+	Point 	m_ptEyeL;
+	Point	m_ptEyeR;
+	Point	m_ptEarL;
+	Point	m_ptEarR;
 
+	bool	m_bFirstEyeIsLeft;
+	bool	m_bFirstEarIsLeft;
+	
 	vector <double>  m_vecLEyeGrayDiff;
 	vector <double>  m_vecREyeGrayDiff;
 

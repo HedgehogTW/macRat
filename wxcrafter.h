@@ -33,11 +33,12 @@ class MainFrameBaseClass : public wxFrame
 {
 public:
     enum {
-        wxID_LOAD_RESULT = 1001,
-        wxID_RAT_MARK_EAR = 1002,
-        wxID_RAT_MARK_EYE = 1003,
-        wxID_RAT_PROCESS = 1004,
-        wxID_SHOW_RESULT = 1005,
+        wxID_EDIT_CLEAR_MARKS = 1001,
+        wxID_LOAD_RESULT = 1002,
+        wxID_RAT_MARK_EAR = 1003,
+        wxID_RAT_MARK_EYE = 1004,
+        wxID_RAT_PROCESS = 1005,
+        wxID_SHOW_RESULT = 1006,
     };
 protected:
     wxMenuBar* m_menuBar;
@@ -45,6 +46,7 @@ protected:
     wxMenuItem* m_menuItemOpen;
     wxMenuItem* m_menuItem7;
     wxMenu* m_menuEdit;
+    wxMenuItem* m_menuEditClearMarks;
     wxMenu* m_menuView;
     wxMenuItem* m_menuItemViewMsgPane;
     wxMenu* m_menuRat;
@@ -65,6 +67,7 @@ protected:
 protected:
     virtual void OnFileOpen(wxCommandEvent& event) { event.Skip(); }
     virtual void OnExit(wxCommandEvent& event) { event.Skip(); }
+    virtual void OnEditClearMarks(wxCommandEvent& event) { event.Skip(); }
     virtual void OnViewMsgPane(wxCommandEvent& event) { event.Skip(); }
     virtual void OnUpdateViewMsgPane(wxUpdateUIEvent& event) { event.Skip(); }
     virtual void OnRatProcess(wxCommandEvent& event) { event.Skip(); }
@@ -77,7 +80,7 @@ protected:
     virtual void OnMarkEars(wxCommandEvent& event) { event.Skip(); }
 
 public:
-    MainFrameBaseClass(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("My Frame"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(700,400), long style = wxCAPTION|wxRESIZE_BORDER|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxSYSTEM_MENU|wxCLOSE_BOX);
+    MainFrameBaseClass(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("My Frame"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(700,500), long style = wxCAPTION|wxRESIZE_BORDER|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxSYSTEM_MENU|wxCLOSE_BOX);
     virtual ~MainFrameBaseClass();
 };
 

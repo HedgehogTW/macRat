@@ -1,6 +1,47 @@
 #include "MainFrame.h"
 #include "MyUtil.h"
+#include "gnuplot_i.hpp"
+#include <wx/msgdlg.h> 
 
+
+#define GNUPLOT_MAX_Y	10
+
+Gnuplot gGnuPlot("lines");
+void _gnuplotLantern(const char* title, int nBeginLight, int nTwoLight)
+{
+	gGnuPlot.reset_all();
+
+	gGnuPlot.set_title(title);
+	gGnuPlot.set_grid().set_yrange(0, GNUPLOT_MAX_Y);
+	
+	if (nBeginLight > 0 && nTwoLight>0) {
+		std::vector<double> x_light;
+		std::vector<double> y;
+		y.push_back(GNUPLOT_MAX_Y);
+		y.push_back(GNUPLOT_MAX_Y);
+		x_light.push_back(nBeginLight);
+		x_light.push_back(nTwoLight);
+		gGnuPlot.set_style("impulses").plot_xy(x_light, y, "lantern");
+	}	
+}
+
+void _gnuplotLine(const char* dataName, vector<double>& data)
+{
+	if (data.size() <= 0) {
+		wxMessageBox("gnuplotShow:: no data", "Error");
+		return;
+	}	
+	gGnuPlot.set_style("lines").plot_x(data, dataName);
+}
+
+void _gnuplotPoint(const char* dataName, vector<double>& dataX, vector<double>& dataY)
+{
+	if (dataX.size() <= 0) {
+		wxMessageBox("gnuplotShow:: no data", "Error");
+		return;
+	}	
+	gGnuPlot.set_style("points").plot_xy(dataX, dataY, dataName);
+}
 
 ///////////////////////////////
 SortByKey_STL SortByKey_STL::instance = SortByKey_STL();

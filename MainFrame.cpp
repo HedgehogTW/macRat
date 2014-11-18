@@ -10,14 +10,16 @@
 #include <wx/msgdlg.h> 
 #include <wx/filename.h>
 
-#include "gnuplot_i.hpp"
-
 #include "KDE.h"
+#include "MyUtil.h"
 
 using namespace std;
 using namespace cv;
 
+
+
 MainFrame *	MainFrame::m_pThis=NULL;
+
 
 
 MainFrame::MainFrame(wxWindow* parent)
@@ -72,9 +74,6 @@ void MainFrame::DeleteContents()
 	// TODO: Add your specialized code here and/or call the base class
 	m_nSlices = 0;
 	
-	m_bFirstEyeIsLeft = true;
-	m_bFirstEarIsLeft = true;
-	
 	m_bMarkEye = false;
 	m_bMarkEar = false;
 	
@@ -114,6 +113,8 @@ void MainFrame::OnFileOpen(wxCommandEvent& event)
 	m_FileHistory->AddFileToHistory(dirName);	
 	strInitDir = dirName;
 	openFile(dirName);
+	
+	
 }
 void MainFrame::openFile(wxString &dirName)
 {
@@ -244,7 +245,17 @@ void MainFrame::OnMouseMotion(wxMouseEvent& event)
 	
 	m_statusBar->SetStatusText(str, 3);
 }
-
+void MainFrame::OnEditClearMarks(wxCommandEvent& event)
+{
+	m_bMarkEar = false;
+	m_bMarkEye = false;
+	m_toggleButtonMarkEars->SetValue(false);
+	m_toggleButtonMarkEyes->SetValue(false);
+	
+	m_dqEyePts.clear();
+	m_dqEarPts.clear();
+	Refresh();
+}
 void MainFrame::OnMarkEyes(wxCommandEvent& event)
 {
 	if(event.IsChecked()) {
@@ -317,12 +328,9 @@ void MainFrame::OnRatProcess(wxCommandEvent& event)
 	ptEyeR = m_dqEyePts[1];
 	ptEarL = m_dqEarPts[0];
 	ptEarR = m_dqEarPts[1];
-	recognizeLeftRight(ptEyeL, ptEyeR, ptEarL, ptEarR);	
 	
-	
-	int nFrameNum = -1;
 	wxBeginBusyCursor();
-	m_Rat.graylevelDiff(ptEyeL, ptEyeR, ptEarL, ptEarR, m_nFrameSteps);
+	m_Rat.process(ptEyeL, ptEyeR, ptEarL, ptEarR);
 	
 //	m_Rat.findMouseEyes(nFrameNum, ptEyeL, ptEyeR);
 //	m_Rat.findMouseEars(nFrameNum, ptEarL, ptEarR);
@@ -361,89 +369,14 @@ void MainFrame::OnRatProcess(wxCommandEvent& event)
 	}
 */ 
 	fclose(fp);	
-}
+	
 
-void MainFrame::recognizeLeftRight(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
-{
-	Point eyeCenter = (ptEyeL + ptEyeR) *0.5;
-	Point earCenter = (ptEarL + ptEarR) *0.5;
-
-	cv::Point u, v;
-	float angle;
-
-	// for ear
-	u = earCenter - eyeCenter;
-	v = ptEarL - eyeCenter;
-	angle = asin(u.cross(v) / (norm(u)*norm(v)));
-	if (angle < 0) {
-		Point t = ptEarR;
-		ptEarR = ptEarL;
-		ptEarL = t;
-		m_bFirstEarIsLeft = false;
-	}
-
-	// for eyes
-	v = ptEyeL - earCenter;
-	angle = asin(u.cross(v) / (norm(u)*norm(v)));
-	if (angle < 0) {
-		Point t = ptEyeR;
-		ptEyeR = ptEyeL;
-		ptEyeL = t;
-		m_bFirstEyeIsLeft = false;
-	}
-//	gpOutput->ShowMessage("angle %.2f\n", angle);
+		//m_Rat.m_vecLEarGrayDiff, m_Rat.m_vecREarGrayDiff, m_Rat.m_vecLEyeGrayDiff);
+		
 }
 
 
-void MainFrame::gnuplotShow(const char* title, int nBeginLight, int nTwoLight, 
-	vector<double>& earLM, vector<double>& earRM, vector<double>& eye)
-{
-	int max_y;
-	if (earLM.size() <= 0 || earRM.size() <= 0 || eye.size() <= 0) {
-		wxMessageBox("gnuplotShow:: no data", "Error");
-		return;
-	}
-	double maxY1 = *std::max_element(earLM.begin(), earLM.end());
-	double maxY2 = *std::max_element(earRM.begin(), earRM.end());
-	max_y = MAX(maxY1, maxY2);
-	max_y = MAX(max_y, 10);
-/*
-	vector<double> kdeLEar;
-	vector<double> kdeREar;
-	smoothData(earLM, kdeLEar, 2);
-	smoothData(earRM, kdeREar, 2);
-*/
 
-	try{
-		static Gnuplot g1("lines");
-		g1.reset_all();
-
-		g1.set_title(title);
-		g1.set_grid().set_yrange(0, max_y);
-
-		g1.set_style("lines").plot_x(eye, "Eye");
-		g1.set_style("lines").plot_x(earLM, "Left Ear");
-		g1.set_style("lines").plot_x(earRM, "Right Ear");
-//		g1.set_style("lines").plot_x(kdeLEar, "kdeLEar");
-//		g1.set_style("lines").plot_x(kdeREar, "kdeREar");
-//		g1.savetops();
-		if (nBeginLight > 0 && nTwoLight>0) {
-			std::vector<double> x_light;
-			std::vector<double> y;
-			y.push_back(max_y);
-			y.push_back(max_y);
-			x_light.push_back(nBeginLight);
-			x_light.push_back(nTwoLight);
-			g1.set_style("impulses").plot_xy(x_light, y, "lantern");
-			
-
-		}
-	}
-	catch (...) {
-		wxMessageBox("gnuplot error, Do you install gnuplot, and set PATH correctly?", "Error");
-		return;
-	}
-}
 void MainFrame::OnRatShowResults(wxCommandEvent& event)
 {
 
@@ -453,8 +386,9 @@ void MainFrame::OnRatShowResults(wxCommandEvent& event)
 	}
 
 	wxFileName fileName = m_strSourcePath;
-	gnuplotShow(fileName.GetName(), m_Rat.m_idxLightBegin, m_Rat.m_idxTwoLight,
-		m_Rat.m_vecLEarGrayDiff, m_Rat.m_vecREarGrayDiff, m_Rat.m_vecLEyeGrayDiff);
+	_gnuplotLantern(fileName.GetName(), m_Rat.m_idxLightBegin, m_Rat.m_idxTwoLight);
+	_gnuplotLine("Left Ear", m_Rat.m_vecLEarGrayDiff);
+		//m_Rat.m_vecLEarGrayDiff, m_Rat.m_vecREarGrayDiff, m_Rat.m_vecLEyeGrayDiff);
 }
 void MainFrame::OnRatLoadResult(wxCommandEvent& event)
 {
@@ -508,23 +442,11 @@ void MainFrame::OnRatLoadResult(wxCommandEvent& event)
 		return;
 	}
 
-	wxFileName fileName = filename;
-
-	gnuplotShow(fileName.GetName(), nBeginLight, nTwoLight, earLM, earRM, eye);	
+	wxFileName fileName = filename;	
+	_gnuplotLantern(fileName.GetName(), nBeginLight, nTwoLight);
+	_gnuplotLine("Left Ear", earLM);
+	_gnuplotLine("Right Ear", earRM);
 }
 
-void MainFrame::smoothData(vector<double>& inData, vector<double>& outData, int bw)
-{
-	int  n = inData.size();	
 
-	double* pData = inData.data();
 
-	double  *out = new double[n];
-
-	CKDE::MSKernel kde_kernel = CKDE::Gaussian;
-	
-	CKDE kde1x(pData, out, n);
-	kde1x.KernelDensityEstimation(kde_kernel, bw);
-
-	outData.assign (out,out+n);	
-}
