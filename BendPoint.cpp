@@ -15,6 +15,11 @@ bool sortSlope(const CSeries & m1, const CSeries & m2) {
 
 CBendPoint::CBendPoint()
 {
+	m_SlopeDiff = NULL;
+	m_MinMax = NULL;
+	m_Seg1 = NULL;
+	m_Seg2 = NULL;
+	m_x = NULL;
 	
 }
 CBendPoint::CBendPoint(double *pData, int num, int seglen)
@@ -37,13 +42,17 @@ CBendPoint::CBendPoint(double *pData, int num, int seglen)
 
 CBendPoint::~CBendPoint(void)
 {
+	if(m_SlopeDiff!=NULL)
+		delete [] m_SlopeDiff;
+		
+	if(m_MinMax!=NULL)
+		delete [] m_MinMax;
 
-	delete [] m_SlopeDiff;
-	delete [] m_MinMax;
-
-	delete [] m_Seg1;
-	delete [] m_Seg2;
-	delete [] m_x;
+	if(m_Seg1!=NULL)
+		delete [] m_Seg1;
+	
+	if(m_Seg2!=NULL) delete [] m_Seg2;
+	if(m_x!=NULL) delete [] m_x;
 
 
 }
