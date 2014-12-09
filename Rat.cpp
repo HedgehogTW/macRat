@@ -470,17 +470,26 @@ void CRat::prepareData()
 	saveResult("cage", m_vecMat);
 }
 
-void CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
+void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 {
 	recognizeLeftRight(ptEyeL, ptEyeR, ptEarL, ptEarR);	
 	m_ptEyeL = ptEyeL;
 	m_ptEyeR = ptEyeR;
 	m_ptEarL = ptEarL;
 	m_ptEarR = ptEarR;
+	
+	// save eye ear marks
+	wxFileName fileName = m_strSrcPath;
+	wxString  fName = fileName.GetName();
+	wxFileName dataName(m_strSrcPath, "_eye_earMarks.txt");
+	FILE* fp = fopen(dataName.GetFullPath(), "w");
+	fprintf(fp, "%d %d %d %d\n", ptEyeL.x, ptEyeL.y, ptEyeR.x, ptEyeR.y );
+	fprintf(fp, "%d %d %d %d\n", ptEarL.x, ptEarL.y, ptEarR.x, ptEarR.y );
+	fclose(fp);
 
 	graylevelDiff(ptEyeL, ptEyeR, ptEarL, ptEarR);
 	
-	wxFileName fileName = m_strSrcPath;
+//	wxFileName fileName = m_strSrcPath;
 	const char* title =fileName.GetName();
 	_gnuplotLantern(title, m_idxLightBegin, m_idxTwoLight);
 	_gnuplotLine("LeftEar", m_vecLEarGrayDiff);
@@ -627,11 +636,12 @@ void CRat::graylevelDiff(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptE
 	
 	Mat mSrc1, mSrc2, mDiff;
 	
-	mSrc1 = m_vecMat[0]; //17
+	//mSrc1 = m_vecMat[0]; //17
 	
-	for(int i=0; i<m_nSlices; i++) {
+	for(int i=0; i<m_nSlices-1; i++) {
+		mSrc1 = m_vecMat[i]; //17
 		double errSumL, errSumR;
-		mSrc2 = m_vecMat[i];
+		mSrc2 = m_vecMat[i+1];
 		cv::absdiff(mSrc1, mSrc2, mDiff);
 		
 		errSumL = errorSum(mDiff, ptEarL);

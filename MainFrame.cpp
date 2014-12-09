@@ -330,7 +330,7 @@ void MainFrame::OnRatProcess(wxCommandEvent& event)
 	ptEarR = m_dqEarPts[1];
 	
 	wxBeginBusyCursor();
-	m_Rat.process(ptEyeL, ptEyeR, ptEarL, ptEarR);
+	m_Rat.process1(ptEyeL, ptEyeR, ptEarL, ptEarR);
 	
 //	m_Rat.findMouseEyes(nFrameNum, ptEyeL, ptEyeR);
 //	m_Rat.findMouseEars(nFrameNum, ptEarL, ptEarR);

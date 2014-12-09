@@ -75,7 +75,7 @@ public:
 	bool	horizontalLine();
 	bool	verticalLine();
 	
-	void	process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR);
+	void	process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR);
 	void	recognizeLeftRight(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR);
 	void 	smoothData(vector<double>& inData, vector<double>& outData, int bw=5);
 	double 	errorSum(Mat &mDiff, Point ptEarL);
