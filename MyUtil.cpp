@@ -5,10 +5,17 @@
 
 
 #define GNUPLOT_MAX_Y	15
+<<<<<<< HEAD
  
 Gnuplot gGnuPlot("lines");
+=======
+
+
+>>>>>>> 4a40bcbb5de6675604d75b3d55a8a18fbf5d53b3
 void _gnuplotLantern(const char* title, int nBeginLight, int nTwoLight)
 {
+Gnuplot gGnuPlot("lines");	
+
 	gGnuPlot.reset_all();
 
 	gGnuPlot.set_title(title);
@@ -40,6 +47,7 @@ void _gnuplotLine(const char* dataName, int x)
 
 void _gnuplotLine(const char* dataName, vector<double>& data)
 {
+	Gnuplot gGnuPlot("lines");
 	if (data.size() <= 0) {
 		wxMessageBox("gnuplotShow:: no data", "Error");
 		return;
@@ -49,6 +57,7 @@ void _gnuplotLine(const char* dataName, vector<double>& data)
 
 void _gnuplotPoint(const char* dataName, vector<double>& dataX, vector<double>& dataY)
 {
+	Gnuplot gGnuPlot("lines");
 	if (dataX.size() <= 0) {
 		wxMessageBox("gnuplotShow:: no data", "Error");
 		return;
