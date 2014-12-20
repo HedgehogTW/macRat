@@ -9,6 +9,7 @@
 #include <wx/dirdlg.h> 
 #include <wx/msgdlg.h> 
 #include <wx/filename.h>
+#include <wx/utils.h> 
 
 #include "KDE.h"
 #include "MyUtil.h"
@@ -112,9 +113,8 @@ void MainFrame::OnFileOpen(wxCommandEvent& event)
 	if(dirName.empty())  return;
 	m_FileHistory->AddFileToHistory(dirName);	
 	strInitDir = dirName;
-	openFile(dirName);
-	
-	
+	openFile(dirName);	
+	wxBell();
 }
 void MainFrame::openFile(wxString &dirName)
 {
@@ -139,6 +139,26 @@ void MainFrame::openFile(wxString &dirName)
 	m_Rat.detectTwoLight();
 	m_Rat.prepareData();
 	m_nSlices = m_Rat.getNumFrames();	
+	
+	wxFileName fileName = dirName;
+	wxFileName dataName(dirName, "_eye_earMarks.txt");
+	if(dataName.IsFileReadable() ==true) { 	
+		Point ptEyeL, ptEyeR, ptEarL, ptEarR;
+		int n;
+		FILE* fp = fopen(dataName.GetFullPath(), "r");
+		n = fscanf(fp, "%d %d %d %d\n", &ptEyeL.x, &ptEyeL.y, &ptEyeR.x, &ptEyeR.y );
+		if(n==4) {
+			m_dqEyePts.push_back(ptEyeL);
+			m_dqEyePts.push_back(ptEyeR);
+		}
+			
+		n = fscanf(fp, "%d %d %d %d\n", &ptEarL.x, &ptEarL.y, &ptEarR.x, &ptEarR.y);
+		if(n==4) {
+			m_dqEarPts.push_back(ptEarL);
+			m_dqEarPts.push_back(ptEarR);
+		}	
+		fclose(fp);
+	}
 	
 	updateOutData(m_Rat.getSrcImg(0));
 
@@ -330,7 +350,7 @@ void MainFrame::OnRatProcess(wxCommandEvent& event)
 	ptEarR = m_dqEarPts[1];
 	
 	wxBeginBusyCursor();
-	m_Rat.process(ptEyeL, ptEyeR, ptEarL, ptEarR);
+	m_Rat.process1(ptEyeL, ptEyeR, ptEarL, ptEarR);
 	
 //	m_Rat.findMouseEyes(nFrameNum, ptEyeL, ptEyeR);
 //	m_Rat.findMouseEars(nFrameNum, ptEarL, ptEarR);

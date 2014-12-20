@@ -75,12 +75,13 @@ public:
 	bool	horizontalLine();
 	bool	verticalLine();
 	
-	void	process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR);
+	void	process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR);
 	void	recognizeLeftRight(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR);
 	void 	smoothData(vector<double>& inData, vector<double>& outData, int bw=5);
 	double 	errorSum(Mat &mDiff, Point ptEarL);
+	int		findStablePoint(Point& pt);
 
-	void	graylevelDiff(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR);
+	void	graylevelDiff(int stable, Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR);
 	
 	float	findMaxMotion(Mat& mROI, cv::Point& ptDiff);
 	float	findSumMotion(Mat& mFlowROI, cv::Point& ptDiff);

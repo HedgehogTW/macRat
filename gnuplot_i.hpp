@@ -591,14 +591,14 @@ int Gnuplot::tmpfile_num = 0;
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__TOS_WIN__)
 std::string Gnuplot::m_sGNUPlotFileName = "pgnuplot.exe";
-std::string Gnuplot::m_sGNUPlotPath = "C:/Program Files (x86)/gnuplot/bin/";
+std::string Gnuplot::m_sGNUPlotPath = "C:/gnuplot/bin/";
 #elif defined(unix) || defined(__unix) || defined(__unix__) || defined(__APPLE__)
 std::string Gnuplot::m_sGNUPlotFileName = "gnuplot";
 std::string Gnuplot::m_sGNUPlotPath = "/usr/local/bin/";
 #endif
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__TOS_WIN__)
-std::string Gnuplot::terminal_std = "windows";
+std::string Gnuplot::terminal_std = "wxt"; //"windows";
 #elif ( defined(unix) || defined(__unix) || defined(__unix__) ) && !defined(__APPLE__)
 std::string Gnuplot::terminal_std = "x11";
 #elif defined(__APPLE__)

@@ -1,4 +1,5 @@
 #include <wx/dir.h>
+#include <wx/utils.h> 
 
 #include "MainFrame.h"
 #include "Rat.h"
@@ -470,21 +471,40 @@ void CRat::prepareData()
 	saveResult("cage", m_vecMat);
 }
 
-void CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
+void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 {
 	recognizeLeftRight(ptEyeL, ptEyeR, ptEarL, ptEarR);	
 	m_ptEyeL = ptEyeL;
 	m_ptEyeR = ptEyeR;
 	m_ptEarL = ptEarL;
 	m_ptEarR = ptEarR;
-
-	graylevelDiff(ptEyeL, ptEyeR, ptEarL, ptEarR);
 	
+	// save eye ear marks
 	wxFileName fileName = m_strSrcPath;
+	wxFileName dataName(m_strSrcPath, "_eye_earMarks.txt");
+	FILE* fp = fopen(dataName.GetFullPath(), "w");
+	if(fp!=NULL) {
+		fprintf(fp, "%d %d %d %d\n", ptEyeL.x, ptEyeL.y, ptEyeR.x, ptEyeR.y );
+		fprintf(fp, "%d %d %d %d\n", ptEarL.x, ptEarL.y, ptEarR.x, ptEarR.y );
+		fclose(fp);
+	}
+	
+	int stableFrame = findStablePoint(ptEarL);
+	MainFrame:: myMsgOutput("stable frame %d\n", stableFrame);
+	if(stableFrame <0) {
+		wxLogMessage("cannot find stable frame");
+		return;
+	}
+
+	graylevelDiff(stableFrame, ptEyeL, ptEyeR, ptEarL, ptEarR);
+	
 	const char* title =fileName.GetName();
 	_gnuplotLantern(title, m_idxLightBegin, m_idxTwoLight);
 	_gnuplotLine("LeftEar", m_vecLEarGrayDiff);
-		
+	_gnuplotLine("RightEar", m_vecREarGrayDiff);
+
+
+/*		
 	vector<double> smooth;
 	smoothData(m_vecLEarGrayDiff, smooth, 1.5);	
 	_gnuplotLine("LeftEar_Smooth", smooth);
@@ -500,6 +520,8 @@ void CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 		contour[i] = p;
 		MainFrame:: myMsgOutput("[%d, %d] ", p.x, p.y);
 	}
+	
+	
 
 	CBendPoint  bendpt;
 	vector<float> curvature;
@@ -519,7 +541,7 @@ void CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 	_gnuplotPoint("point", peakX, peakY);
 	
 	///////////////////////////////////////////find bending points
-/*	int nSize = smooth.size();
+	int nSize = smooth.size();
 	int segLen = 5;
 	double threshold = 0.15;
 	int initX = 0;
@@ -551,6 +573,59 @@ void CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 	 */ 
 }
 
+int CRat::findStablePoint(Point& pt)
+{
+	int start, end, lenSeg;
+	start = 0;
+	end = m_idxTwoLight + 10;
+	lenSeg = 10;
+	
+	vector <double>  vSeries;
+	
+	Mat mSrc1, mSrc2, mDiff;
+
+	for(int i=0; i<end; i++) {
+		mSrc1 = m_vecMat[i]; //17
+		double errSumL, errSumR;
+		mSrc2 = m_vecMat[i+2];
+		cv::absdiff(mSrc1, mSrc2, mDiff);
+		
+		errSumL = errorSum(mDiff, pt);
+//		errSumR = errorSum(mDiff, ptEarR);
+		vSeries.push_back(errSumL);
+//		m_vecREarGrayDiff.push_back(errSumR);
+	}
+	_gnuplotLine("LeftEar", vSeries);	
+	
+	double *seg, *x;
+	double a1, b1, cov00, cov01, cov11, sumsq;
+
+	seg = new double[lenSeg]; 
+	x = new double[lenSeg]; 
+
+	double min = 9999;
+	int  idxMin= -1;
+//FILE* fp= fopen("mse.csv", "w");
+	for(int k=start ; k<= end-lenSeg+1; k++) {
+		for(int i=0; i<lenSeg; i++) {
+			seg[i] = vSeries[k+i];
+			x[i] = i;
+		}
+		
+		gsl_fit_linear(x, 1, seg, 1, lenSeg, &a1, &b1, &cov00, &cov01, &cov11, &sumsq);
+		if(sumsq < min){
+			min = sumsq;
+			idxMin = k;
+		}
+//		fprintf(fp, "%d, %.3f\n", k, sumsq);
+	}
+//fclose(fp);
+
+	delete [] seg;
+	delete [] x;	
+	
+	return idxMin +2;
+}
 
 void CRat::recognizeLeftRight(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 {
@@ -618,7 +693,7 @@ void CRat::smoothData(vector<double>& inData, vector<double>& outData, int bw)
 	outData.assign (out,out+n);	
 }
 
-void CRat::graylevelDiff(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
+void CRat::graylevelDiff(int stable, Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 {
 	m_vecLEarGrayDiff.clear();
 	m_vecREarGrayDiff.clear();
@@ -627,7 +702,7 @@ void CRat::graylevelDiff(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptE
 	
 	Mat mSrc1, mSrc2, mDiff;
 	
-	mSrc1 = m_vecMat[0]; //17
+	mSrc1 = m_vecMat[stable]; //17
 	
 	for(int i=0; i<m_nSlices; i++) {
 		double errSumL, errSumR;

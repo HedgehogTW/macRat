@@ -4,7 +4,7 @@
 #include <wx/msgdlg.h> 
 
 
-#define GNUPLOT_MAX_Y	10
+#define GNUPLOT_MAX_Y	15
 
 
 void _gnuplotLantern(const char* title, int nBeginLight, int nTwoLight)
@@ -24,6 +24,19 @@ Gnuplot gGnuPlot("lines");
 		x_light.push_back(nBeginLight);
 		x_light.push_back(nTwoLight);
 		gGnuPlot.set_style("impulses").plot_xy(x_light, y, "lantern");
+	}	
+}
+
+void _gnuplotLine(const char* dataName, int x)
+{
+	//gGnuPlot.set_grid().set_yrange(0, GNUPLOT_MAX_Y);
+	
+	if (x > 0) {
+		std::vector<double> vecx;
+		std::vector<double> vecy;
+		vecy.push_back(GNUPLOT_MAX_Y);
+		vecx.push_back(x);
+		gGnuPlot.set_style("impulses").plot_xy(vecx, vecy, dataName);
 	}	
 }
 
