@@ -479,7 +479,7 @@ void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 	m_ptEarL = ptEarL;
 	m_ptEarR = ptEarR;
 	
-	// save eye ear marks
+	// save eye ear marks 
 	wxFileName fileName = m_strSrcPath;
 	wxFileName dataName(m_strSrcPath, "_eye_earMarks.txt");
 	FILE* fp = fopen(dataName.GetFullPath(), "w");

@@ -17,7 +17,7 @@ using namespace std;
 using namespace cv;
 
 #define PALETTE_SIZE 256
-
+ 
 
 class MainFrame : public MainFrameBaseClass
 {

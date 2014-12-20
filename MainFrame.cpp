@@ -134,7 +134,7 @@ void MainFrame::openFile(wxString &dirName)
 		return;
 	}
 	
-//	m_Rat.verticalLine();
+//	m_Rat.verticalLine(); 
 
 	m_Rat.detectTwoLight();
 	m_Rat.prepareData();

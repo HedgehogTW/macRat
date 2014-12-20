@@ -5,7 +5,7 @@
 
 
 #define GNUPLOT_MAX_Y	15
-
+ 
 Gnuplot gGnuPlot("lines");
 void _gnuplotLantern(const char* title, int nBeginLight, int nTwoLight)
 {
