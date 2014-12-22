@@ -49,6 +49,7 @@ protected:
     wxMenuItem* m_menuEditClearMarks;
     wxMenu* m_menuView;
     wxMenuItem* m_menuItemViewMsgPane;
+    wxMenuItem* m_menuItemViewSeries;
     wxMenu* m_menuRat;
     wxMenuItem* m_menuItemProcess;
     wxMenuItem* m_menuItemShowResults;
@@ -70,6 +71,8 @@ protected:
     virtual void OnEditClearMarks(wxCommandEvent& event) { event.Skip(); }
     virtual void OnViewMsgPane(wxCommandEvent& event) { event.Skip(); }
     virtual void OnUpdateViewMsgPane(wxUpdateUIEvent& event) { event.Skip(); }
+    virtual void OnViewSeries(wxCommandEvent& event) { event.Skip(); }
+    virtual void OnUpdateViewSeries(wxUpdateUIEvent& event) { event.Skip(); }
     virtual void OnRatProcess(wxCommandEvent& event) { event.Skip(); }
     virtual void OnRatShowResults(wxCommandEvent& event) { event.Skip(); }
     virtual void OnRatLoadResult(wxCommandEvent& event) { event.Skip(); }

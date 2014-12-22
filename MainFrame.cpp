@@ -469,4 +469,57 @@ void MainFrame::OnRatLoadResult(wxCommandEvent& event)
 }
 
 
+void VolumeSlice(int pos, void *param)
+{
+	MainFrame *pMainFrame = (MainFrame*)param;
+	Mat &mSrc = pMainFrame->getCurrentMat(pos);	
+	Mat mShow ;
+	cvtColor(mSrc, mShow, CV_GRAY2BGR);
+	
+	deque<Point> & eyePts = pMainFrame->getEyePts();
+	if(eyePts.size()>0) {
+		for(int i=0; i<eyePts.size(); i++) {
+			circle(mShow, Point(eyePts[i].x, eyePts[i].y), 3, Scalar(0, 0, 255), -1);
+		}
+	}
+	
+	deque<Point> & earPts = pMainFrame->getEarPts();
+	if(earPts.size()>0) {
+		for(int i=0; i<earPts.size(); i++) {
+			circle(mShow, Point(earPts[i].x, earPts[i].y), 3, Scalar(0, 255, 0), -1);
+		}
+	}		
+	cv::imshow("OriginalData", mShow);
+}
+void onCVMouse(int event, int x, int y, int flags, void* param)
+{
+	MainFrame *pMainFrame = (MainFrame*)param;
 
+	if (event == CV_EVENT_RBUTTONDOWN) {
+		int pos = cv::getTrackbarPos("slice", "OriginalData");
+		Mat &mSrc = pMainFrame->getCurrentMat(pos);
+		pMainFrame->updateOutData(mSrc);
+		
+		MainFrame::myMsgOutput("extract slice [0-%d]: %d\n", pMainFrame->getNumSlices()-1, pos);
+	}
+}
+void MainFrame::OnViewSeries(wxCommandEvent& event)
+{
+	if(m_nSlices <=0) {
+		wxLogMessage("no data\n");
+		return;
+	}
+
+	cv::namedWindow("OriginalData");
+	Mat &mSrc = getCurrentMat(0);
+
+	int pos = 0;
+
+	cv::createTrackbar("slice", "OriginalData", &pos, m_nSlices-1, VolumeSlice, this);
+	cv::setMouseCallback("OriginalData", onCVMouse, this);
+	cv::imshow("OriginalData", mSrc);	
+}
+void MainFrame::OnUpdateViewSeries(wxUpdateUIEvent& event)
+{
+	event.Enable(m_nSlices >0);
+}
