@@ -48,7 +48,7 @@ MainFrameBaseClass::MainFrameBaseClass(wxWindow* parent, wxWindowID id, const wx
     m_menuView->Append(m_menuItemViewMsgPane);
     m_menuItemViewMsgPane->Check();
     
-    m_menuItemViewSeries = new wxMenuItem(m_menuView, wxID_ANY, _("Original Series"), wxT(""), wxITEM_NORMAL);
+    m_menuItemViewSeries = new wxMenuItem(m_menuView, wxID_VIEW_SERIES, _("Original Series"), wxT(""), wxITEM_NORMAL);
     m_menuView->Append(m_menuItemViewSeries);
     
     m_menuRat = new wxMenu();
@@ -97,6 +97,8 @@ MainFrameBaseClass::MainFrameBaseClass(wxWindow* parent, wxWindowID id, const wx
     m_auimgr11->Update();
     
     m_auibar31->AddTool(wxID_OPEN, _("Tool Label"), wxArtProvider::GetBitmap(wxART_FILE_OPEN, wxART_TOOLBAR, wxSize(32, 32)), wxNullBitmap, wxITEM_NORMAL, wxT(""), wxT(""), NULL);
+    
+    m_auibar31->AddTool(wxID_VIEW_SERIES, _("View Series"), wxXmlResource::Get()->LoadBitmap(wxT("Projector")), wxNullBitmap, wxITEM_NORMAL, wxT(""), wxT(""), NULL);
     
     m_auibar31->AddSeparator();
     
