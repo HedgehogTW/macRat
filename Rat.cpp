@@ -498,17 +498,36 @@ void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 
 	graylevelDiff(stableFrame, ptEyeL, ptEyeR, ptEarL, ptEarR);
 	
+	vector<double> smoothL;
+	smoothData(m_vecLEarGrayDiff, smoothL, 2);	
+	
+	vector<double> smoothR;
+	smoothData(m_vecREarGrayDiff, smoothR, 2);	
+		
+	
+	int maxPointL = findMaxMotionPoint(smoothL);
+	int maxPointR = findMaxMotionPoint(smoothR);
+	
 	const char* title =fileName.GetName();
 	_gnuplotLantern(title, m_idxLightBegin, m_idxTwoLight);
 	_gnuplotLine("LeftEar", m_vecLEarGrayDiff);
-	_gnuplotLine("RightEar", m_vecREarGrayDiff);
-
-
-/*		
-	vector<double> smooth;
-	smoothData(m_vecLEarGrayDiff, smooth, 1.5);	
-	_gnuplotLine("LeftEar_Smooth", smooth);
+	_gnuplotLine("RightEar", m_vecREarGrayDiff);	
+	//_gnuplotLine("LeftEar_Smooth", smoothL);
+	//_gnuplotLine("LeftEar_Smooth", smoothR);
 	
+	if(m_vecLEarGrayDiff[maxPointL]> m_vecREarGrayDiff[maxPointR]) {
+		MainFrame:: myMsgOutput("max motion: left ear %d\n", maxPointL);
+		_gnuplotLine("maxMotion", maxPointL);
+		saveEarROI(stableFrame, maxPointL, ptEarL);
+	}else {
+		MainFrame:: myMsgOutput("max motion: right ear %d\n", maxPointR);
+		_gnuplotLine("maxMotion", maxPointR);
+		saveEarROI(stableFrame, maxPointR, ptEarR);
+	}
+	
+	
+	
+/*		
 	///////////////////////////////////////////find bending points
 	int k = 3;
 	int angleTh = 170;
@@ -571,6 +590,40 @@ void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 	}
 	_gnuplotPoint("point", notchX, notchY);	
 	 */ 
+}
+void CRat::saveEarROI(int stable, int motion, Point& pt)
+{
+	int wImg = m_vecMat[0].cols;
+	int hImg = m_vecMat[0].rows;
+	
+	Point pt1 (pt-m_offsetEar);
+	Point pt2 (pt+m_offsetEar);
+	if(pt1.x <0) pt1.x = 0;
+	if(pt1.y <0) pt1.y = 0;
+	if(pt2.x >= wImg) pt2.x = wImg-1;
+	if(pt2.y >= hImg) pt2.y = hImg-1;
+	
+	Mat mROI0(m_vecMat[stable], Rect(pt1, pt2));	
+	Mat mROI1(m_vecMat[motion], Rect(pt1, pt2));
+	
+	imwrite("_stable.bmp", mROI0);
+	imwrite("_motion.bmp", mROI1);
+}
+int CRat::findMaxMotionPoint(vector<double>& inData)
+{
+	int maxPoint = -1;
+	
+	for(int i=m_idxTwoLight+3; i<m_nSlices; i++) {
+		if( inData[i-2] <=inData[i-1] && 
+			inData[i-1] <=inData[i] &&
+			inData[i] >= inData[i+1] &&
+			inData[i+1] >= inData[i+2]) 
+		{
+			maxPoint = i;			
+			break;	
+		}		
+	}	
+	return maxPoint;
 }
 
 int CRat::findStablePoint(Point& pt)

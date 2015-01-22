@@ -80,8 +80,9 @@ public:
 	void 	smoothData(vector<double>& inData, vector<double>& outData, int bw=5);
 	double 	errorSum(Mat &mDiff, Point ptEarL);
 	int		findStablePoint(Point& pt);
- 
+	int 	findMaxMotionPoint(vector<double>& inData);
 	void	graylevelDiff(int stable, Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR);
+	void 	saveEarROI(int stable, int motion, Point& pt);
 	
 	float	findMaxMotion(Mat& mROI, cv::Point& ptDiff);
 	float	findSumMotion(Mat& mFlowROI, cv::Point& ptDiff);
