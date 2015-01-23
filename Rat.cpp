@@ -515,6 +515,7 @@ void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 	//_gnuplotLine("LeftEar_Smooth", smoothL);
 	//_gnuplotLine("LeftEar_Smooth", smoothR);
 	
+
 	if(m_vecLEarGrayDiff[maxPointL]> m_vecREarGrayDiff[maxPointR]) {
 		MainFrame:: myMsgOutput("max motion: left ear %d\n", maxPointL);
 		_gnuplotLine("maxMotion", maxPointL);
@@ -606,8 +607,53 @@ void CRat::saveEarROI(int stable, int motion, Point& pt)
 	Mat mROI0(m_vecMat[stable], Rect(pt1, pt2));	
 	Mat mROI1(m_vecMat[motion], Rect(pt1, pt2));
 	
-	imwrite("_stable.bmp", mROI0);
-	imwrite("_motion.bmp", mROI1);
+	Mat mEdge0, mEdge1, mEdge, mEdge8U, mEdge08U, mEdge18U;
+	cv::Mat dx;
+	cv::Mat dy;
+	double  min, max, a;
+	int kSize = 5;
+
+	cv::Sobel(mROI0, dx, CV_32F, 1, 0, kSize);
+	cv::Sobel(mROI0, dy, CV_32F, 0, 1, kSize);
+	mEdge0 = abs(dx) + abs(dy);
+
+	cv::Sobel(mROI1, dx, CV_32F, 1, 0, kSize);
+	cv::Sobel(mROI1, dy, CV_32F, 0, 1, kSize);
+	mEdge1 = abs(dx) + abs(dy);	
+	
+	mEdge = mEdge0 + mEdge1;
+	
+	cv::minMaxLoc(mEdge, &min, &max);
+	a = 255./(max - min);
+	mEdge.convertTo(mEdge8U, CV_8UC1, a, -min*a );
+	
+	cv::minMaxLoc(mEdge0, &min, &max);
+	a = 255./(max - min);	
+	mEdge0.convertTo(mEdge08U, CV_8UC1, a, -min*a );
+	
+	cv::minMaxLoc(mEdge1, &min, &max);
+	a = 255./(max - min);		
+	mEdge1.convertTo(mEdge18U, CV_8UC1, a, -min*a );
+	
+	Mat mColor (mROI0.size(), CV_8UC3, Scalar(0,0,0)) ;
+	vector<cv::Mat> planes(3);
+	cv::split(mColor, planes);
+	mEdge08U.copyTo(planes[1]);
+	mEdge18U.copyTo(planes[2]);
+	merge(planes, mColor);	
+	
+	
+	wxFileName bmpName1(m_strSrcPath, "_stable.bmp");
+	wxFileName bmpName2(m_strSrcPath, "_motion.bmp");
+	wxFileName bmpName3(m_strSrcPath, "_edge.bmp");
+		
+	imwrite(bmpName1.GetFullPath().ToStdString(), mROI0);
+	imwrite(bmpName2.GetFullPath().ToStdString(), mROI1);
+	imwrite(bmpName3.GetFullPath().ToStdString(), mColor);
+	
+	imshow("_stable", mROI0);
+	imshow("_motion", mROI1); 
+	imshow("_ColorEdge", mColor);
 }
 int CRat::findMaxMotionPoint(vector<double>& inData)
 {
