@@ -66,6 +66,7 @@ public:
 	
 	
 protected:
+    virtual void OnViewResultSeries(wxCommandEvent& event);
     virtual void OnUpdateViewSeries(wxUpdateUIEvent& event);
     virtual void OnViewSeries(wxCommandEvent& event);
     virtual void OnEditClearMarks(wxCommandEvent& event);

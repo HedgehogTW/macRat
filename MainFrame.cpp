@@ -523,3 +523,28 @@ void MainFrame::OnUpdateViewSeries(wxUpdateUIEvent& event)
 {
 	event.Enable(m_nSlices >0);
 }
+
+void ResultSlice(int pos, void *param)
+{
+	MainFrame *pMainFrame = (MainFrame*)param;
+	Mat &mSrc = pMainFrame->getResultMat(pos);	
+		
+	cv::imshow("ResultSeries", mSrc);
+}
+
+void MainFrame::OnViewResultSeries(wxCommandEvent& event)
+{
+	if(m_nSlices <=0) {
+		wxLogMessage("no data\n");
+		return;
+	}
+
+	cv::namedWindow("ResultSeries");
+	Mat &mSrc = getResultMat(0);
+
+	int pos = 0;
+
+	cv::createTrackbar("slice", "ResultSeries", &pos, m_nSlices-1, ResultSlice, this);
+	//cv::setMouseCallback("ResultSeries", onCVMouse, this);
+	cv::imshow("ResultSeries", mSrc);		
+}

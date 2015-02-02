@@ -530,7 +530,24 @@ void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 		saveEarROI(m_referFrame, maxPointR, ptEarR);
 	}
 	
+	////////////////////// save result to dest
+	m_vecDest.clear();
 	
+	for (int i = 0; i < m_nSlices; i++)
+	{
+		Mat mDestColor;
+		cvtColor(m_vecMat[i], mDestColor, CV_GRAY2BGR);
+		m_vecDest.push_back(mDestColor);
+	}
+
+	for (int i = 0; i < m_nSlices; i++)
+	{
+		Mat mDestColor;
+		mDestColor = m_vecDest[i];
+		circle(mDestColor, Point(m_vecEyeL[i].x, m_vecEyeL[i].y), 3, Scalar(0, 0, 255), -1);	
+		circle(mDestColor, Point(m_vecEyeR[i].x, m_vecEyeR[i].y), 3, Scalar(0, 0, 255), -1);			
+	}	
+	saveResult("dest", m_vecDest);
 	
 /*		
 	///////////////////////////////////////////find bending points
