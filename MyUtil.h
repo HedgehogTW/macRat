@@ -34,7 +34,7 @@ void	_scalingData(Mat& mData, vector<Vec2d>& scalePara);
 void	_scalingLoadPara(vector<Vec2d>& scalePara);
 
 void _redirectStandardOutputToFile ( string filePath, bool toPromptAlso );
-void _OutputMat(cv::Mat m, char *filename, bool bAppend=false);
+void _OutputMat(cv::Mat m, const char *filename, bool bhasComma=true);
 void _OutputBinaryMat(cv::Mat m, char *filename);
 void _rgbMat2hsvMat(cv::Mat &mRGB, cv::Mat &mHSV, bool plus360);
 void rgb2hsv(uchar r, uchar g, uchar b, float &h, float &s, float &v, bool plus360);

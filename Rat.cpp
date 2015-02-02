@@ -489,14 +489,17 @@ void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 		fclose(fp);
 	}
 	
-	int stableFrame = findStablePoint(ptEarL);
-	MainFrame:: myMsgOutput("stable frame %d\n", stableFrame);
-	if(stableFrame <0) {
+	m_referFrame = findReferenceFrame(ptEarL);
+	MainFrame:: myMsgOutput("stable frame %d\n", m_referFrame);
+	if(m_referFrame <0) {
 		wxLogMessage("cannot find stable frame");
 		return;
 	}
-
-	graylevelDiff(stableFrame, ptEyeL, ptEyeR, ptEarL, ptEarR);
+	findEyeCenter(ptEyeL, m_vecEyeL, m_vecEyeLMove);
+	findEyeCenter(ptEyeR, m_vecEyeR, m_vecEyeRMove);
+	
+	graylevelDiff(m_referFrame, ptEarL, m_vecEyeL, m_vecLEarGrayDiff);
+	graylevelDiff(m_referFrame, ptEarR, m_vecEyeR, m_vecREarGrayDiff);
 	
 	vector<double> smoothL;
 	smoothData(m_vecLEarGrayDiff, smoothL, 2);	
@@ -514,16 +517,17 @@ void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 	_gnuplotLine("RightEar", m_vecREarGrayDiff);	
 	//_gnuplotLine("LeftEar_Smooth", smoothL);
 	//_gnuplotLine("LeftEar_Smooth", smoothR);
-	
+	//_gnuplotLine("LeftEye", m_vecEyeLMove);
+	//_gnuplotLine("RightEye", m_vecEyeRMove);
 
 	if(m_vecLEarGrayDiff[maxPointL]> m_vecREarGrayDiff[maxPointR]) {
 		MainFrame:: myMsgOutput("max motion: left ear %d\n", maxPointL);
 		_gnuplotLine("maxMotion", maxPointL);
-		saveEarROI(stableFrame, maxPointL, ptEarL);
+		saveEarROI(m_referFrame, maxPointL, ptEarL);
 	}else {
 		MainFrame:: myMsgOutput("max motion: right ear %d\n", maxPointR);
 		_gnuplotLine("maxMotion", maxPointR);
-		saveEarROI(stableFrame, maxPointR, ptEarR);
+		saveEarROI(m_referFrame, maxPointR, ptEarR);
 	}
 	
 	
@@ -591,6 +595,44 @@ void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 	}
 	_gnuplotPoint("point", notchX, notchY);	
 	 */ 
+}
+void CRat::findEyeCenter(Point& ptEye0, vector <Point>& vecEye, vector <double>&  vecEyeMove)
+{
+	
+	vecEye.clear();	
+	vecEye.resize(m_nSlices);
+	
+	vecEyeMove.clear();	
+	vecEyeMove.resize(m_nSlices);	
+	
+	Point	offset(20, 20);
+	Point 	ptEye = ptEye0;
+	double sigma = 4;	
+	
+	for (int i = 0; i < m_nSlices; i++)	{	
+		Point pt1 (ptEye-offset);
+		Point pt2 (ptEye+offset);
+	
+		Mat mROI(m_vecMat[i], Rect(pt1, pt2));	
+		Mat mROI32F, mSmooth;
+	
+		mROI.convertTo(mROI32F, CV_32F);
+		cv::GaussianBlur(mROI32F, mSmooth, Size(), sigma, sigma);
+		//_OutputMat(mSmooth, "_eyesm3.dat", false);
+
+		Mat mROIsm(mSmooth, Rect(Point(10, 10), Point(30, 30)));
+		double min;
+		Point minLoc;
+		minMaxLoc(mROIsm, &min, NULL, &minLoc);
+		minLoc = minLoc + Point(10, 10) + pt1;
+	//MainFrame:: myMsgOutput("eye center [%d, %d]= %f, ori eye [%d, %d]\n", minLoc.x, minLoc.y, min, ptEye.x, ptEye.y);	
+	
+		vecEyeMove[i] = sqrt((minLoc.x-ptEye.x)*(minLoc.x-ptEye.x) + (minLoc.y-ptEye.y)*(minLoc.y-ptEye.y));
+		ptEye = minLoc;
+		
+		vecEye[i] = ptEye;
+	}
+	
 }
 void CRat::saveEarROI(int stable, int motion, Point& pt)
 {
@@ -672,7 +714,7 @@ int CRat::findMaxMotionPoint(vector<double>& inData)
 	return maxPoint;
 }
 
-int CRat::findStablePoint(Point& pt)
+int CRat::findReferenceFrame(Point& pt)
 {
 	int start, end, lenSeg;
 	start = 0;
@@ -792,31 +834,45 @@ void CRat::smoothData(vector<double>& inData, vector<double>& outData, int bw)
 	outData.assign (out,out+n);	
 }
 
-void CRat::graylevelDiff(int stable, Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
+void CRat::graylevelDiff(int refer, Point ptEar, vector <Point>& vecEye, vector <double>& vecEarGrayDiff)
 {
-	m_vecLEarGrayDiff.clear();
-	m_vecREarGrayDiff.clear();
-	m_vecLEyeGrayDiff.clear();
-	m_vecREyeGrayDiff.clear();
+	vecEarGrayDiff.clear();
 	
-	Mat mSrc1, mSrc2, mDiff;
+	int wImg = m_vecMat[0].cols;
+	int hImg = m_vecMat[0].rows;
 	
-	mSrc1 = m_vecMat[stable]; //17
+	Mat mSrc1 = m_vecMat[refer]; //17
+
+	Point pt1 (ptEar-m_offsetEar);
+	Point pt2 (ptEar+m_offsetEar);
+	
+	if(pt1.x <0 || pt1.y <0 || pt2.x >= wImg || pt2.y >= hImg) {
+		wxLogMessage("ear region outside");
+		return;
+	}
+		
+	Mat mROIRefer(mSrc1, Rect(pt1, pt2));
+	
+	Point ptReferEye = vecEye[refer];
 	
 	for(int i=0; i<m_nSlices; i++) {
-		double errSumL, errSumR;
+		Mat mSrc2, mDiff;
 		mSrc2 = m_vecMat[i];
-		cv::absdiff(mSrc1, mSrc2, mDiff);
 		
-		errSumL = errorSum(mDiff, ptEarL);
-		errSumR = errorSum(mDiff, ptEarR);
-		m_vecLEarGrayDiff.push_back(errSumL);
-		m_vecREarGrayDiff.push_back(errSumR);
+		Point ptOffset = vecEye[i] - ptReferEye;
+		Point ptNewEar = ptEar + ptOffset;
 		
-		errSumL = errorSum(mDiff, ptEyeL);
-		errSumR = errorSum(mDiff, ptEyeR);		
-		m_vecLEyeGrayDiff.push_back(errSumL);
-		m_vecREyeGrayDiff.push_back(errSumR);
+		Point pt1 (ptNewEar-m_offsetEar);
+		Point pt2 (ptNewEar+m_offsetEar);
+	
+		if(pt1.x <0 || pt1.y <0 || pt2.x >= wImg || pt2.y >= hImg) {
+			wxLogMessage("ear region outside");
+			return;
+		}
+		Mat mROI(mSrc2, Rect(pt1, pt2));
+		cv::absdiff(mROIRefer, mROI, mDiff);
+		Scalar sSum = cv::mean(mDiff);		
+		vecEarGrayDiff.push_back(sSum[0]);
 	}
 }
 

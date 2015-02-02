@@ -77,11 +77,13 @@ public:
 	
 	void	process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR);
 	void	recognizeLeftRight(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR);
+	void 	findEyeCenter(Point& ptEye0, vector <Point>& vecEye, vector <double>&  vecEyeMove);
+	
 	void 	smoothData(vector<double>& inData, vector<double>& outData, int bw=5);
 	double 	errorSum(Mat &mDiff, Point ptEarL);
-	int		findStablePoint(Point& pt);
+	int		findReferenceFrame(Point& pt);
 	int 	findMaxMotionPoint(vector<double>& inData);
-	void	graylevelDiff(int stable, Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR);
+	void	graylevelDiff(int refer, Point ptEar, vector <Point>& vecEye, vector <double>& vecEarGrayDiff);
 	void 	saveEarROI(int stable, int motion, Point& pt);
 	
 	float	findMaxMotion(Mat& mROI, cv::Point& ptDiff);
@@ -116,6 +118,11 @@ public:
 	vector <Mat> m_vecMat;
 	vector <Mat> m_vecDest;
 
+	vector <Point>  m_vecEyeL;
+	vector <Point>  m_vecEyeR;
+	vector <double>  m_vecEyeLMove;
+	vector <double>  m_vecEyeRMove;
+	
 	vector <TwoPts>  m_vecEyePair;
 	vector <TwoPts>  m_vecEarPair;
 	Point	m_offsetEar; //(50, 50);
@@ -145,6 +152,8 @@ public:
 	int		m_nCageLineY;
 	int		m_nCageLineX;
 
+	int 	m_referFrame;
+	
 	float	m_mean;
 	float	m_stddev;
 	int		m_nProcessFrame;

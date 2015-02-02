@@ -168,13 +168,10 @@ void _OutputBinaryMat(cv::Mat m, char *filename)
 }
 
 
-void _OutputMat(cv::Mat m, char *filename, bool bAppend)
+void _OutputMat(cv::Mat m, const char *filename, bool bhasComma)
 {
 	FILE *fp;
-	if(bAppend)
-		fp = fopen(filename, "a");
-	else
-		fp = fopen(filename, "w");
+	fp = fopen(filename, "w");
 	if(fp==NULL) {
 		wxMessageOutputMessageBox().Printf(_T("cannot create output file"));
 		return;
@@ -182,37 +179,77 @@ void _OutputMat(cv::Mat m, char *filename, bool bAppend)
 
 	int lines = m.rows;
 	int cols = m.cols;
-	int i, j, channel, depth;
+	int i, j, channel, depth, elems;
 
 	depth = m.depth();
 	channel = m.channels();
-	if(channel !=1) return;
-
+	elems = cols*channel;
+	MainFrame:: myMsgOutput("channels %d, elements per row %d\n", channel, elems);
+	
 	for(i=0; i<lines; i++) {
-		for(j=0; j<cols; j++) {
-			switch(depth) {
-			case CV_8U:
-				fprintf(fp, "%d", m.at<uchar>(i, j)); break;
+		
+		switch(depth) {
+			case CV_8U: 
+			{
+				const uchar* p = m.ptr<uchar>(i);
+				for (j = 0; j <elems; j++) {
+					fprintf(fp, "%d ", p[j]);
+					if (j != elems - 1 && bhasComma) fprintf(fp, ", ");
+				}
+				break;
+			}
 			case CV_8S:
-				fprintf(fp, "%d", m.at<char>(i, j)); break;
+			{
+				const char* p = m.ptr<char>(i);
+				for (j = 0; j <elems; j++) {
+					fprintf(fp, "%d ", p[j]);
+					if (j != elems - 1 && bhasComma) fprintf(fp, ", ");
+				}
+				break;
+			}
 			case CV_16U:
 			case CV_16S:
-				fprintf(fp, "%d", m.at<short>(i, j)); break;
-			case CV_32S:
-				fprintf(fp, "%d", m.at<int>(i, j)); break;
-			case CV_32F:
-				fprintf(fp, "%f", m.at<float>(i, j)); break;
-			case CV_64F:
-				fprintf(fp, "%f", m.at<double>(i, j)); break;	
+			{
+				const short* p = m.ptr<short>(i);
+				for (j = 0; j <elems; j++) {
+					fprintf(fp, "%d ", p[j]);
+					if (j != elems - 1 && bhasComma) fprintf(fp, ", ");
+				}
+				break;
 			}
-			if(j!=cols-1) fprintf(fp, ", ");
+			case CV_32S:
+			{
+				const int* p = m.ptr<int>(i);
+				for (j = 0; j <elems; j++) {
+					fprintf(fp, "%d ", p[j]);
+					if (j != elems - 1 && bhasComma) fprintf(fp, ", ");
+				}
+				break;
+			}
+			case CV_32F:
+			{
+				const float* p = m.ptr<float>(i);
+				for (j = 0; j <elems; j++) {
+					fprintf(fp, "%f ", p[j]);
+					if (j != elems - 1 && bhasComma) fprintf(fp, ", ");
+				}
+				break;
+			}
+			case CV_64F:
+			{
+				const double* p = m.ptr<double>(i);
+				for (j = 0; j <elems; j++) {
+					fprintf(fp, "%f ", p[j]);
+					if (j != elems - 1 && bhasComma) fprintf(fp, ", ");
+				}
+				break;
+			}
 		}
 		fprintf(fp, "\n");
 	}
-
 	fclose(fp);
 
-//	gpOutput->ShowMessage("output file: %s, rows %d, cols %d\n", filename, lines, cols);
+	//MainFrame:: myMsgOutput("output file: %s, rows %d, cols %d\n", filename, lines, cols);
 }
 
 

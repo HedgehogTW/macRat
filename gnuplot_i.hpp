@@ -590,7 +590,7 @@ class Gnuplot
 int Gnuplot::tmpfile_num = 0;
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__TOS_WIN__)
-std::string Gnuplot::m_sGNUPlotFileName = "pgnuplot.exe";
+std::string Gnuplot::m_sGNUPlotFileName = "gnuplot.exe";
 std::string Gnuplot::m_sGNUPlotPath = "C:/gnuplot/bin/";
 #elif defined(unix) || defined(__unix) || defined(__unix__) || defined(__APPLE__)
 std::string Gnuplot::m_sGNUPlotFileName = "gnuplot";
