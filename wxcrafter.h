@@ -39,7 +39,8 @@ public:
         wxID_RAT_MARK_EYE = 1004,
         wxID_RAT_PROCESS = 1005,
         wxID_SHOW_RESULT = 1006,
-        wxID_VIEW_SERIES = 1007,
+        wxID_VIEW_RESULT_SERIES = 1007,
+        wxID_VIEW_SERIES = 1008,
     };
 protected:
     wxMenuBar* m_menuBar;

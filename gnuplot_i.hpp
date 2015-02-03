@@ -471,13 +471,14 @@ class Gnuplot
 
     /// plot a single std::vector: x
     ///   from file
-    Gnuplot& plotfile_x(const std::string &filename,
+
+	Gnuplot& plotfile_x(const std::string &filename,
                         const unsigned int column = 1,
-                        const std::string &title = "");
+                        const std::string &title = "",
+						const std::string &color = "");
     ///   from std::vector
     template<typename X>
-    Gnuplot& plot_x(const X& x, const std::string &title = "");
-
+    Gnuplot& plot_x(const X& x, const std::string &title = "", const std::string &color="");
 
     /// plot x,y pairs: x y
     ///   from file
@@ -690,7 +691,7 @@ inline Gnuplot::Gnuplot(const std::vector<double> &x,
 /// Plots a 2d graph from a list of doubles: x
 //
 template<typename X>
-Gnuplot& Gnuplot::plot_x(const X& x, const std::string &title)
+Gnuplot& Gnuplot::plot_x(const X& x, const std::string &title, const std::string &color)
 {
     if (x.size() == 0)
     {
@@ -713,7 +714,7 @@ Gnuplot& Gnuplot::plot_x(const X& x, const std::string &title)
     tmp.close();
 
 
-    plotfile_x(name, 1, title);
+    plotfile_x(name, 1, title, color);
 
     return *this;
 }
@@ -1411,7 +1412,8 @@ Gnuplot& Gnuplot::plot_equation3d(const std::string &equation,
 //
 Gnuplot& Gnuplot::plotfile_x(const std::string &filename,
                              const unsigned int column,
-                             const std::string &title)
+                             const std::string &title,
+							 const std::string &color)
 {
     //
     // check if file exists
@@ -1440,6 +1442,8 @@ Gnuplot& Gnuplot::plotfile_x(const std::string &filename,
     else
         cmdstr << "smooth " << smooth;
 
+    if(color != "")
+        cmdstr << " linecolor " << "\"" << color << "\"";
     //
     // Do the actual plot
     //

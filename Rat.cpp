@@ -498,8 +498,13 @@ void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 	findEyeCenter(ptEyeL, m_vecEyeL, m_vecEyeLMove);
 	findEyeCenter(ptEyeR, m_vecEyeR, m_vecEyeRMove);
 	
+	findNewEarCenter(m_vecEyeL, ptEarL, m_vecEarL);
+	findNewEarCenter(m_vecEyeR, ptEarR, m_vecEarR);
+	
 	graylevelDiff(m_referFrame, ptEarL, m_vecEyeL, m_vecLEarGrayDiff);
 	graylevelDiff(m_referFrame, ptEarR, m_vecEyeR, m_vecREarGrayDiff);
+	
+	EarDiffByFixedLoc(m_referFrame, ptEarL, ptEarR);
 	
 	vector<double> smoothL;
 	smoothData(m_vecLEarGrayDiff, smoothL, 2);	
@@ -513,13 +518,7 @@ void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 	
 	const char* title =fileName.GetName();
 	_gnuplotLantern(title, m_idxLightBegin, m_idxTwoLight);
-	_gnuplotLine("LeftEar", m_vecLEarGrayDiff);
-	_gnuplotLine("RightEar", m_vecREarGrayDiff);	
-	//_gnuplotLine("LeftEar_Smooth", smoothL);
-	//_gnuplotLine("LeftEar_Smooth", smoothR);
-	//_gnuplotLine("LeftEye", m_vecEyeLMove);
-	//_gnuplotLine("RightEye", m_vecEyeRMove);
-
+	
 	if(m_vecLEarGrayDiff[maxPointL]> m_vecREarGrayDiff[maxPointR]) {
 		MainFrame:: myMsgOutput("max motion: left ear %d\n", maxPointL);
 		_gnuplotLine("maxMotion", maxPointL);
@@ -528,10 +527,26 @@ void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 		MainFrame:: myMsgOutput("max motion: right ear %d\n", maxPointR);
 		_gnuplotLine("maxMotion", maxPointR);
 		saveEarROI(m_referFrame, maxPointR, ptEarR);
-	}
+	}	
+	
+	_gnuplotLine("LeftEar", m_vecLEarGrayDiff, "#0000ff00");
+	_gnuplotLine("LeftEarFixed", m_vecLEarGrayDiff0, "#000000ff");
+	
+	//_gnuplotLine("RightEar", m_vecREarGrayDiff);	
+	//_gnuplotLine("LeftEar_Smooth", smoothL);
+	//_gnuplotLine("LeftEar_Smooth", smoothR);
+	_gnuplotLine("LeftEyeMove", m_vecEyeLMove, "#00ff0000");
+	//_gnuplotLine("RightEye", m_vecEyeRMove);
+
+
 	
 	////////////////////// save result to dest
 	m_vecDest.clear();
+	Point ptL1 (ptEarL-m_offsetEar);
+	Point ptL2 (ptEarL+m_offsetEar);
+	Point ptR1 (ptEarR-m_offsetEar);
+	Point ptR2 (ptEarR+m_offsetEar);
+	
 	
 	for (int i = 0; i < m_nSlices; i++)
 	{
@@ -544,9 +559,26 @@ void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 	{
 		Mat mDestColor;
 		mDestColor = m_vecDest[i];
+		// original ears
+		rectangle(mDestColor, Rect(ptL1, ptL2), Scalar(255,0,0));
+		rectangle(mDestColor, Rect(ptR1, ptR2), Scalar(255,0,0));
+		
+		// new positions of eyes 
 		circle(mDestColor, Point(m_vecEyeL[i].x, m_vecEyeL[i].y), 3, Scalar(0, 0, 255), -1);	
-		circle(mDestColor, Point(m_vecEyeR[i].x, m_vecEyeR[i].y), 3, Scalar(0, 0, 255), -1);			
-	}	
+		circle(mDestColor, Point(m_vecEyeR[i].x, m_vecEyeR[i].y), 3, Scalar(0, 0, 255), -1);	
+		
+		// original eyes
+		circle(mDestColor, Point(ptEyeL.x, ptEyeL.y), 2, Scalar(0, 255, 255), -1);	
+		circle(mDestColor, Point(ptEyeR.x, ptEyeR.y), 2, Scalar(0, 255, 255), -1);	
+		
+		// new positions of ears 
+		Point ptL1n (m_vecEarL[i]-m_offsetEar);
+		Point ptL2n (m_vecEarL[i]+m_offsetEar);
+		Point ptR1n (m_vecEarR[i]-m_offsetEar);
+		Point ptR2n (m_vecEarR[i]+m_offsetEar);	
+		rectangle(mDestColor, Rect(ptL1n, ptL2n), Scalar(0,255,0));
+		rectangle(mDestColor, Rect(ptR1n, ptR2n), Scalar(0,255,0));
+	}
 	saveResult("dest", m_vecDest);
 	
 /*		
@@ -613,12 +645,23 @@ void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 	_gnuplotPoint("point", notchX, notchY);	
 	 */ 
 }
+void  CRat::findNewEarCenter(vector <Point>& vecEye, Point ptEar0, vector <Point>& vecEar)
+{
+	vecEar.clear();	
+	vecEar.resize(m_nSlices);	
+	
+	Point ptReferEye = vecEye[m_referFrame];
+	for (int i = 0; i < m_nSlices; i++)	{
+		Point ptOffset = vecEye[i] - ptReferEye;
+		vecEar[i] = ptEar0 + ptOffset;	
+	}
+}
 void CRat::findEyeCenter(Point& ptEye0, vector <Point>& vecEye, vector <double>&  vecEyeMove)
 {
 	
 	vecEye.clear();	
 	vecEye.resize(m_nSlices);
-	
+
 	vecEyeMove.clear();	
 	vecEyeMove.resize(m_nSlices);	
 	
@@ -648,6 +691,7 @@ void CRat::findEyeCenter(Point& ptEye0, vector <Point>& vecEye, vector <double>&
 		ptEye = minLoc;
 		
 		vecEye[i] = ptEye;
+		
 	}
 	
 }
@@ -893,6 +937,26 @@ void CRat::graylevelDiff(int refer, Point ptEar, vector <Point>& vecEye, vector 
 	}
 }
 
+void CRat::EarDiffByFixedLoc(int refer, Point& ptEarL, Point& ptEarR)
+{
+	m_vecLEarGrayDiff0.clear();
+	m_vecREarGrayDiff0.clear();
+	
+	Mat mSrc1, mSrc2, mDiff;
+	
+	mSrc1 = m_vecMat[refer]; //17
+	
+	for(int i=0; i<m_nSlices; i++) {
+		double errSumL, errSumR;
+		mSrc2 = m_vecMat[i];
+		cv::absdiff(mSrc1, mSrc2, mDiff);
+		
+		errSumL = errorSum(mDiff, ptEarL);
+		errSumR = errorSum(mDiff, ptEarR);
+		m_vecLEarGrayDiff0.push_back(errSumL);
+		m_vecREarGrayDiff0.push_back(errSumR);
+	}
+}
 
 float CRat::findSumMotion(Mat& mFlowROI, cv::Point& ptDiff)
 {

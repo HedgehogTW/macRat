@@ -23,7 +23,7 @@ using namespace std;
                          ((x) >= (z) ? (x) : (z)))
 
 
-void 	_gnuplotLine(const char* dataName, vector<double>& data);
+void 	_gnuplotLine(const char* dataName, vector<double>& data, const char* color="");
 void 	_gnuplotLine(const char* dataName, int x);
 void 	_gnuplotLantern(const char* title, int nBeginLight, int nTwoLight);
 void 	_gnuplotPoint(const char* dataName, vector<double>& dataX, vector<double>& dataY);

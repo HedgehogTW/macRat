@@ -525,7 +525,7 @@
          "m_properties": [{
            "type": "winid",
            "m_label": "ID:",
-           "m_winid": "wxID_ANY"
+           "m_winid": "wxID_VIEW_RESULT_SERIES"
           }, {
            "type": "string",
            "m_label": "Name:",
@@ -1280,7 +1280,7 @@
          "m_properties": [{
            "type": "winid",
            "m_label": "ID:",
-           "m_winid": "wxID_VIEW_SERIES"
+           "m_winid": "wxID_VIEW_RESULT_SERIES"
           }, {
            "type": "string",
            "m_label": "Name:",

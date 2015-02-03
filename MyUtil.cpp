@@ -41,14 +41,15 @@ void _gnuplotLine(const char* dataName, int x)
 	}	
 }
 
-void _gnuplotLine(const char* dataName, vector<double>& data)
+void _gnuplotLine(const char* dataName, vector<double>& data, const char* color)
 {
 //	Gnuplot gGnuPlot("lines");
 	if (data.size() <= 0) {
 		wxMessageBox("gnuplotShow:: no data", "Error");
 		return;
 	}	
-	gGnuPlot.set_style("lines").plot_x(data, dataName);
+
+	gGnuPlot.set_style("lines").plot_x(data, dataName, color);
 }
 
 void _gnuplotPoint(const char* dataName, vector<double>& dataX, vector<double>& dataY)
