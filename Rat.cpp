@@ -517,26 +517,29 @@ void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 	int maxPointL = findMaxMotionPoint(smoothL);
 	int maxPointR = findMaxMotionPoint(smoothR);
 	
+	
+	static Gnuplot gnuPlot("lines");
+
 	const char* title =fileName.GetName();
-	_gnuplotLantern(title, m_idxLightBegin, m_idxTwoLight);
+	_gnuplotLantern(gnuPlot, title, m_idxLightBegin, m_idxTwoLight);
 	
 	if(m_vecLEarGrayDiff[maxPointL]> m_vecREarGrayDiff[maxPointR]) {
 		MainFrame:: myMsgOutput("max motion: left ear %d\n", maxPointL);
-		_gnuplotLine("maxMotion", maxPointL);
+		_gnuplotLine(gnuPlot, "maxMotion", maxPointL);
 		saveEarROI(m_referFrame, maxPointL, ptEarL);
 	}else {
 		MainFrame:: myMsgOutput("max motion: right ear %d\n", maxPointR);
-		_gnuplotLine("maxMotion", maxPointR);
+		_gnuplotLine(gnuPlot, "maxMotion", maxPointR);
 		saveEarROI(m_referFrame, maxPointR, ptEarR);
 	}	
 	
-	_gnuplotLine("LeftEar", m_vecLEarGrayDiff, "#0000ff00");
-	_gnuplotLine("LeftEarFixed", m_vecLEarGrayDiff0, "#000000ff");
+	_gnuplotLine(gnuPlot, "LeftEar", m_vecLEarGrayDiff, "#0000ff00");
+	_gnuplotLine(gnuPlot, "LeftEarFixed", m_vecLEarGrayDiff0, "#000000ff");
 	
 	//_gnuplotLine("RightEar", m_vecREarGrayDiff);	
 	//_gnuplotLine("LeftEar_Smooth", smoothL);
 	//_gnuplotLine("LeftEar_Smooth", smoothR);
-	_gnuplotLine("LeftEyeMove", m_vecEyeLMove, "#00ff0000");
+	_gnuplotLine(gnuPlot, "LeftEyeMove", m_vecEyeLMove, "#00ff0000");
 	//_gnuplotLine("RightEye", m_vecEyeRMove);
 
 
@@ -805,7 +808,7 @@ int CRat::findReferenceFrame(Point& pt)
 		vSeries.push_back(errSumL);
 //		m_vecREarGrayDiff.push_back(errSumR);
 	}
-	_gnuplotLine("LeftEar", vSeries);	
+//	_gnuplotLine("LeftEar", vSeries);	
 	
 	double *seg, *x;
 	double a1, b1, cov00, cov01, cov11, sumsq;
