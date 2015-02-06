@@ -490,6 +490,7 @@ void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 	}
 	
 	m_referFrame = findReferenceFrame(ptEarL);
+	
 	MainFrame:: myMsgOutput("stable frame %d\n", m_referFrame);
 	if(m_referFrame <0) {
 		wxLogMessage("cannot find stable frame");
@@ -687,12 +688,19 @@ void CRat::findEyeCenter(Point& ptEye0, vector <Point>& vecEye, vector <double>&
 		minLoc = minLoc + Point(10, 10) + pt1;
 	//MainFrame:: myMsgOutput("eye center [%d, %d]= %f, ori eye [%d, %d]\n", minLoc.x, minLoc.y, min, ptEye.x, ptEye.y);	
 	
-		vecEyeMove[i] = sqrt((minLoc.x-ptEye.x)*(minLoc.x-ptEye.x) + (minLoc.y-ptEye.y)*(minLoc.y-ptEye.y));
 		ptEye = minLoc;
 		
 		vecEye[i] = ptEye;
 		
 	}
+	
+	Point eyeRef = vecEye[m_referFrame];
+	
+	for (int i = 0; i < m_nSlices; i++) {
+		vecEyeMove[i] = sqrt(	(vecEye[i].x-eyeRef.x)*(vecEye[i].x-eyeRef.x) + 
+								(vecEye[i].y-eyeRef.y)*(vecEye[i].y-eyeRef.y));
+		
+	}	
 	
 }
 void CRat::saveEarROI(int stable, int motion, Point& pt)
