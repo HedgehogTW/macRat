@@ -4,11 +4,11 @@
 #include <wx/msgdlg.h> 
 
 
-#define GNUPLOT_MAX_Y	15
+#define GNUPLOT_MAX_Y	25
  
 //Gnuplot gnuPlot("lines");
 
-void _gnuplotLantern(Gnuplot& gnuPlot, const char* title, int nBeginLight, int nTwoLight)
+void _gnuplotLED(Gnuplot& gnuPlot, const char* title, int nBeginLight, int nTwoLight)
 {
 //Gnuplot gnuPlot("lines");	
 
@@ -24,7 +24,7 @@ void _gnuplotLantern(Gnuplot& gnuPlot, const char* title, int nBeginLight, int n
 		y.push_back(GNUPLOT_MAX_Y);
 		x_light.push_back(nBeginLight);
 		x_light.push_back(nTwoLight);
-		gnuPlot.set_style("impulses").plot_xy(x_light, y, "lantern");
+		gnuPlot.set_style("impulses").plot_xy(x_light, y, "LED");
 	}	
 }
 
@@ -41,7 +41,7 @@ void _gnuplotLine(Gnuplot& gnuPlot, const char* dataName, int x)
 	}	
 }
 
-void _gnuplotLine(Gnuplot& gnuPlot, const char* dataName, vector<double>& data, const char* color)
+void _gnuplotLine(Gnuplot& gnuPlot, const char* dataName, vector<double>& data, const char* color, const char* dashtype)
 {
 //	Gnuplot gnuPlot("lines");
 	if (data.size() <= 0) {
@@ -49,7 +49,7 @@ void _gnuplotLine(Gnuplot& gnuPlot, const char* dataName, vector<double>& data, 
 		return;
 	}	
 
-	gnuPlot.set_style("lines").plot_x(data, dataName, color);
+	gnuPlot.set_style("lines").plot_x(data, dataName, color, dashtype);
 }
 
 void _gnuplotPoint(Gnuplot& gnuPlot, const char* dataName, vector<double>& dataX, vector<double>& dataY)
@@ -168,6 +168,24 @@ void _OutputBinaryMat(cv::Mat m, char *filename)
 	fclose(fp);
 }
 
+void _OutputVecPoints(vector <Point> &vecPoints, const char *filename, bool bhasComma)
+{
+	FILE *fp;
+	fp = fopen(filename, "w");
+	if(fp==NULL) {
+		wxMessageOutputMessageBox().Printf(_T("cannot create output file"));
+		return;
+	}
+
+	int sz = vecPoints.size();
+	for(int i=0; i<sz; i++) {
+		fprintf(fp, "%d ",vecPoints[i].x);
+		if (bhasComma) fprintf(fp, ", ");
+		fprintf(fp, "%d ",vecPoints[i].y);
+		fprintf(fp, "\n");
+	}
+	fclose(fp);	
+}
 
 void _OutputMat(cv::Mat m, const char *filename, bool bhasComma)
 {

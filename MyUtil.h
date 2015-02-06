@@ -24,9 +24,9 @@ using namespace std;
                          ((x) >= (z) ? (x) : (z)))
 
 
-void 	_gnuplotLine(Gnuplot& gnuPlot, const char* dataName, vector<double>& data, const char* color="");
+void 	_gnuplotLine(Gnuplot& gnuPlot, const char* dataName, vector<double>& data, const char* color="", const char* dashtype="");
 void 	_gnuplotLine(Gnuplot& gnuPlot, const char* dataName, int x);
-void 	_gnuplotLantern(Gnuplot& gnuPlot, const char* title, int nBeginLight, int nTwoLight);
+void 	_gnuplotLED(Gnuplot& gnuPlot, const char* title, int nBeginLight, int nTwoLight);
 void 	_gnuplotPoint(Gnuplot& gnuPlot, const char* dataName, vector<double>& dataX, vector<double>& dataY);
 
 
@@ -37,6 +37,7 @@ void	_scalingLoadPara(vector<Vec2d>& scalePara);
 void _redirectStandardOutputToFile ( string filePath, bool toPromptAlso );
 void _OutputMat(cv::Mat m, const char *filename, bool bhasComma=true);
 void _OutputBinaryMat(cv::Mat m, char *filename);
+void _OutputVecPoints(vector <Point> &vecPoints, const char *filename, bool bhasComma=true);
 void _rgbMat2hsvMat(cv::Mat &mRGB, cv::Mat &mHSV, bool plus360);
 void rgb2hsv(uchar r, uchar g, uchar b, float &h, float &s, float &v, bool plus360);
 

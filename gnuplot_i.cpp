@@ -107,7 +107,7 @@ Gnuplot::Gnuplot(const std::vector<double> &x,
 /// Plots a 2d graph from a list of doubles: x
 //
 template<typename X>
-Gnuplot& Gnuplot::plot_x(const X& x, const std::string &title, const std::string &color)
+Gnuplot& Gnuplot::plot_x(const X& x, const std::string &title, const std::string &color, const std::string &dashtype)
 {
     if (x.size() == 0)
     {
@@ -130,7 +130,7 @@ Gnuplot& Gnuplot::plot_x(const X& x, const std::string &title, const std::string
     tmp.close();
 
 
-    plotfile_x(name, 1, title, color);
+    plotfile_x(name, 1, title, color, dashtype);
 
     return *this;
 }
@@ -829,7 +829,8 @@ Gnuplot& Gnuplot::plot_equation3d(const std::string &equation,
 Gnuplot& Gnuplot::plotfile_x(const std::string &filename,
                              const unsigned int column,
                              const std::string &title,
-							 const std::string &color)
+							 const std::string &color,
+							 const std::string &dashtype)
 {
     //
     // check if file exists
@@ -860,6 +861,9 @@ Gnuplot& Gnuplot::plotfile_x(const std::string &filename,
 
     if(color != "")
         cmdstr << " linecolor " << "\"" << color << "\"";
+		
+	if(dashtype != "")
+        cmdstr << " dt " << "\"" << dashtype << "\"";	
     //
     // Do the actual plot
     //

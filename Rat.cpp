@@ -20,6 +20,8 @@
 
 using namespace cv;
 
+Gnuplot gPlot("lines");
+
 CRat::CRat()
 {
 	m_offsetEar = Point(EAR_RECT, EAR_RECT);
@@ -499,13 +501,15 @@ void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 	findEyeCenter(ptEyeL, m_vecEyeL, m_vecEyeLMove);
 	findEyeCenter(ptEyeR, m_vecEyeR, m_vecEyeRMove);
 	
+	_OutputVecPoints(m_vecEyeL, "_eyeLeft.txt");
+	
 	findNewEarCenter(m_vecEyeL, ptEarL, m_vecEarL);
 	findNewEarCenter(m_vecEyeR, ptEarR, m_vecEarR);
 	
 	graylevelDiff(m_referFrame, ptEarL, m_vecEyeL, m_vecLEarGrayDiff);
 	graylevelDiff(m_referFrame, ptEarR, m_vecEyeR, m_vecREarGrayDiff);
 	
-	EarDiffByFixedLoc(m_referFrame, ptEarL, ptEarR);
+	earDiffByFixedLoc(m_referFrame, ptEarL, ptEarR);
 	
 	vector<double> smoothL;
 	smoothData(m_vecLEarGrayDiff, smoothL, 2);	
@@ -518,28 +522,31 @@ void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 	int maxPointR = findMaxMotionPoint(smoothR);
 	
 	
-	static Gnuplot gnuPlot("lines");
+	
 
 	const char* title =fileName.GetName();
-	_gnuplotLantern(gnuPlot, title, m_idxLightBegin, m_idxTwoLight);
+	_gnuplotLED(gPlot, title, m_idxLightBegin, m_idxTwoLight);
 	
 	if(m_vecLEarGrayDiff[maxPointL]> m_vecREarGrayDiff[maxPointR]) {
 		MainFrame:: myMsgOutput("max motion: left ear %d\n", maxPointL);
-		_gnuplotLine(gnuPlot, "maxMotion", maxPointL);
+		_gnuplotLine(gPlot, "maxMotion", maxPointL);
 		saveEarROI(m_referFrame, maxPointL, ptEarL);
 	}else {
 		MainFrame:: myMsgOutput("max motion: right ear %d\n", maxPointR);
-		_gnuplotLine(gnuPlot, "maxMotion", maxPointR);
+		_gnuplotLine(gPlot, "maxMotion", maxPointR);
 		saveEarROI(m_referFrame, maxPointR, ptEarR);
 	}	
 	
-	_gnuplotLine(gnuPlot, "LeftEar", m_vecLEarGrayDiff, "#0000ff00");
-	_gnuplotLine(gnuPlot, "LeftEarFixed", m_vecLEarGrayDiff0, "#000000ff");
+	_gnuplotLine(gPlot, "LeftEar", m_vecLEarGrayDiff, "#00008000");
+	_gnuplotLine(gPlot, "LeftEarFixed", m_vecLEarGrayDiff0, "#00008000", ".");
+	
+	_gnuplotLine(gPlot, "RightEar", m_vecREarGrayDiff, "#000000ff");
+	_gnuplotLine(gPlot, "RightEarFixed", m_vecREarGrayDiff0, "#000000ff", ".");
 	
 	//_gnuplotLine("RightEar", m_vecREarGrayDiff);	
 	//_gnuplotLine("LeftEar_Smooth", smoothL);
 	//_gnuplotLine("LeftEar_Smooth", smoothR);
-	_gnuplotLine(gnuPlot, "LeftEyeMove", m_vecEyeLMove, "#00ff0000");
+	_gnuplotLine(gPlot, "LeftEyeMove", m_vecEyeLMove, "#00ff0000");
 	//_gnuplotLine("RightEye", m_vecEyeRMove);
 
 
@@ -948,7 +955,7 @@ void CRat::graylevelDiff(int refer, Point ptEar, vector <Point>& vecEye, vector 
 	}
 }
 
-void CRat::EarDiffByFixedLoc(int refer, Point& ptEarL, Point& ptEarR)
+void CRat::earDiffByFixedLoc(int refer, Point& ptEarL, Point& ptEarR)
 {
 	m_vecLEarGrayDiff0.clear();
 	m_vecREarGrayDiff0.clear();

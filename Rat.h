@@ -85,7 +85,7 @@ public:
 	int		findReferenceFrame(Point& pt);
 	int 	findMaxMotionPoint(vector<double>& inData);
 	void	graylevelDiff(int refer, Point ptEar, vector <Point>& vecEye, vector <double>& vecEarGrayDiff);
-	void 	EarDiffByFixedLoc(int refer, Point& ptEarL, Point& ptEarR);
+	void 	earDiffByFixedLoc(int refer, Point& ptEarL, Point& ptEarR);
 	void 	saveEarROI(int stable, int motion, Point& pt);
 	
 	float	findMaxMotion(Mat& mROI, cv::Point& ptDiff);

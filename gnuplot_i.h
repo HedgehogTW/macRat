@@ -475,10 +475,11 @@ class Gnuplot
 	Gnuplot& plotfile_x(const std::string &filename,
                         const unsigned int column = 1,
                         const std::string &title = "",
-						const std::string &color = "");
+						const std::string &color = "",
+						const std::string &dashtype = "");
     ///   from std::vector
     template<typename X>
-    Gnuplot& plot_x(const X& x, const std::string &title = "", const std::string &color="");
+    Gnuplot& plot_x(const X& x, const std::string &title = "", const std::string &color="", const std::string &dashtype="");
 
     /// plot x,y pairs: x y
     ///   from file
