@@ -13,6 +13,7 @@
 
 #include "KDE.h"
 #include "MyUtil.h"
+#include "gnuplot_i.h"
 
 using namespace std;
 using namespace cv;
@@ -404,10 +405,11 @@ void MainFrame::OnRatShowResults(wxCommandEvent& event)
 		wxMessageBox("no data", "Error");
 		return;
 	}
-
+	
+	Gnuplot gnuPlot("lines");
 	wxFileName fileName = m_strSourcePath;
-	_gnuplotLantern(fileName.GetName(), m_Rat.m_idxLightBegin, m_Rat.m_idxTwoLight);
-	_gnuplotLine("Left Ear", m_Rat.m_vecLEarGrayDiff);
+	_gnuplotLantern(gnuPlot, fileName.GetName(), m_Rat.m_idxLightBegin, m_Rat.m_idxTwoLight);
+	_gnuplotLine(gnuPlot, "Left Ear", m_Rat.m_vecLEarGrayDiff);
 		//m_Rat.m_vecLEarGrayDiff, m_Rat.m_vecREarGrayDiff, m_Rat.m_vecLEyeGrayDiff);
 }
 void MainFrame::OnRatLoadResult(wxCommandEvent& event)
@@ -462,10 +464,11 @@ void MainFrame::OnRatLoadResult(wxCommandEvent& event)
 		return;
 	}
 
+	Gnuplot gnuPlot("lines");
 	wxFileName fileName = filename;	
-	_gnuplotLantern(fileName.GetName(), nBeginLight, nTwoLight);
-	_gnuplotLine("Left Ear", earLM);
-	_gnuplotLine("Right Ear", earRM);
+	_gnuplotLantern(gnuPlot, fileName.GetName(), nBeginLight, nTwoLight);
+	_gnuplotLine(gnuPlot, "Left Ear", earLM);
+	_gnuplotLine(gnuPlot, "Right Ear", earRM);
 }
 
 

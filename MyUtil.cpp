@@ -1,21 +1,21 @@
 #include "MainFrame.h"
 #include "MyUtil.h"
-#include "gnuplot_i.hpp"
+
 #include <wx/msgdlg.h> 
 
 
 #define GNUPLOT_MAX_Y	15
  
-Gnuplot gGnuPlot("lines");
+//Gnuplot gnuPlot("lines");
 
-void _gnuplotLantern(const char* title, int nBeginLight, int nTwoLight)
+void _gnuplotLantern(Gnuplot& gnuPlot, const char* title, int nBeginLight, int nTwoLight)
 {
-//Gnuplot gGnuPlot("lines");	
+//Gnuplot gnuPlot("lines");	
 
-	gGnuPlot.reset_all();
+	gnuPlot.reset_all();
 
-	gGnuPlot.set_title(title);
-	gGnuPlot.set_grid().set_yrange(0, GNUPLOT_MAX_Y);
+	gnuPlot.set_title(title);
+	gnuPlot.set_grid().set_yrange(0, GNUPLOT_MAX_Y);
 	
 	if (nBeginLight > 0 && nTwoLight>0) {
 		std::vector<double> x_light;
@@ -24,42 +24,42 @@ void _gnuplotLantern(const char* title, int nBeginLight, int nTwoLight)
 		y.push_back(GNUPLOT_MAX_Y);
 		x_light.push_back(nBeginLight);
 		x_light.push_back(nTwoLight);
-		gGnuPlot.set_style("impulses").plot_xy(x_light, y, "lantern");
+		gnuPlot.set_style("impulses").plot_xy(x_light, y, "lantern");
 	}	
 }
 
-void _gnuplotLine(const char* dataName, int x)
+void _gnuplotLine(Gnuplot& gnuPlot, const char* dataName, int x)
 {
-	//gGnuPlot.set_grid().set_yrange(0, GNUPLOT_MAX_Y);
+	//gnuPlot.set_grid().set_yrange(0, GNUPLOT_MAX_Y);
 	
 	if (x > 0) {
 		std::vector<double> vecx;
 		std::vector<double> vecy;
 		vecy.push_back(GNUPLOT_MAX_Y);
 		vecx.push_back(x);
-		gGnuPlot.set_style("impulses").plot_xy(vecx, vecy, dataName);
+		gnuPlot.set_style("impulses").plot_xy(vecx, vecy, dataName);
 	}	
 }
 
-void _gnuplotLine(const char* dataName, vector<double>& data, const char* color)
+void _gnuplotLine(Gnuplot& gnuPlot, const char* dataName, vector<double>& data, const char* color)
 {
-//	Gnuplot gGnuPlot("lines");
+//	Gnuplot gnuPlot("lines");
 	if (data.size() <= 0) {
 		wxMessageBox("gnuplotShow:: no data", "Error");
 		return;
 	}	
 
-	gGnuPlot.set_style("lines").plot_x(data, dataName, color);
+	gnuPlot.set_style("lines").plot_x(data, dataName, color);
 }
 
-void _gnuplotPoint(const char* dataName, vector<double>& dataX, vector<double>& dataY)
+void _gnuplotPoint(Gnuplot& gnuPlot, const char* dataName, vector<double>& dataX, vector<double>& dataY)
 {
-//	Gnuplot gGnuPlot("lines");
+//	Gnuplot gnuPlot("lines");
 	if (dataX.size() <= 0) {
 		wxMessageBox("gnuplotShow:: no data", "Error");
 		return;
 	}	
-	gGnuPlot.set_style("points").plot_xy(dataX, dataY, dataName);
+	gnuPlot.set_style("points").plot_xy(dataX, dataY, dataName);
 }
 
 ///////////////////////////////
