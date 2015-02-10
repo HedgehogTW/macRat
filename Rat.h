@@ -87,6 +87,7 @@ public:
 	void	graylevelDiff(int refer, Point ptEar, vector <Point>& vecEye, vector <double>& vecEarGrayDiff);
 	void 	earDiffByFixedLoc(int refer, Point& ptEarL, Point& ptEarR);
 	void 	saveEarROI(int stable, int motion, Point& pt);
+	void 	saveEyeTrajectory();
 	
 	float	findMaxMotion(Mat& mROI, cv::Point& ptDiff);
 	float	findSumMotion(Mat& mFlowROI, cv::Point& ptDiff);

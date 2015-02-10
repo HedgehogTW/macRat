@@ -501,6 +501,8 @@ void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 	findEyeCenter(ptEyeL, m_vecEyeL, m_vecEyeLMove);
 	findEyeCenter(ptEyeR, m_vecEyeR, m_vecEyeRMove);
 	
+	saveEyeTrajectory();
+	
 	_OutputVecPoints(m_vecEyeL, "_eyeLeft.txt");
 	
 	findNewEarCenter(m_vecEyeL, ptEarL, m_vecEarL);
@@ -712,6 +714,58 @@ void CRat::findEyeCenter(Point& ptEye0, vector <Point>& vecEye, vector <double>&
 		
 	}	
 	
+}
+void CRat::saveEyeTrajectory()
+{
+	Point ptL = m_vecEyeL[0];
+	Point ptR = m_vecEyeR[0];
+	Point ptC((ptL.x + ptR.x)/2, (ptL.y + ptR.y)/2);
+	
+	Point	offsetWH(100, 100); 
+
+	int wImg = m_vecMat[0].cols;
+	int hImg = m_vecMat[0].rows;
+	
+	Point pt1 (ptC-offsetWH);
+	Point pt2 (ptC+offsetWH);
+/*	
+	vector <Mat> vecTraj;
+	for(int i=0; i<m_nSlices; i++) {
+		Mat mTraj(200, 200, CV_8UC3, Scalar(0, 0, 0));
+		
+		for(int j=0; j<i; j++) {
+			Point ptL = m_vecEyeL[j] - pt1;
+			Point ptR = m_vecEyeR[j] - pt1;	
+			circle(mTraj, Point(ptL.x, ptL.y), 1, Scalar(0, 255, 255), -1);	
+			circle(mTraj, Point(ptR.x, ptR.y), 1, Scalar(0, 255, 255), -1);				
+		}
+		
+		Point ptL = m_vecEyeL[i] - pt1;
+		Point ptR = m_vecEyeR[i] - pt1;	
+		circle(mTraj, Point(ptL.x, ptL.y), 1, Scalar(0, 0, 255), -1);	
+		circle(mTraj, Point(ptR.x, ptR.y), 1, Scalar(0, 0, 255), -1);	
+		
+		vecTraj.push_back(mTraj);
+	}	
+	saveResult("eyeT", vecTraj);
+*/
+	int i;
+	Mat mTraj(200, 200, CV_8UC3, Scalar(0, 0, 0));
+	for(i=0; i<m_nSlices; i++) {
+		ptL = m_vecEyeL[i] - pt1;
+		ptR = m_vecEyeR[i] - pt1;	
+		circle(mTraj, Point(ptL.x, ptL.y), 0, Scalar(0, 255, 255), -1);	
+		circle(mTraj, Point(ptR.x, ptR.y), 0, Scalar(0, 255, 255), -1);				
+	}	
+	ptL = m_vecEyeL[i-1] - pt1;
+	ptR = m_vecEyeR[i-1] - pt1;	
+	circle(mTraj, Point(ptL.x, ptL.y), 1, Scalar(0, 0, 255), -1);	
+	circle(mTraj, Point(ptR.x, ptR.y), 1, Scalar(0, 0, 255), -1);
+
+	wxFileName bmpName(m_strSrcPath, "_eyeTraj.bmp");		
+	imwrite(bmpName.GetFullPath().ToStdString(), mTraj);	
+
+	imshow("eyeTrajectory", mTraj);
 }
 void CRat::saveEarROI(int stable, int motion, Point& pt)
 {
