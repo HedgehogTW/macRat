@@ -20,7 +20,8 @@
 
 using namespace cv;
 
-Gnuplot gPlot("lines");
+Gnuplot gPlotL("lines");
+Gnuplot gPlotR("lines");
 
 CRat::CRat()
 {
@@ -133,8 +134,8 @@ void CRat::saveResult(const char *subpath, vector <Mat> &vecM)
 			return;
 		}
 	}
-
-	for(int i=0; i<vecM.size(); i++) {
+	int sz = vecM.size();
+	for(int i=0; i<sz; i++) {
 		wxFileName fileName = wxString(m_vFilenames[i]);
 		fileName.AppendDir(subpath);
 		wxFileName savePath = fileName.GetPath();
@@ -384,7 +385,7 @@ bool CRat::detectTwoLight()
 	}
 	if(m_idxLightEnd==-1)  m_idxLightEnd = m_nSlices-1;
 
-	MainFrame:: myMsgOutput("one-lantern frames [%d..%d], ----> two-lantern frame %d\n", 
+	MainFrame:: myMsgOutput("one-LED frames [%d..%d], ----> two-LED frame %d\n", 
 		m_idxLightBegin+1, m_idxLightEnd+1, m_idxTwoLight+1); 
 //	gpMainFrame->DestroyProgressBar();
 
@@ -473,6 +474,74 @@ void CRat::prepareData()
 	saveResult("cage", m_vecMat);
 }
 
+void CRat::opticalFlow()
+{
+	// optical flow
+	int nIter = 3;
+	int nNeighbor = 3;
+	int nPyrLayers= 1;
+	double dblSigma = 0.8;
+	int nWinSize = 3;
+	//int nFrameSteps = 2;	
+	
+	m_vecFlow.clear();
+	m_vecFlow.resize(m_nSlices );	
+	
+	vector <Mat> vecFlowmap;
+	vecFlowmap.resize(m_nSlices );
+
+//	gpMainFrame->CreateProgressBar(0, m_nSlices, 1);
+//	CProgressCtrl *pb =  gpMainFrame->GetProgressBarCtrl();
+
+	clock_t start, finish;
+	double  duration;
+	start = clock();
+	Mat mSrc1;
+	mSrc1 = m_vecMat[m_referFrame];
+	
+//#pragma omp parallel for 
+	for(int i=0; i<m_nSlices; i++) {
+//		Mat mFlow, mFlowmapColor;
+		Mat mSrc2;
+		
+		mSrc2 = m_vecMat[i];
+		Mat& mFlow = m_vecFlow[i];
+		Mat& mFlowmapColor = vecFlowmap[i];
+
+        calcOpticalFlowFarneback(mSrc1, mSrc2, mFlow, 0.5, nPyrLayers, nWinSize, nIter, nNeighbor, dblSigma, 0);
+        cvtColor(mSrc1, mFlowmapColor, CV_GRAY2BGR);
+
+		drawOptFlowMap(mFlowmapColor, mFlow, 3, CV_RGB(0, 255, 0));
+
+//		TwoPts ptEar = m_vecEarPair[i];
+//		cv::rectangle(mFlowmapColor,ptEar.ptL-m_offsetEar, ptEar.ptL+m_offsetEar, cv::Scalar(0, 0, 255));
+//		cv::rectangle(mFlowmapColor,ptEar.ptR-m_offsetEar, ptEar.ptR+m_offsetEar, cv::Scalar(0, 0, 255));
+        
+		//m_vecFlow.push_back(mFlow);
+		//vecFlowmap.push_back(mFlowmapColor);
+
+	}
+	finish = clock();
+	duration = (double)(finish - start) / CLOCKS_PER_SEC;
+	int minutes = duration / 60;
+	int second = duration - minutes * 60;
+	MainFrame:: myMsgOutput("Opticalflow computation time: %02dm:%02ds\n", minutes, second);
+
+	saveResult("flow", vecFlowmap);
+
+	MainFrame:: myMsgOutput("Opticalflow done, m_vecFlow size %d------\n", m_vecFlow.size());
+}
+
+void CRat::drawOptFlowMap(Mat& cflowmap, const Mat& flow,  int step, const Scalar& color)
+{
+    for(int y = 0; y < cflowmap.rows; y += step)
+        for(int x = 0; x < cflowmap.cols; x += step)
+        {
+            const Point2f& fxy = flow.at<Point2f>(y, x);
+            line(cflowmap, Point(x,y), Point(cvRound(x+fxy.x), cvRound(y+fxy.y)), color);
+            //circle(cflowmap, Point(x,y), 1, color, -1);
+        }
+}
 void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 {
 	recognizeLeftRight(ptEyeL, ptEyeR, ptEarL, ptEarR);	
@@ -511,6 +580,13 @@ void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 	graylevelDiff(m_referFrame, ptEarL, m_vecEyeL, m_vecLEarGrayDiff);
 	graylevelDiff(m_referFrame, ptEarR, m_vecEyeR, m_vecREarGrayDiff);
 	
+	opticalFlow();
+	opticalFlowAnalysis(m_referFrame, ptEarL, m_vecEyeL, m_vecLEarFlow_eye, true);
+	opticalFlowAnalysis(m_referFrame, ptEarL, m_vecEyeL, m_vecLEarFlow, false);
+	
+	opticalFlowAnalysis(m_referFrame, ptEarR, m_vecEyeR, m_vecREarFlow_eye, true);
+	opticalFlowAnalysis(m_referFrame, ptEarR, m_vecEyeR, m_vecREarFlow, false);	
+	
 	earDiffByFixedLoc(m_referFrame, ptEarL, ptEarR);
 	
 	vector<double> smoothL;
@@ -522,36 +598,40 @@ void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 	
 	int maxPointL = findMaxMotionPoint(smoothL);
 	int maxPointR = findMaxMotionPoint(smoothR);
-	
-	
-	
 
+///////////G N U P L O T//////////////////////////////////////////////////////////////////////////////
 	const char* title =fileName.GetName();
-	_gnuplotLED(gPlot, title, m_idxLightBegin, m_idxTwoLight);
+	_gnuplotLED(gPlotL, title, m_idxLightBegin, m_idxTwoLight);
 	
 	if(m_vecLEarGrayDiff[maxPointL]> m_vecREarGrayDiff[maxPointR]) {
 		MainFrame:: myMsgOutput("max motion: left ear %d\n", maxPointL);
-		_gnuplotLine(gPlot, "maxMotion", maxPointL);
+		_gnuplotLine(gPlotL, "maxMotion", maxPointL);
 		saveEarROI(m_referFrame, maxPointL, ptEarL);
 	}else {
 		MainFrame:: myMsgOutput("max motion: right ear %d\n", maxPointR);
-		_gnuplotLine(gPlot, "maxMotion", maxPointR);
+		_gnuplotLine(gPlotL, "maxMotion", maxPointR);
 		saveEarROI(m_referFrame, maxPointR, ptEarR);
 	}	
 	
-	_gnuplotLine(gPlot, "LeftEar", m_vecLEarGrayDiff, "#00008000");
-	_gnuplotLine(gPlot, "LeftEarFixed", m_vecLEarGrayDiff0, "#00008000", ".");
+	_gnuplotLine(gPlotL, "LEar", m_vecLEarGrayDiff, "#00008000");
+	_gnuplotLine(gPlotL, "LEarFixed", m_vecLEarGrayDiff0, "#00008000", ".");
 	
-	_gnuplotLine(gPlot, "RightEar", m_vecREarGrayDiff, "#000000ff");
-	_gnuplotLine(gPlot, "RightEarFixed", m_vecREarGrayDiff0, "#000000ff", ".");
+	_gnuplotLine(gPlotR, "REar", m_vecREarGrayDiff, "#000000ff");
+	_gnuplotLine(gPlotR, "REarFixed", m_vecREarGrayDiff0, "#000000ff", ".");
 	
 	//_gnuplotLine("RightEar", m_vecREarGrayDiff);	
 	//_gnuplotLine("LeftEar_Smooth", smoothL);
 	//_gnuplotLine("LeftEar_Smooth", smoothR);
-	_gnuplotLine(gPlot, "LeftEyeMove", m_vecEyeLMove, "#00ff0000");
+	_gnuplotLine(gPlotL, "LEyeMove", m_vecEyeLMove, "#00ff0000");
+	_gnuplotLine(gPlotR, "LEyeMove", m_vecEyeLMove, "#00ff0000");
 	//_gnuplotLine("RightEye", m_vecEyeRMove);
 
 
+	_gnuplotLine(gPlotL, "LEarFlow", m_vecLEarFlow);
+	_gnuplotLine(gPlotR, "REarFlow", m_vecREarFlow);
+	
+	_gnuplotLine(gPlotL, "LEarFlow-Eye", m_vecLEarFlow_eye);
+	_gnuplotLine(gPlotR, "REarFlow-Eye", m_vecREarFlow_eye);
 	
 	////////////////////// save result to dest
 	m_vecDest.clear();
@@ -1030,7 +1110,60 @@ void CRat::earDiffByFixedLoc(int refer, Point& ptEarL, Point& ptEarR)
 	}
 }
 
-float CRat::findSumMotion(Mat& mFlowROI, cv::Point& ptDiff)
+void CRat::opticalFlowAnalysis(int referFrame, Point ptEar, vector <Point>& vecEye, vector <double>& vecEarFlow, bool bOffset)
+{
+	// compute ear motion
+	int w = m_vecFlow[0].cols;
+	int h = m_vecFlow[0].rows;
+	
+	Point pt1 (ptEar-m_offsetEar);
+	Point pt2 (ptEar+m_offsetEar);
+	if(pt1.x <0) pt1.x = 0;
+	if(pt1.y <0) pt1.y = 0;
+	if(pt2.x >= w) pt2.x = w-1;
+	if(pt2.y >= h) pt2.y = h-1;	
+	
+	Point ptReferEye = vecEye[referFrame];
+	
+	vecEarFlow.clear();
+	
+	for(int i=0; i<m_nSlices; i++) {	
+		float motion;
+		Mat mROILeft(m_vecFlow[i], Rect(pt1, pt2));
+		if(bOffset) {
+			Point ptEyeOffset = vecEye[i] - ptReferEye;
+			motion = findAvgMotion(mROILeft, ptEyeOffset);
+		}else
+			motion = findAvgMotion(mROILeft);
+			
+		vecEarFlow.push_back(motion);
+	}
+}
+float CRat::findAvgMotion(Mat& mFlowROI, cv::Point ptEyeOffset)
+{
+	float sum = 0;
+	int w = mFlowROI.cols;
+	int h = mFlowROI.rows;
+	int sz = 0;// h*w;
+    for(int y = 0; y <h; y++){
+        for(int x = 0; x <w; x ++)
+        {
+            Point2f fxy = mFlowROI.at<Point2f>(y, x);
+			fxy.x -= ptEyeOffset.x;
+			fxy.y -= ptEyeOffset.y;
+			
+			float mv  = cv::norm(fxy);
+			if (mv >= 1) {
+				sum += mv;
+				sz++;
+			}
+        }
+	}
+
+	if (sz == 0) return 0;
+	return sum/ sz;
+}
+float CRat::findAvgMotion(Mat& mFlowROI)
 {
 	float sum = 0;
 	int w = mFlowROI.cols;
@@ -1050,7 +1183,7 @@ float CRat::findSumMotion(Mat& mFlowROI, cv::Point& ptDiff)
 			}
         }
 	}
-//	gpOutput->ShowMessage("sz %d  %d \n", h*w, sz);
+
 	if (sz == 0) return 0;
 	return sum/ sz;
 }

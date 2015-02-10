@@ -88,11 +88,14 @@ public:
 	void 	earDiffByFixedLoc(int refer, Point& ptEarL, Point& ptEarR);
 	void 	saveEarROI(int stable, int motion, Point& pt);
 	void 	saveEyeTrajectory();
-	
+
+	void	opticalFlow();
+	void	drawOptFlowMap(Mat& cflowmap, const Mat& flow, int step, const Scalar& color);
+	void	opticalFlowAnalysis(int referFrame, Point ptEar, vector <Point>& vecEye, vector <double>& vecEarFlow, bool bOffset);
 	float	findMaxMotion(Mat& mROI, cv::Point& ptDiff);
-	float	findSumMotion(Mat& mFlowROI, cv::Point& ptDiff);
-
-
+	float	findAvgMotion(Mat& mFlowROI, cv::Point ptEyeOffset);
+	float	findAvgMotion(Mat& mFlowROI);
+	
 	void	findMouseEyes(int numFrame, Point ptEyeL, Point ptEyeR);
 	int 	detectEyes(Mat &mROI, vector<vector<cv::Point> >& vecContour, Point& ptL, Point& ptR, bool bShow = false);
 	void	setROIRect(Rect& rectEye, Point pt1, Point pt2);
@@ -120,7 +123,10 @@ public:
 public:
 	vector <Mat> m_vecMat;
 	vector <Mat> m_vecDest;
-
+	
+	vector <Mat> m_vecFlow;
+	
+	
 	vector <Point>  m_vecEyeL;
 	vector <Point>  m_vecEyeR;
 	vector <double>  m_vecEyeLMove;
@@ -150,6 +156,11 @@ public:
 	vector <double>  m_vecLEarGrayDiff0;
 	vector <double>  m_vecREarGrayDiff0;
 
+	vector <double>  m_vecLEarFlow;
+	vector <double>  m_vecREarFlow;
+	vector <double>  m_vecLEarFlow_eye;
+	vector <double>  m_vecREarFlow_eye;
+	
 	int		m_nSlices ;
 	Size	m_szImg;
 	wxString  m_strSrcPath;
