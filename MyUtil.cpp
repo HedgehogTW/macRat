@@ -186,7 +186,32 @@ void _OutputVecPoints(vector <Point> &vecPoints, const char *filename, bool bhas
 	}
 	fclose(fp);	
 }
+void _OutputMatPoint2f(cv::Mat m, const char *filename, bool bAppend)
+{
+	FILE *fp;
+	if(bAppend==false)
+		fp = fopen(filename, "w");
+	else
+		fp = fopen(filename, "a");
+		
+	if(fp==NULL) {
+		wxMessageOutputMessageBox().Printf(_T("cannot create output file"));
+		return;
+	}
 
+	int rows = m.rows;
+	int cols = m.cols;
+
+	for(int y = 0; y < rows; y ++)
+        for(int x = 0; x < cols; x ++)
+        {
+            const Point2f& fxy = m.at<Point2f>(y, x);
+			fprintf(fp, "%f, %f\n", fxy.x, fxy.y);
+
+        }
+
+	fclose(fp);	
+}
 void _OutputMat(cv::Mat m, const char *filename, bool bhasComma)
 {
 	FILE *fp;

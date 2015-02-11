@@ -393,7 +393,7 @@ void MainFrame::OnRatProcess(wxCommandEvent& event)
 	
 
 		//m_Rat.m_vecLEarGrayDiff, m_Rat.m_vecREarGrayDiff, m_Rat.m_vecLEyeGrayDiff);
-		
+	wxBell();	
 }
 
 

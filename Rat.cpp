@@ -474,74 +474,6 @@ void CRat::prepareData()
 	saveResult("cage", m_vecMat);
 }
 
-void CRat::opticalFlow()
-{
-	// optical flow
-	int nIter = 3;
-	int nNeighbor = 3;
-	int nPyrLayers= 1;
-	double dblSigma = 0.8;
-	int nWinSize = 3;
-	//int nFrameSteps = 2;	
-	
-	m_vecFlow.clear();
-	m_vecFlow.resize(m_nSlices );	
-	
-	vector <Mat> vecFlowmap;
-	vecFlowmap.resize(m_nSlices );
-
-//	gpMainFrame->CreateProgressBar(0, m_nSlices, 1);
-//	CProgressCtrl *pb =  gpMainFrame->GetProgressBarCtrl();
-
-	clock_t start, finish;
-	double  duration;
-	start = clock();
-	Mat mSrc1;
-	mSrc1 = m_vecMat[m_referFrame];
-	
-//#pragma omp parallel for 
-	for(int i=0; i<m_nSlices; i++) {
-//		Mat mFlow, mFlowmapColor;
-		Mat mSrc2;
-		
-		mSrc2 = m_vecMat[i];
-		Mat& mFlow = m_vecFlow[i];
-		Mat& mFlowmapColor = vecFlowmap[i];
-
-        calcOpticalFlowFarneback(mSrc1, mSrc2, mFlow, 0.5, nPyrLayers, nWinSize, nIter, nNeighbor, dblSigma, 0);
-        cvtColor(mSrc1, mFlowmapColor, CV_GRAY2BGR);
-
-		drawOptFlowMap(mFlowmapColor, mFlow, 5, CV_RGB(0, 255, 0));
-
-//		TwoPts ptEar = m_vecEarPair[i];
-//		cv::rectangle(mFlowmapColor,ptEar.ptL-m_offsetEar, ptEar.ptL+m_offsetEar, cv::Scalar(0, 0, 255));
-//		cv::rectangle(mFlowmapColor,ptEar.ptR-m_offsetEar, ptEar.ptR+m_offsetEar, cv::Scalar(0, 0, 255));
-        
-		//m_vecFlow.push_back(mFlow);
-		//vecFlowmap.push_back(mFlowmapColor);
-
-	}
-	finish = clock();
-	duration = (double)(finish - start) / CLOCKS_PER_SEC;
-	int minutes = duration / 60;
-	int second = duration - minutes * 60;
-	MainFrame:: myMsgOutput("Opticalflow computation time: %02dm:%02ds\n", minutes, second);
-
-	saveResult("flow", vecFlowmap);
-
-	MainFrame:: myMsgOutput("Opticalflow done, m_vecFlow size %d------\n", m_vecFlow.size());
-}
-
-void CRat::drawOptFlowMap(Mat& cflowmap, const Mat& flow,  int step, const Scalar& color)
-{
-    for(int y = 0; y < cflowmap.rows; y += step)
-        for(int x = 0; x < cflowmap.cols; x += step)
-        {
-            const Point2f& fxy = flow.at<Point2f>(y, x);
-            line(cflowmap, Point(x,y), Point(cvRound(x+fxy.x), cvRound(y+fxy.y)), color);
-            //circle(cflowmap, Point(x,y), 1, color, -1);
-        }
-}
 void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 {
 	recognizeLeftRight(ptEyeL, ptEyeR, ptEarL, ptEarR);	
@@ -629,11 +561,11 @@ void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 	_gnuplotLine(gPlotL, "LEyeMove", m_vecEyeLMove, "#00ff0000");
 	_gnuplotLine(gPlotR, "REyeMove", m_vecEyeRMove, "#00ff0000");
 
-	_gnuplotLine(gPlotL, "LEarFlow", m_vecLEarFlow, "#00FF4500");
-	_gnuplotLine(gPlotL, "LEarFlow-Eye", m_vecLEarFlow_eye, "#00FF4500", ".");
+	_gnuplotLine(gPlotL, "LEarFlow", m_vecLEarFlow, "#00FF4500", ".");
+	_gnuplotLine(gPlotL, "LEarFlow-Eye", m_vecLEarFlow_eye, "#00FF4500");
 	
-	_gnuplotLine(gPlotR, "REarFlow", m_vecREarFlow, "#00FFD700");
-	_gnuplotLine(gPlotR, "REarFlow-Eye", m_vecREarFlow_eye, "#00FFD700", ".");
+	_gnuplotLine(gPlotR, "REarFlow", m_vecREarFlow, "#00B8860B", ".");
+	_gnuplotLine(gPlotR, "REarFlow-Eye", m_vecREarFlow_eye, "#00B8860B");
 
 	////////////////////// save result to dest
 	m_vecDest.clear();
@@ -675,7 +607,7 @@ void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 		rectangle(mDestColor, Rect(ptR1n, ptR2n), Scalar(0,255,0));
 	}
 	saveResult("dest", m_vecDest);
-	
+	//wxBell();
 /*		
 	///////////////////////////////////////////find bending points
 	int k = 3;
@@ -1112,6 +1044,96 @@ void CRat::earDiffByFixedLoc(int refer, Point& ptEarL, Point& ptEarR)
 	}
 }
 
+void CRat::opticalFlow()
+{
+	// optical flow
+	double pyr_scale = 0.5;
+	int nIter = 3;
+	int nNeighbor = 3;
+	int nPyrLayers= 1;
+	double dblSigma = 0.8;
+	int nWinSize = 3;
+	//int nFrameSteps = 2;	
+	
+	m_vecFlow.clear();
+	m_vecFlow.resize(m_nSlices );	
+	
+	vector <Mat> vecFlowmap;
+	vecFlowmap.resize(m_nSlices );
+
+//	gpMainFrame->CreateProgressBar(0, m_nSlices, 1);
+//	CProgressCtrl *pb =  gpMainFrame->GetProgressBarCtrl();
+
+	clock_t start, finish;
+	double  duration;
+	start = clock();
+	Mat mSrc1;
+	mSrc1 = m_vecMat[m_referFrame];
+	
+//#pragma omp parallel for 
+	for(int i=0; i<m_nSlices; i++) {
+//		Mat mFlow, mFlowmapColor;
+		Mat mSrc2;
+		
+		mSrc2 = m_vecMat[i];
+		Mat& mFlow = m_vecFlow[i];
+		Mat& mFlowmapColor = vecFlowmap[i];
+
+        calcOpticalFlowFarneback(mSrc1, mSrc2, mFlow, pyr_scale, nPyrLayers, nWinSize, nIter, nNeighbor, dblSigma, 0);
+        cvtColor(mSrc1, mFlowmapColor, CV_GRAY2BGR);
+
+		drawOptFlowMap(mFlowmapColor, mFlow, 5, CV_RGB(0, 128, 0));
+
+		cv::rectangle(mFlowmapColor,m_ptEarL-m_offsetEar,m_ptEarL+m_offsetEar, cv::Scalar(0, 0, 255));
+		cv::rectangle(mFlowmapColor,m_ptEarR-m_offsetEar, m_ptEarR+m_offsetEar, cv::Scalar(0, 0, 255));
+		// new positions of eyes 
+		circle(mFlowmapColor, Point(m_vecEyeL[i].x, m_vecEyeL[i].y), 3, Scalar(0, 0, 255), -1);	
+		circle(mFlowmapColor, Point(m_vecEyeR[i].x, m_vecEyeR[i].y), 3, Scalar(0, 0, 255), -1);
+		// reference eyes
+		circle(mFlowmapColor, Point(m_vecEyeL[m_referFrame].x, m_vecEyeL[m_referFrame].y), 2, Scalar(0, 255, 255), -1);	
+		circle(mFlowmapColor, Point(m_vecEyeR[m_referFrame].x, m_vecEyeR[m_referFrame].y), 2, Scalar(0, 255, 255), -1);	
+   
+		Point ptEyeC;
+		ptEyeC.x= (m_vecEyeL[i].x+m_vecEyeR[i].x)/2;
+		ptEyeC.y= (m_vecEyeL[i].y+m_vecEyeR[i].y)/2;
+		cv::rectangle(mFlowmapColor,ptEyeC-m_offsetEar,ptEyeC+m_offsetEar, cv::Scalar(255, 0, 255));
+     
+		if(i==285) {
+			saveFlowData(mFlow, m_ptEarL, "_flowEar.csv");
+			saveFlowData(mFlow, m_ptEarR, "_flowEar.csv", true);
+
+			saveFlowData(mFlow, ptEyeC, "_flowEye.csv");
+		}
+	}
+	finish = clock();
+	duration = (double)(finish - start) / CLOCKS_PER_SEC;
+	int minutes = duration / 60;
+	int second = duration - minutes * 60;
+	MainFrame:: myMsgOutput("Opticalflow computation time: %02dm:%02ds\n", minutes, second);
+
+	saveResult("flow", vecFlowmap);
+
+	MainFrame:: myMsgOutput("Opticalflow done, m_vecFlow size %d------\n", m_vecFlow.size());
+}
+void CRat::saveFlowData(Mat& mFlow, Point pt, const char *filename, bool bAppend)
+{
+	Point pt1 (pt-m_offsetEar);
+	Point pt2 (pt+m_offsetEar);
+	Mat mROI(mFlow, Rect(pt1, pt2));
+	_OutputMatPoint2f(mROI, filename, bAppend);
+	
+}
+
+void CRat::drawOptFlowMap(Mat& cflowmap, const Mat& flow,  int step, const Scalar& color)
+{
+    for(int y = 0; y < cflowmap.rows; y += step)
+        for(int x = 0; x < cflowmap.cols; x += step)
+        {
+            const Point2f& fxy = flow.at<Point2f>(y, x);
+            line(cflowmap, Point(x,y), Point(cvRound(x+fxy.x), cvRound(y+fxy.y)), color);
+            //circle(cflowmap, Point(x,y), 1, color, -1);
+        }
+}
 void CRat::opticalFlowAnalysis(Point ptEar, vector <Point>& vecEye, vector <double>& vecEarFlow, bool bOffset, vector <double>&  vecEyeMove)
 {
 	// compute ear motion
