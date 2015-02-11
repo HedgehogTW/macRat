@@ -511,7 +511,7 @@ void CRat::opticalFlow()
         calcOpticalFlowFarneback(mSrc1, mSrc2, mFlow, 0.5, nPyrLayers, nWinSize, nIter, nNeighbor, dblSigma, 0);
         cvtColor(mSrc1, mFlowmapColor, CV_GRAY2BGR);
 
-		drawOptFlowMap(mFlowmapColor, mFlow, 3, CV_RGB(0, 255, 0));
+		drawOptFlowMap(mFlowmapColor, mFlow, 5, CV_RGB(0, 255, 0));
 
 //		TwoPts ptEar = m_vecEarPair[i];
 //		cv::rectangle(mFlowmapColor,ptEar.ptL-m_offsetEar, ptEar.ptL+m_offsetEar, cv::Scalar(0, 0, 255));
@@ -581,19 +581,19 @@ void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 	graylevelDiff(m_referFrame, ptEarR, m_vecEyeR, m_vecREarGrayDiff);
 	
 	opticalFlow();
-	opticalFlowAnalysis(m_referFrame, ptEarL, m_vecEyeL, m_vecLEarFlow_eye, true);
-	opticalFlowAnalysis(m_referFrame, ptEarL, m_vecEyeL, m_vecLEarFlow, false);
+	opticalFlowAnalysis(ptEarL, m_vecEyeL, m_vecLEarFlow_eye, true, m_vecEyeLMove);
+	opticalFlowAnalysis(ptEarL, m_vecEyeL, m_vecLEarFlow, false, m_vecEyeLMove);
 	
-	opticalFlowAnalysis(m_referFrame, ptEarR, m_vecEyeR, m_vecREarFlow_eye, true);
-	opticalFlowAnalysis(m_referFrame, ptEarR, m_vecEyeR, m_vecREarFlow, false);	
+	opticalFlowAnalysis(ptEarR, m_vecEyeR, m_vecREarFlow_eye, true, m_vecEyeRMove);
+	opticalFlowAnalysis(ptEarR, m_vecEyeR, m_vecREarFlow, false, m_vecEyeRMove);	
 	
 	earDiffByFixedLoc(m_referFrame, ptEarL, ptEarR);
 	
 	vector<double> smoothL;
-	smoothData(m_vecLEarGrayDiff, smoothL, 2);	
+	smoothData(m_vecLEarGrayDiff0, smoothL, 2);	
 	
 	vector<double> smoothR;
-	smoothData(m_vecREarGrayDiff, smoothR, 2);	
+	smoothData(m_vecREarGrayDiff0, smoothR, 2);	
 		
 	
 	int maxPointL = findMaxMotionPoint(smoothL);
@@ -602,14 +602,17 @@ void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 ///////////G N U P L O T//////////////////////////////////////////////////////////////////////////////
 	const char* title =fileName.GetName();
 	_gnuplotLED(gPlotL, title, m_idxLightBegin, m_idxTwoLight);
+	_gnuplotLED(gPlotR, title, m_idxLightBegin, m_idxTwoLight);
 	
-	if(m_vecLEarGrayDiff[maxPointL]> m_vecREarGrayDiff[maxPointR]) {
+	if(m_vecLEarGrayDiff0[maxPointL]> m_vecREarGrayDiff0[maxPointR]) {
 		MainFrame:: myMsgOutput("max motion: left ear %d\n", maxPointL);
 		_gnuplotLine(gPlotL, "maxMotion", maxPointL);
+		_gnuplotLine(gPlotR, "maxMotion", maxPointL);
 		saveEarROI(m_referFrame, maxPointL, ptEarL);
 	}else {
 		MainFrame:: myMsgOutput("max motion: right ear %d\n", maxPointR);
 		_gnuplotLine(gPlotL, "maxMotion", maxPointR);
+		_gnuplotLine(gPlotR, "maxMotion", maxPointL);
 		saveEarROI(m_referFrame, maxPointR, ptEarR);
 	}	
 	
@@ -622,17 +625,16 @@ void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 	//_gnuplotLine("RightEar", m_vecREarGrayDiff);	
 	//_gnuplotLine("LeftEar_Smooth", smoothL);
 	//_gnuplotLine("LeftEar_Smooth", smoothR);
+	
 	_gnuplotLine(gPlotL, "LEyeMove", m_vecEyeLMove, "#00ff0000");
-	_gnuplotLine(gPlotR, "LEyeMove", m_vecEyeLMove, "#00ff0000");
-	//_gnuplotLine("RightEye", m_vecEyeRMove);
+	_gnuplotLine(gPlotR, "REyeMove", m_vecEyeRMove, "#00ff0000");
 
+	_gnuplotLine(gPlotL, "LEarFlow", m_vecLEarFlow, "#00FF4500");
+	_gnuplotLine(gPlotL, "LEarFlow-Eye", m_vecLEarFlow_eye, "#00FF4500", ".");
+	
+	_gnuplotLine(gPlotR, "REarFlow", m_vecREarFlow, "#00FFD700");
+	_gnuplotLine(gPlotR, "REarFlow-Eye", m_vecREarFlow_eye, "#00FFD700", ".");
 
-	_gnuplotLine(gPlotL, "LEarFlow", m_vecLEarFlow);
-	_gnuplotLine(gPlotR, "REarFlow", m_vecREarFlow);
-	
-	_gnuplotLine(gPlotL, "LEarFlow-Eye", m_vecLEarFlow_eye);
-	_gnuplotLine(gPlotR, "REarFlow-Eye", m_vecREarFlow_eye);
-	
 	////////////////////// save result to dest
 	m_vecDest.clear();
 	Point ptL1 (ptEarL-m_offsetEar);
@@ -1110,7 +1112,7 @@ void CRat::earDiffByFixedLoc(int refer, Point& ptEarL, Point& ptEarR)
 	}
 }
 
-void CRat::opticalFlowAnalysis(int referFrame, Point ptEar, vector <Point>& vecEye, vector <double>& vecEarFlow, bool bOffset)
+void CRat::opticalFlowAnalysis(Point ptEar, vector <Point>& vecEye, vector <double>& vecEarFlow, bool bOffset, vector <double>&  vecEyeMove)
 {
 	// compute ear motion
 	int w = m_vecFlow[0].cols;
@@ -1123,7 +1125,7 @@ void CRat::opticalFlowAnalysis(int referFrame, Point ptEar, vector <Point>& vecE
 	if(pt2.x >= w) pt2.x = w-1;
 	if(pt2.y >= h) pt2.y = h-1;	
 	
-	Point ptReferEye = vecEye[referFrame];
+	Point ptReferEye = vecEye[m_referFrame];
 	
 	vecEarFlow.clear();
 	
@@ -1131,8 +1133,9 @@ void CRat::opticalFlowAnalysis(int referFrame, Point ptEar, vector <Point>& vecE
 		float motion;
 		Mat mROILeft(m_vecFlow[i], Rect(pt1, pt2));
 		if(bOffset) {
-			Point ptEyeOffset = vecEye[i] - ptReferEye;
-			motion = findAvgMotion(mROILeft, ptEyeOffset);
+			//Point ptEyeOffset = vecEye[i] - ptReferEye;
+			motion = findAvgMotion(mROILeft);
+			motion -= vecEyeMove[i]*0.2;
 		}else
 			motion = findAvgMotion(mROILeft);
 			
@@ -1149,11 +1152,14 @@ float CRat::findAvgMotion(Mat& mFlowROI, cv::Point ptEyeOffset)
         for(int x = 0; x <w; x ++)
         {
             Point2f fxy = mFlowROI.at<Point2f>(y, x);
-			fxy.x -= ptEyeOffset.x;
-			fxy.y -= ptEyeOffset.y;
+			//fxy.x -= ptEyeOffset.x;
+			//fxy.y -= ptEyeOffset.y;
 			
 			float mv  = cv::norm(fxy);
 			if (mv >= 1) {
+				fxy.x -= ptEyeOffset.x;
+				fxy.y -= ptEyeOffset.y;
+				mv  = cv::norm(fxy);
 				sum += mv;
 				sz++;
 			}
@@ -1168,14 +1174,11 @@ float CRat::findAvgMotion(Mat& mFlowROI)
 	float sum = 0;
 	int w = mFlowROI.cols;
 	int h = mFlowROI.rows;
-	int sz = 0;// h*w;
+	int sz = 0;
     for(int y = 0; y <h; y++){
         for(int x = 0; x <w; x ++)
         {
             Point2f fxy = mFlowROI.at<Point2f>(y, x);
-			//fxy.x -= ptDiff.x;
-			//fxy.y -= ptDiff.y;
-			
 			float mv  = cv::norm(fxy);
 			if (mv >= 1) {
 				sum += mv;

@@ -91,7 +91,7 @@ public:
 
 	void	opticalFlow();
 	void	drawOptFlowMap(Mat& cflowmap, const Mat& flow, int step, const Scalar& color);
-	void	opticalFlowAnalysis(int referFrame, Point ptEar, vector <Point>& vecEye, vector <double>& vecEarFlow, bool bOffset);
+	void	opticalFlowAnalysis(Point ptEar, vector <Point>& vecEye, vector <double>& vecEarFlow, bool bOffset, vector <double>&  vecEyeMove);
 	float	findMaxMotion(Mat& mROI, cv::Point& ptDiff);
 	float	findAvgMotion(Mat& mFlowROI, cv::Point ptEyeOffset);
 	float	findAvgMotion(Mat& mFlowROI);
