@@ -97,6 +97,8 @@ public:
 	float	findAvgMotion(Mat& mFlowROI, cv::Point ptEyeOffset);
 	float	findAvgMotion(Mat& mFlowROI);
 	
+	void 	createGaussianMask(double& sigma, int& ksize, Mat& mKernel);
+	
 	void	findMouseEyes(int numFrame, Point ptEyeL, Point ptEyeR);
 	int 	detectEyes(Mat &mROI, vector<vector<cv::Point> >& vecContour, Point& ptL, Point& ptR, bool bShow = false);
 	void	setROIRect(Rect& rectEye, Point pt1, Point pt2);

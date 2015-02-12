@@ -37,6 +37,8 @@ CRat::CRat()
 	
 	m_bFirstEyeIsLeft = true;
 	m_bFirstEarIsLeft = true;
+	
+	_redirectStandardOutputToFile("_cout.txt", true);
 }
 
 
@@ -1099,9 +1101,8 @@ void CRat::opticalFlow()
 		cv::rectangle(mFlowmapColor,ptEyeC-m_offsetEar,ptEyeC+m_offsetEar, cv::Scalar(255, 0, 255));
      
 		if(i==285) {
-			saveFlowData(mFlow, m_ptEarL, "_flowEar.csv");
-			saveFlowData(mFlow, m_ptEarR, "_flowEar.csv", true);
-
+			saveFlowData(mFlow, m_ptEarL, "_flowEarL.csv");
+			saveFlowData(mFlow, m_ptEarR, "_flowEarR.csv");
 			saveFlowData(mFlow, ptEyeC, "_flowEye.csv");
 		}
 	}
@@ -1115,6 +1116,31 @@ void CRat::opticalFlow()
 
 	MainFrame:: myMsgOutput("Opticalflow done, m_vecFlow size %d------\n", m_vecFlow.size());
 }
+
+void CRat::createGaussianMask(double& sigma, int& ksize, Mat& mKernel)
+{
+	double ret;
+	float sum = 0.0; // For accumulating the kernel values
+	
+	if(sigma <0) 	sigma = 0.3*((ksize-1)*0.5 - 1) + 0.8;
+	if(ksize <0) 	ksize = ((sigma - 0.8)/0.3 +1)*2 +1;
+	
+	int W = ksize;
+	double mean = W/2;
+	double sigma2_2PI = 2 * M_PI * sigma * sigma;
+	mKernel.create(W, W, CV_32FC1);
+		
+	for (int x = 0; x < W; ++x) 
+		for (int y = 0; y < W; ++y) {
+			mKernel.at<float>(y, x) = exp( -0.5 * (pow((x-mean)/sigma, 2.0) + pow((y-mean)/sigma,2.0)) )/sigma2_2PI;
+
+			// Accumulate the kernel values
+			sum += mKernel.at<float>(y, x);
+		}
+
+	// Normalize the kernel
+	mKernel /= sum;	
+}
 void CRat::saveFlowData(Mat& mFlow, Point pt, const char *filename, bool bAppend)
 {
 	Point pt1 (pt-m_offsetEar);
@@ -1122,6 +1148,37 @@ void CRat::saveFlowData(Mat& mFlow, Point pt, const char *filename, bool bAppend
 	Mat mROI(mFlow, Rect(pt1, pt2));
 	_OutputMatPoint2f(mROI, filename, bAppend);
 	
+	double sigma = -1;
+	int ksize = 7;
+	Mat mGaus ;
+	createGaussianMask(sigma, ksize, mGaus);
+	
+	Mat mROI10 = mROI*10;
+
+	int border = ksize /2;
+	Mat mDist(400, 400, CV_32FC1, Scalar(0));
+    for(int y = 0; y < mROI10.rows; y ++)
+        for(int x = 0; x < mROI10.cols; x ++)
+        {
+            const Point2f& fxy = mROI10.at<Point2f>(y, x);
+            if(fxy.x > 200-border || fxy.x <-200+border) continue;
+			if(fxy.y > 200-border || fxy.y <-200+border) continue;
+
+			Point pt1 (fxy.x+0.5-border+200, fxy.y+0.5-border+200);
+			Point pt2 (fxy.x+0.5+border+200+1, fxy.y+0.5+border+200+1);
+
+			try {
+				Mat mask(mDist, Rect(pt1, pt2));
+				mask += mGaus;
+			}catch(int e) {
+				cout << "An exception occurred. saveFlowData: " << filename <<  fxy.x <<" "<< fxy.y <<'\n';
+				
+			}
+        }
+	_OutputMat(mDist, "_distribut.dat", false);
+	
+	MainFrame:: myMsgOutput("createGaussianMask: sigma %.2f, ksize %d\n", sigma, ksize);
+//	MainFrame:: myMsgOutput("minX %.2f, maxX %.2f, minY %.2f, maxY %.2f\n", minX, maxX, minY, maxY);
 }
 
 void CRat::drawOptFlowMap(Mat& cflowmap, const Mat& flow,  int step, const Scalar& color)
