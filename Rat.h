@@ -90,7 +90,8 @@ public:
 	void 	saveEyeTrajectory();
 
 	void	opticalFlow();
-	void 	saveFlowData(Mat& mFlow, Point pt, const char *filename, bool bAppend=false);
+	void 	saveFlowMovement();
+	void 	saveFlowData(Mat& mFlow, Point pt, wxString& strOutName);
 	void	drawOptFlowMap(Mat& cflowmap, const Mat& flow, int step, const Scalar& color);
 	void	opticalFlowAnalysis(Point ptEar, vector <Point>& vecEye, vector <double>& vecEarFlow, bool bOffset, vector <double>&  vecEyeMove);
 	float	findMaxMotion(Mat& mROI, cv::Point& ptDiff);

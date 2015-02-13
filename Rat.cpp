@@ -1099,12 +1099,6 @@ void CRat::opticalFlow()
 		ptEyeC.x= (m_vecEyeL[i].x+m_vecEyeR[i].x)/2;
 		ptEyeC.y= (m_vecEyeL[i].y+m_vecEyeR[i].y)/2;
 		cv::rectangle(mFlowmapColor,ptEyeC-m_offsetEar,ptEyeC+m_offsetEar, cv::Scalar(255, 0, 255));
-     
-		if(i==285) {
-			saveFlowData(mFlow, m_ptEarL, "_flowEarL.csv");
-			saveFlowData(mFlow, m_ptEarR, "_flowEarR.csv");
-			saveFlowData(mFlow, ptEyeC, "_flowEye.csv");
-		}
 	}
 	finish = clock();
 	duration = (double)(finish - start) / CLOCKS_PER_SEC;
@@ -1113,10 +1107,61 @@ void CRat::opticalFlow()
 	MainFrame:: myMsgOutput("Opticalflow computation time: %02dm:%02ds\n", minutes, second);
 
 	saveResult("flow", vecFlowmap);
+	saveFlowMovement();
 
 	MainFrame:: myMsgOutput("Opticalflow done, m_vecFlow size %d------\n", m_vecFlow.size());
 }
 
+void CRat::saveFlowMovement()
+{
+	char subpath[] = "move";
+	cv::Mat	 cvMat;
+	cv::Mat	 cvMatGray;
+	wxString outpath; 
+
+#if defined(unix) || defined(__unix) || defined(__unix__) || defined(__APPLE__) 
+	outpath = m_strSrcPath + "/" + subpath;
+#else
+	outpath = m_strSrcPath + "\\" + subpath;
+#endif	
+	wxFileName fileName = m_strSrcPath;
+	wxString  fName = fileName.GetName();
+	wxFileName dataName(m_strSrcPath, "_"+fName+ "_motion.csv");
+
+
+	if(m_vecFlow.size() ==0) return;
+
+	if(wxDirExists(outpath)==false) {
+		if(wxMkdir(outpath)==false) {
+			wxString str;
+			str.Printf("Create output directory error, %s", outpath);
+			wxLogMessage(str);
+			return;
+		}
+	}
+	int sz = m_vecFlow.size();
+	for(int i=0; i<sz; i++) {
+		Mat& mFlow = m_vecFlow[i];	
+		
+		wxFileName fileName = wxString(m_vFilenames[i]);
+		fileName.AppendDir(subpath);
+		wxFileName savePath = fileName.GetPath();
+		wxFileName saveName(savePath.GetFullPath(), fileName.GetName());
+		
+		wxString strOutName;
+		strOutName = saveName.GetFullPath() + "_EarL";
+		saveFlowData(mFlow, m_ptEarL, strOutName);
+		
+		strOutName = saveName.GetFullPath() + "_EarR";
+		saveFlowData(mFlow, m_ptEarR, strOutName);
+				
+		Point ptEyeC;
+		ptEyeC.x= (m_vecEyeL[i].x+m_vecEyeR[i].x)/2;
+		ptEyeC.y= (m_vecEyeL[i].y+m_vecEyeR[i].y)/2;
+		strOutName = saveName.GetFullPath() + "_Eye";
+		saveFlowData(mFlow, ptEyeC, strOutName);
+	}
+}
 void CRat::createGaussianMask(double& sigma, int& ksize, Mat& mKernel)
 {
 	double ret;
@@ -1141,14 +1186,14 @@ void CRat::createGaussianMask(double& sigma, int& ksize, Mat& mKernel)
 	// Normalize the kernel
 	mKernel /= sum;	
 }
-void CRat::saveFlowData(Mat& mFlow, Point pt, const char *filename, bool bAppend)
+void CRat::saveFlowData(Mat& mFlow, Point pt, wxString& strOutName)
 {
 	Point pt1 (pt-m_offsetEar);
 	Point pt2 (pt+m_offsetEar);
 	Mat mROI(mFlow, Rect(pt1, pt2));
 	
-	wxFileName outName(m_strSrcPath, filename);		
-	_OutputMatPoint2f(mROI, outName.GetFullPath().ToAscii(), bAppend);
+	wxString  fName = strOutName + ".csv";
+	_OutputMatPoint2f(mROI, fName.ToAscii());
 	
 	double sigma = -1;
 	int ksize = 7;
@@ -1173,8 +1218,8 @@ void CRat::saveFlowData(Mat& mFlow, Point pt, const char *filename, bool bAppend
 			mask += mGaus;
         }
 		
-	wxFileName disName(m_strSrcPath, "_distribut.dat");
-	_OutputMat(mDist, disName.GetFullPath().ToAscii(), false);
+	fName = strOutName + ".dat";
+	_OutputMat(mDist, fName.ToAscii(), false);
 	
 	MainFrame:: myMsgOutput("createGaussianMask: sigma %.2f, ksize %d\n", sigma, ksize);
 }
