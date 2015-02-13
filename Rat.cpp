@@ -1146,39 +1146,37 @@ void CRat::saveFlowData(Mat& mFlow, Point pt, const char *filename, bool bAppend
 	Point pt1 (pt-m_offsetEar);
 	Point pt2 (pt+m_offsetEar);
 	Mat mROI(mFlow, Rect(pt1, pt2));
-	_OutputMatPoint2f(mROI, filename, bAppend);
+	
+	wxFileName outName(m_strSrcPath, filename);		
+	_OutputMatPoint2f(mROI, outName.GetFullPath().ToAscii(), bAppend);
 	
 	double sigma = -1;
 	int ksize = 7;
-	Mat mGaus ;
+	Mat mGaus ; 
 	createGaussianMask(sigma, ksize, mGaus);
 	
-	Mat mROI10 = mROI*10;
+	Mat mROI10 = mROI;//*10;
 
 	int border = ksize /2;
-	Mat mDist(400, 400, CV_32FC1, Scalar(0));
+	Mat mDist(40, 40, CV_32FC1, Scalar(0));
     for(int y = 0; y < mROI10.rows; y ++)
         for(int x = 0; x < mROI10.cols; x ++)
         {
             const Point2f& fxy = mROI10.at<Point2f>(y, x);
-            if(fxy.x > 200-border || fxy.x <-200+border) continue;
-			if(fxy.y > 200-border || fxy.y <-200+border) continue;
+            if(fxy.x > 20-border-1 || fxy.x <-20+border+1) continue;
+			if(fxy.y > 20-border-1 || fxy.y <-20+border+1) continue;
 
-			Point pt1 (fxy.x+0.5-border+200, fxy.y+0.5-border+200);
-			Point pt2 (fxy.x+0.5+border+200+1, fxy.y+0.5+border+200+1);
+			Point pt1 (fxy.x+0.5-border+20, fxy.y+0.5-border+20);
+			Point pt2 (fxy.x+0.5+border+20+1, fxy.y+0.5+border+20+1);
 
-			try {
-				Mat mask(mDist, Rect(pt1, pt2));
-				mask += mGaus;
-			}catch(int e) {
-				cout << "An exception occurred. saveFlowData: " << filename <<  fxy.x <<" "<< fxy.y <<'\n';
-				
-			}
+			Mat mask(mDist, Rect(pt1, pt2));
+			mask += mGaus;
         }
-	_OutputMat(mDist, "_distribut.dat", false);
+		
+	wxFileName disName(m_strSrcPath, "_distribut.dat");
+	_OutputMat(mDist, disName.GetFullPath().ToAscii(), false);
 	
 	MainFrame:: myMsgOutput("createGaussianMask: sigma %.2f, ksize %d\n", sigma, ksize);
-//	MainFrame:: myMsgOutput("minX %.2f, maxX %.2f, minY %.2f, maxY %.2f\n", minX, maxX, minY, maxY);
 }
 
 void CRat::drawOptFlowMap(Mat& cflowmap, const Mat& flow,  int step, const Scalar& color)
