@@ -66,6 +66,8 @@ public:
 	
 	
 protected:
+    virtual void OnView2DData(wxCommandEvent& event);
+    virtual void OnView3DData(wxCommandEvent& event);
     virtual void OnViewResultSeries(wxCommandEvent& event);
     virtual void OnUpdateViewSeries(wxUpdateUIEvent& event);
     virtual void OnViewSeries(wxCommandEvent& event);

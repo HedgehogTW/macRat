@@ -833,17 +833,16 @@ void CRat::saveEarROI(int stable, int motion, Point& pt)
 	mEdge18U.copyTo(planes[2]);
 	merge(planes, mColor);	
 	
-	
-	wxFileName bmpName1(m_strSrcPath, "_stable.bmp");
-	wxFileName bmpName2(m_strSrcPath, "_motion.bmp");
+//	wxFileName bmpName1(m_strSrcPath, "_stable.bmp");
+//	wxFileName bmpName2(m_strSrcPath, "_motion.bmp");
 	wxFileName bmpName3(m_strSrcPath, "_edge.bmp");
 		
-	imwrite(bmpName1.GetFullPath().ToStdString(), mROI0);
-	imwrite(bmpName2.GetFullPath().ToStdString(), mROI1);
+//	imwrite(bmpName1.GetFullPath().ToStdString(), mROI0);
+//	imwrite(bmpName2.GetFullPath().ToStdString(), mROI1);
 	imwrite(bmpName3.GetFullPath().ToStdString(), mColor);
 	
-	imshow("_stable", mROI0);
-	imshow("_motion", mROI1); 
+//	imshow("_stable", mROI0);
+//	imshow("_motion", mROI1); 
 	imshow("_ColorEdge", mColor);
 }
 int CRat::findMaxMotionPoint(vector<double>& inData)

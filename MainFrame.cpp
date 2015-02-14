@@ -18,7 +18,8 @@
 using namespace std;
 using namespace cv;
 
-
+Gnuplot gPlot2D("dots");
+Gnuplot gPlot3D("lines");
 
 MainFrame *	MainFrame::m_pThis=NULL;
 
@@ -550,4 +551,38 @@ void MainFrame::OnViewResultSeries(wxCommandEvent& event)
 	cv::createTrackbar("slice", "ResultSeries", &pos, m_nSlices-1, ResultSlice, this);
 	//cv::setMouseCallback("ResultSeries", onCVMouse, this);
 	cv::imshow("ResultSeries", mSrc);		
+}
+void MainFrame::OnView2DData(wxCommandEvent& event)
+{
+	wxFileDialog openFileDialog(this, _("Open csv file"), "", "",
+					"csv files (*.csv)|*.csv", wxFD_OPEN|wxFD_FILE_MUST_EXIST);
+	if (openFileDialog.ShowModal() == wxID_CANCEL)
+		return; // the user changed idea...
+	// proceed loading the file chosen by the user;
+	// this can be done with e.g. wxWidgets input streams:
+	wxString fname = openFileDialog.GetPath();	
+	
+	std::ostringstream cmdstr;
+    //
+    // command to be sent to gnuplot
+    //
+	cmdstr << "plot '" << fname.ToAscii() << "' " << "with dots";
+    gPlot2D.cmd(cmdstr.str());
+}
+void MainFrame::OnView3DData(wxCommandEvent& event)
+{
+	wxFileDialog openFileDialog(this, _("Open data file"), "", "",
+					"dat files (*.dat)|*.dat", wxFD_OPEN|wxFD_FILE_MUST_EXIST);
+	if (openFileDialog.ShowModal() == wxID_CANCEL)
+		return; // the user changed idea...
+	// proceed loading the file chosen by the user;
+	// this can be done with e.g. wxWidgets input streams:
+	wxString fname = openFileDialog.GetPath();	
+	
+	std::ostringstream cmdstr;
+    //
+    // command to be sent to gnuplot
+    //
+	cmdstr << "splot '" << fname.ToAscii() << "' " << "matrix using 1:2:3 with lines";
+    gPlot3D.cmd(cmdstr.str());	
 }
