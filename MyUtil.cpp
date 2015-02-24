@@ -168,6 +168,7 @@ void _OutputBinaryMat(cv::Mat m, char *filename)
 	fclose(fp);
 }
 
+
 void _OutputVecPoints(vector <Point> &vecPoints, const char *filename, bool bhasComma)
 {
 	FILE *fp;
@@ -186,6 +187,7 @@ void _OutputVecPoints(vector <Point> &vecPoints, const char *filename, bool bhas
 	}
 	fclose(fp);	
 }
+
 void _OutputMatPoint2f(cv::Mat m, const char *filename, bool bAppend)
 {
 	FILE *fp;
@@ -296,7 +298,75 @@ void _OutputMat(cv::Mat m, const char *filename, bool bhasComma)
 	//MainFrame:: myMsgOutput("output file: %s, rows %d, cols %d\n", filename, lines, cols);
 }
 
+int fwrite_matrix( FILE *fout, cv::Mat &m, int xsize, int ysize, float *rt, float *ct)
+{
+    int j;
+    int status;
+    float length = ysize;
 
+    if ((status = fwrite((char *) &length, sizeof(float), 1, fout)) != 1) {
+		fprintf(stderr, "fwrite 1 returned %d\n", status);
+		return (0);
+    }
+    fwrite((char *) ct, sizeof(float), ysize, fout);
+    for (j = 0; j < xsize; j++) {
+		fwrite((char *) &rt[j], sizeof(float), 1, fout);
+		const float* Mi = m.ptr<float>(j);
+		fwrite((char *) (Mi), sizeof(float), ysize, fout);
+    }
+
+    return (1);
+}
+
+void _OutputMatGnuplotBinData(cv::Mat m, const char *filename)
+{
+	int channel, depth;
+
+	depth = m.depth();
+	channel = m.channels();
+	if(channel !=1) 	return;
+	
+	if(depth != CV_32F)  m.convertTo(m, CV_32F);
+	
+	FILE *fp;
+	fp = fopen(filename, "wb");
+	if(fp==NULL) {
+		wxMessageOutputMessageBox().Printf(_T("cannot create output file"));
+		return;
+	}	
+	//////////////////////////////////
+    int i, j;
+    float x, y;
+    float *rt, *ct;
+    int xsize, ysize;
+
+/*  Create a few standard test interfaces */
+	float xmin, xmax;
+	float ymin, ymax;
+	
+	xmin = -20;
+	xmax = 20;
+	ymin = -20;
+	ymax = 20;	
+	
+   	xsize = (xmax - xmin) ;
+	ysize = (ymax - ymin) ;
+
+	rt = new float [xsize];
+	ct = new float [ysize];
+	
+	for (y = ymin, j = 0; j < ysize; j++, y += 1.0 )     ct[j] = y;
+	for (x = xmin, i = 0; i < xsize; i++, x += 1.0 )     rt[i] = x;
+	
+	if(fwrite_matrix(fp, m, xsize, ysize, rt, ct)==0) {
+		wxMessageOutputMessageBox().Printf(_T("fwrite_matrix ERROR"));
+	}
+	
+	fclose(fp);
+	
+	delete [] rt;
+	delete [] ct;
+}
 void _rgbMat2hsvMat(cv::Mat &mRGB, cv::Mat &mHSV, bool plus360)
 // h: 0..360, s: 0..1, v: 0..max(r,g,b)
 {

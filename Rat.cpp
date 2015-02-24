@@ -550,10 +550,10 @@ void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 		saveEarROI(m_referFrame, maxPointR, ptEarR);
 	}	
 	
-	_gnuplotLine(gPlotL, "LEar", m_vecLEarGrayDiff, "#00008000");
+	//_gnuplotLine(gPlotL, "LEar", m_vecLEarGrayDiff, "#00008000");
 	_gnuplotLine(gPlotL, "LEarFixed", m_vecLEarGrayDiff0, "#00008000", ".");
 	
-	_gnuplotLine(gPlotR, "REar", m_vecREarGrayDiff, "#000000ff");
+	//_gnuplotLine(gPlotR, "REar", m_vecREarGrayDiff, "#000000ff");
 	_gnuplotLine(gPlotR, "REarFixed", m_vecREarGrayDiff0, "#000000ff", ".");
 	
 	//_gnuplotLine("RightEar", m_vecREarGrayDiff);	
@@ -1218,7 +1218,8 @@ void CRat::saveFlowData(Mat& mFlow, Point pt, wxString& strOutName)
         }
 		
 	fName = strOutName + ".dat";
-	_OutputMat(mDist, fName.ToAscii(), false);
+	//_OutputMat(mDist, fName.ToAscii(), false);
+	_OutputMatGnuplotBinData(mDist, fName.ToAscii());
 	
 	MainFrame:: myMsgOutput("createGaussianMask: sigma %.2f, ksize %d\n", sigma, ksize);
 }
