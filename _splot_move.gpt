@@ -1,0 +1,17 @@
+#
+# $Id: binary.dem,v 1.5 2003/10/28 05:35:54 sfeam Exp $
+#
+set style data lines
+set hidden3d
+set vi 50,20
+set xrange [-20:20]
+set yrange [-20:20]
+set zrange [0:0.15]
+cd 'E:\Image_Data\Rat\pinna 30\20120312-h\'
+do for [i=1:300] {                               
+	fname =  sprintf("move\\h_%04d_EarL.dat", i)  
+	set title fname
+	splot fname binary matrix using 1:2:3 
+}                                     
+
+

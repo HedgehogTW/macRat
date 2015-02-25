@@ -515,11 +515,13 @@ void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 	graylevelDiff(m_referFrame, ptEarR, m_vecEyeR, m_vecREarGrayDiff);
 	
 	opticalFlow();
+	opticalFlowDistribution();
 	opticalFlowAnalysis(ptEarL, m_vecEyeL, m_vecLEarFlow_eye, true, m_vecEyeLMove);
 	opticalFlowAnalysis(ptEarL, m_vecEyeL, m_vecLEarFlow, false, m_vecEyeLMove);
 	
 	opticalFlowAnalysis(ptEarR, m_vecEyeR, m_vecREarFlow_eye, true, m_vecEyeRMove);
-	opticalFlowAnalysis(ptEarR, m_vecEyeR, m_vecREarFlow, false, m_vecEyeRMove);	
+	opticalFlowAnalysis(ptEarR, m_vecEyeR, m_vecREarFlow, false, m_vecEyeRMove);		
+	
 	
 	earDiffByFixedLoc(m_referFrame, ptEarL, ptEarR);
 	
@@ -534,10 +536,12 @@ void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 	int maxPointR = findMaxMotionPoint(smoothR);
 
 ///////////G N U P L O T//////////////////////////////////////////////////////////////////////////////
+
 	const char* title =fileName.GetName();
 	_gnuplotLED(gPlotL, title, m_idxLightBegin, m_idxTwoLight);
 	_gnuplotLED(gPlotR, title, m_idxLightBegin, m_idxTwoLight);
-	
+	gPlotL.set_legend("left");
+	gPlotR.set_legend("left");	
 	if(m_vecLEarGrayDiff0[maxPointL]> m_vecREarGrayDiff0[maxPointR]) {
 		MainFrame:: myMsgOutput("max motion: left ear %d\n", maxPointL);
 		_gnuplotLine(gPlotL, "maxMotion", maxPointL);
@@ -569,6 +573,7 @@ void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 	_gnuplotLine(gPlotR, "REarFlow", m_vecREarFlow, "#00B8860B", ".");
 	_gnuplotLine(gPlotR, "REarFlow-Eye", m_vecREarFlow_eye, "#00B8860B");
 
+	gPlotL.cmd("load '../_splot_move.gpt'");
 	////////////////////// save result to dest
 	m_vecDest.clear();
 	Point ptL1 (ptEarL-m_offsetEar);
@@ -1106,12 +1111,12 @@ void CRat::opticalFlow()
 	MainFrame:: myMsgOutput("Opticalflow computation time: %02dm:%02ds\n", minutes, second);
 
 	saveResult("flow", vecFlowmap);
-	saveFlowMovement();
+//	saveFlowMovement();
 
 	MainFrame:: myMsgOutput("Opticalflow done, m_vecFlow size %d------\n", m_vecFlow.size());
 }
 
-void CRat::saveFlowMovement()
+void CRat::opticalFlowDistribution()
 {
 	char subpath[] = "move";
 	cv::Mat	 cvMat;
@@ -1138,6 +1143,13 @@ void CRat::saveFlowMovement()
 			return;
 		}
 	}
+	
+	double sigma = -1;
+	int ksize = 5;
+	Mat mGaus ; 
+	createGaussianMask(sigma, ksize, mGaus);
+	MainFrame:: myMsgOutput("createGaussianMask: sigma %.2f, ksize %d\n", sigma, ksize);
+	
 	int sz = m_vecFlow.size();
 	for(int i=0; i<sz; i++) {
 		Mat& mFlow = m_vecFlow[i];	
@@ -1149,43 +1161,20 @@ void CRat::saveFlowMovement()
 		
 		wxString strOutName;
 		strOutName = saveName.GetFullPath() + "_EarL";
-		saveFlowData(mFlow, m_ptEarL, strOutName);
+		saveFlowData(mFlow, mGaus, m_ptEarL, strOutName);
 		
 		strOutName = saveName.GetFullPath() + "_EarR";
-		saveFlowData(mFlow, m_ptEarR, strOutName);
+		saveFlowData(mFlow, mGaus, m_ptEarR, strOutName);
 				
 		Point ptEyeC;
 		ptEyeC.x= (m_vecEyeL[i].x+m_vecEyeR[i].x)/2;
 		ptEyeC.y= (m_vecEyeL[i].y+m_vecEyeR[i].y)/2;
 		strOutName = saveName.GetFullPath() + "_Eye";
-		saveFlowData(mFlow, ptEyeC, strOutName);
+		saveFlowData(mFlow, mGaus, ptEyeC, strOutName);
 	}
 }
-void CRat::createGaussianMask(double& sigma, int& ksize, Mat& mKernel)
-{
-	double ret;
-	float sum = 0.0; // For accumulating the kernel values
-	
-	if(sigma <0) 	sigma = 0.3*((ksize-1)*0.5 - 1) + 0.8;
-	if(ksize <0) 	ksize = ((sigma - 0.8)/0.3 +1)*2 +1;
-	
-	int W = ksize;
-	double mean = W/2;
-	double sigma2_2PI = 2 * M_PI * sigma * sigma;
-	mKernel.create(W, W, CV_32FC1);
-		
-	for (int x = 0; x < W; ++x) 
-		for (int y = 0; y < W; ++y) {
-			mKernel.at<float>(y, x) = exp( -0.5 * (pow((x-mean)/sigma, 2.0) + pow((y-mean)/sigma,2.0)) )/sigma2_2PI;
 
-			// Accumulate the kernel values
-			sum += mKernel.at<float>(y, x);
-		}
-
-	// Normalize the kernel
-	mKernel /= sum;	
-}
-void CRat::saveFlowData(Mat& mFlow, Point pt, wxString& strOutName)
+void CRat::saveFlowData(Mat& mFlow, Mat& mGaus, Point pt, wxString& strOutName)
 {
 	Point pt1 (pt-m_offsetEar);
 	Point pt2 (pt+m_offsetEar);
@@ -1193,20 +1182,14 @@ void CRat::saveFlowData(Mat& mFlow, Point pt, wxString& strOutName)
 	
 	wxString  fName = strOutName + ".csv";
 	_OutputMatPoint2f(mROI, fName.ToAscii());
-	
-	double sigma = -1;
-	int ksize = 7;
-	Mat mGaus ; 
-	createGaussianMask(sigma, ksize, mGaus);
-	
-	Mat mROI10 = mROI;//*10;
 
+	int ksize = mGaus.rows;
 	int border = ksize /2;
 	Mat mDist(40, 40, CV_32FC1, Scalar(0));
-    for(int y = 0; y < mROI10.rows; y ++)
-        for(int x = 0; x < mROI10.cols; x ++)
+    for(int y = 0; y < mROI.rows; y ++)
+        for(int x = 0; x < mROI.cols; x ++)
         {
-            const Point2f& fxy = mROI10.at<Point2f>(y, x);
+            const Point2f& fxy = mROI.at<Point2f>(y, x);
             if(fxy.x > 20-border-1 || fxy.x <-20+border+1) continue;
 			if(fxy.y > 20-border-1 || fxy.y <-20+border+1) continue;
 
@@ -1218,12 +1201,35 @@ void CRat::saveFlowData(Mat& mFlow, Point pt, wxString& strOutName)
         }
 		
 	fName = strOutName + ".dat";
+	mDist /= (mROI.rows*mROI.cols);
 	//_OutputMat(mDist, fName.ToAscii(), false);
 	_OutputMatGnuplotBinData(mDist, fName.ToAscii());
-	
-	MainFrame:: myMsgOutput("createGaussianMask: sigma %.2f, ksize %d\n", sigma, ksize);
 }
 
+void CRat::createGaussianMask(double& sigma, int& ksize, Mat& mKernel)
+{
+	double ret;
+	
+	if(sigma <0) 	sigma = 0.3*((ksize-1)*0.5 - 1) + 0.8;
+	if(ksize <0) 	ksize = ((sigma - 0.8)/0.3 +1)*2 +1;
+	
+	int W = ksize;
+	double mean = W/2;
+	double sigma2_2PI = 2 * M_PI * sigma * sigma;
+	mKernel.create(W, W, CV_32FC1);
+	
+	float sum = 0.0; // For accumulating the kernel values	
+	for (int x = 0; x < W; ++x) 
+		for (int y = 0; y < W; ++y) {
+			mKernel.at<float>(y, x) = exp( -0.5 * (pow((x-mean)/sigma, 2.0) + pow((y-mean)/sigma,2.0)) )/sigma2_2PI;
+
+			// Accumulate the kernel values
+			sum += mKernel.at<float>(y, x);
+		}
+
+	// Normalize the kernel
+	mKernel /= sum;	
+}
 void CRat::drawOptFlowMap(Mat& cflowmap, const Mat& flow,  int step, const Scalar& color)
 {
     for(int y = 0; y < cflowmap.rows; y += step)

@@ -13,7 +13,7 @@ void _gnuplotLED(Gnuplot& gnuPlot, const char* title, int nBeginLight, int nTwoL
 //Gnuplot gnuPlot("lines");	
 
 	gnuPlot.reset_all();
-
+//	gnuPlot.unset_legend();
 	gnuPlot.set_title(title);
 	gnuPlot.set_grid().set_yrange(0, GNUPLOT_MAX_Y);
 	
