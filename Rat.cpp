@@ -520,7 +520,10 @@ void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 	opticalFlowSaveDotDensity("movementR", ptEarR);
 	opticalFlowSaveDotDensity("movementY");
 	
-	opticalFlowDistribution();
+	opticalFlowDistribution("distriL", ptEarL);
+	opticalFlowDistribution("distriR", ptEarR);
+	opticalFlowDistribution("distriY");
+	
 	opticalFlowAnalysis(ptEarL, m_vecEyeL, m_vecLEarFlow_eye, true, m_vecEyeLMove);
 	opticalFlowAnalysis(ptEarL, m_vecEyeL, m_vecLEarFlow, false, m_vecEyeLMove);
 	
@@ -1060,10 +1063,11 @@ void CRat::opticalFlow()
 	// optical flow
 	double pyr_scale = 0.5;
 	int nIter = 3;
-	int nNeighbor = 3;
-	int nPyrLayers= 1;
-	double dblSigma = 0.8;
+	int levels= 1;
 	int nWinSize = 3;
+	int poly_n = 7;
+	double dblSigma = 1.5;
+
 	//int nFrameSteps = 2;	
 	
 	m_vecFlow.clear();
@@ -1090,7 +1094,7 @@ void CRat::opticalFlow()
 		Mat& mFlow = m_vecFlow[i];
 		Mat& mFlowmapColor = vecFlowmap[i];
 
-        calcOpticalFlowFarneback(mSrc1, mSrc2, mFlow, pyr_scale, nPyrLayers, nWinSize, nIter, nNeighbor, dblSigma, 0);
+        calcOpticalFlowFarneback(mSrc1, mSrc2, mFlow, pyr_scale, levels, nWinSize, nIter, poly_n, dblSigma, 0);
         cvtColor(mSrc1, mFlowmapColor, CV_GRAY2BGR);
 
 		drawOptFlowMap(mFlowmapColor, mFlow, 5, CV_RGB(0, 128, 0));
@@ -1145,11 +1149,11 @@ void CRat::opticalFlowSaveDotDensity(char* subpath, Point pt)
 	}
 	
 	Gnuplot plotSavePGN("dots");
-	plotSavePGN.cmd("set terminal png");
+	plotSavePGN.cmd("set terminal pngcairo");
 	
 	plotSavePGN.set_xrange(-20,20);
 	plotSavePGN.set_yrange(-20,20);
-	plotSavePGN.cmd("set grid front");
+	plotSavePGN.cmd("set grid back");
 	int sz = m_vecFlow.size();
 	for(int i=0; i<sz; i++) {
 		Mat& mFlow = m_vecFlow[i];	
@@ -1183,17 +1187,14 @@ void CRat::saveDotDensity(Gnuplot& plotSavePGN, Mat& mFlow, Point pt, wxString& 
 	std::ostringstream cmdstr0;
     cmdstr0 << "set output '" << strOutName.ToAscii() << ".png'";
 	plotSavePGN.cmd(cmdstr0.str());
-	plotSavePGN.cmd("set grid xtics nomxtics ytics nomytics noztics nomztics nox2tics nomx2tics noy2tics nomy2tics nocbtics nomcbtics");
-	plotSavePGN.cmd("set grid back   lt 0 linewidth 0.500,  lt 0 linewidth 0.500");
 	
 	std::ostringstream cmdstr;
-    cmdstr << "plot '" << fName.ToAscii() << "'";
+    cmdstr << "plot '" << fName.ToAscii() << "' with dots";
     plotSavePGN.cmd(cmdstr.str());	
 }
 
-void CRat::opticalFlowDistribution()
+void CRat::opticalFlowDistribution(char* subpath, Point pt)
 {
-	char subpath[] = "movement";
 	cv::Mat	 cvMat;
 	cv::Mat	 cvMatGray;
 	wxString outpath; 
@@ -1223,7 +1224,7 @@ void CRat::opticalFlowDistribution()
 	
 
 	Gnuplot plotSavePGN("lines");
-	plotSavePGN.cmd("set terminal png");
+	plotSavePGN.cmd("set terminal pngcairo");
 
 	int sz = m_vecFlow.size();
 	for(int i=0; i<sz; i++) {
@@ -1233,20 +1234,13 @@ void CRat::opticalFlowDistribution()
 		fileName.AppendDir(subpath);
 		wxFileName savePath = fileName.GetPath();
 		wxFileName saveName(savePath.GetFullPath(), fileName.GetName());
-		
+		wxString strOutName = saveName.GetFullPath() ;
 		// analyze blocks of ear and eye
-		wxString strOutName;
-		strOutName = saveName.GetFullPath() + "_EarL";
-		opticalBlockAnalysis(plotSavePGN, mFlow, mGaus, m_ptEarL, strOutName);
-		
-		strOutName = saveName.GetFullPath() + "_EarR";
-		opticalBlockAnalysis(plotSavePGN, mFlow, mGaus, m_ptEarR, strOutName);
-				
-		Point ptEyeC;
-		ptEyeC.x= (m_vecEyeL[i].x+m_vecEyeR[i].x)/2;
-		ptEyeC.y= (m_vecEyeL[i].y+m_vecEyeR[i].y)/2;
-		strOutName = saveName.GetFullPath() + "_Eye";
-		opticalBlockAnalysis(plotSavePGN, mFlow, mGaus, ptEyeC, strOutName);
+		if(strcmp(subpath, "distriY")==0){
+			pt.x= (m_vecEyeL[i].x+m_vecEyeR[i].x)/2;
+			pt.y= (m_vecEyeL[i].y+m_vecEyeR[i].y)/2;
+		}
+		opticalBlockAnalysis(plotSavePGN, mFlow, mGaus, pt, strOutName);
 	}
 }
 
@@ -1272,11 +1266,12 @@ void CRat::opticalBlockAnalysis(Gnuplot& plotSavePGN, Mat& mFlow, Mat& mGaus, Po
 			Mat mask(mDist, Rect(pt1, pt2));
 			mask += mGaus;
         }
-	
+		
+	mDist /= (mROI.rows*mROI.cols);	
 	wxString fName = strOutName + ".csv";
-	mDist /= (mROI.rows*mROI.cols);
 	_OutputMat(mDist, fName.ToAscii(), false);
-	//_OutputMatGnuplotBinData(mDist, fName.ToAscii());
+	wxString fNameBin = strOutName + ".bin";
+	_OutputMatGnuplotBinData(mDist, fNameBin.ToAscii());
 }
 
 void CRat::createGaussianMask(double& sigma, int& ksize, Mat& mKernel)
