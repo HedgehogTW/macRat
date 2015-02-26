@@ -13,6 +13,8 @@
 #include "itkRGBPixel.h"
 #include "itkMetaImageIO.h"
 
+#include "gnuplot_i.h"
+
 #define NUM_FEATURE	 6
 #define EAR_RECT	40
 
@@ -91,9 +93,12 @@ public:
 
 	void	opticalFlow();
 	void 	opticalFlowDistribution();
-	void 	saveFlowData(Mat& mFlow, Mat& mGaus, Point pt, wxString& strOutName);
+	void 	opticalFlowSaveDotDensity(char* subpath, Point pt=Point(0,0));
+	void 	saveDotDensity(Gnuplot& plotSavePGN, Mat& mFlow, Point pt, wxString& strOutName);	
+	void 	opticalBlockAnalysis(Gnuplot& plotSavePGN, Mat& mFlow, Mat& mGaus, Point pt, wxString& strOutName);
 	void	drawOptFlowMap(Mat& cflowmap, const Mat& flow, int step, const Scalar& color);
 	void	opticalFlowAnalysis(Point ptEar, vector <Point>& vecEye, vector <double>& vecEarFlow, bool bOffset, vector <double>&  vecEyeMove);
+	void    saveDistributionAsCSVandPNG();
 	float	findMaxMotion(Mat& mROI, cv::Point& ptDiff);
 	float	findAvgMotion(Mat& mFlowROI, cv::Point ptEyeOffset);
 	float	findAvgMotion(Mat& mFlowROI);

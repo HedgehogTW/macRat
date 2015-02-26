@@ -514,7 +514,12 @@ void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 	graylevelDiff(m_referFrame, ptEarL, m_vecEyeL, m_vecLEarGrayDiff);
 	graylevelDiff(m_referFrame, ptEarR, m_vecEyeR, m_vecREarGrayDiff);
 	
+	/////////////////////////////////////////////////////////////optical flow
 	opticalFlow();
+	opticalFlowSaveDotDensity("movementL", ptEarL);
+	opticalFlowSaveDotDensity("movementR", ptEarR);
+	opticalFlowSaveDotDensity("movementY");
+	
 	opticalFlowDistribution();
 	opticalFlowAnalysis(ptEarL, m_vecEyeL, m_vecLEarFlow_eye, true, m_vecEyeLMove);
 	opticalFlowAnalysis(ptEarL, m_vecEyeL, m_vecLEarFlow, false, m_vecEyeLMove);
@@ -573,7 +578,7 @@ void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 	_gnuplotLine(gPlotR, "REarFlow", m_vecREarFlow, "#00B8860B", ".");
 	_gnuplotLine(gPlotR, "REarFlow-Eye", m_vecREarFlow_eye, "#00B8860B");
 
-	gPlotL.cmd("load '../_splot_move.gpt'");
+	//gPlotL.cmd("load '../_splot_move.gpt'");
 	////////////////////// save result to dest
 	m_vecDest.clear();
 	Point ptL1 (ptEarL-m_offsetEar);
@@ -1116,9 +1121,8 @@ void CRat::opticalFlow()
 	MainFrame:: myMsgOutput("Opticalflow done, m_vecFlow size %d------\n", m_vecFlow.size());
 }
 
-void CRat::opticalFlowDistribution()
+void CRat::opticalFlowSaveDotDensity(char* subpath, Point pt)
 {
-	char subpath[] = "move";
 	cv::Mat	 cvMat;
 	cv::Mat	 cvMatGray;
 	wxString outpath; 
@@ -1128,10 +1132,77 @@ void CRat::opticalFlowDistribution()
 #else
 	outpath = m_strSrcPath + "\\" + subpath;
 #endif	
-	wxFileName fileName = m_strSrcPath;
-	wxString  fName = fileName.GetName();
-	wxFileName dataName(m_strSrcPath, "_"+fName+ "_motion.csv");
 
+	if(m_vecFlow.size() ==0) return;
+
+	if(wxDirExists(outpath)==false) {
+		if(wxMkdir(outpath)==false) {
+			wxString str;
+			str.Printf("Create output directory error, %s", outpath);
+			wxLogMessage(str);
+			return;
+		}
+	}
+	
+	Gnuplot plotSavePGN("dots");
+	plotSavePGN.cmd("set terminal png");
+	
+	plotSavePGN.set_xrange(-20,20);
+	plotSavePGN.set_yrange(-20,20);
+	plotSavePGN.cmd("set grid front");
+	int sz = m_vecFlow.size();
+	for(int i=0; i<sz; i++) {
+		Mat& mFlow = m_vecFlow[i];	
+		
+		wxFileName fileName = wxString(m_vFilenames[i]);
+		fileName.AppendDir(subpath);
+		wxFileName savePath = fileName.GetPath();
+		wxFileName saveName(savePath.GetFullPath(), fileName.GetName());
+		
+		// analyze blocks of ear and eye
+		wxString strOutName;
+		strOutName = saveName.GetFullPath() ;
+		
+		if(strcmp(subpath, "movementY")==0){
+			pt.x= (m_vecEyeL[i].x+m_vecEyeR[i].x)/2;
+			pt.y= (m_vecEyeL[i].y+m_vecEyeR[i].y)/2;
+		}
+		saveDotDensity(plotSavePGN, mFlow, pt, strOutName);
+	}	
+}
+void CRat::saveDotDensity(Gnuplot& plotSavePGN, Mat& mFlow, Point pt, wxString& strOutName)
+{
+	Point pt1 (pt-m_offsetEar);
+	Point pt2 (pt+m_offsetEar);
+	Mat mROI(mFlow, Rect(pt1, pt2));
+	
+	// save csv and png for dot density
+	wxString  fName = strOutName + ".csv";
+	_OutputMatPoint2f(mROI, fName.ToAscii());
+
+	std::ostringstream cmdstr0;
+    cmdstr0 << "set output '" << strOutName.ToAscii() << ".png'";
+	plotSavePGN.cmd(cmdstr0.str());
+	plotSavePGN.cmd("set grid xtics nomxtics ytics nomytics noztics nomztics nox2tics nomx2tics noy2tics nomy2tics nocbtics nomcbtics");
+	plotSavePGN.cmd("set grid back   lt 0 linewidth 0.500,  lt 0 linewidth 0.500");
+	
+	std::ostringstream cmdstr;
+    cmdstr << "plot '" << fName.ToAscii() << "'";
+    plotSavePGN.cmd(cmdstr.str());	
+}
+
+void CRat::opticalFlowDistribution()
+{
+	char subpath[] = "movement";
+	cv::Mat	 cvMat;
+	cv::Mat	 cvMatGray;
+	wxString outpath; 
+
+#if defined(unix) || defined(__unix) || defined(__unix__) || defined(__APPLE__) 
+	outpath = m_strSrcPath + "/" + subpath;
+#else
+	outpath = m_strSrcPath + "\\" + subpath;
+#endif	
 
 	if(m_vecFlow.size() ==0) return;
 
@@ -1150,6 +1221,10 @@ void CRat::opticalFlowDistribution()
 	createGaussianMask(sigma, ksize, mGaus);
 	MainFrame:: myMsgOutput("createGaussianMask: sigma %.2f, ksize %d\n", sigma, ksize);
 	
+
+	Gnuplot plotSavePGN("lines");
+	plotSavePGN.cmd("set terminal png");
+
 	int sz = m_vecFlow.size();
 	for(int i=0; i<sz; i++) {
 		Mat& mFlow = m_vecFlow[i];	
@@ -1159,30 +1234,28 @@ void CRat::opticalFlowDistribution()
 		wxFileName savePath = fileName.GetPath();
 		wxFileName saveName(savePath.GetFullPath(), fileName.GetName());
 		
+		// analyze blocks of ear and eye
 		wxString strOutName;
 		strOutName = saveName.GetFullPath() + "_EarL";
-		saveFlowData(mFlow, mGaus, m_ptEarL, strOutName);
+		opticalBlockAnalysis(plotSavePGN, mFlow, mGaus, m_ptEarL, strOutName);
 		
 		strOutName = saveName.GetFullPath() + "_EarR";
-		saveFlowData(mFlow, mGaus, m_ptEarR, strOutName);
+		opticalBlockAnalysis(plotSavePGN, mFlow, mGaus, m_ptEarR, strOutName);
 				
 		Point ptEyeC;
 		ptEyeC.x= (m_vecEyeL[i].x+m_vecEyeR[i].x)/2;
 		ptEyeC.y= (m_vecEyeL[i].y+m_vecEyeR[i].y)/2;
 		strOutName = saveName.GetFullPath() + "_Eye";
-		saveFlowData(mFlow, mGaus, ptEyeC, strOutName);
+		opticalBlockAnalysis(plotSavePGN, mFlow, mGaus, ptEyeC, strOutName);
 	}
 }
 
-void CRat::saveFlowData(Mat& mFlow, Mat& mGaus, Point pt, wxString& strOutName)
+void CRat::opticalBlockAnalysis(Gnuplot& plotSavePGN, Mat& mFlow, Mat& mGaus, Point pt, wxString& strOutName)
 {
 	Point pt1 (pt-m_offsetEar);
 	Point pt2 (pt+m_offsetEar);
 	Mat mROI(mFlow, Rect(pt1, pt2));
 	
-	wxString  fName = strOutName + ".csv";
-	_OutputMatPoint2f(mROI, fName.ToAscii());
-
 	int ksize = mGaus.rows;
 	int border = ksize /2;
 	Mat mDist(40, 40, CV_32FC1, Scalar(0));
@@ -1199,17 +1272,15 @@ void CRat::saveFlowData(Mat& mFlow, Mat& mGaus, Point pt, wxString& strOutName)
 			Mat mask(mDist, Rect(pt1, pt2));
 			mask += mGaus;
         }
-		
-	fName = strOutName + ".dat";
+	
+	wxString fName = strOutName + ".csv";
 	mDist /= (mROI.rows*mROI.cols);
-	//_OutputMat(mDist, fName.ToAscii(), false);
-	_OutputMatGnuplotBinData(mDist, fName.ToAscii());
+	_OutputMat(mDist, fName.ToAscii(), false);
+	//_OutputMatGnuplotBinData(mDist, fName.ToAscii());
 }
 
 void CRat::createGaussianMask(double& sigma, int& ksize, Mat& mKernel)
 {
-	double ret;
-	
 	if(sigma <0) 	sigma = 0.3*((ksize-1)*0.5 - 1) + 0.8;
 	if(ksize <0) 	ksize = ((sigma - 0.8)/0.3 +1)*2 +1;
 	
