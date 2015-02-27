@@ -516,13 +516,8 @@ void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 	
 	/////////////////////////////////////////////////////////////optical flow
 	opticalFlow();
-	opticalFlowSaveDotDensity("movementL", ptEarL);
-	opticalFlowSaveDotDensity("movementR", ptEarR);
-	opticalFlowSaveDotDensity("movementY");
-	
-	opticalFlowDistribution("distriL", ptEarL);
-	opticalFlowDistribution("distriR", ptEarR);
-	opticalFlowDistribution("distriY");
+	opticalFlowSaveDotDensity();
+	opticalFlowDistribution();
 	
 	opticalFlowAnalysis(ptEarL, m_vecEyeL, m_vecLEarFlow_eye, true, m_vecEyeLMove);
 	opticalFlowAnalysis(ptEarL, m_vecEyeL, m_vecLEarFlow, false, m_vecEyeLMove);
@@ -1125,8 +1120,9 @@ void CRat::opticalFlow()
 	MainFrame:: myMsgOutput("Opticalflow done, m_vecFlow size %d------\n", m_vecFlow.size());
 }
 
-void CRat::opticalFlowSaveDotDensity(char* subpath, Point pt)
+void CRat::opticalFlowSaveDotDensity()
 {
+	char subpath[] = "movement";
 	cv::Mat	 cvMat;
 	cv::Mat	 cvMatGray;
 	wxString outpath; 
@@ -1149,11 +1145,20 @@ void CRat::opticalFlowSaveDotDensity(char* subpath, Point pt)
 	}
 	
 	Gnuplot plotSavePGN("dots");
-	plotSavePGN.cmd("set terminal pngcairo");
-	
+	plotSavePGN.cmd("set terminal pngcairo size 800, 600");
+	plotSavePGN.cmd("set grid");
+	plotSavePGN.cmd("unset key");	
 	plotSavePGN.set_xrange(-20,20);
 	plotSavePGN.set_yrange(-20,20);
-	plotSavePGN.cmd("set grid back");
+	plotSavePGN.cmd("set size 1,1");
+	plotSavePGN.cmd("set origin 0,0");
+	plotSavePGN.cmd("set termoption noenhanced");
+	
+	wxFileName fileName = wxString(m_vFilenames[0]);
+	int dirCount = fileName.GetDirCount();
+	wxArrayString dirs = fileName.GetDirs();
+	wxString dirName = dirs[dirCount-1];
+
 	int sz = m_vecFlow.size();
 	for(int i=0; i<sz; i++) {
 		Mat& mFlow = m_vecFlow[i];	
@@ -1162,17 +1167,44 @@ void CRat::opticalFlowSaveDotDensity(char* subpath, Point pt)
 		fileName.AppendDir(subpath);
 		wxFileName savePath = fileName.GetPath();
 		wxFileName saveName(savePath.GetFullPath(), fileName.GetName());
-		
+				
+		std::ostringstream cmdstr0;
+		cmdstr0 << "set output '" << saveName.GetFullPath().ToAscii() << ".png'";
+		plotSavePGN.cmd(cmdstr0.str());
+	
+		std::ostringstream cmdstr1;
+		cmdstr1 << "set multiplot title '" << dirName.ToAscii() << "/" << fileName.GetName().ToAscii() << "'" ;
 		// analyze blocks of ear and eye
+		plotSavePGN.cmd(cmdstr1.str());
+		plotSavePGN.cmd("set size 0.5,0.5");
+		plotSavePGN.cmd("set origin 0.0,0.5");
+		plotSavePGN.cmd("set title 'Left Ear'");
+	
 		wxString strOutName;
-		strOutName = saveName.GetFullPath() ;
+		strOutName = saveName.GetFullPath() + "_EarL";
+		saveDotDensity(plotSavePGN, mFlow, m_ptEarL, strOutName);
 		
-		if(strcmp(subpath, "movementY")==0){
-			pt.x= (m_vecEyeL[i].x+m_vecEyeR[i].x)/2;
-			pt.y= (m_vecEyeL[i].y+m_vecEyeR[i].y)/2;
-		}
-		saveDotDensity(plotSavePGN, mFlow, pt, strOutName);
+		plotSavePGN.cmd("set size 0.5,0.5");
+		plotSavePGN.cmd("set origin 0.5,0.5");
+		plotSavePGN.cmd("set title 'Right Ear'");
+		
+		strOutName = saveName.GetFullPath() + "_EarR";
+		saveDotDensity(plotSavePGN, mFlow, m_ptEarL, strOutName);
+			
+
+		plotSavePGN.cmd("set size 0.5,0.5");
+		plotSavePGN.cmd("set origin 0.0,0.0");
+		plotSavePGN.cmd("set title 'Eyes'");
+		
+		Point ptEyeC;
+		ptEyeC.x= (m_vecEyeL[i].x+m_vecEyeR[i].x)/2;
+		ptEyeC.y= (m_vecEyeL[i].y+m_vecEyeR[i].y)/2;
+		strOutName = saveName.GetFullPath() + "_Eye";
+		saveDotDensity(plotSavePGN, mFlow, ptEyeC, strOutName);
+		
+		plotSavePGN.cmd("unset multiplot");
 	}	
+	plotSavePGN.cmd("reset");
 }
 void CRat::saveDotDensity(Gnuplot& plotSavePGN, Mat& mFlow, Point pt, wxString& strOutName)
 {
@@ -1184,17 +1216,14 @@ void CRat::saveDotDensity(Gnuplot& plotSavePGN, Mat& mFlow, Point pt, wxString& 
 	wxString  fName = strOutName + ".csv";
 	_OutputMatPoint2f(mROI, fName.ToAscii());
 
-	std::ostringstream cmdstr0;
-    cmdstr0 << "set output '" << strOutName.ToAscii() << ".png'";
-	plotSavePGN.cmd(cmdstr0.str());
-	
 	std::ostringstream cmdstr;
     cmdstr << "plot '" << fName.ToAscii() << "' with dots";
     plotSavePGN.cmd(cmdstr.str());	
 }
 
-void CRat::opticalFlowDistribution(char* subpath, Point pt)
+void CRat::opticalFlowDistribution()
 {
+	char subpath[] = "distribution";
 	cv::Mat	 cvMat;
 	cv::Mat	 cvMatGray;
 	wxString outpath; 
@@ -1224,15 +1253,24 @@ void CRat::opticalFlowDistribution(char* subpath, Point pt)
 	
 
 	Gnuplot plot("lines");
-	plot.cmd("set terminal pngcairo");	
+	plot.cmd("set terminal pngcairo size 800, 600");	
 	plot.set_xrange(-20,20);
 	plot.set_yrange(-20,20);
 	plot.set_zrange(0,0.15);	
 	plot.set_grid();
+	plot.cmd("unset key");
 	plot.cmd("set vi 60,30");
 	plot.set_hidden3d();
 	plot.cmd("set style data lines");
-
+	plot.cmd("set size 1,1");
+	plot.cmd("set origin 0,0");
+	plot.cmd("set termoption noenhanced");
+	
+	wxFileName fileName = wxString(m_vFilenames[0]);
+	int dirCount = fileName.GetDirCount();
+	wxArrayString dirs = fileName.GetDirs();
+	wxString dirName = dirs[dirCount-1];
+	
 	int sz = m_vecFlow.size();
 	for(int i=0; i<sz; i++) {
 		Mat& mFlow = m_vecFlow[i];	
@@ -1241,14 +1279,44 @@ void CRat::opticalFlowDistribution(char* subpath, Point pt)
 		fileName.AppendDir(subpath);
 		wxFileName savePath = fileName.GetPath();
 		wxFileName saveName(savePath.GetFullPath(), fileName.GetName());
-		wxString strOutName = saveName.GetFullPath() ;
+		
+		std::ostringstream cmdstr0;
+		cmdstr0 << "set output '" << saveName.GetFullPath().ToAscii() << ".png'";
+		plot.cmd(cmdstr0.str());
+	
+		std::ostringstream cmdstr1;
+		cmdstr1 << "set multiplot title '" << dirName.ToAscii() << "/" << fileName.GetName().ToAscii() << "'" ;
 		// analyze blocks of ear and eye
-		if(strcmp(subpath, "distriY")==0){
-			pt.x= (m_vecEyeL[i].x+m_vecEyeR[i].x)/2;
-			pt.y= (m_vecEyeL[i].y+m_vecEyeR[i].y)/2;
-		}
-		opticalBlockAnalysis(plot, mFlow, mGaus, pt, strOutName);
-	}
+		plot.cmd(cmdstr1.str());
+		plot.cmd("set size 0.5,0.5");
+		plot.cmd("set origin 0.0,0.5");
+		plot.cmd("set title 'Left Ear'");
+	
+		wxString strOutName;
+		strOutName = saveName.GetFullPath() + "_EarL";
+		opticalBlockAnalysis(plot, mFlow, mGaus, m_ptEarL, strOutName);
+		
+		plot.cmd("set size 0.5,0.5");
+		plot.cmd("set origin 0.5,0.5");
+		plot.cmd("set title 'Right Ear'");
+		
+		strOutName = saveName.GetFullPath() + "_EarR";
+		opticalBlockAnalysis(plot, mFlow, mGaus, m_ptEarL, strOutName);
+			
+		plot.cmd("set size 0.5,0.5");
+		plot.cmd("set origin 0.0,0.0");
+		plot.cmd("set title 'Eyes'");
+		
+		Point ptEyeC;
+		ptEyeC.x= (m_vecEyeL[i].x+m_vecEyeR[i].x)/2;
+		ptEyeC.y= (m_vecEyeL[i].y+m_vecEyeR[i].y)/2;
+		strOutName = saveName.GetFullPath() + "_Eye";
+		opticalBlockAnalysis(plot, mFlow, mGaus, ptEyeC, strOutName);
+		
+		plot.cmd("unset multiplot");
+	}	
+	plot.cmd("reset");
+
 }
 
 void CRat::opticalBlockAnalysis(Gnuplot& plot, Mat& mFlow, Mat& mGaus, Point pt, wxString& strOutName)
@@ -1279,11 +1347,6 @@ void CRat::opticalBlockAnalysis(Gnuplot& plot, Mat& mFlow, Mat& mGaus, Point pt,
 	_OutputMat(mDist, fName.ToAscii(), false);
 	wxString fNameBin = strOutName + ".bin";
 	_OutputMatGnuplotBinData(mDist, fNameBin.ToAscii());
-	
-
-	std::ostringstream cmdstr0;
-    cmdstr0 << "set output '" << strOutName.ToAscii() << ".png'";
-	plot.cmd(cmdstr0.str());
 	
 	std::ostringstream cmdstr;
     cmdstr << "splot '" << fNameBin.ToAscii() << "' binary matrix using 1:2:3";

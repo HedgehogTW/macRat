@@ -92,8 +92,8 @@ public:
 	void 	saveEyeTrajectory();
 
 	void	opticalFlow();
-	void 	opticalFlowDistribution(char* subpath, Point pt=Point(0,0));
-	void 	opticalFlowSaveDotDensity(char* subpath, Point pt=Point(0,0));
+	void 	opticalFlowDistribution();
+	void 	opticalFlowSaveDotDensity();
 	void 	saveDotDensity(Gnuplot& plotSavePGN, Mat& mFlow, Point pt, wxString& strOutName);	
 	void 	opticalBlockAnalysis(Gnuplot& plotSavePGN, Mat& mFlow, Mat& mGaus, Point pt, wxString& strOutName);
 	void	drawOptFlowMap(Mat& cflowmap, const Mat& flow, int step, const Scalar& color);
