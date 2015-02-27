@@ -18,12 +18,7 @@
 using namespace std;
 using namespace cv;
 
-Gnuplot gPlot2D("dots");
-Gnuplot gPlot3D("lines");
-
 MainFrame *	MainFrame::m_pThis=NULL;
-
-
 
 MainFrame::MainFrame(wxWindow* parent)
 	: MainFrameBaseClass(parent)
@@ -563,12 +558,11 @@ void MainFrame::OnView2DData(wxCommandEvent& event)
 	wxString fname = openFileDialog.GetPath();	
 	
 	std::ostringstream cmdstr;
-    //
-    // command to be sent to gnuplot
-    //
 	cmdstr << "plot '" << fname.ToAscii() << "' " << "with dots";
+	Gnuplot gPlot2D("dots");
 	gPlot2D.set_grid();
     gPlot2D.cmd(cmdstr.str());
+	wxMessageBox("Hit Enter to continue", "continue...");
 }
 void MainFrame::OnView3DData(wxCommandEvent& event)
 {
@@ -581,9 +575,9 @@ void MainFrame::OnView3DData(wxCommandEvent& event)
 	wxString fname = openFileDialog.GetPath();	
 	
 	std::ostringstream cmdstr;
-    //
-    // command to be sent to gnuplot
-    //
 	cmdstr << "splot '" << fname.ToAscii() << "' " << "matrix using 1:2:3 with lines";
+	
+	Gnuplot gPlot3D("lines");
     gPlot3D.cmd(cmdstr.str());	
+	wxMessageBox("Hit Enter to continue", "continue...");
 }
