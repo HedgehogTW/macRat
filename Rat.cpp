@@ -1223,8 +1223,15 @@ void CRat::opticalFlowDistribution(char* subpath, Point pt)
 	MainFrame:: myMsgOutput("createGaussianMask: sigma %.2f, ksize %d\n", sigma, ksize);
 	
 
-	Gnuplot plotSavePGN("lines");
-	plotSavePGN.cmd("set terminal pngcairo");
+	Gnuplot plot("lines");
+	plot.cmd("set terminal pngcairo");	
+	plot.set_xrange(-20,20);
+	plot.set_yrange(-20,20);
+	plot.set_zrange(0,0.15);	
+	plot.set_grid();
+	plot.cmd("set vi 60,30");
+	plot.set_hidden3d();
+	plot.cmd("set style data lines");
 
 	int sz = m_vecFlow.size();
 	for(int i=0; i<sz; i++) {
@@ -1240,11 +1247,11 @@ void CRat::opticalFlowDistribution(char* subpath, Point pt)
 			pt.x= (m_vecEyeL[i].x+m_vecEyeR[i].x)/2;
 			pt.y= (m_vecEyeL[i].y+m_vecEyeR[i].y)/2;
 		}
-		opticalBlockAnalysis(plotSavePGN, mFlow, mGaus, pt, strOutName);
+		opticalBlockAnalysis(plot, mFlow, mGaus, pt, strOutName);
 	}
 }
 
-void CRat::opticalBlockAnalysis(Gnuplot& plotSavePGN, Mat& mFlow, Mat& mGaus, Point pt, wxString& strOutName)
+void CRat::opticalBlockAnalysis(Gnuplot& plot, Mat& mFlow, Mat& mGaus, Point pt, wxString& strOutName)
 {
 	Point pt1 (pt-m_offsetEar);
 	Point pt2 (pt+m_offsetEar);
@@ -1272,6 +1279,15 @@ void CRat::opticalBlockAnalysis(Gnuplot& plotSavePGN, Mat& mFlow, Mat& mGaus, Po
 	_OutputMat(mDist, fName.ToAscii(), false);
 	wxString fNameBin = strOutName + ".bin";
 	_OutputMatGnuplotBinData(mDist, fNameBin.ToAscii());
+	
+
+	std::ostringstream cmdstr0;
+    cmdstr0 << "set output '" << strOutName.ToAscii() << ".png'";
+	plot.cmd(cmdstr0.str());
+	
+	std::ostringstream cmdstr;
+    cmdstr << "splot '" << fNameBin.ToAscii() << "' binary matrix using 1:2:3";
+    plot.cmd(cmdstr.str());		
 }
 
 void CRat::createGaussianMask(double& sigma, int& ksize, Mat& mKernel)

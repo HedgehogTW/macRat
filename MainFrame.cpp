@@ -567,12 +567,13 @@ void MainFrame::OnView2DData(wxCommandEvent& event)
     // command to be sent to gnuplot
     //
 	cmdstr << "plot '" << fname.ToAscii() << "' " << "with dots";
+	gPlot2D.set_grid();
     gPlot2D.cmd(cmdstr.str());
 }
 void MainFrame::OnView3DData(wxCommandEvent& event)
 {
-	wxFileDialog openFileDialog(this, _("Open data file"), "", "",
-					"dat files (*.dat)|*.dat", wxFD_OPEN|wxFD_FILE_MUST_EXIST);
+	wxFileDialog openFileDialog(this, _("Open csv file"), "", "",
+					"csv files (*.csv)|*.csv", wxFD_OPEN|wxFD_FILE_MUST_EXIST);
 	if (openFileDialog.ShowModal() == wxID_CANCEL)
 		return; // the user changed idea...
 	// proceed loading the file chosen by the user;
