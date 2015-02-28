@@ -23,11 +23,11 @@ using namespace std;
                      : \
                          ((x) >= (z) ? (x) : (z)))
 
-
-void 	_gnuplotLine(Gnuplot& gnuPlot, const char* dataName, vector<double>& data, const char* color="", const char* dashtype="");
-void 	_gnuplotLine(Gnuplot& gnuPlot, const char* dataName, int x);
+void 	_gnuplotLine(Gnuplot& gnuPlot, const char* dataName, vector <double>& data, const char* color="", const char* dashtype="");
+void 	_gnuplotVerticalLine(Gnuplot& gnuPlot, const char* dataName, int x);
 void 	_gnuplotLED(Gnuplot& gnuPlot, const char* title, int nBeginLight, int nTwoLight);
-void 	_gnuplotPoint(Gnuplot& gnuPlot, const char* dataName, vector<double>& dataX, vector<double>& dataY);
+template<typename X, typename Y>
+void 	_gnuplotPoint(Gnuplot& gnuPlot, const char* dataName, const X& dataX, const Y& dataY);
 
 
 void	_scalingTraining(Mat& mTrainData);

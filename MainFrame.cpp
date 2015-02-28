@@ -406,7 +406,7 @@ void MainFrame::OnRatShowResults(wxCommandEvent& event)
 	wxFileName fileName = m_strSourcePath;
 	_gnuplotLED(gnuPlot, fileName.GetName(), m_Rat.m_idxLightBegin, m_Rat.m_idxTwoLight);
 	_gnuplotLine(gnuPlot, "Left Ear", m_Rat.m_vecLEarGrayDiff);
-		//m_Rat.m_vecLEarGrayDiff, m_Rat.m_vecREarGrayDiff, m_Rat.m_vecLEyeGrayDiff);
+	//m_Rat.m_vecLEarGrayDiff, m_Rat.m_vecREarGrayDiff, m_Rat.m_vecLEyeGrayDiff);
 }
 void MainFrame::OnRatLoadResult(wxCommandEvent& event)
 {

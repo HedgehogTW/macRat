@@ -28,7 +28,7 @@ void _gnuplotLED(Gnuplot& gnuPlot, const char* title, int nBeginLight, int nTwoL
 	}	
 }
 
-void _gnuplotLine(Gnuplot& gnuPlot, const char* dataName, int x)
+void _gnuplotVerticalLine(Gnuplot& gnuPlot, const char* dataName, int x)
 {
 	//gnuPlot.set_grid().set_yrange(0, GNUPLOT_MAX_Y);
 	
@@ -41,7 +41,7 @@ void _gnuplotLine(Gnuplot& gnuPlot, const char* dataName, int x)
 	}	
 }
 
-void _gnuplotLine(Gnuplot& gnuPlot, const char* dataName, vector<double>& data, const char* color, const char* dashtype)
+void _gnuplotLine(Gnuplot& gnuPlot, const char* dataName, vector <double>& data, const char* color, const char* dashtype)
 {
 //	Gnuplot gnuPlot("lines");
 	if (data.size() <= 0) {
@@ -52,7 +52,8 @@ void _gnuplotLine(Gnuplot& gnuPlot, const char* dataName, vector<double>& data, 
 	gnuPlot.set_style("lines").plot_x(data, dataName, color, dashtype);
 }
 
-void _gnuplotPoint(Gnuplot& gnuPlot, const char* dataName, vector<double>& dataX, vector<double>& dataY)
+template<typename X, typename Y>
+void _gnuplotPoint(Gnuplot& gnuPlot, const char* dataName, const X& dataX, const Y& dataY)
 {
 //	Gnuplot gnuPlot("lines");
 	if (dataX.size() <= 0) {

@@ -517,7 +517,7 @@ void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 	/////////////////////////////////////////////////////////////optical flow
 	opticalFlow();
 	opticalFlowSaveDotDensity();
-	opticalFlowDistribution();
+	opticalFlowDistribution(m_vecLEarFlow_pdf, m_vecREarFlow_pdf);
 	
 	opticalFlowAnalysis(ptEarL, m_vecEyeL, m_vecLEarFlow_eye, true, m_vecEyeLMove);
 	opticalFlowAnalysis(ptEarL, m_vecEyeL, m_vecLEarFlow, false, m_vecEyeLMove);
@@ -547,13 +547,13 @@ void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 	gPlotR.set_legend("left");	
 	if(m_vecLEarGrayDiff0[maxPointL]> m_vecREarGrayDiff0[maxPointR]) {
 		MainFrame:: myMsgOutput("max motion: left ear %d\n", maxPointL);
-		_gnuplotLine(gPlotL, "maxMotion", maxPointL);
-		_gnuplotLine(gPlotR, "maxMotion", maxPointL);
+		_gnuplotVerticalLine(gPlotL, "maxMotion", maxPointL);
+		_gnuplotVerticalLine(gPlotR, "maxMotion", maxPointL);
 		saveEarROI(m_referFrame, maxPointL, ptEarL);
 	}else {
 		MainFrame:: myMsgOutput("max motion: right ear %d\n", maxPointR);
-		_gnuplotLine(gPlotL, "maxMotion", maxPointR);
-		_gnuplotLine(gPlotR, "maxMotion", maxPointL);
+		_gnuplotVerticalLine(gPlotL, "maxMotion", maxPointR);
+		_gnuplotVerticalLine(gPlotR, "maxMotion", maxPointL);
 		saveEarROI(m_referFrame, maxPointR, ptEarR);
 	}	
 	
@@ -576,6 +576,9 @@ void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 	_gnuplotLine(gPlotR, "REarFlow", m_vecREarFlow, "#00B8860B", ".");
 	_gnuplotLine(gPlotR, "REarFlow-Eye", m_vecREarFlow_eye, "#00B8860B");
 
+	_gnuplotLine(gPlotL, "LEarPDF", m_vecLEarFlow_pdf, "#000000FF");
+	_gnuplotLine(gPlotR, "REarPDF", m_vecREarFlow_pdf, "#000000FF");
+	
 	//gPlotL.cmd("load '../_splot_move.gpt'");
 	////////////////////// save result to dest
 	m_vecDest.clear();
@@ -1145,7 +1148,7 @@ void CRat::opticalFlowSaveDotDensity()
 	}
 	
 	Gnuplot plotSavePGN("dots");
-	plotSavePGN.cmd("set terminal pngcairo size 800, 600");
+	plotSavePGN.cmd("set terminal pngcairo size 800, 800");
 	plotSavePGN.cmd("set grid");
 	plotSavePGN.cmd("unset key");	
 	plotSavePGN.set_xrange(-20,20);
@@ -1189,7 +1192,7 @@ void CRat::opticalFlowSaveDotDensity()
 		plotSavePGN.cmd("set title 'Right Ear'");
 		
 		strOutName = saveName.GetFullPath() + "_EarR";
-		saveDotDensity(plotSavePGN, mFlow, m_ptEarL, strOutName);
+		saveDotDensity(plotSavePGN, mFlow, m_ptEarR, strOutName);
 			
 
 		plotSavePGN.cmd("set size 0.5,0.5");
@@ -1221,7 +1224,7 @@ void CRat::saveDotDensity(Gnuplot& plotSavePGN, Mat& mFlow, Point pt, wxString& 
     plotSavePGN.cmd(cmdstr.str());	
 }
 
-void CRat::opticalFlowDistribution()
+void CRat::opticalFlowDistribution(vector <double>& vecLEarPdf, vector <double>& vecREarPdf)
 {
 	char subpath[] = "distribution";
 	cv::Mat	 cvMat;
@@ -1245,15 +1248,17 @@ void CRat::opticalFlowDistribution()
 		}
 	}
 	
+	vecLEarPdf.clear();
+	vecREarPdf.clear();
+	
 	double sigma = -1;
-	int ksize = 5;
+	int ksize = 9;
 	Mat mGaus ; 
 	createGaussianMask(sigma, ksize, mGaus);
 	MainFrame:: myMsgOutput("createGaussianMask: sigma %.2f, ksize %d\n", sigma, ksize);
 	
-
 	Gnuplot plot("lines");
-	plot.cmd("set terminal pngcairo size 800, 600");	
+	plot.cmd("set terminal pngcairo size 800, 800");	
 	plot.set_xrange(-20,20);
 	plot.set_yrange(-20,20);
 	plot.set_zrange(0,0.15);	
@@ -1271,6 +1276,9 @@ void CRat::opticalFlowDistribution()
 	wxArrayString dirs = fileName.GetDirs();
 	wxString dirName = dirs[dirCount-1];
 	
+	Mat mDistEarL(40, 40, CV_32FC1, Scalar(0));
+	Mat mDistEarR(40, 40, CV_32FC1, Scalar(0));
+	Mat mDistEye(40, 40, CV_32FC1, Scalar(0));
 	int sz = m_vecFlow.size();
 	for(int i=0; i<sz; i++) {
 		Mat& mFlow = m_vecFlow[i];	
@@ -1286,7 +1294,8 @@ void CRat::opticalFlowDistribution()
 	
 		std::ostringstream cmdstr1;
 		cmdstr1 << "set multiplot title '" << dirName.ToAscii() << "/" << fileName.GetName().ToAscii() << "'" ;
-		// analyze blocks of ear and eye
+		
+		/////////////////////////////////////// plot earL 
 		plot.cmd(cmdstr1.str());
 		plot.cmd("set size 0.5,0.5");
 		plot.cmd("set origin 0.0,0.5");
@@ -1294,15 +1303,17 @@ void CRat::opticalFlowDistribution()
 	
 		wxString strOutName;
 		strOutName = saveName.GetFullPath() + "_EarL";
-		opticalBlockAnalysis(plot, mFlow, mGaus, m_ptEarL, strOutName);
+		opticalBlockAnalysis(plot, mFlow, mGaus, mDistEarL, m_ptEarL, strOutName);
 		
+		/////////////////////////////////////// plot earR 
 		plot.cmd("set size 0.5,0.5");
 		plot.cmd("set origin 0.5,0.5");
 		plot.cmd("set title 'Right Ear'");
 		
 		strOutName = saveName.GetFullPath() + "_EarR";
-		opticalBlockAnalysis(plot, mFlow, mGaus, m_ptEarL, strOutName);
+		opticalBlockAnalysis(plot, mFlow, mGaus, mDistEarR, m_ptEarR, strOutName);
 			
+		/////////////////////////////////////// plot eye 
 		plot.cmd("set size 0.5,0.5");
 		plot.cmd("set origin 0.0,0.0");
 		plot.cmd("set title 'Eyes'");
@@ -1311,15 +1322,48 @@ void CRat::opticalFlowDistribution()
 		ptEyeC.x= (m_vecEyeL[i].x+m_vecEyeR[i].x)/2;
 		ptEyeC.y= (m_vecEyeL[i].y+m_vecEyeR[i].y)/2;
 		strOutName = saveName.GetFullPath() + "_Eye";
-		opticalBlockAnalysis(plot, mFlow, mGaus, ptEyeC, strOutName);
-		
+		opticalBlockAnalysis(plot, mFlow, mGaus, mDistEye, ptEyeC, strOutName);
 		plot.cmd("unset multiplot");
+		
+		/////////////////////////////////////// compute movement
+		float moveEarL = optical_compute_movement(mFlow, mDistEarL, mDistEye, m_ptEarL);
+		float moveEarR = optical_compute_movement(mFlow, mDistEarR, mDistEye, m_ptEarR);
+		
+		vecLEarPdf.push_back(moveEarL);
+		vecREarPdf.push_back(moveEarR);
 	}	
 	plot.cmd("reset");
 
 }
 
-void CRat::opticalBlockAnalysis(Gnuplot& plot, Mat& mFlow, Mat& mGaus, Point pt, wxString& strOutName)
+float CRat::optical_compute_movement(Mat& mFlow, Mat& mDistEar, Mat& mDistEye, Point pt)
+{
+	Point pt1 (pt-m_offsetEar);
+	Point pt2 (pt+m_offsetEar);
+	Mat mROI(mFlow, Rect(pt1, pt2));
+	float movement = 0;
+	double alpha = 5;
+    for(int y = 0; y < mROI.rows; y ++)
+        for(int x = 0; x < mROI.cols; x ++)
+        {
+			Point2f fxy = mROI.at<Point2f>(y, x);
+			float mv  = cv::norm(fxy);	
+			fxy += Point2f(20, 20);
+			
+			if(fxy.x > 20 || fxy.x <0) continue;
+			if(fxy.y > 20 || fxy.y <0) continue;
+			
+			float Pear = mDistEar.at<float>(fxy.y+0.5, fxy.x+0.5);
+			float Peye = mDistEye.at<float>(fxy.y+0.5, fxy.x+0.5);
+			
+			movement += mv * Pear;//;// /(1.+exp(-Peye*alpha));
+		}
+	
+	movement = movement /10.;
+	return (movement);
+}
+
+void CRat::opticalBlockAnalysis(Gnuplot& plot, Mat& mFlow, Mat& mGaus, Mat& mDist, Point pt, wxString& strOutName)
 {
 	Point pt1 (pt-m_offsetEar);
 	Point pt2 (pt+m_offsetEar);
@@ -1327,7 +1371,8 @@ void CRat::opticalBlockAnalysis(Gnuplot& plot, Mat& mFlow, Mat& mGaus, Point pt,
 	
 	int ksize = mGaus.rows;
 	int border = ksize /2;
-	Mat mDist(40, 40, CV_32FC1, Scalar(0));
+	
+	mDist = Scalar(0);
     for(int y = 0; y < mROI.rows; y ++)
         for(int x = 0; x < mROI.cols; x ++)
         {

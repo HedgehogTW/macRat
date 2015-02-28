@@ -92,10 +92,11 @@ public:
 	void 	saveEyeTrajectory();
 
 	void	opticalFlow();
-	void 	opticalFlowDistribution();
+	void 	opticalFlowDistribution(vector <double>& vecLEarPdf, vector <double>& vecREarPdf);
 	void 	opticalFlowSaveDotDensity();
+	float 	optical_compute_movement(Mat& mFlow, Mat& mDistEar, Mat& mDistEye, Point pt);
 	void 	saveDotDensity(Gnuplot& plotSavePGN, Mat& mFlow, Point pt, wxString& strOutName);	
-	void 	opticalBlockAnalysis(Gnuplot& plotSavePGN, Mat& mFlow, Mat& mGaus, Point pt, wxString& strOutName);
+	void 	opticalBlockAnalysis(Gnuplot& plotSavePGN, Mat& mFlow, Mat& mGaus, Mat& mDist, Point pt, wxString& strOutName);
 	void	drawOptFlowMap(Mat& cflowmap, const Mat& flow, int step, const Scalar& color);
 	void	opticalFlowAnalysis(Point ptEar, vector <Point>& vecEye, vector <double>& vecEarFlow, bool bOffset, vector <double>&  vecEyeMove);
 	void    saveDistributionAsCSVandPNG();
@@ -169,6 +170,8 @@ public:
 	vector <double>  m_vecREarFlow;
 	vector <double>  m_vecLEarFlow_eye;
 	vector <double>  m_vecREarFlow_eye;
+	vector <double>  m_vecLEarFlow_pdf;
+	vector <double>  m_vecREarFlow_pdf;
 	
 	int		m_nSlices ;
 	Size	m_szImg;
