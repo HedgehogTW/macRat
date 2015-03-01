@@ -1071,8 +1071,9 @@ void CRat::opticalFlow()
 	m_vecFlow.clear();
 	m_vecFlow.resize(m_nSlices );	
 	
-	vector <Mat> vecFlowmap;
-	vecFlowmap.resize(m_nSlices );
+	//vector <Mat> vecFlowmap;
+	m_vecFlowmap.clear();
+	m_vecFlowmap.resize(m_nSlices );
 
 //	gpMainFrame->CreateProgressBar(0, m_nSlices, 1);
 //	CProgressCtrl *pb =  gpMainFrame->GetProgressBarCtrl();
@@ -1090,7 +1091,7 @@ void CRat::opticalFlow()
 		
 		mSrc2 = m_vecMat[i];
 		Mat& mFlow = m_vecFlow[i];
-		Mat& mFlowmapColor = vecFlowmap[i];
+		Mat& mFlowmapColor = m_vecFlowmap[i];
 
         calcOpticalFlowFarneback(mSrc1, mSrc2, mFlow, pyr_scale, levels, nWinSize, nIter, poly_n, dblSigma, 0);
         cvtColor(mSrc1, mFlowmapColor, CV_GRAY2BGR);
@@ -1117,7 +1118,7 @@ void CRat::opticalFlow()
 	int second = duration - minutes * 60;
 	MainFrame:: myMsgOutput("Opticalflow computation time: %02dm:%02ds\n", minutes, second);
 
-	saveResult("flow", vecFlowmap);
+	saveResult("flow", m_vecFlowmap);
 //	saveFlowMovement();
 
 	MainFrame:: myMsgOutput("Opticalflow done, m_vecFlow size %d------\n", m_vecFlow.size());
