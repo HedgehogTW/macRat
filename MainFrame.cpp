@@ -547,6 +547,30 @@ void MainFrame::OnViewResultSeries(wxCommandEvent& event)
 	//cv::setMouseCallback("ResultSeries", onCVMouse, this);
 	cv::imshow("ResultSeries", mSrc);		
 }
+
+void FlowSlice(int pos, void *param)
+{
+	MainFrame *pMainFrame = (MainFrame*)param;
+	Mat &mSrc = pMainFrame->getFlowMat(pos);	
+		
+	cv::imshow("FlowSeries", mSrc);
+}
+void MainFrame::OnViewFlowSeries(wxCommandEvent& event)
+{
+	if(m_Rat.m_vecFlow.size() <=0) {
+		wxLogMessage("no data\n");
+		return;
+	}
+
+	cv::namedWindow("FlowSeries");
+	Mat &mSrc = getFlowMat(0);
+
+	int pos = 0;
+
+	cv::createTrackbar("slice", "FlowSeries", &pos, m_nSlices-1, FlowSlice, this);
+	cv::imshow("FlowSeries", mSrc);		
+}
+
 void MainFrame::OnView2DData(wxCommandEvent& event)
 {
 	wxFileDialog openFileDialog(this, _("Open csv file"), "", "",
