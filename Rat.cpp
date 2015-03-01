@@ -1148,7 +1148,11 @@ void CRat::opticalFlowSaveDotDensity()
 	}
 	
 	Gnuplot plotSavePGN("dots");
+#if defined(unix) || defined(__unix) || defined(__unix__) || defined(__APPLE__) 
+	plotSavePGN.cmd("set terminal png size 800, 800");
+#else
 	plotSavePGN.cmd("set terminal pngcairo size 800, 800");
+#endif	
 	plotSavePGN.cmd("set grid");
 	plotSavePGN.cmd("unset key");	
 	plotSavePGN.set_xrange(-20,20);
@@ -1258,7 +1262,11 @@ void CRat::opticalFlowDistribution(vector <double>& vecLEarPdf, vector <double>&
 	MainFrame:: myMsgOutput("createGaussianMask: sigma %.2f, ksize %d\n", sigma, ksize);
 	
 	Gnuplot plot("lines");
-	plot.cmd("set terminal pngcairo size 800, 800");	
+#if defined(unix) || defined(__unix) || defined(__unix__) || defined(__APPLE__) 
+	plot.cmd("set terminal png size 800, 800");
+#else
+	plot.cmd("set terminal pngcairo size 800, 800");
+#endif		
 	plot.set_xrange(-20,20);
 	plot.set_yrange(-20,20);
 	plot.set_zrange(0,0.15);	
