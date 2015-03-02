@@ -515,15 +515,18 @@ void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 	graylevelDiff(m_referFrame, ptEarR, m_vecEyeR, m_vecREarGrayDiff);
 	
 	/////////////////////////////////////////////////////////////optical flow
-	opticalFlow();
-	opticalFlowSaveDotDensity();
-	opticalFlowDistribution(m_vecLEarFlow_pdf, m_vecREarFlow_pdf);
+	vector <Mat> vecFlow;
+	vecFlow.resize(m_nSlices );	
 	
-	opticalFlowAnalysis(ptEarL, m_vecEyeL, m_vecLEarFlow_eye, true, m_vecEyeLMove);
-	opticalFlowAnalysis(ptEarL, m_vecEyeL, m_vecLEarFlow, false, m_vecEyeLMove);
+	opticalFlow(vecFlow);
+	opticalFlowSaveDotDensity(vecFlow);
+	opticalFlowDistribution(vecFlow, m_vecLEarFlow_pdf, m_vecREarFlow_pdf);
 	
-	opticalFlowAnalysis(ptEarR, m_vecEyeR, m_vecREarFlow_eye, true, m_vecEyeRMove);
-	opticalFlowAnalysis(ptEarR, m_vecEyeR, m_vecREarFlow, false, m_vecEyeRMove);		
+	opticalFlowAnalysis(vecFlow, ptEarL, m_vecEyeL, m_vecLEarFlow_eye, true, m_vecEyeLMove);
+	opticalFlowAnalysis(vecFlow, ptEarL, m_vecEyeL, m_vecLEarFlow, false, m_vecEyeLMove);
+	
+	opticalFlowAnalysis(vecFlow, ptEarR, m_vecEyeR, m_vecREarFlow_eye, true, m_vecEyeRMove);
+	opticalFlowAnalysis(vecFlow, ptEarR, m_vecEyeR, m_vecREarFlow, false, m_vecEyeRMove);		
 	
 	
 	earDiffByFixedLoc(m_referFrame, ptEarL, ptEarR);
@@ -1057,7 +1060,7 @@ void CRat::earDiffByFixedLoc(int refer, Point& ptEarL, Point& ptEarR)
 	}
 }
 
-void CRat::opticalFlow()
+void CRat::opticalFlow(vector<Mat>& vecFlow)
 {
 	// optical flow
 	double pyr_scale = 0.5;
@@ -1068,9 +1071,6 @@ void CRat::opticalFlow()
 	double dblSigma = 1.5;
 
 	//int nFrameSteps = 2;	
-	
-	m_vecFlow.clear();
-	m_vecFlow.resize(m_nSlices );	
 	
 	vector <Mat> vecFlowmap;
 	vecFlowmap.clear();
@@ -1095,7 +1095,7 @@ void CRat::opticalFlow()
 		Mat mSrc2;
 		
 		mSrc2 = m_vecMat[i];
-		Mat& mFlow = m_vecFlow[i];
+		Mat& mFlow = vecFlow[i];
 		Mat& mFlowmapColor = vecFlowmap[i];
 
         calcOpticalFlowFarneback(mSrc1, mSrc2, mFlow, pyr_scale, levels, nWinSize, nIter, poly_n, dblSigma, 0);
@@ -1124,10 +1124,10 @@ void CRat::opticalFlow()
 	saveResult("flow", vecFlowmap);
 //	saveFlowMovement();
 
-	MainFrame:: myMsgOutput("Opticalflow done, m_vecFlow size %d------\n", m_vecFlow.size());
+	MainFrame:: myMsgOutput("Opticalflow done, m_vecFlow size %d------\n", vecFlow.size());
 }
 
-void CRat::opticalFlowSaveDotDensity()
+void CRat::opticalFlowSaveDotDensity(vector<Mat>& vecFlow)
 {
 	char subpath[] = "movement";
 	cv::Mat	 cvMat;
@@ -1140,7 +1140,7 @@ void CRat::opticalFlowSaveDotDensity()
 	outpath = m_strSrcPath + "\\" + subpath;
 #endif	
 
-	if(m_vecFlow.size() ==0) return;
+	if(vecFlow.size() ==0) return;
 
 	if(wxDirExists(outpath)==false) {
 		if(wxMkdir(outpath)==false) {
@@ -1174,9 +1174,9 @@ void CRat::opticalFlowSaveDotDensity()
 	ptEyeC.x= (m_vecEyeL[m_referFrame].x+m_vecEyeR[m_referFrame].x)/2;
 	ptEyeC.y= (m_vecEyeL[m_referFrame].y+m_vecEyeR[m_referFrame].y)/2;
 	
-	int sz = m_vecFlow.size();
+	int sz = vecFlow.size();
 	for(int i=0; i<sz; i++) {
-		Mat& mFlow = m_vecFlow[i];	
+		Mat& mFlow = vecFlow[i];	
 		
 		wxFileName fileName = wxString(m_vFilenames[i]);
 		fileName.AppendDir(subpath);
@@ -1233,7 +1233,7 @@ void CRat::saveDotDensity(Gnuplot& plotSavePGN, Mat& mFlow, Point pt, wxString& 
     plotSavePGN.cmd(cmdstr.str());	
 }
 
-void CRat::opticalFlowDistribution(vector <double>& vecLEarPdf, vector <double>& vecREarPdf)
+void CRat::opticalFlowDistribution(vector<Mat>& vecFlow, vector <double>& vecLEarPdf, vector <double>& vecREarPdf)
 {
 	char subpath[] = "distribution";
 	cv::Mat	 cvMat;
@@ -1246,7 +1246,7 @@ void CRat::opticalFlowDistribution(vector <double>& vecLEarPdf, vector <double>&
 	outpath = m_strSrcPath + "\\" + subpath;
 #endif	
 
-	if(m_vecFlow.size() ==0) return;
+	if(vecFlow.size() ==0) return;
 
 	if(wxDirExists(outpath)==false) {
 		if(wxMkdir(outpath)==false) {
@@ -1296,9 +1296,9 @@ void CRat::opticalFlowDistribution(vector <double>& vecLEarPdf, vector <double>&
 	Mat mDistEarL(40, 40, CV_32FC1, Scalar(0));
 	Mat mDistEarR(40, 40, CV_32FC1, Scalar(0));
 	Mat mDistEye(40, 40, CV_32FC1, Scalar(0));
-	int sz = m_vecFlow.size();
+	int sz = vecFlow.size();
 	for(int i=0; i<sz; i++) {
-		Mat& mFlow = m_vecFlow[i];	
+		Mat& mFlow = vecFlow[i];	
 		
 		wxFileName fileName = wxString(m_vFilenames[i]);
 		fileName.AppendDir(subpath);
@@ -1444,11 +1444,11 @@ void CRat::drawOptFlowMap(Mat& cflowmap, const Mat& flow,  int step, const Scala
             //circle(cflowmap, Point(x,y), 1, color, -1);
         }
 }
-void CRat::opticalFlowAnalysis(Point ptEar, vector <Point>& vecEye, vector <double>& vecEarFlow, bool bOffset, vector <double>&  vecEyeMove)
+void CRat::opticalFlowAnalysis(vector<Mat>& vecFlow, Point ptEar, vector <Point>& vecEye, vector <double>& vecEarFlow, bool bOffset, vector <double>&  vecEyeMove)
 {
 	// compute ear motion
-	int w = m_vecFlow[0].cols;
-	int h = m_vecFlow[0].rows;
+	int w = vecFlow[0].cols;
+	int h = vecFlow[0].rows;
 	
 	Point pt1 (ptEar-m_offsetEar);
 	Point pt2 (ptEar+m_offsetEar);
@@ -1463,7 +1463,7 @@ void CRat::opticalFlowAnalysis(Point ptEar, vector <Point>& vecEye, vector <doub
 	
 	for(int i=0; i<m_nSlices; i++) {	
 		float motion;
-		Mat mROILeft(m_vecFlow[i], Rect(pt1, pt2));
+		Mat mROILeft(vecFlow[i], Rect(pt1, pt2));
 		if(bOffset) {
 			//Point ptEyeOffset = vecEye[i] - ptReferEye;
 			motion = findAvgMotion(mROILeft);

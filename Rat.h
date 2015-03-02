@@ -91,14 +91,14 @@ public:
 	void 	saveEarROI(int stable, int motion, Point& pt);
 	void 	saveEyeTrajectory();
 
-	void	opticalFlow();
-	void 	opticalFlowDistribution(vector <double>& vecLEarPdf, vector <double>& vecREarPdf);
-	void 	opticalFlowSaveDotDensity();
+	void	opticalFlow(vector<Mat>& vecFlow);
+	void 	opticalFlowDistribution(vector<Mat>& vecFlow, vector <double>& vecLEarPdf, vector <double>& vecREarPdf);
+	void 	opticalFlowSaveDotDensity(vector<Mat>& vecFlow);
 	float 	optical_compute_movement(Mat& mFlow, Mat& mDistEar, Mat& mDistEye, Point pt);
 	void 	saveDotDensity(Gnuplot& plotSavePGN, Mat& mFlow, Point pt, wxString& strOutName);	
 	void 	opticalBlockAnalysis(Gnuplot& plotSavePGN, Mat& mFlow, Mat& mGaus, Mat& mDist, Point pt, wxString& strOutName);
 	void	drawOptFlowMap(Mat& cflowmap, const Mat& flow, int step, const Scalar& color);
-	void	opticalFlowAnalysis(Point ptEar, vector <Point>& vecEye, vector <double>& vecEarFlow, bool bOffset, vector <double>&  vecEyeMove);
+	void	opticalFlowAnalysis(vector<Mat>& vecFlow, Point ptEar, vector <Point>& vecEye, vector <double>& vecEarFlow, bool bOffset, vector <double>&  vecEyeMove);
 	void    saveDistributionAsCSVandPNG();
 	float	findMaxMotion(Mat& mROI, cv::Point& ptDiff);
 	float	findAvgMotion(Mat& mFlowROI, cv::Point ptEyeOffset);
@@ -133,7 +133,7 @@ public:
 public:
 	vector <Mat> m_vecMat;
 	vector <Mat> m_vecDest;
-	vector <Mat> m_vecFlow;
+//	vector <Mat> m_vecFlow;
 
 	
 	vector <Point>  m_vecEyeL;
