@@ -53,7 +53,7 @@ protected:
     wxMenuItem* m_menuItemViewMsgPane;
     wxMenuItem* m_menuItemViewSeries;
     wxMenuItem* m_menuItemViewResultSeries;
-    wxMenuItem* m_menuItemViewFlowSeries;
+    wxMenuItem* m_menuItemViewFolderImage;
     wxMenuItem* m_menuItemView2D;
     wxMenuItem* m_menuItemView3D;
     wxMenu* m_menuRat;
@@ -80,7 +80,7 @@ protected:
     virtual void OnViewSeries(wxCommandEvent& event) { event.Skip(); }
     virtual void OnUpdateViewSeries(wxUpdateUIEvent& event) { event.Skip(); }
     virtual void OnViewResultSeries(wxCommandEvent& event) { event.Skip(); }
-    virtual void OnViewFlowSeries(wxCommandEvent& event) { event.Skip(); }
+    virtual void OnViewFolderImage(wxCommandEvent& event) { event.Skip(); }
     virtual void OnView2DData(wxCommandEvent& event) { event.Skip(); }
     virtual void OnView3DData(wxCommandEvent& event) { event.Skip(); }
     virtual void OnRatProcess(wxCommandEvent& event) { event.Skip(); }

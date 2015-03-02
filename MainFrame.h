@@ -34,7 +34,7 @@ public:
 	void	updateOutData(Mat& mOut);
 	Mat &   getCurrentMat(int idx) { return m_Rat.getSrcImg(idx); }
 	Mat &   getResultMat(int idx) { return m_Rat.getResultImg(idx); }
-	Mat &   getFlowMat(int idx) { return m_Rat.getFlowImg(idx); }
+//	Mat &   getFlowMat(int idx) { return m_Rat.getFlowImg(idx); }
 	int		getCageHeight() { return m_Rat.m_nCageLineY; }
 
 	void	recognizeLeftRight(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR);
@@ -67,7 +67,7 @@ public:
 	
 	
 protected:
-    virtual void OnViewFlowSeries(wxCommandEvent& event);
+    virtual void OnViewFolderImage(wxCommandEvent& event);
     virtual void OnView2DData(wxCommandEvent& event);
     virtual void OnView3DData(wxCommandEvent& event);
     virtual void OnViewResultSeries(wxCommandEvent& event);

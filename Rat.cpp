@@ -55,8 +55,8 @@ void CRat::clearData()
 
 	m_vecLEarGrayDiff.clear();
 	m_vecREarGrayDiff.clear();
-	m_vecLEyeGrayDiff.clear();
-	m_vecREyeGrayDiff.clear();
+//	m_vecLEyeGrayDiff.clear();
+//	m_vecREyeGrayDiff.clear();
 
 	m_vFilenames.clear();
 	m_nSlices = 0;
@@ -582,6 +582,7 @@ void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 	//gPlotL.cmd("load '../_splot_move.gpt'");
 	////////////////////// save result to dest
 	m_vecDest.clear();
+	m_vecDest.resize(m_nSlices);
 	Point ptL1 (ptEarL-m_offsetEar);
 	Point ptL2 (ptEarL+m_offsetEar);
 	Point ptR1 (ptEarR-m_offsetEar);
@@ -590,9 +591,9 @@ void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 	
 	for (int i = 0; i < m_nSlices; i++)
 	{
-		Mat mDestColor;
-		cvtColor(m_vecMat[i], mDestColor, CV_GRAY2BGR);
-		m_vecDest.push_back(mDestColor);
+		//Mat mDestColor;
+		cvtColor(m_vecMat[i], m_vecDest[i], CV_GRAY2BGR);
+		//m_vecDest.push_back(mDestColor);
 	}
 
 	for (int i = 0; i < m_nSlices; i++)
@@ -1071,9 +1072,9 @@ void CRat::opticalFlow()
 	m_vecFlow.clear();
 	m_vecFlow.resize(m_nSlices );	
 	
-	//vector <Mat> vecFlowmap;
-	m_vecFlowmap.clear();
-	m_vecFlowmap.resize(m_nSlices );
+	vector <Mat> vecFlowmap;
+	vecFlowmap.clear();
+	vecFlowmap.resize(m_nSlices );
 
 //	gpMainFrame->CreateProgressBar(0, m_nSlices, 1);
 //	CProgressCtrl *pb =  gpMainFrame->GetProgressBarCtrl();
@@ -1084,6 +1085,10 @@ void CRat::opticalFlow()
 	Mat mSrc1;
 	mSrc1 = m_vecMat[m_referFrame];
 	
+	Point ptEyeC;
+	ptEyeC.x= (m_vecEyeL[m_referFrame].x+m_vecEyeR[m_referFrame].x)/2;
+	ptEyeC.y= (m_vecEyeL[m_referFrame].y+m_vecEyeR[m_referFrame].y)/2;
+	
 //#pragma omp parallel for 
 	for(int i=0; i<m_nSlices; i++) {
 //		Mat mFlow, mFlowmapColor;
@@ -1091,10 +1096,10 @@ void CRat::opticalFlow()
 		
 		mSrc2 = m_vecMat[i];
 		Mat& mFlow = m_vecFlow[i];
-		Mat& mFlowmapColor = m_vecFlowmap[i];
+		Mat& mFlowmapColor = vecFlowmap[i];
 
         calcOpticalFlowFarneback(mSrc1, mSrc2, mFlow, pyr_scale, levels, nWinSize, nIter, poly_n, dblSigma, 0);
-        cvtColor(mSrc1, mFlowmapColor, CV_GRAY2BGR);
+        cvtColor(mSrc2, mFlowmapColor, CV_GRAY2BGR);
 
 		drawOptFlowMap(mFlowmapColor, mFlow, 5, CV_RGB(0, 128, 0));
 
@@ -1107,9 +1112,7 @@ void CRat::opticalFlow()
 		circle(mFlowmapColor, Point(m_vecEyeL[m_referFrame].x, m_vecEyeL[m_referFrame].y), 2, Scalar(0, 255, 255), -1);	
 		circle(mFlowmapColor, Point(m_vecEyeR[m_referFrame].x, m_vecEyeR[m_referFrame].y), 2, Scalar(0, 255, 255), -1);	
    
-		Point ptEyeC;
-		ptEyeC.x= (m_vecEyeL[i].x+m_vecEyeR[i].x)/2;
-		ptEyeC.y= (m_vecEyeL[i].y+m_vecEyeR[i].y)/2;
+
 		cv::rectangle(mFlowmapColor,ptEyeC-m_offsetEar,ptEyeC+m_offsetEar, cv::Scalar(255, 0, 255));
 	}
 	finish = clock();
@@ -1118,7 +1121,7 @@ void CRat::opticalFlow()
 	int second = duration - minutes * 60;
 	MainFrame:: myMsgOutput("Opticalflow computation time: %02dm:%02ds\n", minutes, second);
 
-	saveResult("flow", m_vecFlowmap);
+	saveResult("flow", vecFlowmap);
 //	saveFlowMovement();
 
 	MainFrame:: myMsgOutput("Opticalflow done, m_vecFlow size %d------\n", m_vecFlow.size());
@@ -1167,6 +1170,10 @@ void CRat::opticalFlowSaveDotDensity()
 	wxArrayString dirs = fileName.GetDirs();
 	wxString dirName = dirs[dirCount-1];
 
+	Point ptEyeC;
+	ptEyeC.x= (m_vecEyeL[m_referFrame].x+m_vecEyeR[m_referFrame].x)/2;
+	ptEyeC.y= (m_vecEyeL[m_referFrame].y+m_vecEyeR[m_referFrame].y)/2;
+	
 	int sz = m_vecFlow.size();
 	for(int i=0; i<sz; i++) {
 		Mat& mFlow = m_vecFlow[i];	
@@ -1204,9 +1211,6 @@ void CRat::opticalFlowSaveDotDensity()
 		plotSavePGN.cmd("set origin 0.0,0.0");
 		plotSavePGN.cmd("set title 'Eyes'");
 		
-		Point ptEyeC;
-		ptEyeC.x= (m_vecEyeL[i].x+m_vecEyeR[i].x)/2;
-		ptEyeC.y= (m_vecEyeL[i].y+m_vecEyeR[i].y)/2;
 		strOutName = saveName.GetFullPath() + "_Eye";
 		saveDotDensity(plotSavePGN, mFlow, ptEyeC, strOutName);
 		
@@ -1285,6 +1289,10 @@ void CRat::opticalFlowDistribution(vector <double>& vecLEarPdf, vector <double>&
 	wxArrayString dirs = fileName.GetDirs();
 	wxString dirName = dirs[dirCount-1];
 	
+	Point ptEyeC;
+	ptEyeC.x= (m_vecEyeL[m_referFrame].x+m_vecEyeR[m_referFrame].x)/2;
+	ptEyeC.y= (m_vecEyeL[m_referFrame].y+m_vecEyeR[m_referFrame].y)/2;
+	
 	Mat mDistEarL(40, 40, CV_32FC1, Scalar(0));
 	Mat mDistEarR(40, 40, CV_32FC1, Scalar(0));
 	Mat mDistEye(40, 40, CV_32FC1, Scalar(0));
@@ -1327,9 +1335,6 @@ void CRat::opticalFlowDistribution(vector <double>& vecLEarPdf, vector <double>&
 		plot.cmd("set origin 0.0,0.0");
 		plot.cmd("set title 'Eyes'");
 		
-		Point ptEyeC;
-		ptEyeC.x= (m_vecEyeL[i].x+m_vecEyeR[i].x)/2;
-		ptEyeC.y= (m_vecEyeL[i].y+m_vecEyeR[i].y)/2;
 		strOutName = saveName.GetFullPath() + "_Eye";
 		opticalBlockAnalysis(plot, mFlow, mGaus, mDistEye, ptEyeC, strOutName);
 		plot.cmd("unset multiplot");

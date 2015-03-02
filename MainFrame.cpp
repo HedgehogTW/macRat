@@ -4,19 +4,23 @@
 #include <wx/bitmap.h>
 #include <wx/log.h>
 #include <wx/config.h>
-#include <opencv2/opencv.hpp>
+
 #include <wx/dcclient.h>
 #include <wx/dirdlg.h> 
 #include <wx/msgdlg.h> 
 #include <wx/filename.h>
 #include <wx/utils.h> 
+#include <wx/dir.h>
 
+#include <opencv2/opencv.hpp>
 #include "KDE.h"
 #include "MyUtil.h"
 #include "gnuplot_i.h"
 
 using namespace std;
 using namespace cv;
+
+vector <Mat> gvecMat;
 
 MainFrame *	MainFrame::m_pThis=NULL;
 
@@ -426,9 +430,9 @@ void MainFrame::OnRatLoadResult(wxCommandEvent& event)
 	}
 
 	int num = 0;
-	double a, b, c;
+	float a, b, c;
 	while (!feof(fp)) {
-		int r = fscanf(fp, "%lf, %lf, %lf", &a, &b, &c);
+		int r = fscanf(fp, "%f, %f, %f", &a, &b, &c);
 		if (r != 3) break;
 		num++;
 	}
@@ -446,7 +450,7 @@ void MainFrame::OnRatLoadResult(wxCommandEvent& event)
 	fscanf(fp, "%d, %d, %d", &numRec, &nBeginLight, &nTwoLight);
 	num = 0;
 	for (int i = 0; i<numRec; i++) {
-		int r = fscanf(fp, "%lf, %lf, %lf", &a, &b, &c);
+		int r = fscanf(fp, "%f, %f, %f", &a, &b, &c);
 		if (r != 3) break;
 		earLM.push_back(a);
 		earRM.push_back(b);
@@ -511,12 +515,12 @@ void MainFrame::OnViewSeries(wxCommandEvent& event)
 
 	cv::namedWindow("OriginalData");
 	Mat &mSrc = getCurrentMat(0);
-
+	cv::imshow("OriginalData", mSrc);
 	int pos = 0;
 
 	cv::createTrackbar("slice", "OriginalData", &pos, m_nSlices-1, VolumeSlice, this);
 	cv::setMouseCallback("OriginalData", onCVMouse, this);
-	cv::imshow("OriginalData", mSrc);	
+	
 }
 void MainFrame::OnUpdateViewSeries(wxUpdateUIEvent& event)
 {
@@ -540,35 +544,75 @@ void MainFrame::OnViewResultSeries(wxCommandEvent& event)
 
 	cv::namedWindow("ResultSeries");
 	Mat &mSrc = getResultMat(0);
-
+	cv::imshow("ResultSeries", mSrc);
 	int pos = 0;
-
 	cv::createTrackbar("slice", "ResultSeries", &pos, m_nSlices-1, ResultSlice, this);
 	//cv::setMouseCallback("ResultSeries", onCVMouse, this);
-	cv::imshow("ResultSeries", mSrc);		
+		
 }
 
-void FlowSlice(int pos, void *param)
+
+void FolderImageSlice(int pos, void *param)
 {
-	MainFrame *pMainFrame = (MainFrame*)param;
-	Mat &mSrc = pMainFrame->getFlowMat(pos);	
-		
-	cv::imshow("FlowSeries", mSrc);
+	Mat &mSrc = gvecMat[pos];	
+	cv::imshow("ImageSeries", mSrc);
 }
-void MainFrame::OnViewFlowSeries(wxCommandEvent& event)
+void MainFrame::OnViewFolderImage(wxCommandEvent& event)
 {
-	if(m_Rat.m_vecFlow.size() <=0) {
+	wxString  strHistoryFile = wxEmptyString;
+	if(m_FileHistory->GetCount() >0) 
+		strHistoryFile= m_FileHistory->GetHistoryFile(0);
+	
+	static wxString strInitDir (strHistoryFile);
+	wxString dirName = wxDirSelector("Choose a folder", strInitDir); //"E:\\Image_Data\\Mouse\\");
+	if(dirName.empty())  return;
+
+	myMsgOutput( "Load " + dirName + "\n");
+
+	wxString fileSpec = _T("*.*");
+	wxArrayString  	files;
+	wxDir::GetAllFiles(dirName, &files,  fileSpec, wxDIR_FILES  );
+	
+	gvecMat.clear();
+	for(unsigned int i=0; i<files.size(); i++ ) {
+		wxFileName fileName = files[i];
+		wxString  fName = fileName.GetName();
+		wxString  fExtName = fileName.GetExt();
+		if(!fExtName.IsSameAs("bmp", false) && !fExtName.IsSameAs("png", false))  continue;
+		char secondChar = fName[1];
+		if(secondChar !='_') continue;	
+		
+		//MainFrame::myMsgOutput(files[i]+ "\n");
+		std::string strStd = files[i].ToStdString();
+		cv::Mat	cvMat = cv::imread(strStd, CV_LOAD_IMAGE_UNCHANGED);
+		//gpOutput->ShowMessage("%s", castr);
+		if(cvMat.data == NULL) {
+			wxString str;
+			str.Printf("read file %s ERROR\n", strStd);
+			myMsgOutput(str);
+			break;
+		}
+		try	{
+			gvecMat.push_back(cvMat);		
+		}catch(std::exception &e){
+			wxString str;
+			str.Printf("Bad allocation: %s", e.what() );
+			wxLogMessage( str);
+		}
+	}
+	int nSlices = gvecMat.size();
+
+	if(nSlices <=0) {
 		wxLogMessage("no data\n");
 		return;
 	}
 
-	cv::namedWindow("FlowSeries");
-	Mat &mSrc = getFlowMat(0);
-
+	cv::namedWindow("ImageSeries");
+	Mat &mSrc = gvecMat[0];
 	int pos = 0;
-
-	cv::createTrackbar("slice", "FlowSeries", &pos, m_nSlices-1, FlowSlice, this);
-	cv::imshow("FlowSeries", mSrc);		
+	cv::imshow("ImageSeries", mSrc);	
+	cv::createTrackbar("slice", "ImageSeries", &pos, nSlices-1, FolderImageSlice, this);
+	
 }
 
 void MainFrame::OnView2DData(wxCommandEvent& event)

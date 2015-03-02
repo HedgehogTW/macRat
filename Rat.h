@@ -66,7 +66,6 @@ public:
 	Size	getImgSize()  { return m_szImg; }
 	Mat &   getSrcImg(int idx) { return m_vecMat[idx]; }
 	Mat &   getResultImg(int idx) { return m_vecDest[idx]; }
-	Mat &   getFlowImg(int idx) { return m_vecFlowmap[idx]; }
 
 	int		getNumFrames()  { return m_nSlices; }
 	void	saveResult(const char *subpath, vector <Mat> &vecDest);
@@ -135,8 +134,7 @@ public:
 	vector <Mat> m_vecMat;
 	vector <Mat> m_vecDest;
 	vector <Mat> m_vecFlow;
-	vector <Mat> m_vecFlowmap;
-	
+
 	
 	vector <Point>  m_vecEyeL;
 	vector <Point>  m_vecEyeR;
@@ -158,8 +156,8 @@ public:
 	bool	m_bFirstEyeIsLeft;
 	bool	m_bFirstEarIsLeft;
 	
-	vector <double>  m_vecLEyeGrayDiff;
-	vector <double>  m_vecREyeGrayDiff;
+//	vector <double>  m_vecLEyeGrayDiff;
+//	vector <double>  m_vecREyeGrayDiff;
 
 	vector <double>  m_vecLEarGrayDiff;
 	vector <double>  m_vecREarGrayDiff;
