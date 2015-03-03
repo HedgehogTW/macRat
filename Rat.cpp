@@ -53,8 +53,7 @@ void CRat::clearData()
 	m_vecEyePair.clear();
 	m_vecEarPair.clear();
 
-	m_vecLEarGrayDiff.clear();
-	m_vecREarGrayDiff.clear();
+
 //	m_vecLEyeGrayDiff.clear();
 //	m_vecREyeGrayDiff.clear();
 
@@ -458,16 +457,16 @@ void CRat::prepareData()
 	}
 
 	m_vecMat.clear();
-	m_vecDest.clear();
+	//m_vecDest.clear();
 	m_vFilenames.clear();
 
 	int sz= vecData.size();
 	m_vecMat.resize(sz);
-	m_vecDest.resize(sz);
+	//m_vecDest.resize(sz);
 	m_vFilenames.resize(sz);
 
 	std::copy(vecData.begin(), vecData.end(), m_vecMat.begin());
-	std::copy(vecData.begin(), vecData.end(), m_vecDest.begin());
+	//std::copy(vecData.begin(), vecData.end(), m_vecDest.begin());
 	std::copy(vFilenames.begin(), vFilenames.end(), m_vFilenames.begin());
 
 	m_szImg = Size(m_vecMat[0].cols, m_vecMat[0].rows );
@@ -504,19 +503,37 @@ void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 	findEyeCenter(ptEyeL, m_vecEyeL, m_vecEyeLMove);
 	findEyeCenter(ptEyeR, m_vecEyeR, m_vecEyeRMove);
 	
-	saveEyeTrajectory();
+	vector <Point>  vecEarL;
+	vector <Point>  vecEarR;
+	findNewEarCenter(m_vecEyeL, ptEarL, vecEarL);
+	findNewEarCenter(m_vecEyeR, ptEarR, vecEarR);
 	
+	saveEyeTrajectory();
 	_OutputVecPoints(m_vecEyeL, "_eyeLeft.txt");
 	
-	findNewEarCenter(m_vecEyeL, ptEarL, m_vecEarL);
-	findNewEarCenter(m_vecEyeR, ptEarR, m_vecEarR);
+	vector <float>  vecLEarGrayDiff;
+	vector <float>  vecREarGrayDiff;
+	graylevelDiff(m_referFrame, ptEarL, ptEarR, vecLEarGrayDiff, vecREarGrayDiff);
+
+//	vector <float>  vecLEarGray_Eye;
+//	vector <float>  vecREarGray_Eye;
+//	graylevelDiff_Eye(m_referFrame, ptEarL, m_vecEyeL, m_vecLEarGray_Eye);
+//	graylevelDiff_Eye(m_referFrame, ptEarR, m_vecEyeR, m_vecREarGray_Eye);
 	
-	graylevelDiff(m_referFrame, ptEarL, m_vecEyeL, m_vecLEarGrayDiff);
-	graylevelDiff(m_referFrame, ptEarR, m_vecEyeR, m_vecREarGrayDiff);
+	vector<float> smoothL;
+	smoothData(vecLEarGrayDiff, smoothL, 2);	
 	
+	vector<float> smoothR;
+	smoothData(vecREarGrayDiff, smoothR, 2);	
+		
+	int maxPointL = findMaxMotionPoint(smoothL);
+	int maxPointR = findMaxMotionPoint(smoothR);	
+
 	/////////////////////////////////////////////////////////////optical flow
 	vector <Mat> vecFlow;
 	vecFlow.resize(m_nSlices );	
+	
+
 	
 	opticalFlow(vecFlow);
 	opticalFlowSaveDotDensity(vecFlow);
@@ -529,18 +546,40 @@ void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 	opticalFlowAnalysis(vecFlow, ptEarR, m_vecEyeR, m_vecREarFlow, false, m_vecEyeRMove);		
 	
 	
-	earDiffByFixedLoc(m_referFrame, ptEarL, ptEarR);
+/////////////////////////////// remove DC
+	int n = vecLEarGrayDiff.size();
+	float mean = 0;
+	for(int i=0; i<n; i++) 	mean += vecLEarGrayDiff[i];
+	mean /= n;
+	for(int i=0; i<n; i++)  vecLEarGrayDiff[i] -= mean;
 	
-	vector<double> smoothL;
-	smoothData(m_vecLEarGrayDiff0, smoothL, 2);	
+	mean = 0;
+	for(int i=0; i<n; i++) 	mean += vecREarGrayDiff[i];
+	mean /= n;
+	for(int i=0; i<n; i++)  vecREarGrayDiff[i] -= mean;
 	
-	vector<double> smoothR;
-	smoothData(m_vecREarGrayDiff0, smoothR, 2);	
-		
-	
-	int maxPointL = findMaxMotionPoint(smoothL);
-	int maxPointR = findMaxMotionPoint(smoothR);
+	//////////////// flow
+	mean = 0;
+	for(int i=0; i<n; i++) 	mean += m_vecLEarFlow[i];
+	mean /= n;
+	for(int i=0; i<n; i++)  m_vecLEarFlow[i] -= mean;
 
+	mean = 0;
+	for(int i=0; i<n; i++) 	mean += m_vecREarFlow[i];
+	mean /= n;
+	for(int i=0; i<n; i++)  m_vecREarFlow[i] -= mean;
+	
+	///////////////// flow by PDF 
+	mean = 0;
+	for(int i=0; i<n; i++)  mean += m_vecLEarFlow_pdf[i];		
+	mean /= n;
+	for(int i=0; i<n; i++)  m_vecLEarFlow_pdf[i] -= mean;	
+	
+	mean = 0;
+	for(int i=0; i<n; i++) 	mean += m_vecREarFlow_pdf[i];
+	mean /= n;
+	for(int i=0; i<n; i++)  m_vecREarFlow_pdf[i] -= mean;		
+	
 ///////////G N U P L O T//////////////////////////////////////////////////////////////////////////////
 
 	const char* title =fileName.GetName();
@@ -548,36 +587,35 @@ void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 	_gnuplotLED(gPlotR, title, m_idxLightBegin, m_idxTwoLight);
 	gPlotL.set_legend("left");
 	gPlotR.set_legend("left");	
-	if(m_vecLEarGrayDiff0[maxPointL]> m_vecREarGrayDiff0[maxPointR]) {
+	if(vecLEarGrayDiff[maxPointL]> vecREarGrayDiff[maxPointR]) {
 		MainFrame:: myMsgOutput("max motion: left ear %d\n", maxPointL);
-		_gnuplotVerticalLine(gPlotL, "maxMotion", maxPointL);
-		_gnuplotVerticalLine(gPlotR, "maxMotion", maxPointL);
+		_gnuplotVerticalLine(gPlotL, "", maxPointL);
+		_gnuplotVerticalLine(gPlotR, "", maxPointL);
 		saveEarROI(m_referFrame, maxPointL, ptEarL);
 	}else {
 		MainFrame:: myMsgOutput("max motion: right ear %d\n", maxPointR);
-		_gnuplotVerticalLine(gPlotL, "maxMotion", maxPointR);
-		_gnuplotVerticalLine(gPlotR, "maxMotion", maxPointL);
+		_gnuplotVerticalLine(gPlotL, "", maxPointR);
+		_gnuplotVerticalLine(gPlotR, "", maxPointL);
 		saveEarROI(m_referFrame, maxPointR, ptEarR);
 	}	
+	_gnuplotLine(gPlotL, "LEyeMove", m_vecEyeLMove, "#008B0000", ".");
+	_gnuplotLine(gPlotR, "REyeMove", m_vecEyeRMove, "#008B0000", ".");
 	
 	//_gnuplotLine(gPlotL, "LEar", m_vecLEarGrayDiff, "#00008000");
-	_gnuplotLine(gPlotL, "LEarFixed", m_vecLEarGrayDiff0, "#00008000", ".");
+	_gnuplotLine(gPlotL, "LEarGraylevel", vecLEarGrayDiff, "#00008000");
 	
 	//_gnuplotLine(gPlotR, "REar", m_vecREarGrayDiff, "#000000ff");
-	_gnuplotLine(gPlotR, "REarFixed", m_vecREarGrayDiff0, "#000000ff", ".");
+	_gnuplotLine(gPlotR, "REarGraylevel", vecREarGrayDiff, "#00008000");
 	
 	//_gnuplotLine("RightEar", m_vecREarGrayDiff);	
 	//_gnuplotLine("LeftEar_Smooth", smoothL);
 	//_gnuplotLine("LeftEar_Smooth", smoothR);
-	
-	_gnuplotLine(gPlotL, "LEyeMove", m_vecEyeLMove, "#00ff0000");
-	_gnuplotLine(gPlotR, "REyeMove", m_vecEyeRMove, "#00ff0000");
 
-	_gnuplotLine(gPlotL, "LEarFlow", m_vecLEarFlow, "#00FF4500", ".");
-	_gnuplotLine(gPlotL, "LEarFlow-Eye", m_vecLEarFlow_eye, "#00FF4500");
+	_gnuplotLine(gPlotL, "LEarFlow", m_vecLEarFlow, "#00FF4500");
+//	_gnuplotLine(gPlotL, "LEarFlow-Eye", m_vecLEarFlow_eye, "#00FF4500");
 	
-	_gnuplotLine(gPlotR, "REarFlow", m_vecREarFlow, "#00B8860B", ".");
-	_gnuplotLine(gPlotR, "REarFlow-Eye", m_vecREarFlow_eye, "#00B8860B");
+	_gnuplotLine(gPlotR, "REarFlow", m_vecREarFlow, "#00FF4500");
+//	_gnuplotLine(gPlotR, "REarFlow-Eye", m_vecREarFlow_eye, "#00B8860B");
 
 	_gnuplotLine(gPlotL, "LEarPDF", m_vecLEarFlow_pdf, "#000000FF");
 	_gnuplotLine(gPlotR, "REarPDF", m_vecREarFlow_pdf, "#000000FF");
@@ -616,78 +654,15 @@ void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 		circle(mDestColor, Point(ptEyeR.x, ptEyeR.y), 2, Scalar(0, 255, 255), -1);	
 		
 		// new positions of ears 
-		Point ptL1n (m_vecEarL[i]-m_offsetEar);
-		Point ptL2n (m_vecEarL[i]+m_offsetEar);
-		Point ptR1n (m_vecEarR[i]-m_offsetEar);
-		Point ptR2n (m_vecEarR[i]+m_offsetEar);	
+		Point ptL1n (vecEarL[i]-m_offsetEar);
+		Point ptL2n (vecEarL[i]+m_offsetEar);
+		Point ptR1n (vecEarR[i]-m_offsetEar);
+		Point ptR2n (vecEarR[i]+m_offsetEar);	
 		rectangle(mDestColor, Rect(ptL1n, ptL2n), Scalar(0,255,0));
 		rectangle(mDestColor, Rect(ptR1n, ptR2n), Scalar(0,255,0));
 	}
 	saveResult("dest", m_vecDest);
-	//wxBell();
-/*		
-	///////////////////////////////////////////find bending points
-	int k = 3;
-	int angleTh = 170;
-	
-	int  npts = m_idxTwoLight+k*2;
-	vector<cv::Point> contour(npts);
-	for(int i=0; i<npts; i++) {
-		cv::Point p(i, smooth[i]*100+0.5);
-		contour[i] = p;
-		MainFrame:: myMsgOutput("[%d, %d] ", p.x, p.y);
-	}
-	
-	
 
-	CBendPoint  bendpt;
-	vector<float> curvature;
-	int szBending = bendpt.bendingPointsByCurvature(contour, k, angleTh, curvature);
-	MainFrame:: myMsgOutput("szBending %d\n", szBending);
-	
-	vector<double> peakX;
-	vector<double> peakY;
-	for(int i=0; i<szBending; i++) {	
-		cv::Point pt = contour[bendpt.m_bendingIdx[i]];
-		peakX.push_back(pt.x);
-		peakY.push_back((pt.y/100.0));	
-	
-		MainFrame:: myMsgOutput("[%d, %d]", pt.x, pt.y);
-	
-	}
-	_gnuplotPoint("point", peakX, peakY);
-	
-	///////////////////////////////////////////find bending points
-	int nSize = smooth.size();
-	int segLen = 5;
-	double threshold = 0.15;
-	int initX = 0;
-	int lastX = m_idxTwoLight;
-	
-	double * pOutput = smooth.data();
-	
-	CBendPoint  bendpt(pOutput, nSize, segLen);
-	bendpt.findAllBendPoints(initX, lastX, threshold);	
-	
-	int  numPeaks = bendpt.m_vPeak.size();
-	int  numNotches = bendpt.m_vNotch.size();	
-	
-	vector<double> peakX;
-	vector<double> peakY;
-	for(int i=0; i<numPeaks; i++) {
-		peakX.push_back(bendpt.m_vPeak[i].idx);
-		peakY.push_back(smooth[bendpt.m_vPeak[i].idx]);		
-	}
-	_gnuplotPoint("point", peakX, peakY);
-	
-	vector<double> notchX;
-	vector<double> notchY;
-	for(int i=0; i<numNotches; i++) {
-		notchX.push_back(bendpt.m_vNotch[i].idx);
-		notchY.push_back(smooth[bendpt.m_vNotch[i].idx]);		
-	}
-	_gnuplotPoint("point", notchX, notchY);	
-	 */ 
 }
 void  CRat::findNewEarCenter(vector <Point>& vecEye, Point ptEar0, vector <Point>& vecEar)
 {
@@ -700,7 +675,7 @@ void  CRat::findNewEarCenter(vector <Point>& vecEye, Point ptEar0, vector <Point
 		vecEar[i] = ptEar0 + ptOffset;	
 	}
 }
-void CRat::findEyeCenter(Point& ptEye0, vector <Point>& vecEye, vector <double>&  vecEyeMove)
+void CRat::findEyeCenter(Point& ptEye0, vector <Point>& vecEye, vector <float>&  vecEyeMove)
 {
 	
 	vecEye.clear();	
@@ -860,7 +835,7 @@ void CRat::saveEarROI(int stable, int motion, Point& pt)
 //	imshow("_motion", mROI1); 
 	imshow("_ColorEdge", mColor);
 }
-int CRat::findMaxMotionPoint(vector<double>& inData)
+int CRat::findMaxMotionPoint(vector<float>& inData)
 {
 	int maxPoint = -1;
 	
@@ -981,23 +956,29 @@ double CRat::errorSum(Mat &mDiff, Point ptEarL)
 	return sSum[0];
 }
 
-void CRat::smoothData(vector<double>& inData, vector<double>& outData, int bw)
+void CRat::smoothData(vector<float>& inData, vector<float>& outData, int bw)
 {
 	int  n = inData.size();	
 
-	double* pData = inData.data();
-
+	double* pData = new double[n];
 	double  *out = new double[n];
 
+	for(int i=0; i<n; i++)  pData[i] = inData[n];
+	
 	CKDE::MSKernel kde_kernel = CKDE::Gaussian;
 	
 	CKDE kde1x(pData, out, n);
 	kde1x.KernelDensityEstimation(kde_kernel, bw);
 
-	outData.assign (out,out+n);	
+	outData.resize(n);
+	for(int i=0; i<n; i++)  outData[i] = out[n];
+	//outData.assign (out,out+n);	
+	
+	delete [] pData;
+	delete [] out;
 }
 
-void CRat::graylevelDiff(int refer, Point ptEar, vector <Point>& vecEye, vector <double>& vecEarGrayDiff)
+void CRat::graylevelDiff_Eye(int refer, Point ptEar, vector <Point>& vecEye, vector <float>& vecEarGrayDiff)
 {
 	vecEarGrayDiff.clear();
 	
@@ -1039,10 +1020,10 @@ void CRat::graylevelDiff(int refer, Point ptEar, vector <Point>& vecEye, vector 
 	}
 }
 
-void CRat::earDiffByFixedLoc(int refer, Point& ptEarL, Point& ptEarR)
+void CRat::graylevelDiff(int refer, Point& ptEarL, Point& ptEarR, vector <float>& vLEarGray,  vector <float>& vREarGray)
 {
-	m_vecLEarGrayDiff0.clear();
-	m_vecREarGrayDiff0.clear();
+	vLEarGray.clear();
+	vREarGray.clear();
 	
 	Mat mSrc1, mSrc2, mDiff;
 	
@@ -1055,8 +1036,8 @@ void CRat::earDiffByFixedLoc(int refer, Point& ptEarL, Point& ptEarR)
 		
 		errSumL = errorSum(mDiff, ptEarL);
 		errSumR = errorSum(mDiff, ptEarR);
-		m_vecLEarGrayDiff0.push_back(errSumL);
-		m_vecREarGrayDiff0.push_back(errSumR);
+		vLEarGray.push_back(errSumL);
+		vREarGray.push_back(errSumR);
 	}
 }
 
@@ -1091,7 +1072,6 @@ void CRat::opticalFlow(vector<Mat>& vecFlow)
 	
 //#pragma omp parallel for 
 	for(int i=0; i<m_nSlices; i++) {
-//		Mat mFlow, mFlowmapColor;
 		Mat mSrc2;
 		
 		mSrc2 = m_vecMat[i];
@@ -1233,7 +1213,7 @@ void CRat::saveDotDensity(Gnuplot& plotSavePGN, Mat& mFlow, Point pt, wxString& 
     plotSavePGN.cmd(cmdstr.str());	
 }
 
-void CRat::opticalFlowDistribution(vector<Mat>& vecFlow, vector <double>& vecLEarPdf, vector <double>& vecREarPdf)
+void CRat::opticalFlowDistribution(vector<Mat>& vecFlow, vector <float>& vecLEarPdf, vector <float>& vecREarPdf)
 {
 	char subpath[] = "distribution";
 	cv::Mat	 cvMat;
@@ -1357,6 +1337,7 @@ float CRat::optical_compute_movement(Mat& mFlow, Mat& mDistEar, Mat& mDistEye, P
 	Mat mROI(mFlow, Rect(pt1, pt2));
 	float movement = 0;
 	double alpha = 5;
+	float count = 0;
     for(int y = 0; y < mROI.rows; y ++)
         for(int x = 0; x < mROI.cols; x ++)
         {
@@ -1370,10 +1351,15 @@ float CRat::optical_compute_movement(Mat& mFlow, Mat& mDistEar, Mat& mDistEye, P
 			float Pear = mDistEar.at<float>(fxy.y+0.5, fxy.x+0.5);
 			float Peye = mDistEye.at<float>(fxy.y+0.5, fxy.x+0.5);
 			
-			movement += mv * Pear;//;// /(1.+exp(-Peye*alpha));
+			//movement += mv * Pear;//;// /(1.+exp(-Peye*alpha));
+			if(Pear > 0.001) {
+				movement += mv;
+				count+=Pear;
+			}
 		}
-	
-	movement = movement /10.;
+	if(movement!=0)
+		movement = log(movement /count);
+		
 	return (movement);
 }
 
@@ -1444,7 +1430,8 @@ void CRat::drawOptFlowMap(Mat& cflowmap, const Mat& flow,  int step, const Scala
             //circle(cflowmap, Point(x,y), 1, color, -1);
         }
 }
-void CRat::opticalFlowAnalysis(vector<Mat>& vecFlow, Point ptEar, vector <Point>& vecEye, vector <double>& vecEarFlow, bool bOffset, vector <double>&  vecEyeMove)
+void CRat::opticalFlowAnalysis(vector<Mat>& vecFlow, Point ptEar, vector <Point>& vecEye, 
+							   vector <float>& vecEarFlow, bool bOffset, vector <float>& vecEyeMove)
 {
 	// compute ear motion
 	int w = vecFlow[0].cols;
@@ -1463,13 +1450,13 @@ void CRat::opticalFlowAnalysis(vector<Mat>& vecFlow, Point ptEar, vector <Point>
 	
 	for(int i=0; i<m_nSlices; i++) {	
 		float motion;
-		Mat mROILeft(vecFlow[i], Rect(pt1, pt2));
+		Mat mROIEar(vecFlow[i], Rect(pt1, pt2));
 		if(bOffset) {
 			//Point ptEyeOffset = vecEye[i] - ptReferEye;
-			motion = findAvgMotion(mROILeft);
+			motion = findAvgMotion(mROIEar);
 			motion -= vecEyeMove[i]*0.2;
 		}else
-			motion = findAvgMotion(mROILeft);
+			motion = findAvgMotion(mROIEar);
 			
 		vecEarFlow.push_back(motion);
 	}

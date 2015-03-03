@@ -585,4 +585,39 @@ class Gnuplot
 
 };
 
+
+//------------------------------------------------------------------------------
+//
+/// Plots a 2d graph from a list of doubles: x
+//
+template<typename X>
+Gnuplot& Gnuplot::plot_x(const X& x, const std::string &title, const std::string &color, const std::string &dashtype)
+{
+    if (x.size() == 0)
+    {
+        throw GnuplotException("std::vector too small");
+        return *this;
+    }
+
+    std::ofstream tmp;
+    std::string name = create_tmpfile(tmp);
+    if (name == "")
+        return *this;
+
+    //
+    // write the data to file
+    //
+    for (unsigned int i = 0; i < x.size(); i++)
+        tmp << x[i] << std::endl;
+
+    tmp.flush();
+    tmp.close();
+
+
+    plotfile_x(name, 1, title, color, dashtype);
+
+    return *this;
+}
+
+
 #endif

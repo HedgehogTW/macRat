@@ -79,26 +79,26 @@ public:
 	
 	void	process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR);
 	void	recognizeLeftRight(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR);
-	void 	findEyeCenter(Point& ptEye0, vector <Point>& vecEye, vector <double>&  vecEyeMove);
+	void 	findEyeCenter(Point& ptEye0, vector <Point>& vecEye, vector <float>&  vecEyeMove);
 	void  	findNewEarCenter(vector <Point>& vecEye, Point ptEar0, vector <Point>& vecEar);
 	
-	void 	smoothData(vector<double>& inData, vector<double>& outData, int bw=5);
+	void 	smoothData(vector<float>& inData, vector<float>& outData, int bw=5);
 	double 	errorSum(Mat &mDiff, Point ptEarL);
 	int		findReferenceFrame(Point& pt);
-	int 	findMaxMotionPoint(vector<double>& inData);
-	void	graylevelDiff(int refer, Point ptEar, vector <Point>& vecEye, vector <double>& vecEarGrayDiff);
-	void 	earDiffByFixedLoc(int refer, Point& ptEarL, Point& ptEarR);
+	int 	findMaxMotionPoint(vector<float>& inData);
+	void	graylevelDiff_Eye(int refer, Point ptEar, vector <Point>& vecEye, vector <float>& vecEarGrayDiff);
+	void 	graylevelDiff(int refer, Point& ptEarL, Point& ptEarR, vector <float>& vLEarGray,  vector <float>& vREarGray);
 	void 	saveEarROI(int stable, int motion, Point& pt);
 	void 	saveEyeTrajectory();
 
 	void	opticalFlow(vector<Mat>& vecFlow);
-	void 	opticalFlowDistribution(vector<Mat>& vecFlow, vector <double>& vecLEarPdf, vector <double>& vecREarPdf);
+	void 	opticalFlowDistribution(vector<Mat>& vecFlow, vector <float>& vecLEarPdf, vector <float>& vecREarPdf);
 	void 	opticalFlowSaveDotDensity(vector<Mat>& vecFlow);
 	float 	optical_compute_movement(Mat& mFlow, Mat& mDistEar, Mat& mDistEye, Point pt);
 	void 	saveDotDensity(Gnuplot& plotSavePGN, Mat& mFlow, Point pt, wxString& strOutName);	
 	void 	opticalBlockAnalysis(Gnuplot& plotSavePGN, Mat& mFlow, Mat& mGaus, Mat& mDist, Point pt, wxString& strOutName);
 	void	drawOptFlowMap(Mat& cflowmap, const Mat& flow, int step, const Scalar& color);
-	void	opticalFlowAnalysis(vector<Mat>& vecFlow, Point ptEar, vector <Point>& vecEye, vector <double>& vecEarFlow, bool bOffset, vector <double>&  vecEyeMove);
+	void	opticalFlowAnalysis(vector<Mat>& vecFlow, Point ptEar, vector <Point>& vecEye, vector <float>& vecEarFlow, bool bOffset, vector <float>& vecEyeMove);
 	void    saveDistributionAsCSVandPNG();
 	float	findMaxMotion(Mat& mROI, cv::Point& ptDiff);
 	float	findAvgMotion(Mat& mFlowROI, cv::Point ptEyeOffset);
@@ -138,10 +138,8 @@ public:
 	
 	vector <Point>  m_vecEyeL;
 	vector <Point>  m_vecEyeR;
-	vector <double>  m_vecEyeLMove;
-	vector <double>  m_vecEyeRMove;
-	vector <Point>  m_vecEarL;
-	vector <Point>  m_vecEarR;
+	vector <float>  m_vecEyeLMove;
+	vector <float>  m_vecEyeRMove;
 	
 	vector <TwoPts>  m_vecEyePair;
 	vector <TwoPts>  m_vecEarPair;
@@ -159,18 +157,12 @@ public:
 //	vector <double>  m_vecLEyeGrayDiff;
 //	vector <double>  m_vecREyeGrayDiff;
 
-	vector <double>  m_vecLEarGrayDiff;
-	vector <double>  m_vecREarGrayDiff;
-	
-	vector <double>  m_vecLEarGrayDiff0;
-	vector <double>  m_vecREarGrayDiff0;
-
-	vector <double>  m_vecLEarFlow;
-	vector <double>  m_vecREarFlow;
-	vector <double>  m_vecLEarFlow_eye;
-	vector <double>  m_vecREarFlow_eye;
-	vector <double>  m_vecLEarFlow_pdf;
-	vector <double>  m_vecREarFlow_pdf;
+	vector <float>  m_vecLEarFlow;
+	vector <float>  m_vecREarFlow;
+	vector <float>  m_vecLEarFlow_eye;
+	vector <float>  m_vecREarFlow_eye;
+	vector <float>  m_vecLEarFlow_pdf;
+	vector <float>  m_vecREarFlow_pdf;
 	
 	int		m_nSlices ;
 	Size	m_szImg;

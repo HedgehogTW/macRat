@@ -400,8 +400,8 @@ void MainFrame::OnRatProcess(wxCommandEvent& event)
 
 void MainFrame::OnRatShowResults(wxCommandEvent& event)
 {
-
-	if (m_Rat.m_vecLEarGrayDiff.empty()) {
+/*
+	if (m_Rat.m_vecLEarGrayDiff0.empty()) {
 		wxMessageBox("no data", "Error");
 		return;
 	}
@@ -409,8 +409,9 @@ void MainFrame::OnRatShowResults(wxCommandEvent& event)
 	Gnuplot gnuPlot("lines");
 	wxFileName fileName = m_strSourcePath;
 	_gnuplotLED(gnuPlot, fileName.GetName(), m_Rat.m_idxLightBegin, m_Rat.m_idxTwoLight);
-	_gnuplotLine(gnuPlot, "Left Ear", m_Rat.m_vecLEarGrayDiff);
+	_gnuplotLine(gnuPlot, "Left Ear", m_Rat.m_vecLEarGrayDiff0);
 	//m_Rat.m_vecLEarGrayDiff, m_Rat.m_vecREarGrayDiff, m_Rat.m_vecLEyeGrayDiff);
+	 */ 
 }
 void MainFrame::OnRatLoadResult(wxCommandEvent& event)
 {
@@ -444,7 +445,7 @@ void MainFrame::OnRatLoadResult(wxCommandEvent& event)
 		return;
 	}
 
-	vector <double> earLM, earRM, eye;
+	vector <float> earLM, earRM, eye;
 
 	rewind(fp);
 	fscanf(fp, "%d, %d, %d", &numRec, &nBeginLight, &nTwoLight);

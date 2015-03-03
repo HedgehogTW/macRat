@@ -6,6 +6,7 @@
 #include <fstream>
 #include <opencv2/opencv.hpp>
 #include <vector>
+#include <wx/msgdlg.h> 
 
 #include "gnuplot_i.h"
 #include "Rat.h"
@@ -23,11 +24,31 @@ using namespace std;
                      : \
                          ((x) >= (z) ? (x) : (z)))
 
-void 	_gnuplotLine(Gnuplot& gnuPlot, const char* dataName, vector <double>& data, const char* color="", const char* dashtype="");
 void 	_gnuplotVerticalLine(Gnuplot& gnuPlot, const char* dataName, int x);
 void 	_gnuplotLED(Gnuplot& gnuPlot, const char* title, int nBeginLight, int nTwoLight);
+
+template<typename X>
+void _gnuplotLine(Gnuplot& gnuPlot, const char* titleName, X& data, const char* color="", const char* dashtype="")
+{
+//	Gnuplot gnuPlot("lines");
+	if (data.size() <= 0) {
+		//wxMessageBox("gnuplotShow:: no data", "Error");
+		return;
+	}	
+
+	gnuPlot.set_style("lines").plot_x(data, titleName, color, dashtype);
+}
+
 template<typename X, typename Y>
-void 	_gnuplotPoint(Gnuplot& gnuPlot, const char* dataName, const X& dataX, const Y& dataY);
+void _gnuplotPoint(Gnuplot& gnuPlot, const char* dataName, const X& dataX, const Y& dataY)
+{
+//	Gnuplot gnuPlot("lines");
+	if (dataX.size() <= 0) {
+		wxMessageBox("gnuplotShow:: no data", "Error");
+		return;
+	}	
+	gnuPlot.set_style("points").plot_xy(dataX, dataY, dataName);
+}
 
 
 void	_scalingTraining(Mat& mTrainData);
@@ -227,6 +248,5 @@ private:
 	}
 
 };
-
 
 #endif

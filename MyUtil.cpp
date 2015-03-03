@@ -13,9 +13,8 @@ void _gnuplotLED(Gnuplot& gnuPlot, const char* title, int nBeginLight, int nTwoL
 //Gnuplot gnuPlot("lines");	
 
 	gnuPlot.reset_all();
-//	gnuPlot.unset_legend();
 	gnuPlot.set_title(title);
-	gnuPlot.set_grid().set_yrange(0, GNUPLOT_MAX_Y);
+//	gnuPlot.set_grid().set_yrange(0, GNUPLOT_MAX_Y);
 	
 	if (nBeginLight > 0 && nTwoLight>0) {
 		std::vector<double> x_light;
@@ -24,7 +23,7 @@ void _gnuplotLED(Gnuplot& gnuPlot, const char* title, int nBeginLight, int nTwoL
 		y.push_back(GNUPLOT_MAX_Y);
 		x_light.push_back(nBeginLight);
 		x_light.push_back(nTwoLight);
-		gnuPlot.set_style("impulses").plot_xy(x_light, y, "LED");
+		gnuPlot.set_style("impulses").plot_xy(x_light, y, "");
 	}	
 }
 
@@ -41,27 +40,6 @@ void _gnuplotVerticalLine(Gnuplot& gnuPlot, const char* dataName, int x)
 	}	
 }
 
-void _gnuplotLine(Gnuplot& gnuPlot, const char* dataName, vector <double>& data, const char* color, const char* dashtype)
-{
-//	Gnuplot gnuPlot("lines");
-	if (data.size() <= 0) {
-		wxMessageBox("gnuplotShow:: no data", "Error");
-		return;
-	}	
-
-	gnuPlot.set_style("lines").plot_x(data, dataName, color, dashtype);
-}
-
-template<typename X, typename Y>
-void _gnuplotPoint(Gnuplot& gnuPlot, const char* dataName, const X& dataX, const Y& dataY)
-{
-//	Gnuplot gnuPlot("lines");
-	if (dataX.size() <= 0) {
-		wxMessageBox("gnuplotShow:: no data", "Error");
-		return;
-	}	
-	gnuPlot.set_style("points").plot_xy(dataX, dataY, dataName);
-}
 
 ///////////////////////////////
 SortByKey_STL SortByKey_STL::instance = SortByKey_STL();
@@ -231,7 +209,7 @@ void _OutputMat(cv::Mat m, const char *filename, bool bhasComma)
 	depth = m.depth();
 	channel = m.channels();
 	elems = cols*channel;
-	MainFrame:: myMsgOutput("channels %d, elements per row %d\n", channel, elems);
+//	MainFrame:: myMsgOutput("channels %d, elements per row %d\n", channel, elems);
 	
 	for(i=0; i<lines; i++) {
 		
