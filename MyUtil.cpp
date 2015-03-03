@@ -3,40 +3,48 @@
 
 #include <wx/msgdlg.h> 
 
+#define _MIN_Y	-5
+#define _MAX_Y	5
 
-#define GNUPLOT_MAX_Y	25
  
 //Gnuplot gnuPlot("lines");
+void _gnuplotInit(Gnuplot& gnuPlot, const char* title, bool bAutoYrange, int ymin, int ymax)
+{
+	gnuPlot.reset_all();
+	gnuPlot.set_title(title);
+	gnuPlot.set_grid();	
+	
+	if(bAutoYrange==false)
+		gnuPlot.set_yrange(ymin, ymax);
 
-void _gnuplotLED(Gnuplot& gnuPlot, const char* title, int nBeginLight, int nTwoLight)
+}
+void _gnuplotLED(Gnuplot& gnuPlot, int nBeginLight, int nTwoLight, int ymin, int ymax)
 {
 //Gnuplot gnuPlot("lines");	
 
-	gnuPlot.reset_all();
-	gnuPlot.set_title(title);
-//	gnuPlot.set_grid().set_yrange(0, GNUPLOT_MAX_Y);
+
+//	gnuPlot.set_yrange(_MIN_Y, _MAX_Y);
 	
 	if (nBeginLight > 0 && nTwoLight>0) {
-		std::vector<double> x_light;
-		std::vector<double> y;
-		y.push_back(GNUPLOT_MAX_Y);
-		y.push_back(GNUPLOT_MAX_Y);
-		x_light.push_back(nBeginLight);
-		x_light.push_back(nTwoLight);
-		gnuPlot.set_style("impulses").plot_xy(x_light, y, "");
+		_gnuplotVerticalLine(gnuPlot, nBeginLight, ymin, ymax);
+		_gnuplotVerticalLine(gnuPlot, nTwoLight, ymin, ymax);
 	}	
+
 }
 
-void _gnuplotVerticalLine(Gnuplot& gnuPlot, const char* dataName, int x)
+
+void _gnuplotVerticalLine(Gnuplot& gnuPlot, int x, int ymin, int ymax, const char* dataName)
 {
 	//gnuPlot.set_grid().set_yrange(0, GNUPLOT_MAX_Y);
 	
 	if (x > 0) {
 		std::vector<double> vecx;
 		std::vector<double> vecy;
-		vecy.push_back(GNUPLOT_MAX_Y);
+		vecy.push_back(ymin);
 		vecx.push_back(x);
-		gnuPlot.set_style("impulses").plot_xy(vecx, vecy, dataName);
+		vecy.push_back(ymax);
+		vecx.push_back(x);	
+		gnuPlot.set_style("lines").plot_xy(vecx, vecy, dataName);
 	}	
 }
 

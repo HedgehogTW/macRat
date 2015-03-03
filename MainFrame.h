@@ -39,13 +39,9 @@ public:
 
 	void	recognizeLeftRight(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR);
 	
-
-
-	
 	deque<Point>& 	getEyePts() { return m_dqEyePts; }
 	deque<Point>& 	getEarPts() { return m_dqEarPts; }
-	
-
+	deque<Point>& 	getAbdoPts() { return m_dqAbdoPts; }
 	
 	static void myMsgOutput(wxString szFormat,...) {
 		wxString strMsg;
@@ -67,6 +63,8 @@ public:
 	
 	
 protected:
+    virtual void OnRatAbdomen(wxCommandEvent& event);
+    virtual void OnMarkAbdomen(wxCommandEvent& event);
     virtual void OnViewFolderImage(wxCommandEvent& event);
     virtual void OnView2DData(wxCommandEvent& event);
     virtual void OnView3DData(wxCommandEvent& event);
@@ -106,9 +104,11 @@ protected:
 ////////////////////////////////mark eyes and ears
 	bool    m_bMarkEye;
 	bool    m_bMarkEar;
+	bool    m_bMarkAbdomen;
+	
 	deque<Point>  m_dqEyePts;
 	deque<Point>  m_dqEarPts;
-
+	deque<Point>  m_dqAbdoPts;
 	
 
 	long m_nFrameSteps;	

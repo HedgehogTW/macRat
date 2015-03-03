@@ -23,9 +23,10 @@ using namespace std;
                          ((x) >= (y) ? (x) : (y)) \
                      : \
                          ((x) >= (z) ? (x) : (z)))
-
-void 	_gnuplotVerticalLine(Gnuplot& gnuPlot, const char* dataName, int x);
-void 	_gnuplotLED(Gnuplot& gnuPlot, const char* title, int nBeginLight, int nTwoLight);
+						 
+void _gnuplotInit(Gnuplot& gnuPlot, const char* title, bool bAutoYrange=true, int ymin=0, int ymax=0);
+void _gnuplotVerticalLine(Gnuplot& gnuPlot, int x, int ymin, int ymax, const char* dataName="");
+void _gnuplotLED(Gnuplot& gnuPlot, int nBeginLight, int nTwoLight, int ymin, int ymax);
 
 template<typename X>
 void _gnuplotLine(Gnuplot& gnuPlot, const char* titleName, X& data, const char* color="", const char* dashtype="")

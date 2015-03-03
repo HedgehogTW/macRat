@@ -83,6 +83,15 @@ void ScrolledImageComponent::OnDraw(wxDC& dc)
 			dc.DrawCircle(earPts[i].x, earPts[i].y, 2);
 		}
 	}	
+	
+	deque<Point> & abdoPts = MainFrame::m_pThis->getAbdoPts();
+	if(abdoPts.size()>0) {
+		dc.SetPen(*wxCYAN_PEN);
+		dc.SetBrush(*wxGREEN_BRUSH);
+		for(int i=0; i<abdoPts.size(); i++) {
+			dc.DrawCircle(abdoPts[i].x, abdoPts[i].y, 2);
+		}
+	}	
 }
 
 

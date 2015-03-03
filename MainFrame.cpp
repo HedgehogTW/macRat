@@ -78,9 +78,11 @@ void MainFrame::DeleteContents()
 	
 	m_bMarkEye = false;
 	m_bMarkEar = false;
+	m_bMarkAbdomen = false;
 	
 	m_dqEyePts.clear();
 	m_dqEarPts.clear();
+	m_dqAbdoPts.clear();
 }
 void MainFrame::OnMRUFile(wxCommandEvent& event)
 {
@@ -161,8 +163,20 @@ void MainFrame::openFile(wxString &dirName)
 		fclose(fp);
 	}
 	
+	wxFileName dataName1(dirName, "_abdoMarks.txt");
+	if(dataName1.IsFileReadable() ==true) { 	
+		Point ptAbdoEdge, ptAbdoIn;
+		int n;
+		FILE* fp = fopen(dataName1.GetFullPath(), "r");
+		n = fscanf(fp, "%d %d %d %d\n", &ptAbdoEdge.x, &ptAbdoEdge.y, &ptAbdoIn.x, &ptAbdoIn.y );
+		if(n==4) {
+			m_dqAbdoPts.push_back(ptAbdoEdge);
+			m_dqAbdoPts.push_back(ptAbdoIn);
+		}
+		fclose(fp);
+	}	
+	
 	updateOutData(m_Rat.getSrcImg(0));
-
 
 	wxString title = dirName.AfterLast('\\');
 	SetTitle(wxString("Dataset: ") << title);
@@ -270,11 +284,14 @@ void MainFrame::OnEditClearMarks(wxCommandEvent& event)
 {
 	m_bMarkEar = false;
 	m_bMarkEye = false;
+	m_bMarkAbdomen = false;
 	m_toggleButtonMarkEars->SetValue(false);
 	m_toggleButtonMarkEyes->SetValue(false);
+	m_toggleButtonMarkAbdo->SetValue(false);
 	
 	m_dqEyePts.clear();
 	m_dqEarPts.clear();
+	m_dqAbdoPts.clear();
 	Refresh();
 }
 void MainFrame::OnMarkEyes(wxCommandEvent& event)
@@ -284,6 +301,10 @@ void MainFrame::OnMarkEyes(wxCommandEvent& event)
 			m_toggleButtonMarkEars->SetValue(false);
 			m_bMarkEar = false;
 		}
+		if(m_bMarkAbdomen)  {
+			m_toggleButtonMarkAbdo->SetValue(false);
+			m_bMarkAbdomen = false;
+		}	
 		m_bMarkEye = true;
 		m_scrollWin->SetCursor(wxCursor(wxCURSOR_CROSS ));
 	}else {
@@ -298,6 +319,10 @@ void MainFrame::OnMarkEars(wxCommandEvent& event)
 			m_toggleButtonMarkEyes->SetValue(false);
 			m_bMarkEye = false;
 		}
+		if(m_bMarkAbdomen)  {
+			m_toggleButtonMarkAbdo->SetValue(false);
+			m_bMarkAbdomen = false;
+		}	
 		m_bMarkEar = true;
 		m_scrollWin->SetCursor(wxCursor(wxCURSOR_CROSS ));
 	}else {
@@ -305,9 +330,28 @@ void MainFrame::OnMarkEars(wxCommandEvent& event)
 		m_scrollWin->SetCursor(wxCursor(wxCURSOR_ARROW ));
 	}		
 }
+void MainFrame::OnMarkAbdomen(wxCommandEvent& event)
+{
+	if(event.IsChecked()) {
+		if(m_bMarkEye) { 
+			m_toggleButtonMarkEyes->SetValue(false);
+			m_bMarkEye = false;
+		}
+		if(m_bMarkEar)  {
+			m_toggleButtonMarkEars->SetValue(false);
+			m_bMarkEar = false;
+		}	
+		m_bMarkAbdomen = true;
+		m_scrollWin->SetCursor(wxCursor(wxCURSOR_CROSS ));
+	}else {
+		m_bMarkAbdomen = false;
+		m_scrollWin->SetCursor(wxCursor(wxCURSOR_ARROW ));
+	}	
+}
+
 void MainFrame::OnLeftButtonDown(wxMouseEvent& event)
 {
-	if(m_bMarkEye==false && m_bMarkEar == false)  return;
+	if(m_bMarkEye==false && m_bMarkEar == false && m_bMarkAbdomen == false)  return;
 	if (getNumSlices() <= 0)  return;
 	
 	wxClientDC *pDC = new wxClientDC(this);
@@ -329,6 +373,11 @@ void MainFrame::OnLeftButtonDown(wxMouseEvent& event)
 		m_dqEarPts.push_back(ptEar);
 		if(m_dqEarPts.size()>2) 
 			 m_dqEarPts.pop_front();
+	}else if(m_bMarkAbdomen) {
+		Point ptEar = Point(pt.x, pt.y);
+		m_dqAbdoPts.push_back(ptEar);
+		if(m_dqAbdoPts.size()>2) 
+			 m_dqAbdoPts.pop_front();
 	}
 	
 	Refresh();
@@ -396,6 +445,52 @@ void MainFrame::OnRatProcess(wxCommandEvent& event)
 	wxBell();	
 }
 
+void MainFrame::OnRatAbdomen(wxCommandEvent& event)
+{
+	if(m_dqAbdoPts.size()!=2) {
+		wxMessageBox("Select abdomen position", "error");
+		return;
+	}
+	if(m_dqAbdoPts.size()!=2) {
+		wxMessageBox("Select abdomen position", "error");
+		return;
+	}
+	wxBeginBusyCursor();	
+	
+	Point ptEyeL, ptEyeR, ptEarL, ptEarR, ptAbdoEdge, ptAbdoIn;
+	ptEyeL = m_dqEyePts[0];
+	ptEyeR = m_dqEyePts[1];
+	ptEarL = m_dqEarPts[0];
+	ptEarR = m_dqEarPts[1];
+	m_Rat.recognizeLeftRight(ptEyeL, ptEyeR, ptEarL, ptEarR);	
+
+	ptAbdoEdge = m_dqAbdoPts[0];
+	ptAbdoIn = m_dqAbdoPts[1];
+	m_Rat.processAbdomen(ptEyeL, ptEyeR, ptAbdoEdge, ptAbdoIn, ptEarL);
+	
+	
+	
+//	updateOutData(m_Rat.getResultImg(0));
+	
+	
+	wxEndBusyCursor();
+
+	wxFileName fileName = m_strSourcePath;
+	wxString  fName = fileName.GetName();
+	wxFileName dataName(m_strSourcePath, "_"+fName+ "_motion.csv");
+	
+	myMsgOutput("output result file: " + dataName.GetFullPath() + "\n");
+	
+	FILE* fp = fopen(dataName.GetFullPath(), "w");
+	if(fp==NULL) {
+		wxMessageBox("Open output file failed:"+dataName.GetFullName(), "error");
+		return;
+	}
+
+	fclose(fp);	
+
+	wxBell();		
+}
 
 
 void MainFrame::OnRatShowResults(wxCommandEvent& event)
@@ -467,7 +562,8 @@ void MainFrame::OnRatLoadResult(wxCommandEvent& event)
 
 	Gnuplot gnuPlot("lines");
 	wxFileName fileName = filename;	
-	_gnuplotLED(gnuPlot, fileName.GetName(), nBeginLight, nTwoLight);
+	_gnuplotInit(gnuPlot, fileName.GetName());
+	_gnuplotLED(gnuPlot,  nBeginLight, nTwoLight, 0, 20);
 	_gnuplotLine(gnuPlot, "Left Ear", earLM);
 	_gnuplotLine(gnuPlot, "Right Ear", earRM);
 }

@@ -35,12 +35,14 @@ public:
     enum {
         wxID_EDIT_CLEAR_MARKS = 1001,
         wxID_LOAD_RESULT = 1002,
-        wxID_RAT_MARK_EAR = 1003,
-        wxID_RAT_MARK_EYE = 1004,
-        wxID_RAT_PROCESS = 1005,
-        wxID_SHOW_RESULT = 1006,
-        wxID_VIEW_RESULT_SERIES = 1007,
-        wxID_VIEW_SERIES = 1008,
+        wxID_RAT_ABDOMEN = 1003,
+        wxID_RAT_MARK_ABDO = 1004,
+        wxID_RAT_MARK_EAR = 1005,
+        wxID_RAT_MARK_EYE = 1006,
+        wxID_RAT_PROCESS = 1007,
+        wxID_SHOW_RESULT = 1008,
+        wxID_VIEW_RESULT_SERIES = 1009,
+        wxID_VIEW_SERIES = 1010,
     };
 protected:
     wxMenuBar* m_menuBar;
@@ -58,6 +60,7 @@ protected:
     wxMenuItem* m_menuItemView3D;
     wxMenu* m_menuRat;
     wxMenuItem* m_menuItemProcess;
+    wxMenuItem* m_menuItemAbdomen;
     wxMenuItem* m_menuItemShowResults;
     wxMenuItem* m_menuItemLoadResult;
     wxMenu* m_nameHelp;
@@ -69,6 +72,7 @@ protected:
     wxAuiToolBar* m_auibar31;
     wxToggleButton* m_toggleButtonMarkEyes;
     wxToggleButton* m_toggleButtonMarkEars;
+    wxToggleButton* m_toggleButtonMarkAbdo;
     wxStatusBar* m_statusBar;
 
 protected:
@@ -84,6 +88,7 @@ protected:
     virtual void OnView2DData(wxCommandEvent& event) { event.Skip(); }
     virtual void OnView3DData(wxCommandEvent& event) { event.Skip(); }
     virtual void OnRatProcess(wxCommandEvent& event) { event.Skip(); }
+    virtual void OnRatAbdomen(wxCommandEvent& event) { event.Skip(); }
     virtual void OnRatShowResults(wxCommandEvent& event) { event.Skip(); }
     virtual void OnRatLoadResult(wxCommandEvent& event) { event.Skip(); }
     virtual void OnAbout(wxCommandEvent& event) { event.Skip(); }
@@ -91,6 +96,7 @@ protected:
     virtual void OnLeftButtonDown(wxMouseEvent& event) { event.Skip(); }
     virtual void OnMarkEyes(wxCommandEvent& event) { event.Skip(); }
     virtual void OnMarkEars(wxCommandEvent& event) { event.Skip(); }
+    virtual void OnMarkAbdomen(wxCommandEvent& event) { event.Skip(); }
 
 public:
     MainFrameBaseClass(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("My Frame"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(700,500), long style = wxCAPTION|wxRESIZE_BORDER|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxSYSTEM_MENU|wxCLOSE_BOX);

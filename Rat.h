@@ -4,9 +4,6 @@
 #include <string>
 #include <algorithm> 
 #include <opencv2/opencv.hpp>
-//#include <opencv2/imgproc/imgproc.hpp>
-//#include <opencv2/highgui/highgui.hpp>
-//#include <opencv2/video/tracking.hpp>
 
 #include <itkImage.h>
 #include "itkImportImageFilter.h"
@@ -77,6 +74,9 @@ public:
 	bool	horizontalLine();
 	bool	verticalLine();
 	
+	void	processAbdomen(Point ptEyeL, Point ptEyeR, Point ptAbdoEdge, Point ptAbdoIn, Point ptEar);
+	
+	
 	void	process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR);
 	void	recognizeLeftRight(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR);
 	void 	findEyeCenter(Point& ptEye0, vector <Point>& vecEye, vector <float>&  vecEyeMove);
@@ -91,9 +91,12 @@ public:
 	void 	saveEarROI(int stable, int motion, Point& pt);
 	void 	saveEyeTrajectory();
 
-	void	opticalFlow(vector<Mat>& vecFlow);
-	void 	opticalFlowDistribution(vector<Mat>& vecFlow, vector <float>& vecLEarPdf, vector <float>& vecREarPdf);
-	void 	opticalFlowSaveDotDensity(vector<Mat>& vecFlow);
+	void	opticalFlow(vector<Mat>& vecFlow, Point pt1, Point pt2);
+	void 	opticalFlowDistribution(vector<Mat>& vecFlow, char* subpath, vector <float>& vecPdf1, vector <float>& vecPdf2,
+									Point pt1, Point pt2, char* extName1, char* extName2, char* title1, char* title2);
+	void 	opticalFlowSaveDotDensity(vector<Mat>& vecFlow, char* subpath, Point pt1, Point pt2,
+									char* extName1, char* extName2, char* title1, char* title2);
+
 	float 	optical_compute_movement(Mat& mFlow, Mat& mDistEar, Mat& mDistEye, Point pt);
 	void 	saveDotDensity(Gnuplot& plotSavePGN, Mat& mFlow, Point pt, wxString& strOutName);	
 	void 	opticalBlockAnalysis(Gnuplot& plotSavePGN, Mat& mFlow, Mat& mGaus, Mat& mDist, Point pt, wxString& strOutName);
@@ -150,6 +153,9 @@ public:
 	Point	m_ptEyeR;
 	Point	m_ptEarL;
 	Point	m_ptEarR;
+	Point 	m_ptAbdoEdge;
+	Point	m_ptAbdoIn;
+	
 
 	bool	m_bFirstEyeIsLeft;
 	bool	m_bFirstEarIsLeft;
@@ -161,8 +167,7 @@ public:
 	vector <float>  m_vecREarFlow;
 	vector <float>  m_vecLEarFlow_eye;
 	vector <float>  m_vecREarFlow_eye;
-	vector <float>  m_vecLEarFlow_pdf;
-	vector <float>  m_vecREarFlow_pdf;
+
 	
 	int		m_nSlices ;
 	Size	m_szImg;
