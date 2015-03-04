@@ -650,6 +650,9 @@ Gnuplot& Gnuplot::set_xrange(const double iFrom,
 Gnuplot& Gnuplot::set_yrange(const double iFrom,
                              const double iTo)
 {
+	m_yMin = iFrom;
+	m_yMax = iTo;
+	
     std::ostringstream cmdstr;
 
     cmdstr << "set yrange[" << iFrom << ":" << iTo << "]";
@@ -1129,6 +1132,8 @@ void Gnuplot::init()
     valid = true;
     smooth = "";
 
+	m_yMin = 0;
+	m_yMax = 50;
     //set terminal type
     showonscreen();
 

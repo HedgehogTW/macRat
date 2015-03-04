@@ -8,17 +8,31 @@
 
  
 //Gnuplot gnuPlot("lines");
-void _gnuplotInit(Gnuplot& gnuPlot, const char* title, bool bAutoYrange, int ymin, int ymax)
+void _gnuplotInit(Gnuplot& gnuPlot, const char* title, int ymin, int ymax)
 {
 	gnuPlot.reset_all();
 	gnuPlot.set_title(title);
 	gnuPlot.set_grid();	
 	
-	if(bAutoYrange==false)
+	if(ymin!=0 && ymax!=0) {
+		/*
+	    std::ostringstream cmdstr;
+		cmdstr << "yMin = " << ymin;
+		gnuPlot.cmd(cmdstr.str());
+		
+		std::ostringstream cmdstr1;
+		cmdstr1 << "yMax = " << ymax;
+		gnuPlot.cmd(cmdstr1.str());
+	
+		std::ostringstream cmdstr2;
+		cmdstr2 << "set yrange [yMin: yMax]";
+		gnuPlot.cmd(cmdstr2.str());
+		*/
 		gnuPlot.set_yrange(ymin, ymax);
+	}
 
 }
-void _gnuplotLED(Gnuplot& gnuPlot, int nBeginLight, int nTwoLight, int ymin, int ymax)
+void _gnuplotLED(Gnuplot& gnuPlot, int nBeginLight, int nTwoLight)
 {
 //Gnuplot gnuPlot("lines");	
 
@@ -26,18 +40,21 @@ void _gnuplotLED(Gnuplot& gnuPlot, int nBeginLight, int nTwoLight, int ymin, int
 //	gnuPlot.set_yrange(_MIN_Y, _MAX_Y);
 	
 	if (nBeginLight > 0 && nTwoLight>0) {
-		_gnuplotVerticalLine(gnuPlot, nBeginLight, ymin, ymax);
-		_gnuplotVerticalLine(gnuPlot, nTwoLight, ymin, ymax);
+		_gnuplotVerticalLine(gnuPlot, nBeginLight);
+		_gnuplotVerticalLine(gnuPlot, nTwoLight);
 	}	
 
 }
 
 
-void _gnuplotVerticalLine(Gnuplot& gnuPlot, int x, int ymin, int ymax, const char* dataName)
+void _gnuplotVerticalLine(Gnuplot& gnuPlot, int x, const char* dataName)
 {
 	//gnuPlot.set_grid().set_yrange(0, GNUPLOT_MAX_Y);
 	
 	if (x > 0) {
+		double ymin, ymax;
+		gnuPlot.getYRange(ymin, ymax);
+		
 		std::vector<double> vecx;
 		std::vector<double> vecy;
 		vecy.push_back(ymin);

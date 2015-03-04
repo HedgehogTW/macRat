@@ -470,7 +470,7 @@ void MainFrame::OnRatAbdomen(wxCommandEvent& event)
 	
 	
 	
-//	updateOutData(m_Rat.getResultImg(0));
+	updateOutData(m_Rat.getResultImg(0));
 	
 	
 	wxEndBusyCursor();
@@ -563,7 +563,7 @@ void MainFrame::OnRatLoadResult(wxCommandEvent& event)
 	Gnuplot gnuPlot("lines");
 	wxFileName fileName = filename;	
 	_gnuplotInit(gnuPlot, fileName.GetName());
-	_gnuplotLED(gnuPlot,  nBeginLight, nTwoLight, 0, 20);
+	_gnuplotLED(gnuPlot,  nBeginLight, nTwoLight);
 	_gnuplotLine(gnuPlot, "Left Ear", earLM);
 	_gnuplotLine(gnuPlot, "Right Ear", earRM);
 }

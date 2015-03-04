@@ -135,6 +135,8 @@ MainFrameBaseClass::MainFrameBaseClass(wxWindow* parent, wxWindowID id, const wx
     
     m_auibar31->AddTool(wxID_RAT_PROCESS, _("Process"), wxXmlResource::Get()->LoadBitmap(wxT("Mouse")), wxNullBitmap, wxITEM_NORMAL, _("Process"), wxT(""), NULL);
     
+    m_auibar31->AddTool(wxID_RAT_ABDOMEN, _("Abdomen"), wxXmlResource::Get()->LoadBitmap(wxT("rat_APB")), wxNullBitmap, wxITEM_NORMAL, wxT(""), wxT(""), NULL);
+    
     m_auibar31->AddTool(wxID_SHOW_RESULT, _("Show Result"), wxXmlResource::Get()->LoadBitmap(wxT("result")), wxNullBitmap, wxITEM_NORMAL, _("Show Result"), wxT(""), NULL);
     
     m_auibar31->AddTool(wxID_LOAD_RESULT, _("Load Result"), wxXmlResource::Get()->LoadBitmap(wxT("Picts Folder")), wxNullBitmap, wxITEM_NORMAL, _("Load Result"), wxT(""), NULL);

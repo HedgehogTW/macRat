@@ -4,5 +4,6 @@
   <object class="wxBitmap" name="Mouse">Mouse.bmp</object>
   <object class="wxBitmap" name="Picts Folder">Picts Folder.png</object>
   <object class="wxBitmap" name="Projector">Projector.png</object>
+  <object class="wxBitmap" name="rat_APB">rat_APB.bmp</object>
   <object class="wxBitmap" name="result">result.png</object>
 </resource>

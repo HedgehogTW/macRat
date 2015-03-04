@@ -568,8 +568,8 @@ void CRat::processAbdomen(Point ptEyeL, Point ptEyeR, Point ptAbdoEdge, Point pt
 	const char* title =fileName.GetName();
 	_gnuplotInit(gPlotL, title);
 	_gnuplotInit(gPlotR, title);
-	_gnuplotLED(gPlotL, m_idxLightBegin, m_idxTwoLight, ymin, ymax);
-	_gnuplotLED(gPlotR, m_idxLightBegin, m_idxTwoLight, ymin, ymax);
+	_gnuplotLED(gPlotL, m_idxLightBegin, m_idxTwoLight);
+	_gnuplotLED(gPlotR, m_idxLightBegin, m_idxTwoLight);
 	gPlotL.set_legend("left");
 	gPlotR.set_legend("left");	
 	
@@ -603,8 +603,8 @@ void CRat::processAbdomen(Point ptEyeL, Point ptEyeR, Point ptAbdoEdge, Point pt
 		Mat mDestColor;
 		mDestColor = m_vecDest[i];
 		// original ears
-		rectangle(mDestColor, Rect(ptL1, ptL2), Scalar(255,0,0));
-		rectangle(mDestColor, Rect(ptR1, ptR2), Scalar(255,0,0));
+		rectangle(mDestColor, Rect(ptL1, ptL2), Scalar(0, 255,0));
+		rectangle(mDestColor, Rect(ptR1, ptR2), Scalar(0, 255,0));
 		
 		// new positions of eyes 
 		circle(mDestColor, Point(m_vecEyeL[i].x, m_vecEyeL[i].y), 3, Scalar(0, 0, 255), -1);	
@@ -725,26 +725,26 @@ void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 	for(int i=0; i<n; i++)  vecREarFlow_pdf[i] -= mean;		
 	
 ///////////G N U P L O T//////////////////////////////////////////////////////////////////////////////
-	int  ymin = 0;
-	int  ymax = 20;
+	int  ymin = -10;
+	int  ymax = 25;
 	
 	const char* title =fileName.GetName();
-	_gnuplotInit(gPlotL, title);
-	_gnuplotInit(gPlotR, title);
+	_gnuplotInit(gPlotL, title, ymin, ymax);
+	_gnuplotInit(gPlotR, title, ymin, ymax);
 	
-	_gnuplotLED(gPlotL, m_idxLightBegin, m_idxTwoLight, ymin, ymax);
-	_gnuplotLED(gPlotR, m_idxLightBegin, m_idxTwoLight, ymin, ymax);
+	_gnuplotLED(gPlotL, m_idxLightBegin, m_idxTwoLight);
+	_gnuplotLED(gPlotR, m_idxLightBegin, m_idxTwoLight);
 	gPlotL.set_legend("left");
 	gPlotR.set_legend("left");	
 	if(vecLEarGrayDiff[maxPointL]> vecREarGrayDiff[maxPointR]) {
 		MainFrame:: myMsgOutput("max motion: left ear %d\n", maxPointL);
-		_gnuplotVerticalLine(gPlotL, maxPointL, ymin, ymax);
-		_gnuplotVerticalLine(gPlotR, maxPointL, ymin, ymax);
+		_gnuplotVerticalLine(gPlotL, maxPointL);
+		_gnuplotVerticalLine(gPlotR, maxPointL);
 		saveEarROI(m_referFrame, maxPointL, ptEarL);
 	}else {
 		MainFrame:: myMsgOutput("max motion: right ear %d\n", maxPointR);
-		_gnuplotVerticalLine(gPlotL, maxPointR, ymin, ymax);
-		_gnuplotVerticalLine(gPlotR, maxPointL, ymin, ymax);
+		_gnuplotVerticalLine(gPlotL, maxPointR);
+		_gnuplotVerticalLine(gPlotR, maxPointL);
 		saveEarROI(m_referFrame, maxPointR, ptEarR);
 	}	
 	_gnuplotLine(gPlotL, "LEyeMove", m_vecEyeLMove, "#008B0000", ".");

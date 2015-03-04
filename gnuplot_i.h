@@ -67,8 +67,10 @@ class GnuplotException : public std::runtime_error
 
 class Gnuplot
 {
-    private:
+private:
 
+		double 	m_yMin;
+		double  m_yMax;
     //----------------------------------------------------------------------------------
     // member data
 	///\brief pointer to the stream that can be used to write to the pipe
@@ -146,7 +148,7 @@ class Gnuplot
     static bool    file_exists(const std::string &filename, int mode=0); 
 
     public:
-
+		inline void getYRange(double &ymin, double &ymax) { ymin = m_yMin; ymax = m_yMax; }
 		// ----------------------------------------------------------------------------
         /// \brief optional function: set Gnuplot path manual
         /// attention:  for windows: path with slash '/' not backslash '\'
