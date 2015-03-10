@@ -69,7 +69,8 @@ public:
 	bool	detectTwoLight();
 	Point	aspectRatio(vector<cv::Point> &con, double &ratio, double &angle );
 	void	prepareData();
-	void	getLightRange(int& from, int& to) { from = m_idxLightBegin; to = m_idxLightEnd; }
+	void 	DC_removal(int nFirstLED, vector <float>& vecSignal);
+	void	getLightRange(int& from, int& to) { from = m_nLED1; to = m_nLED_End; }
 
 	bool	horizontalLine();
 	bool	verticalLine();
@@ -91,15 +92,15 @@ public:
 	void 	saveEarROI(int stable, int motion, Point& pt);
 	void 	saveEyeTrajectory();
 
-	void	opticalFlow(vector<Mat>& vecFlow, Point pt1, Point pt2);
+	void	opticalFlow(vector<Mat>& vecFlow, Point pt1, Point pt2, int nFrameSteps=0);
 	void 	opticalFlowDistribution(vector<Mat>& vecFlow, char* subpath, vector <float>& vecPdf1, vector <float>& vecPdf2,
 									Point pt1, Point pt2, char* extName1, char* extName2, char* title1, char* title2);
 	void 	opticalFlowSaveDotDensity(vector<Mat>& vecFlow, char* subpath, Point pt1, Point pt2,
 									char* extName1, char* extName2, char* title1, char* title2);
 
-	float 	optical_compute_movement(Mat& mFlow, Mat& mDistEar, Mat& mDistEye, Point pt);
+	float 	optical_compute_movement(Mat& mFlow, Mat& mDistEar, Mat& mDistEye, Point pt, float threshold);
 	void 	saveDotDensity(Gnuplot& plotSavePGN, Mat& mFlow, Point pt, wxString& strOutName);	
-	void 	opticalBlockAnalysis(Gnuplot& plotSavePGN, Mat& mFlow, Mat& mGaus, Mat& mDist, Point pt, wxString& strOutName);
+	float 	opticalBlockAnalysis(Gnuplot& plotSavePGN, Mat& mFlow, Mat& mGaus, Mat& mDist, Point pt, wxString& strOutName);
 	void	drawOptFlowMap(Mat& cflowmap, const Mat& flow, int step, const Scalar& color);
 	void	opticalFlowAnalysis(vector<Mat>& vecFlow, Point ptEar, vector <Point>& vecEye, vector <float>& vecEarFlow, bool bOffset, vector <float>& vecEyeMove);
 	void    saveDistributionAsCSVandPNG();
@@ -173,9 +174,10 @@ public:
 	Size	m_szImg;
 	wxString  m_strSrcPath;
 	vector <string> m_vFilenames;
-	int		m_idxLightBegin;
-	int		m_idxLightEnd;
-	int		m_idxTwoLight;
+	int		m_nLED1;
+	int		m_nLED2;	
+	int		m_nLED_End;
+
 	int		m_nCageLineY;
 	int		m_nCageLineX;
 

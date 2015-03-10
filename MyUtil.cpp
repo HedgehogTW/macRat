@@ -4,7 +4,7 @@
 #include <wx/msgdlg.h> 
 
 #define _MIN_Y	-5
-#define _MAX_Y	5
+#define _MAX_Y	20
 
  
 //Gnuplot gnuPlot("lines");
@@ -15,30 +15,12 @@ void _gnuplotInit(Gnuplot& gnuPlot, const char* title, int ymin, int ymax)
 	gnuPlot.set_grid();	
 	
 	if(ymin!=0 && ymax!=0) {
-		/*
-	    std::ostringstream cmdstr;
-		cmdstr << "yMin = " << ymin;
-		gnuPlot.cmd(cmdstr.str());
-		
-		std::ostringstream cmdstr1;
-		cmdstr1 << "yMax = " << ymax;
-		gnuPlot.cmd(cmdstr1.str());
-	
-		std::ostringstream cmdstr2;
-		cmdstr2 << "set yrange [yMin: yMax]";
-		gnuPlot.cmd(cmdstr2.str());
-		*/
 		gnuPlot.set_yrange(ymin, ymax);
-	}
+	}else gnuPlot.set_yrange(_MIN_Y, _MAX_Y);
 
 }
 void _gnuplotLED(Gnuplot& gnuPlot, int nBeginLight, int nTwoLight)
 {
-//Gnuplot gnuPlot("lines");	
-
-
-//	gnuPlot.set_yrange(_MIN_Y, _MAX_Y);
-	
 	if (nBeginLight > 0 && nTwoLight>0) {
 		_gnuplotVerticalLine(gnuPlot, nBeginLight);
 		_gnuplotVerticalLine(gnuPlot, nTwoLight);
@@ -49,8 +31,6 @@ void _gnuplotLED(Gnuplot& gnuPlot, int nBeginLight, int nTwoLight)
 
 void _gnuplotVerticalLine(Gnuplot& gnuPlot, int x, const char* dataName)
 {
-	//gnuPlot.set_grid().set_yrange(0, GNUPLOT_MAX_Y);
-	
 	if (x > 0) {
 		double ymin, ymax;
 		gnuPlot.getYRange(ymin, ymax);
