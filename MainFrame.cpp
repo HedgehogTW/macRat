@@ -52,7 +52,7 @@ MainFrame::MainFrame(wxWindow* parent)
 	
 	this->Connect(wxID_FILE1, wxID_FILE9, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrame::OnMRUFile), NULL, this);
 	
-	SetSize(700, 650);
+	SetSize(800, 650);
 	Center();
 	
 	m_nFrameSteps = 2;	
@@ -134,7 +134,7 @@ void MainFrame::openFile(wxString &dirName)
 
 	if(bRet ==false) {
 		wxLogMessage("cannot detect cage line");
-		return;
+		//return;
 	}
 	
 //	m_Rat.verticalLine(); 
