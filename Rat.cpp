@@ -289,7 +289,7 @@ for( size_t i = 0; i < vecY.size(); i++ )
 	return true;
 }
 
-bool CRat::detectTwoLight()
+bool CRat::detectTwoLight(int nCageLine)
 {
 	double minArea = 330;
 	double maxArea = 1600;
@@ -301,6 +301,9 @@ bool CRat::detectTwoLight()
 	m_nLED2 = -1;
 	m_nLED_End = -1;
 
+	if(nCageLine <=0)  return false;
+	m_nCageLineY = nCageLine;
+	
 //	gpMainFrame->CreateProgressBar(0, m_nSlices, 1);
 //	CProgressCtrl *pb =  gpMainFrame->GetProgressBarCtrl();
 
@@ -499,6 +502,7 @@ void CRat::processAbdomen(Point ptEyeL, Point ptEyeR, Point ptAbdoEdge, Point pt
 	FILE* fp = fopen(dataName.GetFullPath(), "w");
 	if(fp!=NULL) {
 		fprintf(fp, "%d %d %d %d\n", ptAbdoEdge.x, ptAbdoEdge.y, ptAbdoIn.x, ptAbdoIn.y );
+		fprintf(fp, "%d\n", m_nCageLineY );
 		fclose(fp);
 	}	
 	
@@ -614,6 +618,7 @@ void CRat::process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 	if(fp!=NULL) {
 		fprintf(fp, "%d %d %d %d\n", ptEyeL.x, ptEyeL.y, ptEyeR.x, ptEyeR.y );
 		fprintf(fp, "%d %d %d %d\n", ptEarL.x, ptEarL.y, ptEarR.x, ptEarR.y );
+		fprintf(fp, "%d\n", m_nCageLineY );
 		fclose(fp);
 	}
 	

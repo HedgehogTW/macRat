@@ -1,7 +1,7 @@
 {
  "metadata": {
   "m_generatedFilesDir": ".",
-  "m_objCounter": 139,
+  "m_objCounter": 147,
   "m_includeFiles": [],
   "m_bitmapFunction": "wxC9ED9InitBitmapResources",
   "m_bitmapsFile": "wxcrafter_bitmaps.cpp",
@@ -1590,12 +1590,94 @@
          "m_events": [],
          "m_children": []
         }, {
-         "m_type": 4427,
+         "m_type": 4513,
          "proportion": 0,
          "border": 5,
          "gbSpan": "1,1",
          "gbPosition": "0,0",
-         "m_styles": [],
+         "m_styles": ["wxBU_EXACTFIT"],
+         "m_sizerFlags": ["wxALL", "wxLEFT", "wxRIGHT", "wxTOP", "wxBOTTOM"],
+         "m_properties": [{
+           "type": "winid",
+           "m_label": "ID:",
+           "m_winid": "wxID_ANY"
+          }, {
+           "type": "string",
+           "m_label": "Size:",
+           "m_value": "-1,-1"
+          }, {
+           "type": "string",
+           "m_label": "Minimum Size:",
+           "m_value": "-1,-1"
+          }, {
+           "type": "string",
+           "m_label": "Name:",
+           "m_value": "m_bmpToggleBtnMarkCageLine"
+          }, {
+           "type": "multi-string",
+           "m_label": "Tooltip:",
+           "m_value": "Mark cage line"
+          }, {
+           "type": "colour",
+           "m_label": "Bg Colour:",
+           "colour": "<Default>"
+          }, {
+           "type": "colour",
+           "m_label": "Fg Colour:",
+           "colour": "<Default>"
+          }, {
+           "type": "font",
+           "m_label": "Font:",
+           "m_value": ""
+          }, {
+           "type": "bool",
+           "m_label": "Hidden",
+           "m_value": false
+          }, {
+           "type": "bool",
+           "m_label": "Disabled",
+           "m_value": false
+          }, {
+           "type": "bool",
+           "m_label": "Focused",
+           "m_value": false
+          }, {
+           "type": "string",
+           "m_label": "Class Name:",
+           "m_value": ""
+          }, {
+           "type": "string",
+           "m_label": "Include File:",
+           "m_value": ""
+          }, {
+           "type": "string",
+           "m_label": "Style:",
+           "m_value": ""
+          }, {
+           "type": "bitmapPicker",
+           "m_label": "Bitmap File:",
+           "m_path": "cage.png"
+          }, {
+           "type": "bool",
+           "m_label": "Checked",
+           "m_value": false
+          }],
+         "m_events": [{
+           "m_eventName": "wxEVT_COMMAND_TOGGLEBUTTON_CLICKED",
+           "m_eventClass": "wxCommandEvent",
+           "m_eventHandler": "wxCommandEventHandler",
+           "m_functionNameAndSignature": "OnMarkCageline(wxCommandEvent& event)",
+           "m_description": "Handles a toggle button click event.",
+           "m_noBody": false
+          }],
+         "m_children": []
+        }, {
+         "m_type": 4513,
+         "proportion": 0,
+         "border": 5,
+         "gbSpan": "1,1",
+         "gbPosition": "0,0",
+         "m_styles": ["wxBU_EXACTFIT"],
          "m_sizerFlags": ["wxALL", "wxLEFT", "wxRIGHT", "wxTOP", "wxBOTTOM"],
          "m_properties": [{
            "type": "winid",
@@ -1612,11 +1694,11 @@
           }, {
            "type": "string",
            "m_label": "Name:",
-           "m_value": "m_toggleButtonMarkEyes"
+           "m_value": "m_bmpToggleBtnMarkEyes"
           }, {
            "type": "multi-string",
            "m_label": "Tooltip:",
-           "m_value": ""
+           "m_value": "Mark eyes"
           }, {
            "type": "colour",
            "m_label": "Bg Colour:",
@@ -1654,9 +1736,9 @@
            "m_label": "Style:",
            "m_value": ""
           }, {
-           "type": "string",
-           "m_label": "Label:",
-           "m_value": "Mark eyes"
+           "type": "bitmapPicker",
+           "m_label": "Bitmap File:",
+           "m_path": "mark_eye.png"
           }, {
            "type": "bool",
            "m_label": "Checked",
@@ -1672,12 +1754,12 @@
           }],
          "m_children": []
         }, {
-         "m_type": 4427,
+         "m_type": 4513,
          "proportion": 0,
          "border": 5,
          "gbSpan": "1,1",
          "gbPosition": "0,0",
-         "m_styles": [],
+         "m_styles": ["wxBU_EXACTFIT"],
          "m_sizerFlags": ["wxALL", "wxLEFT", "wxRIGHT", "wxTOP", "wxBOTTOM"],
          "m_properties": [{
            "type": "winid",
@@ -1694,11 +1776,11 @@
           }, {
            "type": "string",
            "m_label": "Name:",
-           "m_value": "m_toggleButtonMarkEars"
+           "m_value": "m_bmpToggleBtnMarkEars"
           }, {
            "type": "multi-string",
            "m_label": "Tooltip:",
-           "m_value": ""
+           "m_value": "Mark Ears"
           }, {
            "type": "colour",
            "m_label": "Bg Colour:",
@@ -1736,9 +1818,9 @@
            "m_label": "Style:",
            "m_value": ""
           }, {
-           "type": "string",
-           "m_label": "Label:",
-           "m_value": "Mark Ears"
+           "type": "bitmapPicker",
+           "m_label": "Bitmap File:",
+           "m_path": "mark_ear.png"
           }, {
            "type": "bool",
            "m_label": "Checked",
@@ -1754,12 +1836,12 @@
           }],
          "m_children": []
         }, {
-         "m_type": 4427,
+         "m_type": 4513,
          "proportion": 0,
          "border": 5,
          "gbSpan": "1,1",
          "gbPosition": "0,0",
-         "m_styles": [],
+         "m_styles": ["wxBU_EXACTFIT"],
          "m_sizerFlags": ["wxALL", "wxLEFT", "wxRIGHT", "wxTOP", "wxBOTTOM"],
          "m_properties": [{
            "type": "winid",
@@ -1776,11 +1858,11 @@
           }, {
            "type": "string",
            "m_label": "Name:",
-           "m_value": "m_toggleButtonMarkAbdo"
+           "m_value": "m_bmpToggleBtnMarkAbdo"
           }, {
            "type": "multi-string",
            "m_label": "Tooltip:",
-           "m_value": ""
+           "m_value": "Mark Abdomen"
           }, {
            "type": "colour",
            "m_label": "Bg Colour:",
@@ -1788,7 +1870,7 @@
           }, {
            "type": "colour",
            "m_label": "Fg Colour:",
-           "colour": "<Default>"
+           "colour": "Highlight"
           }, {
            "type": "font",
            "m_label": "Font:",
@@ -1818,9 +1900,9 @@
            "m_label": "Style:",
            "m_value": ""
           }, {
-           "type": "string",
-           "m_label": "Label:",
-           "m_value": "Mark Abdomen"
+           "type": "bitmapPicker",
+           "m_label": "Bitmap File:",
+           "m_path": "mark_APB.png"
           }, {
            "type": "bool",
            "m_label": "Checked",

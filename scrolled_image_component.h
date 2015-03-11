@@ -19,6 +19,7 @@ public:
 	void setImage(cv::Mat& mat);
     void OnDraw(wxDC& dc);
 
+	int m_nWidth;
 };
 
 #endif // SCROLLEDIMAGECOMPONENT_H

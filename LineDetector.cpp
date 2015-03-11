@@ -99,7 +99,7 @@ bool CLineDetector::detectHorLine(Mat& mGrad, vector<Vec2s>& vecLine, double thr
 	//start = clock();
 	int szKernel = m_vmKernel[0].rows * m_vmKernel[0].cols;
 	int nKerHeigh = m_vmKernel[0].rows;
-#pragma omp parallel for 
+//#pragma omp parallel for 
 	for(int k=0; k<numKernels; k++) {
 		for(int i=0; i<mSrc2.rows - nKerHeigh; i++) {
 			Mat mIn = mSrc2.rowRange(i, nKerHeigh +i);

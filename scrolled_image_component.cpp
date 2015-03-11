@@ -8,6 +8,7 @@ ScrolledImageComponent::ScrolledImageComponent(wxWindow* parent, wxWindowID id, 
 		: wxScrolledWindow(parent, id, pos, size, style)
 {
 	m_bitmap = NULL;
+	m_nWidth = 0;
 	//this->Bind(wxEVT_MOTION, &MyFrame::OnMouseMotion, this);
 }
 
@@ -50,6 +51,7 @@ void ScrolledImageComponent::setImage(cv::Mat& mat)
 		int w = wxIm.GetWidth();
 		int h = wxIm.GetHeight();
 
+		m_nWidth = w;
 		/* init scrolled area size, scrolling speed, etc. */
 		//SetScrollbars(1,1, w, h, 0, 0);	
 		SetVirtualSize( w, h );
@@ -92,6 +94,12 @@ void ScrolledImageComponent::OnDraw(wxDC& dc)
 			dc.DrawCircle(abdoPts[i].x, abdoPts[i].y, 2);
 		}
 	}	
+	
+	int nCageline = MainFrame::m_pThis->getCageline();
+	if(nCageline >=0) {
+		dc.SetPen(*wxYELLOW_PEN);
+		dc.DrawLine(wxPoint(0, nCageline), wxPoint(m_nWidth, nCageline));
+	}
 }
 
 

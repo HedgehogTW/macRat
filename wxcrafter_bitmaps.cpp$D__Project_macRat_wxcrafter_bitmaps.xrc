@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resource xmlns="http://www.wxwindows.org/wxxrc">
+  <object class="wxBitmap" name="ERASE01">wxcrafter_bitmaps.cpp$ERASE01.png</object>
+  <object class="wxBitmap" name="Mouse">wxcrafter_bitmaps.cpp$Mouse.bmp</object>
+  <object class="wxBitmap" name="Picts Folder">wxcrafter_bitmaps.cpp$Picts Folder.png</object>
+  <object class="wxBitmap" name="Projector">wxcrafter_bitmaps.cpp$Projector.png</object>
+  <object class="wxBitmap" name="cage">wxcrafter_bitmaps.cpp$cage.png</object>
+  <object class="wxBitmap" name="mark_APB">wxcrafter_bitmaps.cpp$mark_APB.png</object>
+  <object class="wxBitmap" name="mark_ear">wxcrafter_bitmaps.cpp$mark_ear.png</object>
+  <object class="wxBitmap" name="mark_eye">wxcrafter_bitmaps.cpp$mark_eye.png</object>
+  <object class="wxBitmap" name="rat_APB">wxcrafter_bitmaps.cpp$rat_APB.bmp</object>
+  <object class="wxBitmap" name="result">wxcrafter_bitmaps.cpp$result.png</object>
+</resource>

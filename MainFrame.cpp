@@ -75,10 +75,12 @@ void MainFrame::DeleteContents()
 {
 	// TODO: Add your specialized code here and/or call the base class
 	m_nSlices = 0;
+	m_nCageLine = -1;
 	
 	m_bMarkEye = false;
 	m_bMarkEar = false;
 	m_bMarkAbdomen = false;
+	m_bMarkCageline = false;
 	
 	m_dqEyePts.clear();
 	m_dqEarPts.clear();
@@ -129,25 +131,27 @@ void MainFrame::openFile(wxString &dirName)
 	bool  bRet = false;
 	if(m_Rat.readData(dirName) <=0) 
 		return;
-
+		
+	m_nSlices = m_Rat.getNumFrames();
+/*
 	bRet = m_Rat.horizontalLine();
 
 	if(bRet ==false) {
 		wxLogMessage("cannot detect cage line");
 		//return;
 	}
-	
+*/	
 //	m_Rat.verticalLine(); 
 
-	m_Rat.detectTwoLight();
-	m_Rat.prepareData();
-	m_nSlices = m_Rat.getNumFrames();	
+//	m_Rat.detectTwoLight(m_nCageLine);
+//	m_Rat.prepareData();
+		
 	
 	wxFileName fileName = dirName;
 	wxFileName dataName(dirName, "_eye_earMarks.txt");
 	if(dataName.IsFileReadable() ==true) { 	
 		Point ptEyeL, ptEyeR, ptEarL, ptEarR;
-		int n;
+		int n, line;
 		FILE* fp = fopen(dataName.GetFullPath(), "r");
 		n = fscanf(fp, "%d %d %d %d\n", &ptEyeL.x, &ptEyeL.y, &ptEyeR.x, &ptEyeR.y );
 		if(n==4) {
@@ -160,19 +164,25 @@ void MainFrame::openFile(wxString &dirName)
 			m_dqEarPts.push_back(ptEarL);
 			m_dqEarPts.push_back(ptEarR);
 		}	
+		n = fscanf(fp, "%d\n", &line);
+		if(n==1)  m_nCageLine = line;
+		else m_nCageLine = -1;
 		fclose(fp);
 	}
 	
 	wxFileName dataName1(dirName, "_abdoMarks.txt");
 	if(dataName1.IsFileReadable() ==true) { 	
 		Point ptAbdoEdge, ptAbdoIn;
-		int n;
+		int n, line;
 		FILE* fp = fopen(dataName1.GetFullPath(), "r");
 		n = fscanf(fp, "%d %d %d %d\n", &ptAbdoEdge.x, &ptAbdoEdge.y, &ptAbdoIn.x, &ptAbdoIn.y );
 		if(n==4) {
 			m_dqAbdoPts.push_back(ptAbdoEdge);
 			m_dqAbdoPts.push_back(ptAbdoIn);
 		}
+		n = fscanf(fp, "%d\n", &line);
+		if(n==1)  m_nCageLine = line;
+		else m_nCageLine = -1;
 		fclose(fp);
 	}	
 	
@@ -180,9 +190,6 @@ void MainFrame::openFile(wxString &dirName)
 
 	wxString title = dirName.AfterLast('\\');
 	SetTitle(wxString("Dataset: ") << title);
-
-	myMsgOutput("After preprocessing, %d frames are used, size w%d, h%d\n",
-		m_nSlices, m_Rat.m_szImg.width, m_Rat.m_szImg.height );	
 	
 }
 void MainFrame::updateOutData(Mat& mOut)
@@ -285,9 +292,9 @@ void MainFrame::OnEditClearMarks(wxCommandEvent& event)
 	m_bMarkEar = false;
 	m_bMarkEye = false;
 	m_bMarkAbdomen = false;
-	m_toggleButtonMarkEars->SetValue(false);
-	m_toggleButtonMarkEyes->SetValue(false);
-	m_toggleButtonMarkAbdo->SetValue(false);
+	m_bmpToggleBtnMarkEars->SetValue(false);
+	m_bmpToggleBtnMarkEyes->SetValue(false);
+	m_bmpToggleBtnMarkAbdo->SetValue(false);
 	
 	m_dqEyePts.clear();
 	m_dqEarPts.clear();
@@ -298,12 +305,16 @@ void MainFrame::OnMarkEyes(wxCommandEvent& event)
 {
 	if(event.IsChecked()) {
 		if(m_bMarkEar)  {
-			m_toggleButtonMarkEars->SetValue(false);
+			m_bmpToggleBtnMarkEars->SetValue(false);
 			m_bMarkEar = false;
 		}
 		if(m_bMarkAbdomen)  {
-			m_toggleButtonMarkAbdo->SetValue(false);
+			m_bmpToggleBtnMarkAbdo->SetValue(false);
 			m_bMarkAbdomen = false;
+		}	
+		if(m_bMarkCageline)  {
+			m_bmpToggleBtnMarkCageLine->SetValue(false);
+			m_bMarkCageline = false;
 		}	
 		m_bMarkEye = true;
 		m_scrollWin->SetCursor(wxCursor(wxCURSOR_CROSS ));
@@ -316,12 +327,16 @@ void MainFrame::OnMarkEars(wxCommandEvent& event)
 {
 	if(event.IsChecked()) {
 		if(m_bMarkEye) { 
-			m_toggleButtonMarkEyes->SetValue(false);
+			m_bmpToggleBtnMarkEyes->SetValue(false);
 			m_bMarkEye = false;
 		}
 		if(m_bMarkAbdomen)  {
-			m_toggleButtonMarkAbdo->SetValue(false);
+			m_bmpToggleBtnMarkAbdo->SetValue(false);
 			m_bMarkAbdomen = false;
+		}	
+		if(m_bMarkCageline)  {
+			m_bmpToggleBtnMarkCageLine->SetValue(false);
+			m_bMarkCageline = false;
 		}	
 		m_bMarkEar = true;
 		m_scrollWin->SetCursor(wxCursor(wxCURSOR_CROSS ));
@@ -334,13 +349,17 @@ void MainFrame::OnMarkAbdomen(wxCommandEvent& event)
 {
 	if(event.IsChecked()) {
 		if(m_bMarkEye) { 
-			m_toggleButtonMarkEyes->SetValue(false);
+			m_bmpToggleBtnMarkEyes->SetValue(false);
 			m_bMarkEye = false;
 		}
 		if(m_bMarkEar)  {
-			m_toggleButtonMarkEars->SetValue(false);
+			m_bmpToggleBtnMarkEars->SetValue(false);
 			m_bMarkEar = false;
 		}	
+		if(m_bMarkCageline)  {
+			m_bmpToggleBtnMarkCageLine->SetValue(false);
+			m_bMarkCageline = false;
+		}
 		m_bMarkAbdomen = true;
 		m_scrollWin->SetCursor(wxCursor(wxCURSOR_CROSS ));
 	}else {
@@ -348,10 +367,32 @@ void MainFrame::OnMarkAbdomen(wxCommandEvent& event)
 		m_scrollWin->SetCursor(wxCursor(wxCURSOR_ARROW ));
 	}	
 }
+void MainFrame::OnMarkCageline(wxCommandEvent& event)
+{
+	if(event.IsChecked()) {
+		if(m_bMarkEye) { 
+			m_bmpToggleBtnMarkEyes->SetValue(false);
+			m_bMarkEye = false;
+		}
+		if(m_bMarkEar)  {
+			m_bmpToggleBtnMarkEars->SetValue(false);
+			m_bMarkEar = false;
+		}	
+		if(m_bMarkAbdomen)  {
+			m_bmpToggleBtnMarkAbdo->SetValue(false);
+			m_bMarkAbdomen = false;
+		}	
+		m_bMarkCageline = true;
+		m_scrollWin->SetCursor(wxCursor(wxCURSOR_CROSS ));
+	}else {
+		m_bMarkCageline = false;
+		m_scrollWin->SetCursor(wxCursor(wxCURSOR_ARROW ));
+	}		
+}
 
 void MainFrame::OnLeftButtonDown(wxMouseEvent& event)
 {
-	if(m_bMarkEye==false && m_bMarkEar == false && m_bMarkAbdomen == false)  return;
+	if(m_bMarkEye==false && m_bMarkEar == false && m_bMarkAbdomen == false && m_bMarkCageline == false)  return;
 	if (getNumSlices() <= 0)  return;
 	
 	wxClientDC *pDC = new wxClientDC(this);
@@ -378,6 +419,9 @@ void MainFrame::OnLeftButtonDown(wxMouseEvent& event)
 		m_dqAbdoPts.push_back(ptEar);
 		if(m_dqAbdoPts.size()>2) 
 			 m_dqAbdoPts.pop_front();
+	}else if(m_bMarkCageline) {
+		m_nCageLine = pt.y;
+		myMsgOutput("cage line %d\n", m_nCageLine);
 	}
 	
 	Refresh();
@@ -392,6 +436,19 @@ void MainFrame::OnRatProcess(wxCommandEvent& event)
 		wxMessageBox("Select ear position", "error");
 		return;
 	}
+	if(m_nCageLine<=0) {
+		wxMessageBox("set cage horizontal line", "error");
+		return;
+	}
+	
+	m_Rat.detectTwoLight(m_nCageLine);
+	m_Rat.prepareData();
+
+
+	updateOutData(m_Rat.getSrcImg(0));
+	myMsgOutput("After preprocessing, %d frames are used, size w%d, h%d\n",
+		m_nSlices, m_Rat.m_szImg.width, m_Rat.m_szImg.height );	
+	
 	
 	Point ptEyeL, ptEyeR, ptEarL, ptEarR;
 	ptEyeL = m_dqEyePts[0];

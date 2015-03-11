@@ -66,7 +66,7 @@ public:
 
 	int		getNumFrames()  { return m_nSlices; }
 	void	saveResult(const char *subpath, vector <Mat> &vecDest);
-	bool	detectTwoLight();
+	bool	detectTwoLight(int nCageLine);
 	Point	aspectRatio(vector<cv::Point> &con, double &ratio, double &angle );
 	void	prepareData();
 	void 	DC_removal(int nFirstLED, vector <float>& vecSignal);

@@ -70,9 +70,10 @@ protected:
     wxPanel* m_panel15;
     wxRichTextCtrl* m_richTextMsg;
     wxAuiToolBar* m_auibar31;
-    wxToggleButton* m_toggleButtonMarkEyes;
-    wxToggleButton* m_toggleButtonMarkEars;
-    wxToggleButton* m_toggleButtonMarkAbdo;
+    wxBitmapToggleButton* m_bmpToggleBtnMarkCageLine;
+    wxBitmapToggleButton* m_bmpToggleBtnMarkEyes;
+    wxBitmapToggleButton* m_bmpToggleBtnMarkEars;
+    wxBitmapToggleButton* m_bmpToggleBtnMarkAbdo;
     wxStatusBar* m_statusBar;
 
 protected:
@@ -94,6 +95,7 @@ protected:
     virtual void OnAbout(wxCommandEvent& event) { event.Skip(); }
     virtual void OnMouseMotion(wxMouseEvent& event) { event.Skip(); }
     virtual void OnLeftButtonDown(wxMouseEvent& event) { event.Skip(); }
+    virtual void OnMarkCageline(wxCommandEvent& event) { event.Skip(); }
     virtual void OnMarkEyes(wxCommandEvent& event) { event.Skip(); }
     virtual void OnMarkEars(wxCommandEvent& event) { event.Skip(); }
     virtual void OnMarkAbdomen(wxCommandEvent& event) { event.Skip(); }

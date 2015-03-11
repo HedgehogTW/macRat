@@ -42,6 +42,7 @@ public:
 	deque<Point>& 	getEyePts() { return m_dqEyePts; }
 	deque<Point>& 	getEarPts() { return m_dqEarPts; }
 	deque<Point>& 	getAbdoPts() { return m_dqAbdoPts; }
+	int				getCageline() { return m_nCageLine; }
 	
 	static void myMsgOutput(wxString szFormat,...) {
 		wxString strMsg;
@@ -63,6 +64,7 @@ public:
 	
 	
 protected:
+    virtual void OnMarkCageline(wxCommandEvent& event);
     virtual void OnRatAbdomen(wxCommandEvent& event);
     virtual void OnMarkAbdomen(wxCommandEvent& event);
     virtual void OnViewFolderImage(wxCommandEvent& event);
@@ -100,11 +102,12 @@ protected:
 	Size	m_szOutImg;
 	CRat	m_Rat;
 	int		m_nSlices ;
-
+	int		m_nCageLine;
 ////////////////////////////////mark eyes and ears
 	bool    m_bMarkEye;
 	bool    m_bMarkEar;
 	bool    m_bMarkAbdomen;
+	bool    m_bMarkCageline;
 	
 	deque<Point>  m_dqEyePts;
 	deque<Point>  m_dqEarPts;
