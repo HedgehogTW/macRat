@@ -153,25 +153,6 @@ void _OutputBinaryMat(cv::Mat m, char *filename)
 }
 
 
-void _OutputVecPoints(vector <Point> &vecPoints, const char *filename, bool bhasComma)
-{
-	FILE *fp;
-	fp = fopen(filename, "w");
-	if(fp==NULL) {
-		wxMessageOutputMessageBox().Printf(_T("cannot create output file"));
-		return;
-	}
-
-	int sz = vecPoints.size();
-	for(int i=0; i<sz; i++) {
-		fprintf(fp, "%d ",vecPoints[i].x);
-		if (bhasComma) fprintf(fp, ", ");
-		fprintf(fp, "%d ",vecPoints[i].y);
-		fprintf(fp, "\n");
-	}
-	fclose(fp);	
-}
-
 void _OutputMatPoint2f(cv::Mat m, const char *filename, bool bAppend)
 {
 	FILE *fp;

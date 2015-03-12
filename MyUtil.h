@@ -56,11 +56,30 @@ void	_scalingTraining(Mat& mTrainData);
 void	_scalingData(Mat& mData, vector<Vec2d>& scalePara);
 void	_scalingLoadPara(vector<Vec2d>& scalePara);
 
+template<typename X>
+void _OutputVecPoints(X &vecPoints, const char *filename, bool bhasComma)
+{
+
+    ofstream fout(filename); 
+    if(!fout) { 
+		wxMessageOutputMessageBox().Printf(_T("cannot create output file"));
+		return;
+    } 
+
+	int sz = vecPoints.size();
+	for(int i=0; i<sz; i++) {
+		fout << vecPoints[i].x;
+		if (bhasComma) fout << ", ";
+		fout << vecPoints[i].y << endl;
+	}
+	fout.close(); 
+}
+
 void _redirectStandardOutputToFile ( string filePath, bool toPromptAlso );
 void _OutputMat(cv::Mat m, const char *filename, bool bhasComma=true);
 void _OutputBinaryMat(cv::Mat m, char *filename);
 void _OutputMatPoint2f(cv::Mat m, const char *filename, bool bAppend=false);
-void _OutputVecPoints(vector <Point> &vecPoints, const char *filename, bool bhasComma=true);
+//void _OutputVecPoints(vector <Point> &vecPoints, const char *filename, bool bhasComma=true);
 void _OutputMatGnuplotBinData(cv::Mat m, const char *filename);
 void _rgbMat2hsvMat(cv::Mat &mRGB, cv::Mat &mHSV, bool plus360);
 void rgb2hsv(uchar r, uchar g, uchar b, float &h, float &s, float &v, bool plus360);

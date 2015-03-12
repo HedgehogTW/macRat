@@ -66,20 +66,17 @@ public:
 
 	int		getNumFrames()  { return m_nSlices; }
 	void	saveResult(const char *subpath, vector <Mat> &vecDest);
-	bool	detectTwoLight(int nCageLine);
+	bool	detectLED(int nCageLine);
 	Point	aspectRatio(vector<cv::Point> &con, double &ratio, double &angle );
 	void	prepareData();
 	void 	DC_removal(int nFirstLED, vector <float>& vecSignal);
 	void	getLightRange(int& from, int& to) { from = m_nLED1; to = m_nLED_End; }
 
-	bool	horizontalLine();
-	bool	verticalLine();
-	
 	void	processAbdomen(Point ptEyeL, Point ptEyeR, Point ptAbdoEdge, Point ptAbdoIn, Point ptEar);
 	
 	
-	void	process1(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR);
-	void	recognizeLeftRight(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR);
+	void	processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR);
+
 	void 	findEyeCenter(Point& ptEye0, vector <Point>& vecEye, vector <float>&  vecEyeMove);
 	void  	findNewEarCenter(vector <Point>& vecEye, Point ptEar0, vector <Point>& vecEar);
 	
@@ -94,42 +91,28 @@ public:
 
 	void	opticalFlow(vector<Mat>& vecFlow, Point pt1, Point pt2, int nFrameSteps=0);
 	void 	opticalFlowDistribution(vector<Mat>& vecFlow, char* subpath, vector <float>& vecPdf1, vector <float>& vecPdf2,
-									Point pt1, Point pt2, char* extName1, char* extName2, char* title1, char* title2);
+									Point pt1, Point pt2, char* extName1, char* extName2, char* title1, char* title2, float threshold);
 	void 	opticalFlowSaveDotDensity(vector<Mat>& vecFlow, char* subpath, Point pt1, Point pt2,
-									char* extName1, char* extName2, char* title1, char* title2);
+									char* extName1, char* extName2, char* title1, char* title2, float threshold, char* pdfPath);
 
 	float 	optical_compute_movement(Mat& mFlow, Mat& mDistEar, Mat& mDistEye, Point pt, float threshold);
-	void 	saveDotDensity(Gnuplot& plotSavePGN, Mat& mFlow, Point pt, wxString& strOutName);	
-	float 	opticalBlockAnalysis(Gnuplot& plotSavePGN, Mat& mFlow, Mat& mGaus, Mat& mDist, Point pt, wxString& strOutName);
+	void 	saveDotDensity(Gnuplot& plotSavePGN, Mat& mFlow, Point pt, wxString& strOutName, Mat& mPdf, float threshold);	
+	float 	opticalBuildPDF(Gnuplot& plotSavePGN, Mat& mFlow, Mat& mGaus, Mat& mDist, Point pt, wxString& strOutName);
 	void	drawOptFlowMap(Mat& cflowmap, const Mat& flow, int step, const Scalar& color);
 	void	opticalFlowAnalysis(vector<Mat>& vecFlow, Point ptEar, vector <Point>& vecEye, vector <float>& vecEarFlow, bool bOffset, vector <float>& vecEyeMove);
 	void    saveDistributionAsCSVandPNG();
-	float	findMaxMotion(Mat& mROI, cv::Point& ptDiff);
+
 	float	findAvgMotion(Mat& mFlowROI, cv::Point ptEyeOffset);
 	float	findAvgMotion(Mat& mFlowROI);
 	
 	void 	createGaussianMask(double& sigma, int& ksize, Mat& mKernel);
-	
-	void	findMouseEyes(int numFrame, Point ptEyeL, Point ptEyeR);
-	int 	detectEyes(Mat &mROI, vector<vector<cv::Point> >& vecContour, Point& ptL, Point& ptR, bool bShow = false);
-	void	setROIRect(Rect& rectEye, Point pt1, Point pt2);
-	void	correctEyePos();
-	void	correctEyeDisp();
-	void    modifyEyeLocation(Mat& mEye, Point& ptEye1, Point& ptEye2, double area1, double area2);
+
 	void	itkLaplacianOfGaussian(Mat& mSrc, Mat& mDest, double sigma);
 
-	void	locateEarPosition(Point& pt1, Point& pt2);
-
-	void	findMouseEars(int numFrame, Point ptEarL, Point ptEarR);
-	int 	detectEars(Mat &mIn, vector<vector<cv::Point> >& vecContour, Point& ptL, Point& ptR, bool bShow = false);
-	int		detectOneEars(Mat &mIn, vector<vector<cv::Point> >& vecContour, Point& pt, Point& twoEarCenter, Mat& mEarOut);
-	bool	mergeEarRegions(vector<vector<cv::Point> >& vecContour, int idx1, int idx2);
-	bool	checkEarRegion(Mat &mROI, vector<vector<cv::Point> >& vecContour, int idx1, int k);
 
 	void	ContourSmooth(vector<cv::Point> & contour, int sigma);
 	void	BresLine(int Ax, int Ay, int Bx, int By, vector<cv::Point> & contour);
 	double	lineSquareError(vector<cv::Point>& contour, cv::Point& pt);
-	void	removeUnlikeBendingPts(vector<int> &vecBendingIdx, vector<float>& curvature, int k);
 
 	Mat		accumulate();
 	void 	saveEarImage();
@@ -157,10 +140,6 @@ public:
 	Point 	m_ptAbdoEdge;
 	Point	m_ptAbdoIn;
 	
-
-	bool	m_bFirstEyeIsLeft;
-	bool	m_bFirstEarIsLeft;
-	
 //	vector <double>  m_vecLEyeGrayDiff;
 //	vector <double>  m_vecREyeGrayDiff;
 
@@ -178,8 +157,7 @@ public:
 	int		m_nLED2;	
 	int		m_nLED_End;
 
-	int		m_nCageLineY;
-	int		m_nCageLineX;
+	int		m_nCageLine;
 
 	int 	m_referFrame;
 	

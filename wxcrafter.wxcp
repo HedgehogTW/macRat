@@ -763,7 +763,7 @@
           }, {
            "type": "string",
            "m_label": "Label:",
-           "m_value": "Process"
+           "m_value": "Ear Process"
           }, {
            "type": "string",
            "m_label": "Shortcut:",
@@ -790,7 +790,7 @@
            "m_eventName": "wxEVT_COMMAND_MENU_SELECTED",
            "m_eventClass": "wxCommandEvent",
            "m_eventHandler": "wxCommandEventHandler",
-           "m_functionNameAndSignature": "OnRatProcess(wxCommandEvent& event)",
+           "m_functionNameAndSignature": "OnRatProcessEar(wxCommandEvent& event)",
            "m_description": "Menu item has been clicked",
            "m_noBody": false
           }],
@@ -1956,11 +1956,11 @@
           }, {
            "type": "string",
            "m_label": "Label:",
-           "m_value": "Process"
+           "m_value": "Ear Process "
           }, {
            "type": "multi-string",
            "m_label": "Tooltip:",
-           "m_value": "Process"
+           "m_value": "Ear Process"
           }, {
            "type": "string",
            "m_label": "Help String:",
