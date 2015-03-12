@@ -17,6 +17,8 @@
 #include "MyUtil.h"
 #include "gnuplot_i.h"
 
+#include "DlgOpticalInput.h"
+
 using namespace std;
 using namespace cv;
 
@@ -504,14 +506,22 @@ bool MainFrame::preprocessing()
 }
 void MainFrame::OnRatProcessEar(wxCommandEvent& event)
 {
-
 	if(preprocessing()==false)  {
-		wxLogMessage("preprocessing error");
+		//wxLogMessage("preprocessing error");
 		return;
 	}
 	
+	static int frameStep = 0;	
+	static double threshold = 0.005;
+	DlgOpticalInput dlg(frameStep, threshold, this);
+	if(dlg.ShowModal() !=  wxID_OK) return;
+	frameStep = dlg.getFrameSteps();
+	threshold = dlg.getThreshold();
+	dlg.Destroy();
+	
+	
 	wxBeginBusyCursor();
-	m_Rat.processEar(m_dqEyePts[0], m_dqEyePts[1], m_dqEarPts[0], m_dqEarPts[1]);
+	m_Rat.processEar(m_dqEyePts[0], m_dqEyePts[1], m_dqEarPts[0], m_dqEarPts[1], frameStep, threshold);
 	
 //	m_Rat.findMouseEyes(nFrameNum, ptEyeL, ptEyeR);
 //	m_Rat.findMouseEars(nFrameNum, ptEarL, ptEarR);
@@ -562,7 +572,15 @@ void MainFrame::OnRatAbdomen(wxCommandEvent& event)
 		wxLogMessage("preprocessing error");
 		return;
 	}
-
+	
+	static int frameStep = 0;	
+	static double threshold = 0.005;
+	DlgOpticalInput dlg(frameStep, threshold, this);
+	if(dlg.ShowModal() !=  wxID_OK) return;
+	frameStep = dlg.getFrameSteps();
+	threshold = dlg.getThreshold();
+	dlg.Destroy();
+	
 	wxBeginBusyCursor();	
 	
 	Point ptEyeL, ptEyeR, ptEarL, ptAbdoEdge, ptAbdoIn;
@@ -571,7 +589,8 @@ void MainFrame::OnRatAbdomen(wxCommandEvent& event)
 	ptEarL = m_dqEarPts[0];
 	ptAbdoEdge = m_dqAbdoPts[0];
 	ptAbdoIn = m_dqAbdoPts[1];
-	m_Rat.processAbdomen(ptEyeL, ptEyeR, ptAbdoEdge, ptAbdoIn, ptEarL);
+	
+	m_Rat.processAbdomen(ptEyeL, ptEyeR, ptAbdoEdge, ptAbdoIn, ptEarL, frameStep, threshold);
 	
 	updateOutData(m_Rat.getResultImg(0));
 	

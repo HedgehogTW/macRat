@@ -648,7 +648,7 @@
             }, {
              "type": "string",
              "m_label": "Size:",
-             "m_value": "70,-1"
+             "m_value": "90,-1"
             }, {
              "type": "string",
              "m_label": "Minimum Size:",

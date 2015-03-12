@@ -72,10 +72,10 @@ public:
 	void 	DC_removal(int nFirstLED, vector <float>& vecSignal);
 	void	getLightRange(int& from, int& to) { from = m_nLED1; to = m_nLED_End; }
 
-	void	processAbdomen(Point ptEyeL, Point ptEyeR, Point ptAbdoEdge, Point ptAbdoIn, Point ptEar);
+	void	processAbdomen(Point ptEyeL, Point ptEyeR, Point ptAbdoEdge, Point ptAbdoIn, Point ptEar, int frameStep, float threshold);
 	
 	
-	void	processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR);
+	void	processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, int nFrameSteps, float threshold);
 
 	void 	findEyeCenter(Point& ptEye0, vector <Point>& vecEye, vector <float>&  vecEyeMove);
 	void  	findNewEarCenter(vector <Point>& vecEye, Point ptEar0, vector <Point>& vecEar);

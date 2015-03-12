@@ -17,8 +17,6 @@
 
 #include "BendPoint.h"
 
-#include "DlgOpticalInput.h"
-
 
 using namespace cv;
 
@@ -374,7 +372,7 @@ void CRat::DC_removal(int nFirstLED, vector <float>& vecSignal)
 	for(int i=0; i<nFirstLED; i++)  vecSignal[i] -= mean;	
 }
 
-void CRat::processAbdomen(Point ptEyeL, Point ptEyeR, Point ptAbdoEdge, Point ptAbdoIn, Point ptEar)
+void CRat::processAbdomen(Point ptEyeL, Point ptEyeR, Point ptAbdoEdge, Point ptAbdoIn, Point ptEar, int frameStep, float threshold)
 {
 	m_ptEyeL = ptEyeL;
 	m_ptEyeR = ptEyeR;
@@ -383,9 +381,9 @@ void CRat::processAbdomen(Point ptEyeL, Point ptEyeR, Point ptAbdoEdge, Point pt
 	
 	m_referFrame = findReferenceFrame(ptEar);
 	
-	MainFrame:: myMsgOutput("stable frame %d\n", m_referFrame);
+	MainFrame:: myMsgOutput("Reference frame %d\n", m_referFrame);
 	if(m_referFrame <0) {
-		wxLogMessage("cannot find stable frame");
+		wxLogMessage("cannot find reference frame");
 		return;
 	}
 	findEyeCenter(ptEyeL, m_vecEyeL, m_vecEyeLMove);
@@ -405,13 +403,6 @@ void CRat::processAbdomen(Point ptEyeL, Point ptEyeR, Point ptAbdoEdge, Point pt
 	int maxPointR = findMaxMotionPoint(smoothR);	
 
 	/////////////////////////////////////////////////////////////optical flow
-	static int frameStep = 0;	
-	static double threshold = 0.005;
-	DlgOpticalInput dlg(frameStep, threshold, MainFrame::m_pThis);
-	if(dlg.ShowModal() !=  wxID_OK) return;
-	frameStep = dlg.getFrameSteps();
-	threshold = dlg.getThreshold();
-	dlg.Destroy();
 	
 	vector <Mat> vecFlow;
 	vecFlow.resize(m_nSlices );	
@@ -422,7 +413,7 @@ void CRat::processAbdomen(Point ptEyeL, Point ptEyeR, Point ptAbdoEdge, Point pt
 	opticalFlow(vecFlow, m_ptAbdoEdge, m_ptAbdoIn);
 	opticalFlowDistribution(vecFlow, "pdf_Abdo", vecAbdoE_pdf, vecAbdoI_pdf, m_ptAbdoEdge, m_ptAbdoIn, 
 								"_AbdE", "_AbdI", "Abdomen Edge", "Abdomen In", threshold);
-	opticalFlowSaveDotDensity(vecFlow, "move_Abdo", m_ptAbdoEdge, m_ptAbdoIn, 
+	opticalFlowSaveDotDensity(vecFlow, "scatter_Abdo", m_ptAbdoEdge, m_ptAbdoIn, 
 							"_AbdE", "_AbdI", "Abdomen Edge", "Abdomen In", threshold, "pdf_Abdo");	
 	
 /////////////////////////////// remove DC
@@ -487,7 +478,7 @@ void CRat::processAbdomen(Point ptEyeL, Point ptEyeR, Point ptAbdoEdge, Point pt
 	saveResult("dest", m_vecDest);	
 }
 
-void CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
+void CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, int frameStep, float threshold)
 {
 	m_ptEyeL = ptEyeL;
 	m_ptEyeR = ptEyeR;
@@ -498,9 +489,9 @@ void CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	
 	m_referFrame = findReferenceFrame(ptEarL);
 	
-	MainFrame:: myMsgOutput("stable frame %d\n", m_referFrame);
+	MainFrame:: myMsgOutput("Reference frame %d\n", m_referFrame);
 	if(m_referFrame <0) {
-		wxLogMessage("cannot find stable frame");
+		wxLogMessage("cannot find reference frame");
 		return;
 	}
 	findEyeCenter(ptEyeL, m_vecEyeL, m_vecEyeLMove);
@@ -533,17 +524,6 @@ void CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	int maxPointR = findMaxMotionPoint(smoothR);	
 
 	/////////////////////////////////////////////////////////////optical flow
-	static int frameStep = 0;	
-	static double threshold = 0.005;
-	DlgOpticalInput dlg(frameStep, threshold, MainFrame::m_pThis);
-	if(dlg.ShowModal() !=  wxID_OK) return;
-	
-	frameStep = dlg.getFrameSteps();
-	threshold = dlg.getThreshold();
-	
-	dlg.Destroy();
-
-
 	
 	vector <Mat> vecFlow;
 	vecFlow.resize(m_nSlices  - frameStep);	
@@ -554,7 +534,7 @@ void CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	opticalFlow(vecFlow, m_ptEarL, m_ptEarR, frameStep);
 	opticalFlowDistribution(vecFlow, "pdf", vecLEarFlow_pdf, vecREarFlow_pdf, m_ptEarL, m_ptEarR, 
 								"_EarL", "_EarR", "Left Ear", "Right Ear", threshold);
-	opticalFlowSaveDotDensity(vecFlow, "move", m_ptEarL, m_ptEarR, "_EarL", "_EarR", "Left Ear", "Right Ear", threshold, "pdf");
+	opticalFlowSaveDotDensity(vecFlow, "scatter", m_ptEarL, m_ptEarR, "_EarL", "_EarR", "Left Ear", "Right Ear", threshold, "pdf");
 	
 	int sz = vecLEarFlow_pdf.size();
 		/*	
@@ -1181,7 +1161,7 @@ void CRat::opticalFlowSaveDotDensity(vector<Mat>& vecFlow, char* subpath, Point 
 	
 	
 		////////////////////////////////////////// read pdf matrix
-		wxString pdfFilename = pdfName.GetFullPath()+ "_EarL.txt'";
+		wxString pdfFilename = pdfName.GetFullPath()+ "_EarL.txt";
 		fpPdf = fopen(pdfFilename.ToAscii(), "r");
 		if(fpPdf ==NULL) {
 			wxString str = pdfFilename + ": read error";
@@ -1208,7 +1188,7 @@ void CRat::opticalFlowSaveDotDensity(vector<Mat>& vecFlow, char* subpath, Point 
 		plotSavePGN.cmd(cmdstr3.str());
 		
 		////////////////////////////////////////// read pdf matrix
-		pdfFilename = pdfName.GetFullPath()+ "_EarR.txt'";
+		pdfFilename = pdfName.GetFullPath()+ "_EarR.txt";
 		fpPdf = fopen(pdfFilename.ToAscii(), "r");
 		if(fpPdf ==NULL) {
 			wxString str = pdfFilename + ": read error";
@@ -1231,7 +1211,7 @@ void CRat::opticalFlowSaveDotDensity(vector<Mat>& vecFlow, char* subpath, Point 
 		plotSavePGN.cmd("set title 'Eyes'");
 		
 		////////////////////////////////////////// read pdf matrix
-		pdfFilename = pdfName.GetFullPath()+ "_Eye.txt'";
+		pdfFilename = pdfName.GetFullPath()+ "_Eye.txt";
 		fpPdf = fopen(pdfFilename.ToAscii(), "r");
 		if(fpPdf ==NULL) {
 			wxString str = pdfFilename + ": read error";
@@ -1288,7 +1268,7 @@ void CRat::saveDotDensity(Gnuplot& plotSavePGN, Mat& mFlow, Point pt, wxString& 
 	_OutputVecPoints(vDataUp, fName.ToAscii(), true);
 	
 	std::ostringstream cmdstr;
-    cmdstr << "plot '" << fName.ToAscii() << "' with dots";
+    cmdstr << "plot '" << fName.ToAscii() << "' with dots linecolor '#FF0022'";
     plotSavePGN.cmd(cmdstr.str());	
 	
 	fName = strOutName + "_below.csv";
@@ -1297,7 +1277,7 @@ void CRat::saveDotDensity(Gnuplot& plotSavePGN, Mat& mFlow, Point pt, wxString& 
 	//_OutputMatPoint2f(mROI, fName.ToAscii());
 
 	std::ostringstream cmdstr1;
-    cmdstr1 << "plot '" << fName.ToAscii() << "' with dots";
+    cmdstr1 << "plot '" << fName.ToAscii() << "' with dots linecolor '#0022FF'";
     plotSavePGN.cmd(cmdstr1.str());	
 }
 

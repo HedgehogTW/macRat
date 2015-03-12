@@ -59,7 +59,7 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     
     boxSizer1722->Add(m_staticText1923, 0, wxALL, 5);
     
-    m_textCtrlThreshold = new wxTextCtrl(m_panel1521, wxID_ANY, wxT("0.005"), wxDefaultPosition, wxSize(70,-1), wxTE_RIGHT);
+    m_textCtrlThreshold = new wxTextCtrl(m_panel1521, wxID_ANY, wxT("0.005"), wxDefaultPosition, wxSize(90,-1), wxTE_RIGHT);
     #if wxVERSION_NUMBER >= 3000
     m_textCtrlThreshold->SetHint(wxT(""));
     #endif
