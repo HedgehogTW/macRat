@@ -52,7 +52,7 @@ MainFrame::MainFrame(wxWindow* parent)
 	
 	this->Connect(wxID_FILE1, wxID_FILE9, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrame::OnMRUFile), NULL, this);
 	
-	SetSize(800, 650);
+	SetSize(800, 750);
 	Center();
 	
 	m_nFrameSteps = 2;	
@@ -151,6 +151,7 @@ void MainFrame::openFile(wxString &dirName)
 	wxFileName dataName(dirName, "_eye_earMarks.txt");
 	if(dataName.IsFileReadable() ==true) { 	
 		Point ptEyeL, ptEyeR, ptEarL, ptEarR;
+		Point ptAbdoEdge, ptAbdoIn;
 		int n, line;
 		FILE* fp = fopen(dataName.GetFullPath(), "r");
 		n = fscanf(fp, "%d %d %d %d\n", &ptEyeL.x, &ptEyeL.y, &ptEyeR.x, &ptEyeR.y );
@@ -164,17 +165,6 @@ void MainFrame::openFile(wxString &dirName)
 			m_dqEarPts.push_back(ptEarL);
 			m_dqEarPts.push_back(ptEarR);
 		}	
-		n = fscanf(fp, "%d\n", &line);
-		if(n==1)  m_nCageLine = line;
-		else m_nCageLine = -1;
-		fclose(fp);
-	}
-	
-	wxFileName dataName1(dirName, "_abdoMarks.txt");
-	if(dataName1.IsFileReadable() ==true) { 	
-		Point ptAbdoEdge, ptAbdoIn;
-		int n, line;
-		FILE* fp = fopen(dataName1.GetFullPath(), "r");
 		n = fscanf(fp, "%d %d %d %d\n", &ptAbdoEdge.x, &ptAbdoEdge.y, &ptAbdoIn.x, &ptAbdoIn.y );
 		if(n==4) {
 			m_dqAbdoPts.push_back(ptAbdoEdge);
@@ -184,7 +174,7 @@ void MainFrame::openFile(wxString &dirName)
 		if(n==1)  m_nCageLine = line;
 		else m_nCageLine = -1;
 		fclose(fp);
-	}	
+	}
 	
 	updateOutData(m_Rat.getSrcImg(0));
 
@@ -426,38 +416,102 @@ void MainFrame::OnLeftButtonDown(wxMouseEvent& event)
 	
 	Refresh();
 }
-void MainFrame::OnRatProcess(wxCommandEvent& event)
+void MainFrame::recognizeInsideBody(Point& ptInside, Point& ptBorder)
+{
+	
+}
+void MainFrame::recognizeLeftRight(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
+{
+	Point eyeCenter = (ptEyeL + ptEyeR) *0.5;
+	Point earCenter = (ptEarL + ptEarR) *0.5;
+
+	cv::Point u, v;
+	float angle;
+
+	// for ear
+	u = earCenter - eyeCenter;
+	v = ptEarL - eyeCenter;
+	angle = asin(u.cross(v) / (norm(u)*norm(v)));
+	if (angle < 0) {
+		Point t = ptEarR;
+		ptEarR = ptEarL;
+		ptEarL = t;
+	}
+
+	// for eyes
+	v = ptEyeL - earCenter;
+	angle = asin(u.cross(v) / (norm(u)*norm(v)));
+	if (angle < 0) {
+		Point t = ptEyeR;
+		ptEyeR = ptEyeL;
+		ptEyeL = t;
+	}
+//	gpOutput->ShowMessage("angle %.2f\n", angle);
+}
+
+bool MainFrame::preprocessing()
 {
 	if(m_dqEyePts.size()!=2) {
-		wxMessageBox("Select eye position", "error");
-		return;
+		wxMessageBox("Select eye points", "error");
+		return false;
 	}
 	if(m_dqEarPts.size()!=2) {
-		wxMessageBox("Select ear position", "error");
-		return;
+		wxMessageBox("Select ear points", "error");
+		return false;
+	}
+	if(m_dqAbdoPts.size()!=2) {
+		wxMessageBox("Select abdomen points", "error");
+		return false;
 	}
 	if(m_nCageLine<=0) {
 		wxMessageBox("set cage horizontal line", "error");
-		return;
+		return false;
 	}
 	
-	m_Rat.detectTwoLight(m_nCageLine);
+	m_Rat.detectLED(m_nCageLine);
 	m_Rat.prepareData();
-
+	recognizeLeftRight(m_dqEyePts[0], m_dqEyePts[1], m_dqEarPts[0], m_dqEarPts[1]);
 
 	updateOutData(m_Rat.getSrcImg(0));
-	myMsgOutput("After preprocessing, %d frames are used, size w%d, h%d\n",
-		m_nSlices, m_Rat.m_szImg.width, m_Rat.m_szImg.height );	
-	
-	
-	Point ptEyeL, ptEyeR, ptEarL, ptEarR;
+
+	// save eye ear marks 
+	Point ptEyeL, ptEyeR, ptEarL, ptEarR, ptAbdoBo, ptAbdoIn;
 	ptEyeL = m_dqEyePts[0];
 	ptEyeR = m_dqEyePts[1];
 	ptEarL = m_dqEarPts[0];
 	ptEarR = m_dqEarPts[1];
+	ptAbdoBo = m_dqAbdoPts[0];
+	ptAbdoIn = m_dqAbdoPts[1];
+	
+	wxFileName dataName(m_strSourcePath, "_eye_earMarks.txt");
+	FILE* fp = fopen(dataName.GetFullPath(), "w");
+	if(fp!=NULL) {
+		fprintf(fp, "%d %d %d %d\n", ptEyeL.x, ptEyeL.y, ptEyeR.x, ptEyeR.y );
+		fprintf(fp, "%d %d %d %d\n", ptEarL.x, ptEarL.y, ptEarR.x, ptEarR.y );
+		fprintf(fp, "%d %d %d %d\n", ptAbdoBo.x, ptAbdoBo.y, ptAbdoIn.x, ptAbdoIn.y );
+		fprintf(fp, "%d\n", m_nCageLine );
+		fclose(fp);
+	}
+	
+	myMsgOutput("After preprocessing, %d frames are used, cage size w%d, h%d\n",
+		m_nSlices, m_Rat.m_szImg.width, m_Rat.m_szImg.height );	
+
+	myMsgOutput("Left Eye: [%d, %d], Right Eye: [%d, %d]\n", ptEyeL.x, ptEyeL.y, ptEyeR.x, ptEyeR.y);
+	myMsgOutput("Left Ear: [%d, %d], Right Ear: [%d, %d]\n", ptEarL.x, ptEarL.y, ptEarR.x, ptEarR.y);
+	myMsgOutput("Abdomen Border: [%d, %d], Inside Abdomen [%d, %d]\n", ptAbdoBo.x, ptAbdoBo.y, ptAbdoIn.x, ptAbdoIn.y);
+	
+	return true;
+}
+void MainFrame::OnRatProcessEar(wxCommandEvent& event)
+{
+
+	if(preprocessing()==false)  {
+		wxLogMessage("preprocessing error");
+		return;
+	}
 	
 	wxBeginBusyCursor();
-	m_Rat.process1(ptEyeL, ptEyeR, ptEarL, ptEarR);
+	m_Rat.processEar(m_dqEyePts[0], m_dqEyePts[1], m_dqEarPts[0], m_dqEarPts[1]);
 	
 //	m_Rat.findMouseEyes(nFrameNum, ptEyeL, ptEyeR);
 //	m_Rat.findMouseEars(nFrameNum, ptEarL, ptEarR);
@@ -504,28 +558,20 @@ void MainFrame::OnRatProcess(wxCommandEvent& event)
 
 void MainFrame::OnRatAbdomen(wxCommandEvent& event)
 {
-	if(m_dqAbdoPts.size()!=2) {
-		wxMessageBox("Select abdomen position", "error");
+	if(preprocessing()==false)  {
+		wxLogMessage("preprocessing error");
 		return;
 	}
-	if(m_dqAbdoPts.size()!=2) {
-		wxMessageBox("Select abdomen position", "error");
-		return;
-	}
+
 	wxBeginBusyCursor();	
 	
-	Point ptEyeL, ptEyeR, ptEarL, ptEarR, ptAbdoEdge, ptAbdoIn;
+	Point ptEyeL, ptEyeR, ptEarL, ptAbdoEdge, ptAbdoIn;
 	ptEyeL = m_dqEyePts[0];
 	ptEyeR = m_dqEyePts[1];
 	ptEarL = m_dqEarPts[0];
-	ptEarR = m_dqEarPts[1];
-	m_Rat.recognizeLeftRight(ptEyeL, ptEyeR, ptEarL, ptEarR);	
-
 	ptAbdoEdge = m_dqAbdoPts[0];
 	ptAbdoIn = m_dqAbdoPts[1];
 	m_Rat.processAbdomen(ptEyeL, ptEyeR, ptAbdoEdge, ptAbdoIn, ptEarL);
-	
-	
 	
 	updateOutData(m_Rat.getResultImg(0));
 	

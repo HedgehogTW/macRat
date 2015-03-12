@@ -87,12 +87,14 @@ void ScrolledImageComponent::OnDraw(wxDC& dc)
 	}	
 	
 	deque<Point> & abdoPts = MainFrame::m_pThis->getAbdoPts();
-	if(abdoPts.size()>0) {
+	if(abdoPts.size()>=2) {
 		dc.SetPen(*wxCYAN_PEN);
-		dc.SetBrush(*wxGREEN_BRUSH);
-		for(int i=0; i<abdoPts.size(); i++) {
-			dc.DrawCircle(abdoPts[i].x, abdoPts[i].y, 2);
-		}
+		dc.SetBrush(*wxCYAN_BRUSH);
+		dc.DrawCircle(abdoPts[0].x, abdoPts[0].y, 2);
+
+		dc.SetPen(*wxBLUE_PEN);
+		dc.SetBrush(*wxBLUE_BRUSH);
+		dc.DrawCircle(abdoPts[1].x, abdoPts[1].y, 2);
 	}	
 	
 	int nCageline = MainFrame::m_pThis->getCageline();

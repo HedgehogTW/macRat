@@ -35,14 +35,16 @@ public:
 	Mat &   getCurrentMat(int idx) { return m_Rat.getSrcImg(idx); }
 	Mat &   getResultMat(int idx) { return m_Rat.getResultImg(idx); }
 //	Mat &   getFlowMat(int idx) { return m_Rat.getFlowImg(idx); }
-	int		getCageHeight() { return m_Rat.m_nCageLineY; }
+	int		getCageHeight() { return m_Rat.m_nCageLine; }
 
 	void	recognizeLeftRight(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR);
+	void	recognizeInsideBody(Point& ptInside, Point& ptBorder);
 	
 	deque<Point>& 	getEyePts() { return m_dqEyePts; }
 	deque<Point>& 	getEarPts() { return m_dqEarPts; }
 	deque<Point>& 	getAbdoPts() { return m_dqAbdoPts; }
 	int				getCageline() { return m_nCageLine; }
+	bool			preprocessing();
 	
 	static void myMsgOutput(wxString szFormat,...) {
 		wxString strMsg;
@@ -64,6 +66,7 @@ public:
 	
 	
 protected:
+    virtual void OnRatProcessEar(wxCommandEvent& event);
     virtual void OnMarkCageline(wxCommandEvent& event);
     virtual void OnRatAbdomen(wxCommandEvent& event);
     virtual void OnMarkAbdomen(wxCommandEvent& event);
@@ -76,7 +79,6 @@ protected:
     virtual void OnEditClearMarks(wxCommandEvent& event);
     virtual void OnRatLoadResult(wxCommandEvent& event);
     virtual void OnRatShowResults(wxCommandEvent& event);
-    virtual void OnRatProcess(wxCommandEvent& event);
     virtual void OnMarkEars(wxCommandEvent& event);
     virtual void OnLeftButtonDown(wxMouseEvent& event);
     virtual void OnMarkEyes(wxCommandEvent& event);

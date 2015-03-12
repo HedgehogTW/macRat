@@ -88,7 +88,7 @@ protected:
     virtual void OnViewFolderImage(wxCommandEvent& event) { event.Skip(); }
     virtual void OnView2DData(wxCommandEvent& event) { event.Skip(); }
     virtual void OnView3DData(wxCommandEvent& event) { event.Skip(); }
-    virtual void OnRatProcess(wxCommandEvent& event) { event.Skip(); }
+    virtual void OnRatProcessEar(wxCommandEvent& event) { event.Skip(); }
     virtual void OnRatAbdomen(wxCommandEvent& event) { event.Skip(); }
     virtual void OnRatShowResults(wxCommandEvent& event) { event.Skip(); }
     virtual void OnRatLoadResult(wxCommandEvent& event) { event.Skip(); }
