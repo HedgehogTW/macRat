@@ -541,6 +541,9 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	int maxPointL = findMaxMotionPoint(smoothL);
 	int maxPointR = findMaxMotionPoint(smoothR);	
 
+	DC_removal(m_nLED1, vecLEarGrayDiff);
+	DC_removal(m_nLED1, vecREarGrayDiff);
+	
 	/////////////////////////////////////////////////////////////optical flow
 	int  newFrameSteps;
 	static int frameStep = 2;	
@@ -600,37 +603,38 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 			threshold, frameStep, bAccumulate, ymin, ymax);
 	
 	opticalDrawFlowmap(m_ptEarL, m_ptEarR, frameStep);
-	opticalFlowDistribution(m_vecFlow, "pdf", vecLEarFlow_pdf, vecREarFlow_pdf, m_ptEarL, m_ptEarR, 
-								"_EarL", "_EarR", "Left Ear", "Right Ear", threshold);
-	opticalSaveScatterPlot(m_vecFlow, "scatter", m_ptEarL, m_ptEarR, "_EarL", "_EarR", "Left Ear", "Right Ear", threshold, "pdf");
 	
-	int sz = vecLEarFlow_pdf.size();
-	if(frameStep > 0 && bAccumulate) {
-		for(int i=+1; i<sz; i++) {
-			vecLEarFlow_pdf[i] += vecLEarFlow_pdf[i-1];
-			vecREarFlow_pdf[i] += vecREarFlow_pdf[i-1];
+	if(bEarOpticalPDF) {
+		opticalFlowDistribution(m_vecFlow, "pdf", vecLEarFlow_pdf, vecREarFlow_pdf, m_ptEarL, m_ptEarR, 
+									"_EarL", "_EarR", "Left Ear", "Right Ear", threshold);
+		opticalSaveScatterPlot(m_vecFlow, "scatter", m_ptEarL, m_ptEarR, "_EarL", "_EarR", "Left Ear", "Right Ear", threshold, "pdf");
+		
+		int sz = vecLEarFlow_pdf.size();
+		if(frameStep > 0 && bAccumulate) {
+			for(int i=+1; i<sz; i++) {
+				vecLEarFlow_pdf[i] += vecLEarFlow_pdf[i-1];
+				vecREarFlow_pdf[i] += vecREarFlow_pdf[i-1];
+			}
 		}
+		DC_removal(m_nLED1, vecLEarFlow_pdf);
+		DC_removal(m_nLED1, vecREarFlow_pdf);	
 	}
 	 
-//	opticalFlowAnalysis(vecFlow, ptEarL, m_vecEyeL, m_vecLEarFlow_eye, true, m_vecEyeLMove);
-	opticalFlowAnalysis(m_vecFlow, ptEarL, m_vecEyeL, m_vecLEarFlow, false, m_vecEyeLMove);
-	
-//	opticalFlowAnalysis(vecFlow, ptEarR, m_vecEyeR, m_vecREarFlow_eye, true, m_vecEyeRMove);
-	opticalFlowAnalysis(m_vecFlow, ptEarR, m_vecEyeR, m_vecREarFlow, false, m_vecEyeRMove);		
-	if(frameStep > 0 && bAccumulate) {	
-		for(int i=+1; i<sz; i++) {
-			m_vecLEarFlow[i] += m_vecLEarFlow[i-1];
-			m_vecREarFlow[i] += m_vecREarFlow[i-1];
+	if(bEarOptical) {
+		opticalFlowAnalysis(m_vecFlow, ptEarL, m_vecEyeL, m_vecLEarFlow, false, m_vecEyeLMove);
+		opticalFlowAnalysis(m_vecFlow, ptEarR, m_vecEyeR, m_vecREarFlow, false, m_vecEyeRMove);	
+		
+		int sz = m_vecLEarFlow.size();
+		if(frameStep > 0 && bAccumulate) {	
+			for(int i=+1; i<sz; i++) {
+				m_vecLEarFlow[i] += m_vecLEarFlow[i-1];
+				m_vecREarFlow[i] += m_vecREarFlow[i-1];
+			}
 		}
+		DC_removal(m_nLED1, m_vecLEarFlow);
+		DC_removal(m_nLED1, m_vecREarFlow);	
 	}
 	wxEndBusyCursor(); 
-/////////////////////////////// remove DC
-	DC_removal(m_nLED1, vecLEarGrayDiff);
-	DC_removal(m_nLED1, vecREarGrayDiff);
-	DC_removal(m_nLED1, m_vecLEarFlow);
-	DC_removal(m_nLED1, m_vecREarFlow);	
-	DC_removal(m_nLED1, vecLEarFlow_pdf);
-	DC_removal(m_nLED1, vecREarFlow_pdf);		
 	
 ///////////G N U P L O T//////////////////////////////////////////////////////////////////////////////
 
@@ -680,6 +684,12 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	if(bEarOpticalPDF) {
 		_gnuplotLine(gPlotL, "LEarPDF", vecLEarFlow_pdf, "#000000FF");
 		_gnuplotLine(gPlotR, "REarPDF", vecREarFlow_pdf, "#000000FF");
+		
+		double c0, c1;
+		linearRegression(vecREarFlow_pdf, c0, c1);
+		std::ostringstream cmdstr1;
+		cmdstr1 << "replot f(x) = c0+c1*x, c0=" << c0 << " c1=" << c1 <<", f(x)"  << " with dots linecolor '#FF0022'";
+		gPlotR.cmd(cmdstr1.str());	
 	}
 	
 	//gPlotL.cmd("load '../_splot_move.gpt'");
@@ -732,6 +742,29 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	MainFrame::myMsgOutput("OnRatProcessEar: computation time: %02dm:%02ds\n", minutes, second);
 	
 	return true;
+}
+
+void CRat::linearRegression(vector <float>& vecSignal, double &c0, double &c1)
+{
+	int i, pivot, dataLen, len, c;
+	double *seg, *x;
+	double d0, d1, cov00, cov01, cov11, sumsq, mse;
+	
+	len = m_nLED1;
+	
+	seg = new double[len]; 
+	x = new double[len]; 
+	
+	for(i=0; i<len; i++) {
+		seg[i] = vecSignal[i];
+		x[i] = i;
+	}
+			
+	gsl_fit_linear(x, 1, seg, 1, len, &c0, &c1, &cov00, &cov01, &cov11, &sumsq);
+	//mse = sumsq/len;	
+	
+	delete [] seg;
+	delete [] x;
 }
 void  CRat::findNewEarCenter(vector <Point>& vecEye, Point ptEar0, vector <Point>& vecEar)
 {
