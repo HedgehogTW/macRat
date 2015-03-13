@@ -505,14 +505,10 @@ bool MainFrame::preprocessing()
 }
 void MainFrame::OnRatProcessEar(wxCommandEvent& event)
 {
-
-	
 	if(preprocessing()==false)  {
 		//wxLogMessage("preprocessing error");
 		return;
 	}
-
-	
 
 	bool bRet = m_Rat.processEar(m_dqEyePts[0], m_dqEyePts[1], m_dqEarPts[0], m_dqEarPts[1]);
 	if(bRet ==false) return;
@@ -521,39 +517,7 @@ void MainFrame::OnRatProcessEar(wxCommandEvent& event)
 	
 //	m_Rat.saveEarImage();
 	
-
-
-	wxFileName fileName = m_strSourcePath;
-	wxString  fName = fileName.GetName();
-	wxFileName dataName(m_strSourcePath, "_"+fName+ "_motion.csv");
-	
-//	int idx = m_strSourcePath.rfind('\\');
-//	wxString pathName = m_strSourcePath.Right(m_strSourcePath.Len() - idx-1);
-//	wxString  fname;
-//	fname.Printf("%s\\_%s_motion.csv", m_strSourcePath, pathName);
-	myMsgOutput("output result file: " + dataName.GetFullPath() + "\n");
-	
-	FILE* fp = fopen(dataName.GetFullPath(), "w");
-	if(fp==NULL) {
-		wxMessageBox("Open output file failed:"+dataName.GetFullName(), "error");
-		return;
-	}
-/*	
-	int  n = m_Rat.m_vecLEarMotion.size();
-
-	fprintf(fp, "%d, %d, %d\n",n, m_Rat.m_idxLightBegin, m_Rat.m_idxTwoLight);
-	for(int i=0;i<n; i++) {
-		fprintf(fp, "%.3f, %.3f, %.3f\n", 
-			m_Rat.m_vecLEarMotion[i],
-			m_Rat.m_vecREarMotion[i],
-			m_Rat.m_vecEyeMotion[i]);
-	}
-*/ 
-	fclose(fp);	
 	wxBell();	
-	
-
-	
 }
 
 void MainFrame::OnRatAbdomen(wxCommandEvent& event)

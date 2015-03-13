@@ -123,9 +123,52 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     
     gridBagSizer82->Add(m_checkBoxEarOpticalPDF, wxGBPosition(5,1), wxGBSpan(1,2), wxALL, 5);
     
+    m_radioButtonInstan = new wxRadioButton(m_panel80, wxID_ANY, _("Instantaneous"), wxDefaultPosition, wxSize(-1,-1), wxRB_GROUP);
+    m_radioButtonInstan->SetValue(1);
+    
+    gridBagSizer82->Add(m_radioButtonInstan, wxGBPosition(6,0), wxGBSpan(1,1), wxALL, 5);
+    
+    m_radioButtonAccumu = new wxRadioButton(m_panel80, wxID_ANY, _("Accumulation"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_radioButtonAccumu->SetValue(1);
+    
+    gridBagSizer82->Add(m_radioButtonAccumu, wxGBPosition(6,1), wxGBSpan(1,1), wxALL, 5);
+    
     m_staticLine78 = new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxLI_HORIZONTAL);
     
     boxSizer315->Add(m_staticLine78, 0, wxALL|wxEXPAND, 5);
+    
+    m_panel96 = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxTAB_TRAVERSAL);
+    
+    boxSizer315->Add(m_panel96, 0, wxALL, 5);
+    
+    wxBoxSizer* boxSizer98 = new wxBoxSizer(wxHORIZONTAL);
+    m_panel96->SetSizer(boxSizer98);
+    
+    m_staticText100 = new wxStaticText(m_panel96, wxID_ANY, _("Y range, min"), wxDefaultPosition, wxSize(-1,-1), 0);
+    
+    boxSizer98->Add(m_staticText100, 0, wxALL, 5);
+    
+    m_textCtrlYmin = new wxTextCtrl(m_panel96, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(-1,-1), 0);
+    #if wxVERSION_NUMBER >= 3000
+    m_textCtrlYmin->SetHint(wxT(""));
+    #endif
+    
+    boxSizer98->Add(m_textCtrlYmin, 0, wxALL, 5);
+    
+    m_staticText104 = new wxStaticText(m_panel96, wxID_ANY, _("max"), wxDefaultPosition, wxSize(-1,-1), 0);
+    
+    boxSizer98->Add(m_staticText104, 0, wxALL, 5);
+    
+    m_textCtrlYmax = new wxTextCtrl(m_panel96, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(-1,-1), 0);
+    #if wxVERSION_NUMBER >= 3000
+    m_textCtrlYmax->SetHint(wxT(""));
+    #endif
+    
+    boxSizer98->Add(m_textCtrlYmax, 0, wxALL, 5);
+    
+    m_staticLine108 = new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxLI_HORIZONTAL);
+    
+    boxSizer315->Add(m_staticLine108, 0, wxALL|wxEXPAND, 5);
     
     m_stdBtnSizer52 = new wxStdDialogButtonSizer();
     

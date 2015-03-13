@@ -27,15 +27,27 @@ void DlgOpticalInput::setVerticalLine(bool bLED, bool bPinna, bool bVerLine, dou
 	
 	wxString  str1;
 	str1 << x;
-	*m_textCtrlVerLine << x;
+	*m_textCtrlVerLine << str1;
 }
 
-void DlgOpticalInput::setSeriesLine(bool bEyeMove, bool bEarGray, bool bEarOptical, bool bEarOpticalPDF)
+void DlgOpticalInput::setSeriesLine(bool bEyeMove, bool bEarGray, bool bEarOptical, bool bEarOpticalPDF, bool bAccumulate)
 {
 	m_checkBoxEyeMove->SetValue(bEyeMove);
 	m_checkBoxEarGray->SetValue(bEarGray);
 	m_checkBoxEarOptical->SetValue(bEarOptical);	
 	m_checkBoxEarOpticalPDF->SetValue(bEarOpticalPDF);	
+	m_radioButtonAccumu->SetValue(bAccumulate);	
+	m_radioButtonInstan->SetValue(! bAccumulate);	
+}
+
+void DlgOpticalInput::setYRange(int min, int max)
+{
+	wxString  str1, str2;
+	str1 << min;
+	*m_textCtrlYmin << str1;
+	
+	str2 << max;
+	*m_textCtrlYmax << str2;
 }
 
 void DlgOpticalInput::getVerticalLine(bool& bLED, bool& bPinna, bool& bVerLine, double& x)
@@ -50,10 +62,23 @@ void DlgOpticalInput::getVerticalLine(bool& bLED, bool& bPinna, bool& bVerLine, 
 	x = value;
 }
 
-void DlgOpticalInput::getSeriesLine(bool& bEyeMove, bool& bEarGray, bool& bEarOptical, bool& bEarOpticalPDF)
+void DlgOpticalInput::getSeriesLine(bool& bEyeMove, bool& bEarGray, bool& bEarOptical, bool& bEarOpticalPDF, bool& bAccumulate)
 {
 	bEyeMove = m_checkBoxEyeMove->GetValue();
 	bEarGray = m_checkBoxEarGray->GetValue();
 	bEarOptical = m_checkBoxEarOptical->GetValue();
 	bEarOpticalPDF = m_checkBoxEarOpticalPDF->GetValue();
+	bAccumulate = m_radioButtonAccumu->GetValue();
 }	
+
+void DlgOpticalInput::getYRange(int& min, int& max)
+{
+	wxString  str = m_textCtrlYmin->GetValue();
+	long  value;
+	str.ToLong(&value);	
+	min = value;
+	
+	str = m_textCtrlYmax->GetValue();
+	str.ToLong(&value);	
+	max = value;
+}

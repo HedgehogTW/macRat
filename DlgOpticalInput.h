@@ -9,10 +9,12 @@ public:
     virtual ~DlgOpticalInput();
 	
 	void setVerticalLine(bool bLED, bool bPinna, bool bVerLine, double x=0);
-	void setSeriesLine(bool bEyeMove, bool bEarGray, bool bEarOptical, bool bEarOpticalPDF);
-	
+	void setSeriesLine(bool bEyeMove, bool bEarGray, bool bEarOptical, bool bEarOpticalPDF, bool bAccumulate);
+	void setYRange(int min, int max);
+
 	void getVerticalLine(bool& bLED, bool& bPinna, bool& bVerLine, double& x);
-	void getSeriesLine(bool& bEyeMove, bool& bEarGray, bool& bEarOptical, bool& bEarOpticalPDF);
+	void getSeriesLine(bool& bEyeMove, bool& bEarGray, bool& bEarOptical, bool& bEarOpticalPDF, bool& bAccumulate);
+	void getYRange(int& min, int& max);
 	
 	double getThreshold() { 
 		wxString  str = m_textCtrlThreshold->GetValue();

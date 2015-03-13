@@ -542,29 +542,44 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	int maxPointR = findMaxMotionPoint(smoothR);	
 
 	/////////////////////////////////////////////////////////////optical flow
-	
-	static int frameStep = 0;	
-	static double threshold = 0.005;
+	int  newFrameSteps;
+	static int frameStep = 2;	
+	static double threshold = 0.001;
 	static bool bLED = false;
 	static bool bPinna = false;
 	static bool bVerLine = false;
 	
-	static bool bEyeMove = true;
+	static bool bEyeMove = false;
 	static bool bEarGray = false;
 	static bool bEarOptical = true;
 	static bool bEarOpticalPDF = true;
+	static bool bAccumulate = true;
 	
 	static double verLine = 190;
 	
+	static int  ymin, ymax;
+	if(bAccumulate ==false) {
+		ymin = -2;
+		ymax = 2;	
+	}else if(frameStep==0) {
+		ymin = -2;
+		ymax = 25;
+	}else {
+		ymin = -20;
+		ymax = 120;
+	}
+	
 	DlgOpticalInput dlg(frameStep, threshold, MainFrame::m_pThis);
 	dlg.setVerticalLine(bLED, bPinna, bVerLine, verLine);
-	dlg.setSeriesLine(bEyeMove, bEarGray, bEarOptical, bEarOpticalPDF);
+	dlg.setSeriesLine(bEyeMove, bEarGray, bEarOptical, bEarOpticalPDF, bAccumulate);
+	dlg.setYRange(ymin, ymax);
 	
 	if(dlg.ShowModal() !=  wxID_OK) return false;
-//	frameStep = dlg.getFrameSteps();
+	newFrameSteps = dlg.getFrameSteps();
 	threshold = dlg.getThreshold();
 	dlg.getVerticalLine(bLED, bPinna, bVerLine, verLine);
-	dlg.getSeriesLine(bEyeMove, bEarGray, bEarOptical, bEarOpticalPDF);
+	dlg.getSeriesLine(bEyeMove, bEarGray, bEarOptical, bEarOpticalPDF, bAccumulate);
+	dlg.getYRange(ymin, ymax);
 	dlg.Destroy();
 	
 	clock_t start, finish;
@@ -576,13 +591,13 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	vector <float>  vecREarFlow_pdf;
 	
 	int szVecFlow = m_vecFlow.size();
-	if(dlg.getFrameSteps() != frameStep || szVecFlow ==0 ) {
-		m_vecFlow.resize(m_nSlices  - frameStep);	
-		opticalFlow(frameStep);
+	if(newFrameSteps != frameStep || szVecFlow ==0 ) {
+		opticalFlow(newFrameSteps);
 	}
-	frameStep = dlg.getFrameSteps();
+	frameStep = newFrameSteps;
 	
-	MainFrame:: myMsgOutput("PDF threshold %f, frame steps %d\n", threshold, frameStep);
+	MainFrame:: myMsgOutput("PDF threshold %f, frame steps %d, bAccumulate %d, y range [%d, %d]\n", 
+			threshold, frameStep, bAccumulate, ymin, ymax);
 	
 	opticalDrawFlowmap(m_ptEarL, m_ptEarR, frameStep);
 	opticalFlowDistribution(m_vecFlow, "pdf", vecLEarFlow_pdf, vecREarFlow_pdf, m_ptEarL, m_ptEarR, 
@@ -590,16 +605,11 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	opticalSaveScatterPlot(m_vecFlow, "scatter", m_ptEarL, m_ptEarR, "_EarL", "_EarR", "Left Ear", "Right Ear", threshold, "pdf");
 	
 	int sz = vecLEarFlow_pdf.size();
-	if(frameStep > 0) {
+	if(frameStep > 0 && bAccumulate) {
 		for(int i=+1; i<sz; i++) {
 			vecLEarFlow_pdf[i] += vecLEarFlow_pdf[i-1];
 			vecREarFlow_pdf[i] += vecREarFlow_pdf[i-1];
 		}
-		/*
-		for(int i=+1; i<sz; i++) {
-			vecLEarFlow_pdf[i] = log(vecLEarFlow_pdf[i]);
-			vecREarFlow_pdf[i] = log(vecREarFlow_pdf[i]);
-		}*/
 	}
 	 
 //	opticalFlowAnalysis(vecFlow, ptEarL, m_vecEyeL, m_vecLEarFlow_eye, true, m_vecEyeLMove);
@@ -607,17 +617,11 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	
 //	opticalFlowAnalysis(vecFlow, ptEarR, m_vecEyeR, m_vecREarFlow_eye, true, m_vecEyeRMove);
 	opticalFlowAnalysis(m_vecFlow, ptEarR, m_vecEyeR, m_vecREarFlow, false, m_vecEyeRMove);		
-	if(frameStep > 0) {	
+	if(frameStep > 0 && bAccumulate) {	
 		for(int i=+1; i<sz; i++) {
 			m_vecLEarFlow[i] += m_vecLEarFlow[i-1];
 			m_vecREarFlow[i] += m_vecREarFlow[i-1];
 		}
-	/*
-		for(int i=+1; i<sz; i++) {
-			m_vecLEarFlow[i] = log(m_vecLEarFlow[i]);
-			m_vecREarFlow[i] = log(m_vecREarFlow[i]);
-		}	
-		 */
 	}
 	wxEndBusyCursor(); 
 /////////////////////////////// remove DC
@@ -629,14 +633,7 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	DC_removal(m_nLED1, vecREarFlow_pdf);		
 	
 ///////////G N U P L O T//////////////////////////////////////////////////////////////////////////////
-	int  ymin, ymax;
-	if(frameStep==0) {
-		ymin = -2;
-		ymax = 25;
-	}else {
-		ymin = -2;
-		ymax = 2;
-	}
+
 
 	wxFileName fileName = m_strSrcPath;
 	const char* title =fileName.GetName();
@@ -1095,6 +1092,8 @@ void CRat::opticalFlow(int nFrameSteps)
 //	gpMainFrame->CreateProgressBar(0, m_nSlices, 1);
 //	CProgressCtrl *pb =  gpMainFrame->GetProgressBarCtrl();
 
+	m_vecFlow.resize(m_nSlices  - nFrameSteps);
+	
 	clock_t start, finish;
 	double  duration;
 	start = clock();
@@ -1436,7 +1435,7 @@ void CRat::opticalFlowDistribution(vector<Mat>& vecFlow, char* subpath, vector <
 	
 //	FILE* fp = fopen("_threshold.csv", "w");	
 	for(int i=0; i<sz; i++) {
-		Mat& mFlow = vecFlow[i];	
+		Mat& mFlow = vecFlow[i];
 		
 		wxFileName fileName = wxString(m_vFilenames[i]);
 		fileName.AppendDir(subpath);

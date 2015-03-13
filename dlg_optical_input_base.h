@@ -20,6 +20,7 @@
 #include <wx/textctrl.h>
 #include <wx/statline.h>
 #include <wx/checkbox.h>
+#include <wx/radiobut.h>
 #include <wx/button.h>
 
 class DlgOpticalInputBase : public wxDialog
@@ -43,7 +44,15 @@ protected:
     wxStaticLine* m_staticLine86;
     wxCheckBox* m_checkBoxEarOptical;
     wxCheckBox* m_checkBoxEarOpticalPDF;
+    wxRadioButton* m_radioButtonInstan;
+    wxRadioButton* m_radioButtonAccumu;
     wxStaticLine* m_staticLine78;
+    wxPanel* m_panel96;
+    wxStaticText* m_staticText100;
+    wxTextCtrl* m_textCtrlYmin;
+    wxStaticText* m_staticText104;
+    wxTextCtrl* m_textCtrlYmax;
+    wxStaticLine* m_staticLine108;
     wxStdDialogButtonSizer* m_stdBtnSizer52;
     wxButton* m_button56;
     wxButton* m_button58;
