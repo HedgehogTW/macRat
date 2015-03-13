@@ -72,10 +72,8 @@ public:
 	void 	DC_removal(int nFirstLED, vector <float>& vecSignal);
 	void	getLightRange(int& from, int& to) { from = m_nLED1; to = m_nLED_End; }
 
-	void	processAbdomen(Point ptEyeL, Point ptEyeR, Point ptAbdoEdge, Point ptAbdoIn, Point ptEar, int frameStep, float threshold);
-	
-	
-	void	processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, int nFrameSteps, float threshold);
+	bool	processAbdomen(Point ptEyeL, Point ptEyeR, Point ptAbdoEdge, Point ptAbdoIn, Point ptEar);
+	bool	processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR);
 
 	void 	findEyeCenter(Point& ptEye0, vector <Point>& vecEye, vector <float>&  vecEyeMove);
 	void  	findNewEarCenter(vector <Point>& vecEye, Point ptEar0, vector <Point>& vecEar);
@@ -89,10 +87,11 @@ public:
 	void 	saveEarROI(int stable, int motion, Point& pt);
 	void 	saveEyeTrajectory();
 
-	void	opticalFlow(vector<Mat>& vecFlow, Point pt1, Point pt2, int nFrameSteps=0);
+	void	opticalFlow(int nFrameSteps);
+	void 	opticalDrawFlowmap(Point pt1, Point pt2, int nFrameSteps);
 	void 	opticalFlowDistribution(vector<Mat>& vecFlow, char* subpath, vector <float>& vecPdf1, vector <float>& vecPdf2,
 									Point pt1, Point pt2, char* extName1, char* extName2, char* title1, char* title2, float threshold);
-	void 	opticalFlowSaveDotDensity(vector<Mat>& vecFlow, char* subpath, Point pt1, Point pt2,
+	void 	opticalSaveScatterPlot(vector<Mat>& vecFlow, char* subpath, Point pt1, Point pt2,
 									char* extName1, char* extName2, char* title1, char* title2, float threshold, char* pdfPath);
 
 	float 	optical_compute_movement(Mat& mFlow, Mat& mDistEar, Mat& mDistEye, Point pt, float threshold);
@@ -120,7 +119,7 @@ public:
 public:
 	vector <Mat> m_vecMat;
 	vector <Mat> m_vecDest;
-//	vector <Mat> m_vecFlow;
+	vector <Mat> m_vecFlow;
 
 	
 	vector <Point>  m_vecEyeL;

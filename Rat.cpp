@@ -17,6 +17,7 @@
 
 #include "BendPoint.h"
 
+#include "DlgOpticalInput.h"
 
 using namespace cv;
 
@@ -34,7 +35,7 @@ CRat::CRat()
 	m_nProcessFrame = -1;
 	m_classifier = 0;
 	
-
+	clearData();
 	_redirectStandardOutputToFile("_cout.txt", true);
 }
 
@@ -46,10 +47,11 @@ void CRat::clearData()
 {
 	m_vecMat.clear();
 	m_vecDest.clear();	
-
+	m_vecFlow.clear();
+	
 	m_vecEyePair.clear();
 	m_vecEarPair.clear();
-
+	
 
 //	m_vecLEyeGrayDiff.clear();
 //	m_vecREyeGrayDiff.clear();
@@ -65,11 +67,13 @@ void CRat::clearData()
 
 int CRat::readData(wxString inputPath)
 {
+	clearData();
+	
 	m_strSrcPath = inputPath;	
 	
 	wxString fileSpec = _T("*.bmp");
 	wxArrayString  	files;
-	wxDir::GetAllFiles(inputPath, &files,  fileSpec, wxDIR_FILES  );
+	wxDir::GetAllFiles(inputPath, &files,  fileSpec, wxDIR_FILES );
 	
 	cv::Mat	 cvMat;
 	m_vecMat.clear();
@@ -171,6 +175,9 @@ Mat CRat::accumulate()
 
 bool CRat::detectLED(int nCageLine)
 {
+	if(nCageLine <=0)  return false;
+	if(m_nCageLine == nCageLine)  return true;	
+	
 	double minArea = 330;
 	double maxArea = 1600;
 	double minRatio = 0.45; //0.65;
@@ -180,8 +187,7 @@ bool CRat::detectLED(int nCageLine)
 	m_nLED1 = -1;
 	m_nLED2 = -1;
 	m_nLED_End = -1;
-
-	if(nCageLine <=0)  return false;
+	
 	m_nCageLine = nCageLine;
 	
 	int h = m_vecMat[0].rows;
@@ -323,6 +329,7 @@ void CRat::prepareData()
 	int w = m_vecMat[0].cols;
 	int h = m_vecMat[0].rows;
 	
+	if(h <=m_nCageLine) return;
 	if(m_nCageLine >0) {
 		for(int i=0; i<m_nSlices; i++)  {
 			Mat mSrc;
@@ -372,7 +379,7 @@ void CRat::DC_removal(int nFirstLED, vector <float>& vecSignal)
 	for(int i=0; i<nFirstLED; i++)  vecSignal[i] -= mean;	
 }
 
-void CRat::processAbdomen(Point ptEyeL, Point ptEyeR, Point ptAbdoEdge, Point ptAbdoIn, Point ptEar, int frameStep, float threshold)
+bool CRat::processAbdomen(Point ptEyeL, Point ptEyeR, Point ptAbdoEdge, Point ptAbdoIn, Point ptEar)
 {
 	m_ptEyeL = ptEyeL;
 	m_ptEyeR = ptEyeR;
@@ -384,7 +391,7 @@ void CRat::processAbdomen(Point ptEyeL, Point ptEyeR, Point ptAbdoEdge, Point pt
 	MainFrame:: myMsgOutput("Reference frame %d\n", m_referFrame);
 	if(m_referFrame <0) {
 		wxLogMessage("cannot find reference frame");
-		return;
+		return false;
 	}
 	findEyeCenter(ptEyeL, m_vecEyeL, m_vecEyeLMove);
 	findEyeCenter(ptEyeR, m_vecEyeR, m_vecEyeRMove);
@@ -404,18 +411,35 @@ void CRat::processAbdomen(Point ptEyeL, Point ptEyeR, Point ptAbdoEdge, Point pt
 
 	/////////////////////////////////////////////////////////////optical flow
 	
-	vector <Mat> vecFlow;
-	vecFlow.resize(m_nSlices );	
+	static int frameStep = 0;	
+	static double threshold = 0.005;
+	DlgOpticalInput dlg(frameStep, threshold, MainFrame::m_pThis);
+	if(dlg.ShowModal() !=  wxID_OK) return false;
+	//frameStep = dlg.getFrameSteps();
+	threshold = dlg.getThreshold();
+	dlg.Destroy();
 	
+	wxBeginBusyCursor();
 	vector <float>  vecAbdoE_pdf;
 	vector <float>  vecAbdoI_pdf;
 	
-	opticalFlow(vecFlow, m_ptAbdoEdge, m_ptAbdoIn);
-	opticalFlowDistribution(vecFlow, "pdf_Abdo", vecAbdoE_pdf, vecAbdoI_pdf, m_ptAbdoEdge, m_ptAbdoIn, 
+	int szVecFlow = m_vecFlow.size();
+	if(dlg.getFrameSteps() != frameStep || szVecFlow ==0 ) {
+		m_vecFlow.resize(m_nSlices  - frameStep);	
+		opticalFlow(frameStep);
+	}
+	frameStep = dlg.getFrameSteps();
+	
+
+	
+	opticalFlow(frameStep);
+	opticalDrawFlowmap(m_ptAbdoEdge, m_ptAbdoIn, frameStep);
+	opticalFlowDistribution(m_vecFlow, "pdf_Abdo", vecAbdoE_pdf, vecAbdoI_pdf, m_ptAbdoEdge, m_ptAbdoIn, 
 								"_AbdE", "_AbdI", "Abdomen Edge", "Abdomen In", threshold);
-	opticalFlowSaveDotDensity(vecFlow, "scatter_Abdo", m_ptAbdoEdge, m_ptAbdoIn, 
+	opticalSaveScatterPlot(m_vecFlow, "scatter_Abdo", m_ptAbdoEdge, m_ptAbdoIn, 
 							"_AbdE", "_AbdI", "Abdomen Edge", "Abdomen In", threshold, "pdf_Abdo");	
 	
+	wxEndBusyCursor();	
 /////////////////////////////// remove DC
 	DC_removal(m_nLED1, vecAbdoEdgeGrayDiff);
 	DC_removal(m_nLED1, vecAbdoInGrayDiff);
@@ -476,23 +500,22 @@ void CRat::processAbdomen(Point ptEyeL, Point ptEyeR, Point ptAbdoEdge, Point pt
 		circle(mDestColor, Point(ptEyeR.x, ptEyeR.y), 2, Scalar(0, 255, 255), -1);	
 	}
 	saveResult("dest", m_vecDest);	
+	return true;
 }
 
-void CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, int frameStep, float threshold)
+bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 {
 	m_ptEyeL = ptEyeL;
 	m_ptEyeR = ptEyeR;
 	m_ptEarL = ptEarL;
 	m_ptEarR = ptEarR;
 	
-
-	
 	m_referFrame = findReferenceFrame(ptEarL);
 	
 	MainFrame:: myMsgOutput("Reference frame %d\n", m_referFrame);
 	if(m_referFrame <0) {
 		wxLogMessage("cannot find reference frame");
-		return;
+		return false;
 	}
 	findEyeCenter(ptEyeL, m_vecEyeL, m_vecEyeLMove);
 	findEyeCenter(ptEyeR, m_vecEyeR, m_vecEyeRMove);
@@ -509,11 +532,6 @@ void CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	vector <float>  vecREarGrayDiff;
 	graylevelDiff(m_referFrame, ptEarL, ptEarR, vecLEarGrayDiff, vecREarGrayDiff);
 
-//	vector <float>  vecLEarGray_Eye;
-//	vector <float>  vecREarGray_Eye;
-//	graylevelDiff_Eye(m_referFrame, ptEarL, m_vecEyeL, m_vecLEarGray_Eye);
-//	graylevelDiff_Eye(m_referFrame, ptEarR, m_vecEyeR, m_vecREarGray_Eye);
-	
 	vector<float> smoothL;
 	smoothData(vecLEarGrayDiff, smoothL, 2);	
 	
@@ -525,45 +543,83 @@ void CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 
 	/////////////////////////////////////////////////////////////optical flow
 	
-	vector <Mat> vecFlow;
-	vecFlow.resize(m_nSlices  - frameStep);	
+	static int frameStep = 0;	
+	static double threshold = 0.005;
+	static bool bLED = false;
+	static bool bPinna = false;
+	static bool bVerLine = false;
 	
+	static bool bEyeMove = true;
+	static bool bEarGray = false;
+	static bool bEarOptical = true;
+	static bool bEarOpticalPDF = true;
+	
+	static double verLine = 190;
+	
+	DlgOpticalInput dlg(frameStep, threshold, MainFrame::m_pThis);
+	dlg.setVerticalLine(bLED, bPinna, bVerLine, verLine);
+	dlg.setSeriesLine(bEyeMove, bEarGray, bEarOptical, bEarOpticalPDF);
+	
+	if(dlg.ShowModal() !=  wxID_OK) return false;
+//	frameStep = dlg.getFrameSteps();
+	threshold = dlg.getThreshold();
+	dlg.getVerticalLine(bLED, bPinna, bVerLine, verLine);
+	dlg.getSeriesLine(bEyeMove, bEarGray, bEarOptical, bEarOpticalPDF);
+	dlg.Destroy();
+	
+	clock_t start, finish;
+	double  duration;
+	start = clock();
+	
+	wxBeginBusyCursor();
 	vector <float>  vecLEarFlow_pdf;
 	vector <float>  vecREarFlow_pdf;
-
-	opticalFlow(vecFlow, m_ptEarL, m_ptEarR, frameStep);
-	opticalFlowDistribution(vecFlow, "pdf", vecLEarFlow_pdf, vecREarFlow_pdf, m_ptEarL, m_ptEarR, 
+	
+	int szVecFlow = m_vecFlow.size();
+	if(dlg.getFrameSteps() != frameStep || szVecFlow ==0 ) {
+		m_vecFlow.resize(m_nSlices  - frameStep);	
+		opticalFlow(frameStep);
+	}
+	frameStep = dlg.getFrameSteps();
+	
+	MainFrame:: myMsgOutput("PDF threshold %f, frame steps %d\n", threshold, frameStep);
+	
+	opticalDrawFlowmap(m_ptEarL, m_ptEarR, frameStep);
+	opticalFlowDistribution(m_vecFlow, "pdf", vecLEarFlow_pdf, vecREarFlow_pdf, m_ptEarL, m_ptEarR, 
 								"_EarL", "_EarR", "Left Ear", "Right Ear", threshold);
-	opticalFlowSaveDotDensity(vecFlow, "scatter", m_ptEarL, m_ptEarR, "_EarL", "_EarR", "Left Ear", "Right Ear", threshold, "pdf");
+	opticalSaveScatterPlot(m_vecFlow, "scatter", m_ptEarL, m_ptEarR, "_EarL", "_EarR", "Left Ear", "Right Ear", threshold, "pdf");
 	
 	int sz = vecLEarFlow_pdf.size();
-		/*	
-	for(int i=+1; i<sz; i++) {
-		vecLEarFlow_pdf[i] += vecLEarFlow_pdf[i-1];
-		vecREarFlow_pdf[i] += vecREarFlow_pdf[i-1];
+	if(frameStep > 0) {
+		for(int i=+1; i<sz; i++) {
+			vecLEarFlow_pdf[i] += vecLEarFlow_pdf[i-1];
+			vecREarFlow_pdf[i] += vecREarFlow_pdf[i-1];
+		}
+		/*
+		for(int i=+1; i<sz; i++) {
+			vecLEarFlow_pdf[i] = log(vecLEarFlow_pdf[i]);
+			vecREarFlow_pdf[i] = log(vecREarFlow_pdf[i]);
+		}*/
 	}
-
-	for(int i=+1; i<sz; i++) {
-		vecLEarFlow_pdf[i] = log(vecLEarFlow_pdf[i]);
-		vecREarFlow_pdf[i] = log(vecREarFlow_pdf[i]);
-	}*/
 	 
 //	opticalFlowAnalysis(vecFlow, ptEarL, m_vecEyeL, m_vecLEarFlow_eye, true, m_vecEyeLMove);
-	opticalFlowAnalysis(vecFlow, ptEarL, m_vecEyeL, m_vecLEarFlow, false, m_vecEyeLMove);
+	opticalFlowAnalysis(m_vecFlow, ptEarL, m_vecEyeL, m_vecLEarFlow, false, m_vecEyeLMove);
 	
 //	opticalFlowAnalysis(vecFlow, ptEarR, m_vecEyeR, m_vecREarFlow_eye, true, m_vecEyeRMove);
-	opticalFlowAnalysis(vecFlow, ptEarR, m_vecEyeR, m_vecREarFlow, false, m_vecEyeRMove);		
-	/*	
-	for(int i=+1; i<sz; i++) {
-		m_vecLEarFlow[i] += m_vecLEarFlow[i-1];
-		m_vecREarFlow[i] += m_vecREarFlow[i-1];
+	opticalFlowAnalysis(m_vecFlow, ptEarR, m_vecEyeR, m_vecREarFlow, false, m_vecEyeRMove);		
+	if(frameStep > 0) {	
+		for(int i=+1; i<sz; i++) {
+			m_vecLEarFlow[i] += m_vecLEarFlow[i-1];
+			m_vecREarFlow[i] += m_vecREarFlow[i-1];
+		}
+	/*
+		for(int i=+1; i<sz; i++) {
+			m_vecLEarFlow[i] = log(m_vecLEarFlow[i]);
+			m_vecREarFlow[i] = log(m_vecREarFlow[i]);
+		}	
+		 */
 	}
-
-	for(int i=+1; i<sz; i++) {
-		m_vecLEarFlow[i] = log(m_vecLEarFlow[i]);
-		m_vecREarFlow[i] = log(m_vecREarFlow[i]);
-	}	
-	 */
+	wxEndBusyCursor(); 
 /////////////////////////////// remove DC
 	DC_removal(m_nLED1, vecLEarGrayDiff);
 	DC_removal(m_nLED1, vecREarGrayDiff);
@@ -573,43 +629,61 @@ void CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	DC_removal(m_nLED1, vecREarFlow_pdf);		
 	
 ///////////G N U P L O T//////////////////////////////////////////////////////////////////////////////
-	int  ymin = -2;
-	int  ymax = 25;
-	
-//	int  ymin = -2;
-//	int  ymax = 2;
+	int  ymin, ymax;
+	if(frameStep==0) {
+		ymin = -2;
+		ymax = 25;
+	}else {
+		ymin = -2;
+		ymax = 2;
+	}
+
 	wxFileName fileName = m_strSrcPath;
 	const char* title =fileName.GetName();
 	_gnuplotInit(gPlotL, title, ymin, ymax);
 	_gnuplotInit(gPlotR, title, ymin, ymax);
-	
-	_gnuplotLED(gPlotL, m_nLED1, m_nLED2);
-	_gnuplotLED(gPlotR, m_nLED1, m_nLED2);
 	gPlotL.set_legend("left");
-	gPlotR.set_legend("left");	
-	if(vecLEarGrayDiff[maxPointL]> vecREarGrayDiff[maxPointR]) {
-		MainFrame:: myMsgOutput("max motion: left ear %d\n", maxPointL);
-		_gnuplotVerticalLine(gPlotL, maxPointL);
-		_gnuplotVerticalLine(gPlotR, maxPointL);
-		saveEarROI(m_referFrame, maxPointL, ptEarL);
-	}else {
-		MainFrame:: myMsgOutput("max motion: right ear %d\n", maxPointR);
-		_gnuplotVerticalLine(gPlotL, maxPointR);
-		_gnuplotVerticalLine(gPlotR, maxPointL);
-		saveEarROI(m_referFrame, maxPointR, ptEarR);
-	}	
-	
-	_gnuplotLine(gPlotL, "LEyeMove", m_vecEyeLMove, "#008B0000", ".");
-	_gnuplotLine(gPlotR, "REyeMove", m_vecEyeRMove, "#008B0000", ".");
-	
-	_gnuplotLine(gPlotL, "LEarGraylevel", vecLEarGrayDiff, "#00008000");
-	_gnuplotLine(gPlotR, "REarGraylevel", vecREarGrayDiff, "#00008000");
-	
-	_gnuplotLine(gPlotL, "LEarFlow", m_vecLEarFlow, "#00FF4500");
-	_gnuplotLine(gPlotR, "REarFlow", m_vecREarFlow, "#00FF4500");
+	gPlotR.set_legend("left");		
+	if(bLED) {
+		_gnuplotLED(gPlotL, m_nLED1, m_nLED2);
+		_gnuplotLED(gPlotR, m_nLED1, m_nLED2);
+	}
 
-	_gnuplotLine(gPlotL, "LEarPDF", vecLEarFlow_pdf, "#000000FF");
-	_gnuplotLine(gPlotR, "REarPDF", vecREarFlow_pdf, "#000000FF");
+	if(bPinna) {
+		if(vecLEarGrayDiff[maxPointL]> vecREarGrayDiff[maxPointR]) {
+			MainFrame:: myMsgOutput("max motion: left ear %d\n", maxPointL);
+			_gnuplotVerticalLine(gPlotL, maxPointL);
+			_gnuplotVerticalLine(gPlotR, maxPointL);
+			saveEarROI(m_referFrame, maxPointL, ptEarL);
+		}else {
+			MainFrame:: myMsgOutput("max motion: right ear %d\n", maxPointR);
+			_gnuplotVerticalLine(gPlotL, maxPointR);
+			_gnuplotVerticalLine(gPlotR, maxPointL);
+			saveEarROI(m_referFrame, maxPointR, ptEarR);
+		}	
+	}
+	
+	if(bVerLine && verLine >0) {
+		_gnuplotVerticalLine(gPlotL, verLine);
+		_gnuplotVerticalLine(gPlotR, verLine);		
+	}
+	
+	if(bEyeMove) {
+		_gnuplotLine(gPlotL, "LEyeMove", m_vecEyeLMove, "#008B0000", ".");
+		_gnuplotLine(gPlotR, "REyeMove", m_vecEyeRMove, "#008B0000", ".");
+	}
+	if(bEarGray) {
+		_gnuplotLine(gPlotL, "LEarGraylevel", vecLEarGrayDiff, "#00008000");
+		_gnuplotLine(gPlotR, "REarGraylevel", vecREarGrayDiff, "#00008000");
+	}
+	if(bEarOptical) {
+		_gnuplotLine(gPlotL, "LEarFlow", m_vecLEarFlow, "#00FF4500");
+		_gnuplotLine(gPlotR, "REarFlow", m_vecREarFlow, "#00FF4500");
+	}
+	if(bEarOpticalPDF) {
+		_gnuplotLine(gPlotL, "LEarPDF", vecLEarFlow_pdf, "#000000FF");
+		_gnuplotLine(gPlotR, "REarPDF", vecREarFlow_pdf, "#000000FF");
+	}
 	
 	//gPlotL.cmd("load '../_splot_move.gpt'");
 	////////////////////// save result to dest
@@ -654,6 +728,13 @@ void CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	}
 	saveResult("dest", m_vecDest);
 
+	finish = clock();
+	duration = (double)(finish - start) / CLOCKS_PER_SEC;
+	int minutes = duration / 60;
+	int second = duration - minutes * 60;
+	MainFrame::myMsgOutput("OnRatProcessEar: computation time: %02dm:%02ds\n", minutes, second);
+	
+	return true;
 }
 void  CRat::findNewEarCenter(vector <Point>& vecEye, Point ptEar0, vector <Point>& vecEar)
 {
@@ -1001,7 +1082,7 @@ void CRat::graylevelDiff(int refer, Point& ptEarL, Point& ptEarR, vector <float>
 	}
 }
 
-void CRat::opticalFlow(vector<Mat>& vecFlow, Point pt1, Point pt2, int nFrameSteps)
+void CRat::opticalFlow(int nFrameSteps)
 {
 	// optical flow
 	double pyr_scale = 0.5;
@@ -1011,20 +1092,12 @@ void CRat::opticalFlow(vector<Mat>& vecFlow, Point pt1, Point pt2, int nFrameSte
 	int poly_n = 7;
 	double dblSigma = 1.5;
 
-	//int nFrameSteps = 2;	
-	
-	vector <Mat> vecFlowmap;
-	vecFlowmap.clear();
-	vecFlowmap.resize(m_nSlices  - nFrameSteps);
-
 //	gpMainFrame->CreateProgressBar(0, m_nSlices, 1);
 //	CProgressCtrl *pb =  gpMainFrame->GetProgressBarCtrl();
 
 	clock_t start, finish;
 	double  duration;
 	start = clock();
-//	Mat mSrc1;
-//	mSrc1 = m_vecMat[m_referFrame];
 	
 	Point ptEyeC;
 	ptEyeC.x= (m_vecEyeL[m_referFrame].x+m_vecEyeR[m_referFrame].x)/2;
@@ -1039,15 +1112,37 @@ void CRat::opticalFlow(vector<Mat>& vecFlow, Point pt1, Point pt2, int nFrameSte
 		Mat mSrc1, mSrc2;
 		mSrc1 = m_vecMat[referFrame];
 		mSrc2 = m_vecMat[i+nFrameSteps];
-	
-//		Mat mSrc2 = m_vecMat[i];
-				
-		Mat& mFlow = vecFlow[i];
-		Mat& mFlowmapColor = vecFlowmap[i];
+
+		Mat& mFlow = m_vecFlow[i];
 
         calcOpticalFlowFarneback(mSrc1, mSrc2, mFlow, pyr_scale, levels, nWinSize, nIter, poly_n, dblSigma, 0);
-        cvtColor(mSrc2, mFlowmapColor, CV_GRAY2BGR);
+	}
+	finish = clock();
+	duration = (double)(finish - start) / CLOCKS_PER_SEC;
+	int minutes = duration / 60;
+	int second = duration - minutes * 60;
+	MainFrame:: myMsgOutput("Opticalflow computation time: %02dm:%02ds\n", minutes, second);
+	MainFrame:: myMsgOutput("Opticalflow done, m_vecFlow size %d------\n", m_vecFlow.size());
+}
 
+void CRat::opticalDrawFlowmap(Point pt1, Point pt2, int nFrameSteps)
+{
+	vector <Mat> vecFlowmap;
+	vecFlowmap.clear();
+	vecFlowmap.resize(m_nSlices  - nFrameSteps);
+
+	Point ptEyeC;
+	ptEyeC.x= (m_vecEyeL[m_referFrame].x+m_vecEyeR[m_referFrame].x)/2;
+	ptEyeC.y= (m_vecEyeL[m_referFrame].y+m_vecEyeR[m_referFrame].y)/2;
+	
+	for(int i=0; i<m_nSlices - nFrameSteps; i++) {
+		Mat mSrc2;
+		mSrc2 = m_vecMat[i+nFrameSteps];
+				
+		Mat& mFlow = m_vecFlow[i];
+		Mat& mFlowmapColor = vecFlowmap[i];
+		
+        cvtColor(mSrc2, mFlowmapColor, CV_GRAY2BGR);
 		drawOptFlowMap(mFlowmapColor, mFlow, 4, CV_RGB(0, 128, 0));
 
 		cv::rectangle(mFlowmapColor,pt1-m_offsetEar, pt1+m_offsetEar, cv::Scalar(0, 0, 255));
@@ -1059,22 +1154,12 @@ void CRat::opticalFlow(vector<Mat>& vecFlow, Point pt1, Point pt2, int nFrameSte
 		circle(mFlowmapColor, Point(m_vecEyeL[m_referFrame].x, m_vecEyeL[m_referFrame].y), 2, Scalar(0, 255, 255), -1);	
 		circle(mFlowmapColor, Point(m_vecEyeR[m_referFrame].x, m_vecEyeR[m_referFrame].y), 2, Scalar(0, 255, 255), -1);	
    
-
 		cv::rectangle(mFlowmapColor,ptEyeC-m_offsetEar,ptEyeC+m_offsetEar, cv::Scalar(255, 0, 255));
 	}
-	finish = clock();
-	duration = (double)(finish - start) / CLOCKS_PER_SEC;
-	int minutes = duration / 60;
-	int second = duration - minutes * 60;
-	MainFrame:: myMsgOutput("Opticalflow computation time: %02dm:%02ds\n", minutes, second);
 
-	saveResult("flow", vecFlowmap);
-//	saveFlowMovement();
-
-	MainFrame:: myMsgOutput("Opticalflow done, m_vecFlow size %d------\n", vecFlow.size());
+	saveResult("flow", vecFlowmap);	
 }
-
-void CRat::opticalFlowSaveDotDensity(vector<Mat>& vecFlow, char* subpath, Point pt1, Point pt2,
+void CRat::opticalSaveScatterPlot(vector<Mat>& vecFlow, char* subpath, Point pt1, Point pt2,
 									char* extName1, char* extName2, char* title1, char* title2, float threshold, char* pdfPath)
 {
 	//char subpath[] = "movement";
@@ -1149,7 +1234,8 @@ void CRat::opticalFlowSaveDotDensity(vector<Mat>& vecFlow, char* subpath, Point 
 		plotSavePGN.cmd(cmdstr0.str());
 	
 		std::ostringstream cmdstr1;
-		cmdstr1 << "set multiplot title '" << dirName.ToAscii() << "/" << fileName.GetName().ToAscii() << "'" ;
+		cmdstr1 << "set multiplot title '" << dirName.ToAscii() << "/" << fileName.GetName().ToAscii()  ;
+		cmdstr1 << ", th= " << threshold << "'";
 		// analyze blocks of ear and eye
 		plotSavePGN.cmd(cmdstr1.str());
 		plotSavePGN.cmd("set size 0.5,0.5");
@@ -1268,7 +1354,7 @@ void CRat::saveDotDensity(Gnuplot& plotSavePGN, Mat& mFlow, Point pt, wxString& 
 	_OutputVecPoints(vDataUp, fName.ToAscii(), true);
 	
 	std::ostringstream cmdstr;
-    cmdstr << "plot '" << fName.ToAscii() << "' with dots linecolor '#FF0022'";
+    cmdstr << "plot '" << fName.ToAscii() << "' with dots linecolor '#0022FF'";
     plotSavePGN.cmd(cmdstr.str());	
 	
 	fName = strOutName + "_below.csv";
@@ -1277,7 +1363,7 @@ void CRat::saveDotDensity(Gnuplot& plotSavePGN, Mat& mFlow, Point pt, wxString& 
 	//_OutputMatPoint2f(mROI, fName.ToAscii());
 
 	std::ostringstream cmdstr1;
-    cmdstr1 << "plot '" << fName.ToAscii() << "' with dots linecolor '#0022FF'";
+    cmdstr1 << "plot '" << fName.ToAscii() << "' with dots linecolor '#FF0022'";
     plotSavePGN.cmd(cmdstr1.str());	
 }
 
@@ -1362,8 +1448,8 @@ void CRat::opticalFlowDistribution(vector<Mat>& vecFlow, char* subpath, vector <
 		plot.cmd(cmdstr0.str());
 	
 		std::ostringstream cmdstr1;
-		cmdstr1 << "set multiplot title '" << dirName.ToAscii() << "/" << fileName.GetName().ToAscii() << "'" ;
-		cmdstr1 << ", th=" << threshold;
+		cmdstr1 << "set multiplot title '" << dirName.ToAscii() << "/" << fileName.GetName().ToAscii()  ;
+		cmdstr1 << ", th=" << threshold << "'";
 		
 		/////////////////////////////////////// plot earL 
 		plot.cmd(cmdstr1.str());

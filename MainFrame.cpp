@@ -17,7 +17,6 @@
 #include "MyUtil.h"
 #include "gnuplot_i.h"
 
-#include "DlgOpticalInput.h"
 
 using namespace std;
 using namespace cv;
@@ -506,32 +505,23 @@ bool MainFrame::preprocessing()
 }
 void MainFrame::OnRatProcessEar(wxCommandEvent& event)
 {
+
+	
 	if(preprocessing()==false)  {
 		//wxLogMessage("preprocessing error");
 		return;
 	}
+
 	
-	static int frameStep = 0;	
-	static double threshold = 0.005;
-	DlgOpticalInput dlg(frameStep, threshold, this);
-	if(dlg.ShowModal() !=  wxID_OK) return;
-	frameStep = dlg.getFrameSteps();
-	threshold = dlg.getThreshold();
-	dlg.Destroy();
-	
-	
-	wxBeginBusyCursor();
-	m_Rat.processEar(m_dqEyePts[0], m_dqEyePts[1], m_dqEarPts[0], m_dqEarPts[1], frameStep, threshold);
-	
-//	m_Rat.findMouseEyes(nFrameNum, ptEyeL, ptEyeR);
-//	m_Rat.findMouseEars(nFrameNum, ptEarL, ptEarR);
-	
+
+	bool bRet = m_Rat.processEar(m_dqEyePts[0], m_dqEyePts[1], m_dqEarPts[0], m_dqEarPts[1]);
+	if(bRet ==false) return;
 	
 	updateOutData(m_Rat.getResultImg(0));
 	
 //	m_Rat.saveEarImage();
 	
-	wxEndBusyCursor();
+
 
 	wxFileName fileName = m_strSourcePath;
 	wxString  fName = fileName.GetName();
@@ -560,10 +550,10 @@ void MainFrame::OnRatProcessEar(wxCommandEvent& event)
 	}
 */ 
 	fclose(fp);	
+	wxBell();	
 	
 
-		//m_Rat.m_vecLEarGrayDiff, m_Rat.m_vecREarGrayDiff, m_Rat.m_vecLEyeGrayDiff);
-	wxBell();	
+	
 }
 
 void MainFrame::OnRatAbdomen(wxCommandEvent& event)
@@ -573,15 +563,6 @@ void MainFrame::OnRatAbdomen(wxCommandEvent& event)
 		return;
 	}
 	
-	static int frameStep = 0;	
-	static double threshold = 0.005;
-	DlgOpticalInput dlg(frameStep, threshold, this);
-	if(dlg.ShowModal() !=  wxID_OK) return;
-	frameStep = dlg.getFrameSteps();
-	threshold = dlg.getThreshold();
-	dlg.Destroy();
-	
-	wxBeginBusyCursor();	
 	
 	Point ptEyeL, ptEyeR, ptEarL, ptAbdoEdge, ptAbdoIn;
 	ptEyeL = m_dqEyePts[0];
@@ -590,13 +571,11 @@ void MainFrame::OnRatAbdomen(wxCommandEvent& event)
 	ptAbdoEdge = m_dqAbdoPts[0];
 	ptAbdoIn = m_dqAbdoPts[1];
 	
-	m_Rat.processAbdomen(ptEyeL, ptEyeR, ptAbdoEdge, ptAbdoIn, ptEarL, frameStep, threshold);
+	bool bRet = m_Rat.processAbdomen(ptEyeL, ptEyeR, ptAbdoEdge, ptAbdoIn, ptEarL);
+	if(bRet ==false) return;
 	
 	updateOutData(m_Rat.getResultImg(0));
 	
-	
-	wxEndBusyCursor();
-
 	wxFileName fileName = m_strSourcePath;
 	wxString  fName = fileName.GetName();
 	wxFileName dataName(m_strSourcePath, "_"+fName+ "_motion.csv");

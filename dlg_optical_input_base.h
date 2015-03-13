@@ -15,28 +15,43 @@
 #include <wx/artprov.h>
 #include <wx/sizer.h>
 #include <wx/panel.h>
+#include <wx/gbsizer.h>
 #include <wx/stattext.h>
 #include <wx/textctrl.h>
+#include <wx/statline.h>
+#include <wx/checkbox.h>
 #include <wx/button.h>
 
 class DlgOpticalInputBase : public wxDialog
 {
 protected:
-    wxPanel* m_panel516;
+    wxPanel* m_panel38;
     wxStaticText* m_staticText718;
     wxTextCtrl* m_textCtrlFrameSteps;
     wxStaticText* m_staticText1320;
-    wxPanel* m_panel1521;
     wxStaticText* m_staticText1923;
     wxTextCtrl* m_textCtrlThreshold;
-    wxPanel* m_panel2325;
-    wxButton* m_buttonOk;
-    wxButton* m_buttonCancel;
+    wxStaticLine* m_staticLine48;
+    wxPanel* m_panel80;
+    wxCheckBox* m_checkBoxLED;
+    wxCheckBox* m_checkBoxPinna;
+    wxCheckBox* m_checkBoxVerLine;
+    wxTextCtrl* m_textCtrlVerLine;
+    wxStaticLine* m_staticLine84;
+    wxCheckBox* m_checkBoxEyeMove;
+    wxCheckBox* m_checkBoxEarGray;
+    wxStaticLine* m_staticLine86;
+    wxCheckBox* m_checkBoxEarOptical;
+    wxCheckBox* m_checkBoxEarOpticalPDF;
+    wxStaticLine* m_staticLine78;
+    wxStdDialogButtonSizer* m_stdBtnSizer52;
+    wxButton* m_button56;
+    wxButton* m_button58;
 
 protected:
 
 public:
-    DlgOpticalInputBase(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Optical Input Dialog"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(400,200), long style = wxDEFAULT_DIALOG_STYLE);
+    DlgOpticalInputBase(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Optical Input Dialog"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(-1,-1), long style = wxDEFAULT_DIALOG_STYLE);
     virtual ~DlgOpticalInputBase();
 };
 

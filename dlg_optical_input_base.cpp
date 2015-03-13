@@ -26,63 +26,120 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     wxBoxSizer* boxSizer315 = new wxBoxSizer(wxVERTICAL);
     this->SetSizer(boxSizer315);
     
-    m_panel516 = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxTAB_TRAVERSAL);
+    m_panel38 = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxTAB_TRAVERSAL);
+    m_panel38->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_BTNTEXT));
+    m_panel38->SetToolTip(_("set"));
     
-    boxSizer315->Add(m_panel516, 0, wxALL, 5);
+    boxSizer315->Add(m_panel38, 0, wxALL, 5);
     
-    wxBoxSizer* boxSizer1117 = new wxBoxSizer(wxHORIZONTAL);
-    m_panel516->SetSizer(boxSizer1117);
+    wxGridBagSizer* gridBagSizer40 = new wxGridBagSizer(0, 0);
+    m_panel38->SetSizer(gridBagSizer40);
     
-    m_staticText718 = new wxStaticText(m_panel516, wxID_ANY, _("Frame steps"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_staticText718 = new wxStaticText(m_panel38, wxID_ANY, _("Frame steps"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_staticText718->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_BTNTEXT));
     
-    boxSizer1117->Add(m_staticText718, 0, wxALL, 5);
+    gridBagSizer40->Add(m_staticText718, wxGBPosition(0,0), wxGBSpan(1,1), wxALL, 5);
     
-    m_textCtrlFrameSteps = new wxTextCtrl(m_panel516, wxID_ANY, wxT("0"), wxDefaultPosition, wxSize(50,-1), wxTE_RIGHT);
+    m_textCtrlFrameSteps = new wxTextCtrl(m_panel38, wxID_ANY, wxT("0"), wxDefaultPosition, wxSize(50,-1), wxTE_RIGHT);
     #if wxVERSION_NUMBER >= 3000
     m_textCtrlFrameSteps->SetHint(wxT(""));
     #endif
     
-    boxSizer1117->Add(m_textCtrlFrameSteps, 0, wxALL, 5);
+    gridBagSizer40->Add(m_textCtrlFrameSteps, wxGBPosition(0,1), wxGBSpan(1,1), wxALL, 5);
     
-    m_staticText1320 = new wxStaticText(m_panel516, wxID_ANY, _("0: use single reference frame"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_staticText1320 = new wxStaticText(m_panel38, wxID_ANY, _("0: use single reference frame"), wxDefaultPosition, wxSize(-1,-1), 0);
     
-    boxSizer1117->Add(m_staticText1320, 0, wxALL, 5);
+    gridBagSizer40->Add(m_staticText1320, wxGBPosition(0,2), wxGBSpan(1,1), wxALL, 5);
     
-    m_panel1521 = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxTAB_TRAVERSAL);
+    m_staticText1923 = new wxStaticText(m_panel38, wxID_ANY, _("Probability threshold"), wxDefaultPosition, wxSize(-1,-1), 0);
     
-    boxSizer315->Add(m_panel1521, 0, wxALL, 5);
+    gridBagSizer40->Add(m_staticText1923, wxGBPosition(1,0), wxGBSpan(1,1), wxALL, 5);
     
-    wxBoxSizer* boxSizer1722 = new wxBoxSizer(wxHORIZONTAL);
-    m_panel1521->SetSizer(boxSizer1722);
-    
-    m_staticText1923 = new wxStaticText(m_panel1521, wxID_ANY, _("Probability threshold"), wxDefaultPosition, wxSize(-1,-1), 0);
-    
-    boxSizer1722->Add(m_staticText1923, 0, wxALL, 5);
-    
-    m_textCtrlThreshold = new wxTextCtrl(m_panel1521, wxID_ANY, wxT("0.005"), wxDefaultPosition, wxSize(90,-1), wxTE_RIGHT);
+    m_textCtrlThreshold = new wxTextCtrl(m_panel38, wxID_ANY, wxT("0.005"), wxDefaultPosition, wxSize(90,-1), wxTE_RIGHT);
     #if wxVERSION_NUMBER >= 3000
     m_textCtrlThreshold->SetHint(wxT(""));
     #endif
     
-    boxSizer1722->Add(m_textCtrlThreshold, 0, wxALL, 5);
+    gridBagSizer40->Add(m_textCtrlThreshold, wxGBPosition(1,1), wxGBSpan(1,1), wxALL, 5);
     
-    m_panel2325 = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxTAB_TRAVERSAL);
+    m_staticLine48 = new wxStaticLine(m_panel38, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxLI_HORIZONTAL);
     
-    boxSizer315->Add(m_panel2325, 0, wxALL|wxALIGN_RIGHT, 5);
+    gridBagSizer40->Add(m_staticLine48, wxGBPosition(2,0), wxGBSpan(1,3), wxALL|wxEXPAND, 5);
     
-    wxBoxSizer* boxSizer2526 = new wxBoxSizer(wxHORIZONTAL);
-    m_panel2325->SetSizer(boxSizer2526);
+    m_panel80 = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxTAB_TRAVERSAL);
     
-    m_buttonOk = new wxButton(m_panel2325, wxID_OK, _("Ok"), wxDefaultPosition, wxSize(-1,-1), 0);
-    m_buttonOk->SetDefault();
+    boxSizer315->Add(m_panel80, 0, wxALL, 5);
     
-    boxSizer2526->Add(m_buttonOk, 0, wxALL, 5);
+    wxGridBagSizer* gridBagSizer82 = new wxGridBagSizer(0, 0);
+    m_panel80->SetSizer(gridBagSizer82);
     
-    m_buttonCancel = new wxButton(m_panel2325, wxID_CANCEL, _("Cancel"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_checkBoxLED = new wxCheckBox(m_panel80, wxID_ANY, _("LED"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_checkBoxLED->SetValue(false);
     
-    boxSizer2526->Add(m_buttonCancel, 0, wxALL, 5);
+    gridBagSizer82->Add(m_checkBoxLED, wxGBPosition(0,0), wxGBSpan(1,1), wxALL, 5);
     
-    SetSizeHints(400,200);
+    m_checkBoxPinna = new wxCheckBox(m_panel80, wxID_ANY, _("Pinna detection"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_checkBoxPinna->SetValue(false);
+    
+    gridBagSizer82->Add(m_checkBoxPinna, wxGBPosition(0,1), wxGBSpan(1,1), wxALL, 5);
+    
+    m_checkBoxVerLine = new wxCheckBox(m_panel80, wxID_ANY, _("Vertical Line"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_checkBoxVerLine->SetValue(false);
+    
+    gridBagSizer82->Add(m_checkBoxVerLine, wxGBPosition(1,0), wxGBSpan(1,1), wxALL, 5);
+    
+    m_textCtrlVerLine = new wxTextCtrl(m_panel80, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(-1,-1), 0);
+    #if wxVERSION_NUMBER >= 3000
+    m_textCtrlVerLine->SetHint(wxT(""));
+    #endif
+    
+    gridBagSizer82->Add(m_textCtrlVerLine, wxGBPosition(1,1), wxGBSpan(1,1), wxALL, 5);
+    
+    m_staticLine84 = new wxStaticLine(m_panel80, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxLI_HORIZONTAL);
+    
+    gridBagSizer82->Add(m_staticLine84, wxGBPosition(2,0), wxGBSpan(1,3), wxALL|wxEXPAND, 5);
+    
+    m_checkBoxEyeMove = new wxCheckBox(m_panel80, wxID_ANY, _("Eye movement"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_checkBoxEyeMove->SetValue(false);
+    
+    gridBagSizer82->Add(m_checkBoxEyeMove, wxGBPosition(3,0), wxGBSpan(1,1), wxALL, 5);
+    
+    m_checkBoxEarGray = new wxCheckBox(m_panel80, wxID_ANY, _("Ear By Graylevel"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_checkBoxEarGray->SetValue(false);
+    
+    gridBagSizer82->Add(m_checkBoxEarGray, wxGBPosition(3,1), wxGBSpan(1,1), wxALL, 5);
+    
+    m_staticLine86 = new wxStaticLine(m_panel80, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxLI_HORIZONTAL);
+    
+    gridBagSizer82->Add(m_staticLine86, wxGBPosition(4,0), wxGBSpan(1,3), wxALL|wxEXPAND, 5);
+    
+    m_checkBoxEarOptical = new wxCheckBox(m_panel80, wxID_ANY, _("Ear By Opticalflow"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_checkBoxEarOptical->SetValue(false);
+    
+    gridBagSizer82->Add(m_checkBoxEarOptical, wxGBPosition(5,0), wxGBSpan(1,1), wxALL, 5);
+    
+    m_checkBoxEarOpticalPDF = new wxCheckBox(m_panel80, wxID_ANY, _("Ear By Opticalflow with PDF"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_checkBoxEarOpticalPDF->SetValue(false);
+    
+    gridBagSizer82->Add(m_checkBoxEarOpticalPDF, wxGBPosition(5,1), wxGBSpan(1,2), wxALL, 5);
+    
+    m_staticLine78 = new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxLI_HORIZONTAL);
+    
+    boxSizer315->Add(m_staticLine78, 0, wxALL|wxEXPAND, 5);
+    
+    m_stdBtnSizer52 = new wxStdDialogButtonSizer();
+    
+    boxSizer315->Add(m_stdBtnSizer52, 0, wxALL|wxALIGN_RIGHT, 5);
+    
+    m_button56 = new wxButton(this, wxID_OK, wxT(""), wxDefaultPosition, wxSize(-1, -1), 0);
+    m_button56->SetDefault();
+    m_stdBtnSizer52->AddButton(m_button56);
+    
+    m_button58 = new wxButton(this, wxID_CANCEL, wxT(""), wxDefaultPosition, wxSize(-1, -1), 0);
+    m_stdBtnSizer52->AddButton(m_button58);
+    m_stdBtnSizer52->Realize();
+    
+    SetSizeHints(-1,-1);
     if ( GetSizer() ) {
          GetSizer()->Fit(this);
     }
