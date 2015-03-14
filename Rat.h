@@ -100,7 +100,7 @@ public:
 	void	drawOptFlowMap(Mat& cflowmap, const Mat& flow, int step, const Scalar& color);
 	void	opticalFlowAnalysis(vector<Mat>& vecFlow, Point ptEar, vector <Point>& vecEye, vector <float>& vecEarFlow, bool bOffset, vector <float>& vecEyeMove);
 	void    saveDistributionAsCSVandPNG();
-	void 	linearRegression(vector <float>& vecSignal, double &c0, double &c1);
+	void 	linearRegression(vector <float>& vecSignal, vector <float>& vecOut, vector <float>& vecSubOut);
 	
 	float	findAvgMotion(Mat& mFlowROI, cv::Point ptEyeOffset);
 	float	findAvgMotion(Mat& mFlowROI);
@@ -128,8 +128,6 @@ public:
 	vector <float>  m_vecEyeLMove;
 	vector <float>  m_vecEyeRMove;
 	
-	vector <TwoPts>  m_vecEyePair;
-	vector <TwoPts>  m_vecEarPair;
 	Point	m_offsetEar; //(50, 50);
 	Point	m_offsetEye;
 
@@ -143,10 +141,7 @@ public:
 //	vector <double>  m_vecLEyeGrayDiff;
 //	vector <double>  m_vecREyeGrayDiff;
 
-	vector <float>  m_vecLEarFlow;
-	vector <float>  m_vecREarFlow;
-	vector <float>  m_vecLEarFlow_eye;
-	vector <float>  m_vecREarFlow_eye;
+
 
 	
 	int		m_nSlices ;
