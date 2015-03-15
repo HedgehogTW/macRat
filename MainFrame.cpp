@@ -77,6 +77,7 @@ void MainFrame::DeleteContents()
 	// TODO: Add your specialized code here and/or call the base class
 	m_nSlices = 0;
 	m_nCageLine = -1;
+	m_bCropped = false;
 	
 	m_bMarkEye = false;
 	m_bMarkEar = false;
@@ -122,6 +123,59 @@ void MainFrame::OnFileOpen(wxCommandEvent& event)
 	openFile(dirName);	
 	wxBell();
 }
+
+void MainFrame::readMarks(wxString &dirName)
+{
+	wxFileName fileName = dirName;
+	wxFileName dataName(dirName, "_Marks.txt");
+	if(dataName.IsFileReadable() ==false) return;
+	
+			
+	Point ptEyeL, ptEyeR, ptEarL, ptEarR;
+	Point ptAbdoEdge, ptAbdoIn;
+	int n, line;
+	char  type;
+	FILE* fp = fopen(dataName.GetFullPath(), "r");
+	do{
+		fscanf(fp, "%c", &type);
+		switch(type) {
+			case 'E': 
+				n = fscanf(fp, "%d %d %d %d\n", &ptEarL.x, &ptEarL.y, &ptEarR.x, &ptEarR.y);
+				if(n==4) {
+					m_dqEarPts.push_back(ptEarL);
+					m_dqEarPts.push_back(ptEarR);
+				}	
+				myMsgOutput("E %d %d %d\n", ptEarL.x, ptEarL.y, ptEarR.x, ptEarR.y);
+				break;	
+			case 'Y':
+				n = fscanf(fp, "%d %d %d %d\n", &ptEyeL.x, &ptEyeL.y, &ptEyeR.x, &ptEyeR.y );
+				if(n==4) {
+					m_dqEyePts.push_back(ptEyeL);
+					m_dqEyePts.push_back(ptEyeR);
+				}
+				myMsgOutput("Y %d %d %d %d\n", ptEyeL.x, ptEyeL.y, ptEyeR.x, ptEyeR.y );
+				break;
+			case 'A':
+				n = fscanf(fp, "%d %d %d %d\n", &ptAbdoEdge.x, &ptAbdoEdge.y, &ptAbdoIn.x, &ptAbdoIn.y );
+				if(n==4) {
+					m_dqAbdoPts.push_back(ptAbdoEdge);
+					m_dqAbdoPts.push_back(ptAbdoIn);
+				}		
+				myMsgOutput("A %d %d %d %d\n", ptAbdoEdge.x, ptAbdoEdge.y, ptAbdoIn.x, ptAbdoIn.y );
+				break;	
+			case 'C':
+				n = fscanf(fp, "%d\n", &line);
+				if(n==1)  m_nCageLine = line;
+				else m_nCageLine = -1;
+				myMsgOutput("C %d\n", line);
+				break;
+		}
+		
+	}while(!feof(fp));
+
+	fclose(fp);
+	
+}
 void MainFrame::openFile(wxString &dirName)
 {
 	DeleteContents();
@@ -133,49 +187,9 @@ void MainFrame::openFile(wxString &dirName)
 	if(m_Rat.readData(dirName) <=0) 
 		return;
 		
-	m_nSlices = m_Rat.getNumFrames();
-/*
-	bRet = m_Rat.horizontalLine();
-
-	if(bRet ==false) {
-		wxLogMessage("cannot detect cage line");
-		//return;
-	}
-*/	
-//	m_Rat.verticalLine(); 
-
-//	m_Rat.detectTwoLight(m_nCageLine);
-//	m_Rat.prepareData();
-		
+	readMarks(dirName);
 	
-	wxFileName fileName = dirName;
-	wxFileName dataName(dirName, "_eye_earMarks.txt");
-	if(dataName.IsFileReadable() ==true) { 	
-		Point ptEyeL, ptEyeR, ptEarL, ptEarR;
-		Point ptAbdoEdge, ptAbdoIn;
-		int n, line;
-		FILE* fp = fopen(dataName.GetFullPath(), "r");
-		n = fscanf(fp, "%d %d %d %d\n", &ptEyeL.x, &ptEyeL.y, &ptEyeR.x, &ptEyeR.y );
-		if(n==4) {
-			m_dqEyePts.push_back(ptEyeL);
-			m_dqEyePts.push_back(ptEyeR);
-		}
-			
-		n = fscanf(fp, "%d %d %d %d\n", &ptEarL.x, &ptEarL.y, &ptEarR.x, &ptEarR.y);
-		if(n==4) {
-			m_dqEarPts.push_back(ptEarL);
-			m_dqEarPts.push_back(ptEarR);
-		}	
-		n = fscanf(fp, "%d %d %d %d\n", &ptAbdoEdge.x, &ptAbdoEdge.y, &ptAbdoIn.x, &ptAbdoIn.y );
-		if(n==4) {
-			m_dqAbdoPts.push_back(ptAbdoEdge);
-			m_dqAbdoPts.push_back(ptAbdoIn);
-		}
-		n = fscanf(fp, "%d\n", &line);
-		if(n==1)  m_nCageLine = line;
-		else m_nCageLine = -1;
-		fclose(fp);
-	}
+	m_nSlices = m_Rat.getNumFrames();
 	
 	updateOutData(m_Rat.getSrcImg(0));
 
@@ -450,62 +464,81 @@ void MainFrame::recognizeLeftRight(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, 
 //	gpOutput->ShowMessage("angle %.2f\n", angle);
 }
 
-bool MainFrame::preprocessing()
+bool MainFrame::preprocessing(char pos)
 {
-	if(m_dqEyePts.size()!=2) {
-		wxMessageBox("Select eye points", "error");
-		return false;
-	}
-	if(m_dqEarPts.size()!=2) {
-		wxMessageBox("Select ear points", "error");
-		return false;
-	}
-	if(m_dqAbdoPts.size()!=2) {
-		wxMessageBox("Select abdomen points", "error");
-		return false;
-	}
+	int imgH = m_szOutImg.height;
 	if(m_nCageLine<=0) {
 		wxMessageBox("set cage horizontal line", "error");
 		return false;
+	}	
+	if(pos=='E') {
+		if(m_dqEyePts.size()!=2) {
+			wxMessageBox("Select eye points", "error");
+			return false;
+		}
+		if(m_dqEarPts.size()!=2) {
+			wxMessageBox("Select ear points", "error");
+			return false;
+		}
+	}else if(pos=='A') {
+		if(m_dqAbdoPts.size()!=2) {
+			wxMessageBox("Select abdomen points", "error");
+			return false;
+		}	
 	}
 	
-	m_Rat.detectLED(m_nCageLine);
-	m_Rat.prepareData();
-	recognizeLeftRight(m_dqEyePts[0], m_dqEyePts[1], m_dqEarPts[0], m_dqEarPts[1]);
-
-	updateOutData(m_Rat.getSrcImg(0));
-
-	// save eye ear marks 
-	Point ptEyeL, ptEyeR, ptEarL, ptEarR, ptAbdoBo, ptAbdoIn;
-	ptEyeL = m_dqEyePts[0];
-	ptEyeR = m_dqEyePts[1];
-	ptEarL = m_dqEarPts[0];
-	ptEarR = m_dqEarPts[1];
-	ptAbdoBo = m_dqAbdoPts[0];
-	ptAbdoIn = m_dqAbdoPts[1];
-	
-	wxFileName dataName(m_strSourcePath, "_eye_earMarks.txt");
+	wxFileName dataName(m_strSourcePath, "_Marks.txt");
 	FILE* fp = fopen(dataName.GetFullPath(), "w");
 	if(fp!=NULL) {
-		fprintf(fp, "%d %d %d %d\n", ptEyeL.x, ptEyeL.y, ptEyeR.x, ptEyeR.y );
-		fprintf(fp, "%d %d %d %d\n", ptEarL.x, ptEarL.y, ptEarR.x, ptEarR.y );
-		fprintf(fp, "%d %d %d %d\n", ptAbdoBo.x, ptAbdoBo.y, ptAbdoIn.x, ptAbdoIn.y );
-		fprintf(fp, "%d\n", m_nCageLine );
+		if(m_dqEyePts.size()>=2) {
+			fprintf(fp, "Y%d %d %d %d\n", m_dqEyePts[0].x, m_dqEyePts[0].y, m_dqEyePts[1].x, m_dqEyePts[1].y );
+			myMsgOutput("Left Eye: [%d, %d], Right Eye: [%d, %d]\n", m_dqEyePts[0].x, m_dqEyePts[0].y, m_dqEyePts[1].x, m_dqEyePts[1].y );
+		}
+		if(m_dqEarPts.size()>=2) {
+			fprintf(fp, "E%d %d %d %d\n", m_dqEarPts[0].x, m_dqEarPts[0].y, m_dqEarPts[1].x, m_dqEarPts[1].y );
+			myMsgOutput("Left Ear: [%d, %d], Right Ear: [%d, %d]\n", m_dqEarPts[0].x, m_dqEarPts[0].y, m_dqEarPts[1].x, m_dqEarPts[1].y);
+		}
+		if(m_dqAbdoPts.size()>=2) {
+			fprintf(fp, "A%d %d %d %d\n", m_dqAbdoPts[0].x, m_dqAbdoPts[0].y, m_dqAbdoPts[1].x, m_dqAbdoPts[1].y );
+			myMsgOutput("Abdomen Border: [%d, %d], Inside Abdomen [%d, %d]\n",m_dqAbdoPts[0].x, m_dqAbdoPts[0].y, m_dqAbdoPts[1].x, m_dqAbdoPts[1].y );
+		}
+		if(m_nCageLine >0)
+			fprintf(fp, "C%d\n", m_nCageLine );
 		fclose(fp);
 	}
 	
+	if(m_Rat.detectLED(m_nCageLine)==false) {
+		wxString str;
+		str.Printf("detectLED error, LED1 %d, LED2 %d, LED end %d", m_Rat.m_nLED1, m_Rat.m_nLED2, m_Rat.m_nLED_End);
+		wxLogMessage(str);
+		return false;
+	}
+	m_bCropped = m_Rat.prepareData();
+	updateOutData(m_Rat.getSrcImg(0));	
+	
+	if(pos=='E' && m_nCageLine < imgH/2) {
+		m_dqEyePts[0].y -= m_nCageLine;
+		m_dqEyePts[1].y -= m_nCageLine;
+		m_dqEarPts[0].y -= m_nCageLine;
+		m_dqEarPts[1].y -= m_nCageLine;	
+	}
+	if(pos=='A' && m_nCageLine < imgH/2) {
+		m_dqAbdoPts[0].y -= m_nCageLine;
+		m_dqAbdoPts[1].y -= m_nCageLine;
+	}	
+	
+	if(pos=='E') {
+		recognizeLeftRight(m_dqEyePts[0], m_dqEyePts[1], m_dqEarPts[0], m_dqEarPts[1]);
+	}
+
 	myMsgOutput("After preprocessing, %d frames are used, cage size w%d, h%d\n",
 		m_nSlices, m_Rat.m_szImg.width, m_Rat.m_szImg.height );	
-
-	myMsgOutput("Left Eye: [%d, %d], Right Eye: [%d, %d]\n", ptEyeL.x, ptEyeL.y, ptEyeR.x, ptEyeR.y);
-	myMsgOutput("Left Ear: [%d, %d], Right Ear: [%d, %d]\n", ptEarL.x, ptEarL.y, ptEarR.x, ptEarR.y);
-	myMsgOutput("Abdomen Border: [%d, %d], Inside Abdomen [%d, %d]\n", ptAbdoBo.x, ptAbdoBo.y, ptAbdoIn.x, ptAbdoIn.y);
 	
 	return true;
 }
 void MainFrame::OnRatProcessEar(wxCommandEvent& event)
 {
-	if(preprocessing()==false)  {
+	if(preprocessing('E')==false)  {
 		//wxLogMessage("preprocessing error");
 		return;
 	}
@@ -514,45 +547,20 @@ void MainFrame::OnRatProcessEar(wxCommandEvent& event)
 	if(bRet ==false) return;
 	
 	updateOutData(m_Rat.getResultImg(0));
-	
-//	m_Rat.saveEarImage();
-	
 	wxBell();	
 }
 
 void MainFrame::OnRatAbdomen(wxCommandEvent& event)
 {
-	if(preprocessing()==false)  {
-		wxLogMessage("preprocessing error");
+	if(preprocessing('A')==false)  {
+		//wxLogMessage("preprocessing error");
 		return;
 	}
 	
-	
-	Point ptEyeL, ptEyeR, ptEarL, ptAbdoEdge, ptAbdoIn;
-	ptEyeL = m_dqEyePts[0];
-	ptEyeR = m_dqEyePts[1];
-	ptEarL = m_dqEarPts[0];
-	ptAbdoEdge = m_dqAbdoPts[0];
-	ptAbdoIn = m_dqAbdoPts[1];
-	
-	bool bRet = m_Rat.processAbdomen(ptEyeL, ptEyeR, ptAbdoEdge, ptAbdoIn, ptEarL);
+	bool bRet = m_Rat.processAbdomen(m_dqAbdoPts[0], m_dqAbdoPts[1]);
 	if(bRet ==false) return;
 	
 	updateOutData(m_Rat.getResultImg(0));
-	
-	wxFileName fileName = m_strSourcePath;
-	wxString  fName = fileName.GetName();
-	wxFileName dataName(m_strSourcePath, "_"+fName+ "_motion.csv");
-	
-	myMsgOutput("output result file: " + dataName.GetFullPath() + "\n");
-	
-	FILE* fp = fopen(dataName.GetFullPath(), "w");
-	if(fp==NULL) {
-		wxMessageBox("Open output file failed:"+dataName.GetFullName(), "error");
-		return;
-	}
-
-	fclose(fp);	
 
 	wxBell();		
 }

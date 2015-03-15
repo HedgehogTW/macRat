@@ -92,13 +92,14 @@ void ScrolledImageComponent::OnDraw(wxDC& dc)
 		dc.SetBrush(*wxCYAN_BRUSH);
 		dc.DrawCircle(abdoPts[0].x, abdoPts[0].y, 2);
 
-		dc.SetPen(*wxBLUE_PEN);
-		dc.SetBrush(*wxBLUE_BRUSH);
+		dc.SetPen(*wxRED_PEN);
+		dc.SetBrush(*wxRED_BRUSH);
 		dc.DrawCircle(abdoPts[1].x, abdoPts[1].y, 2);
 	}	
 	
 	int nCageline = MainFrame::m_pThis->getCageline();
-	if(nCageline >=0) {
+	bool bCropped = MainFrame::m_pThis->getCroppedStatus();
+	if(bCropped==false &&  nCageline >=0) {
 		dc.SetPen(*wxYELLOW_PEN);
 		dc.DrawLine(wxPoint(0, nCageline), wxPoint(m_nWidth, nCageline));
 	}

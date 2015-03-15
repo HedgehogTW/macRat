@@ -44,7 +44,9 @@ public:
 	deque<Point>& 	getEarPts() { return m_dqEarPts; }
 	deque<Point>& 	getAbdoPts() { return m_dqAbdoPts; }
 	int				getCageline() { return m_nCageLine; }
-	bool			preprocessing();
+	bool			getCroppedStatus()  { return m_bCropped; }
+	bool			preprocessing(char pos);
+	void 			readMarks(wxString &dirName);
 	
 	static void myMsgOutput(wxString szFormat,...) {
 		wxString strMsg;
@@ -105,6 +107,7 @@ protected:
 	CRat	m_Rat;
 	int		m_nSlices ;
 	int		m_nCageLine;
+	bool	m_bCropped;
 ////////////////////////////////mark eyes and ears
 	bool    m_bMarkEye;
 	bool    m_bMarkEar;

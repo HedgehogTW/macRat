@@ -68,11 +68,11 @@ public:
 	void	saveResult(const char *subpath, vector <Mat> &vecDest);
 	bool	detectLED(int nCageLine);
 	Point	aspectRatio(vector<cv::Point> &con, double &ratio, double &angle );
-	void	prepareData();
+	bool	prepareData();
 	void 	DC_removal(int nFirstLED, vector <float>& vecSignal);
 	void	getLightRange(int& from, int& to) { from = m_nLED1; to = m_nLED_End; }
 
-	bool	processAbdomen(Point ptEyeL, Point ptEyeR, Point ptAbdoEdge, Point ptAbdoIn, Point ptEar);
+	bool	processAbdomen(Point ptAbdoBorder, Point ptAbdoIn);
 	bool	processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR);
 
 	void 	findEyeCenter(Point& ptEye0, vector <Point>& vecEye, vector <float>&  vecEyeMove);
@@ -88,17 +88,17 @@ public:
 	void 	saveEyeTrajectory();
 
 	void	opticalFlow(int nFrameSteps);
-	void 	opticalDrawFlowmap(Point pt1, Point pt2, int nFrameSteps);
+	void 	opticalDrawFlowmap(Point pt1, Point pt2, int nFrameSteps, char type);
 	void 	opticalFlowDistribution(vector<Mat>& vecFlow, char* subpath, vector <float>& vecPdf1, vector <float>& vecPdf2,
 									Point pt1, Point pt2, char* extName1, char* extName2, char* title1, char* title2, float threshold);
 	void 	opticalSaveScatterPlot(vector<Mat>& vecFlow, char* subpath, Point pt1, Point pt2,
 									char* extName1, char* extName2, char* title1, char* title2, float threshold, char* pdfPath);
 
-	float 	optical_compute_movement(Mat& mFlow, Mat& mDistEar, Mat& mDistEye, Point pt, float threshold);
+	float 	optical_compute_movement(Mat& mFlow, Mat& mDistEar, Point pt, float threshold);
 	void 	saveDotDensity(Gnuplot& plotSavePGN, Mat& mFlow, Point pt, wxString& strOutName, Mat& mPdf, float threshold);	
 	float 	opticalBuildPDF(Gnuplot& plotSavePGN, Mat& mFlow, Mat& mGaus, Mat& mDist, Point pt, wxString& strOutName);
 	void	drawOptFlowMap(Mat& cflowmap, const Mat& flow, int step, const Scalar& color);
-	void	opticalFlowAnalysis(vector<Mat>& vecFlow, Point ptEar, vector <Point>& vecEye, vector <float>& vecEarFlow, bool bOffset, vector <float>& vecEyeMove);
+	void	opticalFlowAnalysis(vector<Mat>& vecFlow, Point ptEar, vector <float>& vecEarFlow);
 	void    saveDistributionAsCSVandPNG();
 	void 	linearRegression(vector <float>& vecSignal, vector <float>& vecOut, vector <float>& vecSubOut);
 	
@@ -135,7 +135,7 @@ public:
 	Point	m_ptEyeR;
 	Point	m_ptEarL;
 	Point	m_ptEarR;
-	Point 	m_ptAbdoEdge;
+	Point 	m_ptAbdoBo;
 	Point	m_ptAbdoIn;
 	
 //	vector <double>  m_vecLEyeGrayDiff;
@@ -151,8 +151,9 @@ public:
 	int		m_nLED1;
 	int		m_nLED2;	
 	int		m_nLED_End;
-
+	bool	m_bLED_OK;
 	int		m_nCageLine;
+	bool	m_bCropped;
 
 	int 	m_referFrame;
 	

@@ -40,10 +40,10 @@ protected:
     wxTextCtrl* m_textCtrlVerLine;
     wxStaticLine* m_staticLine84;
     wxCheckBox* m_checkBoxEyeMove;
-    wxCheckBox* m_checkBoxEarGray;
+    wxCheckBox* m_checkBoxGrayDiff;
     wxStaticLine* m_staticLine86;
-    wxCheckBox* m_checkBoxEarOptical;
-    wxCheckBox* m_checkBoxEarOpticalPDF;
+    wxCheckBox* m_checkBoxOptical;
+    wxCheckBox* m_checkBoxOpticalPDF;
     wxRadioButton* m_radioButtonInstan;
     wxRadioButton* m_radioButtonAccumu;
     wxStaticLine* m_staticLine78;

@@ -104,24 +104,24 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     
     gridBagSizer82->Add(m_checkBoxEyeMove, wxGBPosition(3,0), wxGBSpan(1,1), wxALL, 5);
     
-    m_checkBoxEarGray = new wxCheckBox(m_panel80, wxID_ANY, _("Ear By Graylevel"), wxDefaultPosition, wxSize(-1,-1), 0);
-    m_checkBoxEarGray->SetValue(false);
+    m_checkBoxGrayDiff = new wxCheckBox(m_panel80, wxID_ANY, _("Graylevel Difference"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_checkBoxGrayDiff->SetValue(false);
     
-    gridBagSizer82->Add(m_checkBoxEarGray, wxGBPosition(3,1), wxGBSpan(1,1), wxALL, 5);
+    gridBagSizer82->Add(m_checkBoxGrayDiff, wxGBPosition(3,1), wxGBSpan(1,1), wxALL, 5);
     
     m_staticLine86 = new wxStaticLine(m_panel80, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxLI_HORIZONTAL);
     
     gridBagSizer82->Add(m_staticLine86, wxGBPosition(4,0), wxGBSpan(1,3), wxALL|wxEXPAND, 5);
     
-    m_checkBoxEarOptical = new wxCheckBox(m_panel80, wxID_ANY, _("Ear By Opticalflow"), wxDefaultPosition, wxSize(-1,-1), 0);
-    m_checkBoxEarOptical->SetValue(false);
+    m_checkBoxOptical = new wxCheckBox(m_panel80, wxID_ANY, _("Opticalflow"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_checkBoxOptical->SetValue(false);
     
-    gridBagSizer82->Add(m_checkBoxEarOptical, wxGBPosition(5,0), wxGBSpan(1,1), wxALL, 5);
+    gridBagSizer82->Add(m_checkBoxOptical, wxGBPosition(5,0), wxGBSpan(1,1), wxALL, 5);
     
-    m_checkBoxEarOpticalPDF = new wxCheckBox(m_panel80, wxID_ANY, _("Ear By Opticalflow with PDF"), wxDefaultPosition, wxSize(-1,-1), 0);
-    m_checkBoxEarOpticalPDF->SetValue(false);
+    m_checkBoxOpticalPDF = new wxCheckBox(m_panel80, wxID_ANY, _("Opticalflow with PDF"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_checkBoxOpticalPDF->SetValue(false);
     
-    gridBagSizer82->Add(m_checkBoxEarOpticalPDF, wxGBPosition(5,1), wxGBSpan(1,2), wxALL, 5);
+    gridBagSizer82->Add(m_checkBoxOpticalPDF, wxGBPosition(5,1), wxGBSpan(1,2), wxALL, 5);
     
     m_radioButtonInstan = new wxRadioButton(m_panel80, wxID_ANY, _("Instantaneous"), wxDefaultPosition, wxSize(-1,-1), wxRB_GROUP);
     m_radioButtonInstan->SetValue(1);

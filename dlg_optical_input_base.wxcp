@@ -1286,7 +1286,7 @@
             }, {
              "type": "string",
              "m_label": "Name:",
-             "m_value": "m_checkBoxEarGray"
+             "m_value": "m_checkBoxGrayDiff"
             }, {
              "type": "multi-string",
              "m_label": "Tooltip:",
@@ -1330,7 +1330,7 @@
             }, {
              "type": "string",
              "m_label": "Label:",
-             "m_value": "Ear By Graylevel"
+             "m_value": "Graylevel Difference"
             }, {
              "type": "bool",
              "m_label": "Value:",
@@ -1428,7 +1428,7 @@
             }, {
              "type": "string",
              "m_label": "Name:",
-             "m_value": "m_checkBoxEarOptical"
+             "m_value": "m_checkBoxOptical"
             }, {
              "type": "multi-string",
              "m_label": "Tooltip:",
@@ -1472,7 +1472,7 @@
             }, {
              "type": "string",
              "m_label": "Label:",
-             "m_value": "Ear By Opticalflow"
+             "m_value": "Opticalflow"
             }, {
              "type": "bool",
              "m_label": "Value:",
@@ -1503,7 +1503,7 @@
             }, {
              "type": "string",
              "m_label": "Name:",
-             "m_value": "m_checkBoxEarOpticalPDF"
+             "m_value": "m_checkBoxOpticalPDF"
             }, {
              "type": "multi-string",
              "m_label": "Tooltip:",
@@ -1547,7 +1547,7 @@
             }, {
              "type": "string",
              "m_label": "Label:",
-             "m_value": "Ear By Opticalflow with PDF"
+             "m_value": "Opticalflow with PDF"
             }, {
              "type": "bool",
              "m_label": "Value:",
