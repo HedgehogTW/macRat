@@ -9,6 +9,7 @@ ScrolledImageComponent::ScrolledImageComponent(wxWindow* parent, wxWindowID id, 
 {
 	m_bitmap = NULL;
 	m_nWidth = 0;
+	m_nHeight = 0;
 	//this->Bind(wxEVT_MOTION, &MyFrame::OnMouseMotion, this);
 }
 
@@ -52,6 +53,7 @@ void ScrolledImageComponent::setImage(cv::Mat& mat)
 		int h = wxIm.GetHeight();
 
 		m_nWidth = w;
+		m_nHeight = h;
 		/* init scrolled area size, scrolling speed, etc. */
 		//SetScrollbars(1,1, w, h, 0, 0);	
 		SetVirtualSize( w, h );
@@ -67,42 +69,42 @@ void ScrolledImageComponent::OnDraw(wxDC& dc)
 		dc.DrawBitmap(*m_bitmap, 0, 0, false);
 	
 	// also check wxScrolledWindow::PrepareDC
-	
-	deque<Point> & eyePts = MainFrame::m_pThis->getEyePts();
-	if(eyePts.size()>0) {
-		dc.SetPen(*wxRED_PEN);
-		dc.SetBrush(*wxRED_BRUSH);
-		for(int i=0; i<eyePts.size(); i++) {
-			dc.DrawCircle(eyePts[i].x, eyePts[i].y, 2);
-		}
-	}
-	
-	deque<Point> & earPts = MainFrame::m_pThis->getEarPts();
-	if(earPts.size()>0) {
-		dc.SetPen(*wxGREEN_PEN);
-		dc.SetBrush(*wxGREEN_BRUSH);
-		for(int i=0; i<earPts.size(); i++) {
-			dc.DrawCircle(earPts[i].x, earPts[i].y, 2);
-		}
-	}	
-	
-	deque<Point> & abdoPts = MainFrame::m_pThis->getAbdoPts();
-	if(abdoPts.size()>=2) {
-		dc.SetPen(*wxCYAN_PEN);
-		dc.SetBrush(*wxCYAN_BRUSH);
-		dc.DrawCircle(abdoPts[0].x, abdoPts[0].y, 2);
-
-		dc.SetPen(*wxRED_PEN);
-		dc.SetBrush(*wxRED_BRUSH);
-		dc.DrawCircle(abdoPts[1].x, abdoPts[1].y, 2);
-	}	
-	
 	int nCageline = MainFrame::m_pThis->getCageline();
 	bool bCropped = MainFrame::m_pThis->getCroppedStatus();
 	if(bCropped==false &&  nCageline >=0) {
 		dc.SetPen(*wxYELLOW_PEN);
 		dc.DrawLine(wxPoint(0, nCageline), wxPoint(m_nWidth, nCageline));
 	}
+	Point 	ptEyeL, ptEyeR, ptEarL, ptEarR;
+	Point 	ptAbdoBo, ptAbdoIn;
+	
+	MainFrame::m_pThis->getEyePts(ptEyeL, ptEyeR);
+	if(ptEyeL.x != 0 ) {
+		dc.SetPen(*wxRED_PEN);
+		dc.SetBrush(*wxRED_BRUSH);
+		dc.DrawCircle(ptEyeL.x, ptEyeL.y, 2);
+		dc.DrawCircle(ptEyeR.x, ptEyeR.y, 2);
+	}
+	
+	MainFrame::m_pThis->getEarPts(ptEarL, ptEarR);
+	if(ptEarL.x != 0 ) {
+		dc.SetPen(*wxGREEN_PEN);
+		dc.SetBrush(*wxGREEN_BRUSH);
+		dc.DrawCircle(ptEarL.x, ptEarL.y, 2);
+		dc.DrawCircle(ptEarR.x, ptEarR.y, 2);
+	}	
+	
+	MainFrame::m_pThis->getAbdoPts(ptAbdoBo, ptAbdoIn);
+	if(ptAbdoBo.x != 0 ) {
+		dc.SetPen(*wxCYAN_PEN);
+		dc.SetBrush(*wxCYAN_BRUSH);
+		dc.DrawCircle(ptAbdoBo.x, ptAbdoBo.y, 2);
+
+		dc.SetPen(*wxRED_PEN);
+		dc.SetBrush(*wxRED_BRUSH);
+		dc.DrawCircle(ptAbdoIn.x, ptAbdoIn.y, 2);
+	}	
+	//MainFrame:: myMsgOutput("ptAbdoBo y %d\n", ptAbdoBo.y);
 }
 
 

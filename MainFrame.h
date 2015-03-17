@@ -40,13 +40,14 @@ public:
 	void	recognizeLeftRight(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR);
 	void	recognizeInsideBody(Point& ptInside, Point& ptBorder);
 	
-	deque<Point>& 	getEyePts() { return m_dqEyePts; }
-	deque<Point>& 	getEarPts() { return m_dqEarPts; }
-	deque<Point>& 	getAbdoPts() { return m_dqAbdoPts; }
-	int				getCageline() { return m_nCageLine; }
-	bool			getCroppedStatus()  { return m_bCropped; }
-	bool			preprocessing(char pos);
-	void 			readMarks(wxString &dirName);
+	void 	getEyePts(Point& eyeL, Point& eyeR) { eyeL = m_ptEyeL; eyeR = m_ptEyeR; }
+	void 	getEarPts(Point& earL, Point& earR) { earL = m_ptEarL; earR = m_ptEarR;}
+	void 	getAbdoPts(Point& abBo, Point& abIn) { abBo = m_ptAbdoBo; abIn = m_ptAbdoIn;}
+	
+	int		getCageline() { return m_nCageLine; }
+	bool	getCroppedStatus()  { return m_bCropped; }
+	bool	preprocessing(char pos);
+	void 	readMarks(wxString &dirName);
 	
 	static void myMsgOutput(wxString szFormat,...) {
 		wxString strMsg;
@@ -103,6 +104,7 @@ protected:
 	int		m_nBpp;
 	int		m_nChannel;
 	int		m_nDepth;
+	Size	m_szOriSize;
 	Size	m_szOutImg;
 	CRat	m_Rat;
 	int		m_nSlices ;
@@ -117,7 +119,8 @@ protected:
 	deque<Point>  m_dqEyePts;
 	deque<Point>  m_dqEarPts;
 	deque<Point>  m_dqAbdoPts;
-	
+	Point 	m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR;
+	Point 	m_ptAbdoBo, m_ptAbdoIn;
 
 	long m_nFrameSteps;	
 };

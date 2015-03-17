@@ -40,7 +40,7 @@ void DlgOpticalInput::setSeriesLine(bool bEyeMove, bool bGrayDiff, bool bOptical
 	m_radioButtonInstan->SetValue(! bAccumulate);	
 }
 
-void DlgOpticalInput::setYRange(int min, int max)
+void DlgOpticalInput::setYRange(double min, double max)
 {
 	wxString  str1, str2;
 	str1 << min;
@@ -71,14 +71,14 @@ void DlgOpticalInput::getSeriesLine(bool& bEyeMove, bool& bGrayDiff, bool& bOpti
 	bAccumulate = m_radioButtonAccumu->GetValue();
 }	
 
-void DlgOpticalInput::getYRange(int& min, int& max)
+void DlgOpticalInput::getYRange(double& min, double& max)
 {
 	wxString  str = m_textCtrlYmin->GetValue();
-	long  value;
-	str.ToLong(&value);	
+	double  value;
+	str.ToDouble(&value);	
 	min = value;
 	
 	str = m_textCtrlYmax->GetValue();
-	str.ToLong(&value);	
+	str.ToDouble(&value);	
 	max = value;
 }

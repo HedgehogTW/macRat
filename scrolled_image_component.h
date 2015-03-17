@@ -20,6 +20,7 @@ public:
     void OnDraw(wxDC& dc);
 
 	int m_nWidth;
+	int m_nHeight;
 };
 
 #endif // SCROLLEDIMAGECOMPONENT_H

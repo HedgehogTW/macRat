@@ -422,7 +422,7 @@ bool CRat::processAbdomen(Point ptAbdoBorder, Point ptAbdoIn)
 	m_ptAbdoBo = ptAbdoBorder;
 	m_ptAbdoIn = ptAbdoIn;
 	
-	m_referFrame = 60;//findReferenceFrame(ptEar);
+	m_referFrame = findReferenceFrame(ptAbdoIn);
 	
 	MainFrame:: myMsgOutput("Reference frame %d\n", m_referFrame);
 	if(m_referFrame <0) {
@@ -439,7 +439,7 @@ bool CRat::processAbdomen(Point ptAbdoBorder, Point ptAbdoIn)
 	
 	/////////////////////////////////////////////////////////////optical flow
 	int  newFrameSteps;
-	static int frameStep = 2;	
+	static int frameStep = 5;	
 	static double threshold = 0.001;
 	static bool bLED = false;
 	static bool bPinna = false;
@@ -447,13 +447,13 @@ bool CRat::processAbdomen(Point ptAbdoBorder, Point ptAbdoIn)
 	
 	static bool bEyeMove = false;
 	static bool bGrayDiff = false;
-	static bool bOptical = true;
+	static bool bOptical = false;
 	static bool bOpticalPDF = true;
 	static bool bAccumulate = true;
 	
 	static double verLine = 190;
 	
-	static int  ymin, ymax;
+	static double  ymin, ymax;
 	if(bAccumulate ==false) {
 		ymin = -2;
 		ymax = 2;	
@@ -518,7 +518,7 @@ bool CRat::processAbdomen(Point ptAbdoBorder, Point ptAbdoIn)
 		DC_removal(m_nLED1, vecLEarFlowPdf);
 		DC_removal(m_nLED1, vecREarFlowPdf);				
 		
-		if(bAccumulate) {
+		if(frameStep > 0 && bAccumulate) {
 			linearRegression(vecLEarFlowPdf, vecLEarFlowPdfRegres, vecLEarFlowPdfSubRegres);
 			linearRegression(vecREarFlowPdf, vecREarFlowPdfRegres, vecREarFlowPdfSubRegres);
 		}
@@ -549,12 +549,14 @@ bool CRat::processAbdomen(Point ptAbdoBorder, Point ptAbdoIn)
 	_gnuplotInit(gPlotR, title, ymin, ymax);
 	gPlotL.set_legend("left");
 	gPlotR.set_legend("left");	
-/*	
+	gPlotL.cmd("set termoption noenhanced");
+	gPlotR.cmd("set termoption noenhanced");
+	
 	if(bLED) {
 		_gnuplotLED(gPlotL, m_nLED1, m_nLED2);
 		_gnuplotLED(gPlotR, m_nLED1, m_nLED2);
 	}
-
+/*
 	if(bPinna) {
 		if(vecLEarGrayDiff[maxPointL]> vecREarGrayDiff[maxPointR]) {
 			MainFrame:: myMsgOutput("max motion: left ear %d\n", maxPointL);
@@ -591,7 +593,7 @@ bool CRat::processAbdomen(Point ptAbdoBorder, Point ptAbdoIn)
 		_gnuplotLine(gPlotL, "Border FlowPDF", vecLEarFlowPdf, "#000000FF");
 		_gnuplotLine(gPlotR, "Inside FlowPDF", vecREarFlowPdf, "#000000FF");
 		
-		if(bAccumulate ) {
+		if(frameStep > 0 && bAccumulate ) {
 			_gnuplotLine(gPlotL, "Border PDFRegress", vecLEarFlowPdfRegres, "#000000FF", "-");
 			_gnuplotLine(gPlotR, "Inside PDFRegress", vecREarFlowPdfRegres, "#000000FF", "-");
 			
@@ -600,7 +602,6 @@ bool CRat::processAbdomen(Point ptAbdoBorder, Point ptAbdoIn)
 		}
 	}
 	
-	//gPlotL.cmd("load '../_splot_move.gpt'");
 	////////////////////// save result to dest
 	m_vecDest.resize(m_nSlices);
 	Point ptL1 (ptAbdoBorder-m_offsetEar);
@@ -674,7 +675,7 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	
 	/////////////////////////////////////////////////////////////optical flow
 	int  newFrameSteps;
-	static int frameStep = 2;	
+	static int frameStep = 5;	
 	static double threshold = 0.001;
 	static bool bLED = false;
 	static bool bPinna = false;
@@ -682,13 +683,13 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	
 	static bool bEyeMove = false;
 	static bool bGrayDiff = false;
-	static bool bOptical = true;
+	static bool bOptical = false;
 	static bool bOpticalPDF = true;
 	static bool bAccumulate = true;
 	
 	static double verLine = 190;
 	
-	static int  ymin, ymax;
+	static double  ymin, ymax;
 	if(bAccumulate ==false) {
 		ymin = -2;
 		ymax = 2;	
@@ -754,7 +755,7 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 		DC_removal(m_nLED1, vecLEarFlowPdf);
 		DC_removal(m_nLED1, vecREarFlowPdf);				
 		
-		if(bAccumulate) {
+		if(frameStep > 0 && bAccumulate) {
 			linearRegression(vecLEarFlowPdf, vecLEarFlowPdfRegres, vecLEarFlowPdfSubRegres);
 			linearRegression(vecREarFlowPdf, vecREarFlowPdfRegres, vecREarFlowPdfSubRegres);
 		}
@@ -784,7 +785,10 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	_gnuplotInit(gPlotL, title, ymin, ymax);
 	_gnuplotInit(gPlotR, title, ymin, ymax);
 	gPlotL.set_legend("left");
-	gPlotR.set_legend("left");		
+	gPlotR.set_legend("left");	
+	gPlotL.cmd("set termoption noenhanced");
+	gPlotR.cmd("set termoption noenhanced");
+	
 	if(bLED) {
 		_gnuplotLED(gPlotL, m_nLED1, m_nLED2);
 		_gnuplotLED(gPlotR, m_nLED1, m_nLED2);
@@ -825,7 +829,7 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 		_gnuplotLine(gPlotL, "LEarPDF", vecLEarFlowPdf, "#000000FF");
 		_gnuplotLine(gPlotR, "REarPDF", vecREarFlowPdf, "#000000FF");
 		
-		if(bAccumulate ) {
+		if(frameStep > 0 && bAccumulate ) {
 			_gnuplotLine(gPlotL, "LEarPDFRegress", vecLEarFlowPdfRegres, "#000000FF", "-");
 			_gnuplotLine(gPlotR, "REarPDFRegress", vecREarFlowPdfRegres, "#000000FF", "-");
 			

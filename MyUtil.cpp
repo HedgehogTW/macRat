@@ -8,7 +8,7 @@
 
  
 //Gnuplot gnuPlot("lines");
-void _gnuplotInit(Gnuplot& gnuPlot, const char* title, int ymin, int ymax)
+void _gnuplotInit(Gnuplot& gnuPlot, const char* title, double ymin, double ymax)
 {
 	gnuPlot.reset_all();
 	gnuPlot.set_title(title);
