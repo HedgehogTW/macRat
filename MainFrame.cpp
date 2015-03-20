@@ -88,7 +88,7 @@ void MainFrame::DeleteContents()
 	m_dqEarPts.clear();
 	m_dqAbdoPts.clear();
 	
-	m_ptAbdoBo = m_ptAbdoIn = m_ptEyeL = m_ptEyeR = m_ptEarL = m_ptEarR = Point(0,0);
+	m_ptAbdoRed = m_ptAbdoCyan = m_ptEyeL = m_ptEyeR = m_ptEarL = m_ptEarR = Point(0,0);
 }
 void MainFrame::OnMRUFile(wxCommandEvent& event)
 {
@@ -134,7 +134,7 @@ void MainFrame::readMarks(wxString &dirName)
 	
 			
 	Point ptEyeL, ptEyeR, ptEarL, ptEarR;
-	Point ptAbdoEdge, ptAbdoIn;
+	Point ptAbdoRed, ptAbdoCyan;
 	int n, line;
 	char  type;
 	FILE* fp = fopen(dataName.GetFullPath(), "r");
@@ -162,14 +162,14 @@ void MainFrame::readMarks(wxString &dirName)
 				myMsgOutput("Y %d %d %d %d\n", ptEyeL.x, ptEyeL.y, ptEyeR.x, ptEyeR.y );
 				break;
 			case 'A':
-				n = fscanf(fp, "%d %d %d %d\n", &ptAbdoEdge.x, &ptAbdoEdge.y, &ptAbdoIn.x, &ptAbdoIn.y );
+				n = fscanf(fp, "%d %d %d %d\n", &ptAbdoRed.x, &ptAbdoRed.y, &ptAbdoCyan.x, &ptAbdoCyan.y );
 				if(n==4) {
-					m_dqAbdoPts.push_back(ptAbdoEdge);
-					m_dqAbdoPts.push_back(ptAbdoIn);
-					m_ptAbdoBo = m_dqAbdoPts[0];
-					m_ptAbdoIn = m_dqAbdoPts[1];
+					m_dqAbdoPts.push_back(ptAbdoRed);
+					m_dqAbdoPts.push_back(ptAbdoCyan);
+					m_ptAbdoRed = m_dqAbdoPts[0];
+					m_ptAbdoCyan = m_dqAbdoPts[1];
 				}		
-				myMsgOutput("A %d %d %d %d\n", ptAbdoEdge.x, ptAbdoEdge.y, ptAbdoIn.x, ptAbdoIn.y );
+				myMsgOutput("A Red[%d %d], Cyan[%d %d]\n", ptAbdoRed.x, ptAbdoRed.y, ptAbdoCyan.x, ptAbdoCyan.y );
 				break;	
 			case 'C':
 				n = fscanf(fp, "%d\n", &line);
@@ -238,12 +238,13 @@ void MainFrame::updateOutData(Mat& mOut)
 
 }
 
-
+/*
 void MainFrame::OnMouseLDown(wxMouseEvent& event)
 {
 //	wxPoint pt = m_staticBitmap->GetLogicalPosition
 
 }
+ * */
 void MainFrame::OnViewMsgPane(wxCommandEvent& event)
 {
 
@@ -421,23 +422,38 @@ void MainFrame::OnLeftButtonDown(wxMouseEvent& event)
 		Point ptEye = Point(pt.x, pt.y);
 		m_dqEyePts.push_back(ptEye);
 		int sz = m_dqEyePts.size();
-		if(sz==1)	m_ptEyeL = m_dqEyePts[0];
-		else if(sz==2)	m_ptEyeR = m_dqEyePts[1];			
-		else if(sz>2) 	m_dqEyePts.pop_front();
+        if(sz>2) 	{
+            m_dqEyePts.pop_front();	
+            sz--;
+        }
+        for(int i=0; i<sz; i++) {
+            if(i==0)	m_ptEyeL = m_dqEyePts[0];
+            if(i==1)	m_ptEyeR = m_dqEyePts[1];			
+		}
 	}else if(m_bMarkEar) {
 		Point ptEar = Point(pt.x, pt.y);
 		m_dqEarPts.push_back(ptEar);
 		int sz = m_dqEarPts.size();
-		if(sz==1)	m_ptEarL = m_dqEarPts[0];
-		else if(sz==2)	m_ptEarR = m_dqEarPts[1];			
-		else if(sz>2) 	m_dqEarPts.pop_front();		
+        if(sz>2) 	{
+            m_dqEarPts.pop_front();	
+            sz--;
+        }
+        for(int i=0; i<sz; i++) {
+            if(i==0)	m_ptEarL = m_dqEarPts[0];
+            if(i==1)	m_ptEarR = m_dqEarPts[1];			
+		}	
 	}else if(m_bMarkAbdomen) {
 		Point ptEar = Point(pt.x, pt.y);
 		m_dqAbdoPts.push_back(ptEar);
 		int sz = m_dqAbdoPts.size();
-		if(sz==1)	m_ptAbdoBo = m_dqAbdoPts[0];
-		else if(sz==2)	m_ptAbdoIn = m_dqAbdoPts[1];			
-		else if(sz>2) 	m_dqAbdoPts.pop_front();	
+        if(sz>2)  {	
+            m_dqAbdoPts.pop_front();
+            sz--;
+        }
+        for(int i=0; i<sz; i++) {
+            if(i==0)	m_ptAbdoRed = m_dqAbdoPts[0];
+            if(i==1)	m_ptAbdoCyan = m_dqAbdoPts[1];
+        }
 	}else if(m_bMarkCageline) {
 		m_nCageLine = pt.y;
 		myMsgOutput("cage line %d\n", m_nCageLine);
@@ -570,16 +586,16 @@ void MainFrame::OnRatAbdomen(wxCommandEvent& event)
 		return;
 	}
 	//Point ptAbdoBo, ptAbdoIn;
-	m_ptAbdoBo = m_dqAbdoPts[0];
-	m_ptAbdoIn = m_dqAbdoPts[1];
+	m_ptAbdoRed = m_dqAbdoPts[0];
+	m_ptAbdoCyan = m_dqAbdoPts[1];
 	
 	int imgH = m_szOriSize.height;
 	if(m_nCageLine < imgH/2) {
-		m_ptAbdoBo.y -= m_nCageLine;
-		m_ptAbdoIn.y -= m_nCageLine;	
+		m_ptAbdoRed.y -= m_nCageLine;
+		m_ptAbdoCyan.y -= m_nCageLine;	
 	}	
 	
-	bool bRet = m_Rat.processAbdomen(m_ptAbdoBo, m_ptAbdoIn);
+	bool bRet = m_Rat.processAbdomen(m_ptAbdoRed, m_ptAbdoCyan);
 	if(bRet ==false) return;
 	
 	updateOutData(m_Rat.getResultImg(0));

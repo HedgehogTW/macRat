@@ -76,7 +76,6 @@ void ScrolledImageComponent::OnDraw(wxDC& dc)
 		dc.DrawLine(wxPoint(0, nCageline), wxPoint(m_nWidth, nCageline));
 	}
 	Point 	ptEyeL, ptEyeR, ptEarL, ptEarR;
-	Point 	ptAbdoBo, ptAbdoIn;
 	
 	MainFrame::m_pThis->getEyePts(ptEyeL, ptEyeR);
 	if(ptEyeL.x != 0 ) {
@@ -94,15 +93,16 @@ void ScrolledImageComponent::OnDraw(wxDC& dc)
 		dc.DrawCircle(ptEarR.x, ptEarR.y, 2);
 	}	
 	
-	MainFrame::m_pThis->getAbdoPts(ptAbdoBo, ptAbdoIn);
-	if(ptAbdoBo.x != 0 ) {
-		dc.SetPen(*wxCYAN_PEN);
-		dc.SetBrush(*wxCYAN_BRUSH);
-		dc.DrawCircle(ptAbdoBo.x, ptAbdoBo.y, 2);
-
+    Point 	ptAbdoRed, ptAbdoCyan;
+	MainFrame::m_pThis->getAbdoPts(ptAbdoRed, ptAbdoCyan);
+	if(ptAbdoRed.x != 0 ) {
 		dc.SetPen(*wxRED_PEN);
 		dc.SetBrush(*wxRED_BRUSH);
-		dc.DrawCircle(ptAbdoIn.x, ptAbdoIn.y, 2);
+		dc.DrawCircle(ptAbdoRed.x, ptAbdoRed.y, 2);		
+        
+        dc.SetPen(*wxCYAN_PEN);
+		dc.SetBrush(*wxCYAN_BRUSH);
+		dc.DrawCircle(ptAbdoCyan.x, ptAbdoCyan.y, 2);
 	}	
 	//MainFrame:: myMsgOutput("ptAbdoBo y %d\n", ptAbdoBo.y);
 }

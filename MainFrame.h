@@ -42,7 +42,7 @@ public:
 	
 	void 	getEyePts(Point& eyeL, Point& eyeR) { eyeL = m_ptEyeL; eyeR = m_ptEyeR; }
 	void 	getEarPts(Point& earL, Point& earR) { earL = m_ptEarL; earR = m_ptEarR;}
-	void 	getAbdoPts(Point& abBo, Point& abIn) { abBo = m_ptAbdoBo; abIn = m_ptAbdoIn;}
+	void 	getAbdoPts(Point& abRed, Point& abCyan) { abRed = m_ptAbdoRed; abCyan = m_ptAbdoCyan;}
 	
 	int		getCageline() { return m_nCageLine; }
 	bool	getCroppedStatus()  { return m_bCropped; }
@@ -88,7 +88,7 @@ protected:
 	virtual void OnMouseMotion(wxMouseEvent& event);
 	virtual void OnUpdateViewMsgPane(wxUpdateUIEvent& event);
 	virtual void OnViewMsgPane(wxCommandEvent& event);
-	virtual void OnMouseLDown(wxMouseEvent& event);
+//	virtual void OnMouseLDown(wxMouseEvent& event);
 	virtual void OnFileOpen(wxCommandEvent& event);
 	void OnMRUFile(wxCommandEvent& event);
 	void openFile(wxString &dirName);
@@ -120,7 +120,7 @@ protected:
 	deque<Point>  m_dqEarPts;
 	deque<Point>  m_dqAbdoPts;
 	Point 	m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR;
-	Point 	m_ptAbdoBo, m_ptAbdoIn;
+	Point 	m_ptAbdoRed, m_ptAbdoCyan;
 
 	long m_nFrameSteps;	
 };

@@ -417,12 +417,12 @@ void CRat::DC_removal(int nFirstLED, vector <float>& vecSignal)
 	for(int i=0; i<nFirstLED; i++)  vecSignal[i] -= mean;	
 }
 
-bool CRat::processAbdomen(Point ptAbdoBorder, Point ptAbdoIn)
+bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 {
-	m_ptAbdoBo = ptAbdoBorder;
-	m_ptAbdoIn = ptAbdoIn;
+	m_ptAbdoRed = ptAbdoRed;
+	m_ptAbdoCyan = ptAbdoCyan;
 	
-	m_referFrame = findReferenceFrame(ptAbdoIn);
+	m_referFrame = findReferenceFrame(m_ptAbdoRed);
 	
 	MainFrame:: myMsgOutput("Reference frame %d\n", m_referFrame);
 	if(m_referFrame <0) {
@@ -430,12 +430,12 @@ bool CRat::processAbdomen(Point ptAbdoBorder, Point ptAbdoIn)
 		return false;
 	}	
 	
-	vector <float>  vecAbdoBoGrayDiff;
-	vector <float>  vecAbdoInGrayDiff;
-	graylevelDiff(m_referFrame, ptAbdoBorder, ptAbdoIn, vecAbdoBoGrayDiff, vecAbdoInGrayDiff);
+	vector <float>  vecAbdoRedGrayDiff;
+	vector <float>  vecAbdoCyanGrayDiff;
+	graylevelDiff(m_referFrame, ptAbdoRed, ptAbdoCyan, vecAbdoRedGrayDiff, vecAbdoCyanGrayDiff);
 	
-	DC_removal(m_nLED1, vecAbdoBoGrayDiff);
-	DC_removal(m_nLED1, vecAbdoInGrayDiff);
+	DC_removal(m_nLED1, vecAbdoRedGrayDiff);
+	DC_removal(m_nLED1, vecAbdoCyanGrayDiff);
 	
 	/////////////////////////////////////////////////////////////optical flow
 	int  newFrameSteps;
@@ -454,16 +454,18 @@ bool CRat::processAbdomen(Point ptAbdoBorder, Point ptAbdoIn)
 	static double verLine = 190;
 	
 	static double  ymin, ymax;
-	if(bAccumulate ==false) {
-		ymin = -2;
-		ymax = 2;	
-	}else if(frameStep==0) {
+    if(frameStep==0) {
 		ymin = -2;
 		ymax = 25;
 	}else {
-		ymin = -20;
-		ymax = 120;
-	}
+		if(bAccumulate ==false) {
+            ymin = -2;
+            ymax = 2;	
+        }else {
+            ymin = -20;
+            ymax = 120;
+        }		
+	} 
 	
 	DlgOpticalInput dlg(frameStep, threshold, MainFrame::m_pThis);
 	dlg.setVerticalLine(bLED, bPinna, bVerLine, verLine);
@@ -483,8 +485,8 @@ bool CRat::processAbdomen(Point ptAbdoBorder, Point ptAbdoIn)
 	start = clock();
 	
 	wxBeginBusyCursor();
-	vector <float>  vecLEarFlow;  // border
-	vector <float>  vecREarFlow;  // in
+	vector <float>  vecLEarFlow;  // Red
+	vector <float>  vecREarFlow;  // Cyan
 	vector <float>  vecLEarFlowPdf;
 	vector <float>  vecREarFlowPdf;
 	vector <float>  vecLEarFlowPdfRegres;
@@ -501,13 +503,15 @@ bool CRat::processAbdomen(Point ptAbdoBorder, Point ptAbdoIn)
 	MainFrame:: myMsgOutput("PDF threshold %f, frame steps %d, bAccumulate %d, y range [%d, %d]\n", 
 			threshold, frameStep, bAccumulate, ymin, ymax);
 	
-	opticalDrawFlowmap(ptAbdoBorder, ptAbdoIn, frameStep, 'A');
+//	opticalDrawFlowmap(ptAbdoRed, ptAbdoCyan, frameStep, 'A');
 	
 	if(bOpticalPDF) {
-		opticalFlowDistribution(m_vecFlow, "pdf", vecLEarFlowPdf, vecREarFlowPdf, ptAbdoBorder, ptAbdoIn, 
-									"_Border", "_In", "Border", "Inside", threshold);
-		opticalSaveScatterPlot(m_vecFlow, "scatter", ptAbdoBorder, ptAbdoIn, "_Border", "_In", "Border", "Inside", threshold, "pdf");
+		opticalFlowDistribution(m_vecFlow, "pdf", vecLEarFlowPdf, vecREarFlowPdf, ptAbdoRed, ptAbdoCyan, 
+									"_Red", "_Cyan", "Red", "Cyan", threshold);
+		opticalScatterPlotSave(m_vecFlow, "scatter", ptAbdoRed, ptAbdoCyan, "_Red", "_Cyan", "Red", "Cyan", threshold, "pdf");
 		
+        opticalDrawFlowmapWithPDF(ptAbdoRed, ptAbdoCyan, frameStep, 'A', threshold);
+        
 		int sz = vecLEarFlowPdf.size();
 		if(frameStep > 0 && bAccumulate) {
 			for(int i=+1; i<sz; i++) {
@@ -525,8 +529,8 @@ bool CRat::processAbdomen(Point ptAbdoBorder, Point ptAbdoIn)
 	}
 	 
 	if(bOptical) {
-		opticalFlowAnalysis(m_vecFlow, ptAbdoBorder, vecLEarFlow);
-		opticalFlowAnalysis(m_vecFlow, ptAbdoIn, vecREarFlow);	
+		opticalFlowAnalysis(m_vecFlow, ptAbdoRed, vecLEarFlow);
+		opticalFlowAnalysis(m_vecFlow, ptAbdoCyan, vecREarFlow);	
 		
 		int sz = vecLEarFlow.size();
 		if(frameStep > 0 && bAccumulate) {	
@@ -582,32 +586,32 @@ bool CRat::processAbdomen(Point ptAbdoBorder, Point ptAbdoIn)
 	}
 	 */ 
 	if(bGrayDiff) {
-		_gnuplotLine(gPlotL, "Border GraylevelDiff", vecAbdoBoGrayDiff, "#00008000");
-		_gnuplotLine(gPlotR, "Inside GraylevelDiff", vecAbdoInGrayDiff, "#00008000");
+		_gnuplotLine(gPlotL, "Red GraylevelDiff", vecAbdoRedGrayDiff, "#00008000");
+		_gnuplotLine(gPlotR, "Cyan GraylevelDiff", vecAbdoCyanGrayDiff, "#00008000");
 	}
 	if(bOptical) {
-		_gnuplotLine(gPlotL, "Border Flow", vecLEarFlow, "#00FF4500");
-		_gnuplotLine(gPlotR, "Inside Flow", vecREarFlow, "#00FF4500");
+		_gnuplotLine(gPlotL, "Red Flow", vecLEarFlow, "#00FF4500");
+		_gnuplotLine(gPlotR, "Cyan Flow", vecREarFlow, "#00FF4500");
 	}
 	if(bOpticalPDF) {
-		_gnuplotLine(gPlotL, "Border FlowPDF", vecLEarFlowPdf, "#000000FF");
-		_gnuplotLine(gPlotR, "Inside FlowPDF", vecREarFlowPdf, "#000000FF");
+		_gnuplotLine(gPlotL, "Red FlowPDF", vecLEarFlowPdf, "#000000FF");
+		_gnuplotLine(gPlotR, "Cyan FlowPDF", vecREarFlowPdf, "#000000FF");
 		
 		if(frameStep > 0 && bAccumulate ) {
-			_gnuplotLine(gPlotL, "Border PDFRegress", vecLEarFlowPdfRegres, "#000000FF", "-");
-			_gnuplotLine(gPlotR, "Inside PDFRegress", vecREarFlowPdfRegres, "#000000FF", "-");
+			_gnuplotLine(gPlotL, "Red PDFRegress", vecLEarFlowPdfRegres, "#000000FF", "-");
+			_gnuplotLine(gPlotR, "Cyan PDFRegress", vecREarFlowPdfRegres, "#000000FF", "-");
 			
-			_gnuplotLine(gPlotL, "Border PDF-Regress", vecLEarFlowPdfSubRegres, "#00FF0000");
-			_gnuplotLine(gPlotR, "Inside PDF-Regress", vecREarFlowPdfSubRegres, "#00FF0000");
+			_gnuplotLine(gPlotL, "Red PDF-Regress", vecLEarFlowPdfSubRegres, "#00FF0000");
+			_gnuplotLine(gPlotR, "Cyan PDF-Regress", vecREarFlowPdfSubRegres, "#00FF0000");
 		}
 	}
 	
 	////////////////////// save result to dest
 	m_vecDest.resize(m_nSlices);
-	Point ptL1 (ptAbdoBorder-m_offsetEar);
-	Point ptL2 (ptAbdoBorder+m_offsetEar);
-	Point ptR1 (ptAbdoIn-m_offsetEar);
-	Point ptR2 (ptAbdoIn+m_offsetEar);
+	Point ptL1 (ptAbdoRed-m_offsetEar);
+	Point ptL2 (ptAbdoRed+m_offsetEar);
+	Point ptR1 (ptAbdoCyan-m_offsetEar);
+	Point ptR2 (ptAbdoCyan+m_offsetEar);
 	
 	
 	for (int i = 0; i < m_nSlices; i++)
@@ -690,16 +694,19 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	static double verLine = 190;
 	
 	static double  ymin, ymax;
-	if(bAccumulate ==false) {
-		ymin = -2;
-		ymax = 2;	
-	}else if(frameStep==0) {
+    if(frameStep==0) {
 		ymin = -2;
 		ymax = 25;
 	}else {
-		ymin = -20;
-		ymax = 120;
-	}
+		if(bAccumulate ==false) {
+            ymin = -2;
+            ymax = 2;	
+        }else {
+            ymin = -20;
+            ymax = 120;
+        }		
+	} 
+
 	
 	DlgOpticalInput dlg(frameStep, threshold, MainFrame::m_pThis);
 	dlg.setVerticalLine(bLED, bPinna, bVerLine, verLine);
@@ -738,13 +745,15 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	MainFrame:: myMsgOutput("PDF threshold %f, frame steps %d, bAccumulate %d, y range [%d, %d]\n", 
 			threshold, frameStep, bAccumulate, ymin, ymax);
 	
-	opticalDrawFlowmap(m_ptEarL, m_ptEarR, frameStep, 'E');
+	//opticalDrawFlowmap(m_ptEarL, m_ptEarR, frameStep, 'E');
 	
 	if(bOpticalPDF) {
 		opticalFlowDistribution(m_vecFlow, "pdf", vecLEarFlowPdf, vecREarFlowPdf, m_ptEarL, m_ptEarR, 
 									"_EarL", "_EarR", "Left Ear", "Right Ear", threshold);
-		opticalSaveScatterPlot(m_vecFlow, "scatter", m_ptEarL, m_ptEarR, "_EarL", "_EarR", "Left Ear", "Right Ear", threshold, "pdf");
+		opticalScatterPlotSave(m_vecFlow, "scatter", m_ptEarL, m_ptEarR, "_EarL", "_EarR", "Left Ear", "Right Ear", threshold, "pdf");
 		
+        opticalDrawFlowmapWithPDF(m_ptEarL, m_ptEarR, frameStep, 'E', threshold);
+        
 		int sz = vecLEarFlowPdf.size();
 		if(frameStep > 0 && bAccumulate) {
 			for(int i=+1; i<sz; i++) {
@@ -1309,7 +1318,123 @@ void CRat::opticalFlow(int nFrameSteps)
 	MainFrame:: myMsgOutput("Opticalflow computation time: %02dm:%02ds\n", minutes, second);
 	MainFrame:: myMsgOutput("Opticalflow done, m_vecFlow size %d------\n", m_vecFlow.size());
 }
+bool CRat::opticalLoadPDFfile(uchar* filename, Mat &mPdf)
+{
+    float  probability;
+    FILE* fpPdf = fopen(filename, "r");
+    if(fpPdf ==NULL) {
+        //wxString str;
+        //str << filename << ": read error";
+        //wxLogMessage(str);
+        return false;
+    }
+    for(int i=0; i<EAR_RECT; i++)
+        for(int c=0; c<EAR_RECT; c++) {
+            fscanf(fpPdf, "%f", &probability);
+            mPdf.at<float>(i, c) = probability;
+        }
+    fclose(fpPdf);  
 
+    return true;
+}
+void CRat::opticalAssignThresholdMap(Mat& mThMap, Mat& mFlow, Mat& mPdf, float th, Point pt)
+{
+    Point p1 (pt-m_offsetEar);
+    Point p2 (pt+m_offsetEar);
+
+    Mat mROI(mFlow, Rect(p1, p2));
+    for(int y = 0; y < mROI.rows; y ++)
+        for(int x = 0; x < mROI.cols; x ++)
+        {
+            Point2f fxy = mROI.at<Point2f>(y, x);
+            Point2f fxy1 = fxy + Point2f(20, 20);
+            
+            if(fxy1.x >= 40 || fxy1.x <0)  continue;
+            if(fxy1.y >= 40 || fxy1.y <0)  continue;
+            
+            float probability = mPdf.at<float>(fxy1.y+0.5, fxy1.x+0.5);
+            if(probability >= th) 	
+                mThMap.at<uchar>(y+p1.y,x+p1.x) = 1;
+        }      
+}
+void CRat::opticalDrawFlowmapWithPDF(Point pt1, Point pt2, int nFrameSteps, char type, float threshold)
+{
+	vector <Mat> vecFlowmap;
+	vecFlowmap.clear();
+	vecFlowmap.resize(m_nSlices  - nFrameSteps);
+
+	Point ptEyeC;
+	if(type =='E') {
+		ptEyeC.x= (m_vecEyeL[m_referFrame].x+m_vecEyeR[m_referFrame].x)/2;
+		ptEyeC.y= (m_vecEyeL[m_referFrame].y+m_vecEyeR[m_referFrame].y)/2;
+	}
+    wxString pdfName1, pdfName2, pdfNameEye; 
+    char pdfPath[] = "pdf";
+    Mat mPdf(EAR_RECT, EAR_RECT, CV_32FC1);	
+    Mat mThMap(m_vecFlow[0].size(), CV_8UC1);
+	for(int i=0; i<m_nSlices - nFrameSteps; i++) {
+		// assign pdf filename
+		wxFileName fileName = wxString(m_vFilenames[i]);
+		fileName.AppendDir(pdfPath);
+		wxFileName pdfFilename(fileName.GetPath(), fileName.GetName());
+        if(type=='A') {
+            pdfName1 = pdfFilename.GetFullPath()+ "_Red.txt";
+            pdfName2 = pdfFilename.GetFullPath()+ "_Cyan.txt";
+        }else if(type=='E') {
+            pdfName1 = pdfFilename.GetFullPath()+ "_EarL.txt";
+            pdfName2 = pdfFilename.GetFullPath()+ "_EarR.txt";
+            pdfNameEye = pdfFilename.GetFullPath()+ "_Eye.txt";
+        }
+ 
+        mThMap = Scalar(0);  
+        Mat& mFlow = m_vecFlow[i]; 
+     
+        if(opticalLoadPDFfile(pdfName1.ToAscii(), mPdf))
+            opticalAssignThresholdMap(mThMap, mFlow, mPdf, threshold, pt1);
+            
+        if(opticalLoadPDFfile(pdfName2.ToAscii(), mPdf))
+            opticalAssignThresholdMap(mThMap, mFlow, mPdf, threshold, pt2);        
+ 
+        if(opticalLoadPDFfile(pdfNameEye.ToAscii(), mPdf))
+            opticalAssignThresholdMap(mThMap, mFlow, mPdf, threshold, ptEyeC);  
+        
+		Mat mSrc2 = m_vecMat[i+nFrameSteps];				
+		Mat& mFlowmapColor = vecFlowmap[i];
+		
+        cvtColor(mSrc2, mFlowmapColor, CV_GRAY2BGR);
+		drawOptFlowMapWithPDF(mFlowmapColor, mFlow, 4, mThMap);
+
+		cv::rectangle(mFlowmapColor,pt1-m_offsetEar, pt1+m_offsetEar, cv::Scalar(0, 0, 255));
+		cv::rectangle(mFlowmapColor,pt2-m_offsetEar, pt2+m_offsetEar, cv::Scalar(0, 0, 255));
+		if(type =='E') {
+			// new positions of eyes 
+			circle(mFlowmapColor, Point(m_vecEyeL[i].x, m_vecEyeL[i].y), 3, Scalar(0, 0, 255), -1);	
+			circle(mFlowmapColor, Point(m_vecEyeR[i].x, m_vecEyeR[i].y), 3, Scalar(0, 0, 255), -1);
+			// reference eyes
+			circle(mFlowmapColor, Point(m_vecEyeL[m_referFrame].x, m_vecEyeL[m_referFrame].y), 2, Scalar(0, 255, 255), -1);	
+			circle(mFlowmapColor, Point(m_vecEyeR[m_referFrame].x, m_vecEyeR[m_referFrame].y), 2, Scalar(0, 255, 255), -1);	
+	   
+			cv::rectangle(mFlowmapColor,ptEyeC-m_offsetEar,ptEyeC+m_offsetEar, cv::Scalar(255, 0, 255));
+		}
+	}
+
+	saveResult("flow", vecFlowmap);	
+}
+void CRat::drawOptFlowMapWithPDF(Mat& cflowmap, const Mat& flow,  int step, Mat &mPdfMap)
+{
+    const Scalar& colorIn = cv::Scalar(255, 0, 0);
+    const Scalar& colorOut = cv::Scalar(0, 0, 255);
+    for(int y = 0; y < cflowmap.rows; y += step)
+        for(int x = 0; x < cflowmap.cols; x += step)
+        {
+            const Point2f& fxy = flow.at<Point2f>(y, x);
+            if( mPdfMap.at<uchar>(y, x) >0 )
+                line(cflowmap, Point(x,y), Point(cvRound(x+fxy.x), cvRound(y+fxy.y)), colorIn);
+            else
+                line(cflowmap, Point(x,y), Point(cvRound(x+fxy.x), cvRound(y+fxy.y)), colorOut);
+            //circle(cflowmap, Point(x,y), 1, color, -1);
+        }
+}
 void CRat::opticalDrawFlowmap(Point pt1, Point pt2, int nFrameSteps, char type)
 {
 	vector <Mat> vecFlowmap;
@@ -1347,7 +1472,9 @@ void CRat::opticalDrawFlowmap(Point pt1, Point pt2, int nFrameSteps, char type)
 
 	saveResult("flow", vecFlowmap);	
 }
-void CRat::opticalSaveScatterPlot(vector<Mat>& vecFlow, char* subpath, Point pt1, Point pt2,
+
+
+void CRat::opticalScatterPlotSave(vector<Mat>& vecFlow, char* subpath, Point pt1, Point pt2,
 									char* extName1, char* extName2, char* title1, char* title2, float threshold, char* pdfPath)
 {
 	//char subpath[] = "movement";
@@ -1407,8 +1534,6 @@ void CRat::opticalSaveScatterPlot(vector<Mat>& vecFlow, char* subpath, Point pt1
 		ptEyeC.y= (m_vecEyeL[m_referFrame].y+m_vecEyeR[m_referFrame].y)/2;
 	}
 	Mat mPdf(EAR_RECT, EAR_RECT, CV_32FC1);	
-	FILE* fpPdf;
-	float  probability;
 	int sz = vecFlow.size();
 	for(int i=0; i<sz; i++) {
 		Mat& mFlow = vecFlow[i];	
@@ -1451,18 +1576,7 @@ void CRat::opticalSaveScatterPlot(vector<Mat>& vecFlow, char* subpath, Point pt1
 	
 		////////////////////////////////////////// read pdf matrix
 		wxString pdfFilename = pdfName.GetFullPath()+ extName1 + ".txt";
-		fpPdf = fopen(pdfFilename.ToAscii(), "r");
-		if(fpPdf ==NULL) {
-			wxString str = pdfFilename + ": read error";
-			wxLogMessage(str);
-			continue;
-		}
-		for(int i=0; i<EAR_RECT; i++)
-			for(int c=0; c<EAR_RECT; c++) {
-				fscanf(fpPdf, "%f", &probability);
-				mPdf.at<float>(i, c) = probability;
-			}
-		fclose(fpPdf);
+        if(opticalLoadPDFfile(pdfFilename.ToAscii(), mPdf)==false) continue;
 	
 		wxString strOutName;
 		strOutName = saveName.GetFullPath() + extName1;
@@ -1482,18 +1596,7 @@ void CRat::opticalSaveScatterPlot(vector<Mat>& vecFlow, char* subpath, Point pt1
 		
 		////////////////////////////////////////// read pdf matrix
 		pdfFilename = pdfName.GetFullPath()+ extName2 + ".txt";
-		fpPdf = fopen(pdfFilename.ToAscii(), "r");
-		if(fpPdf ==NULL) {
-			wxString str = pdfFilename + ": read error";
-			wxLogMessage(str);
-			continue;
-		}
-		for(int i=0; i<EAR_RECT; i++)
-			for(int c=0; c<EAR_RECT; c++) {
-				fscanf(fpPdf, "%f", &probability);
-				mPdf.at<float>(i, c) = probability;
-			}
-		fclose(fpPdf);
+        if(opticalLoadPDFfile(pdfFilename.ToAscii(), mPdf)==false) continue;
 
 		strOutName = saveName.GetFullPath() + extName2;
 		saveDotDensity(plotSavePGN, mFlow, pt2, strOutName, mPdf, threshold);
@@ -1507,18 +1610,7 @@ void CRat::opticalSaveScatterPlot(vector<Mat>& vecFlow, char* subpath, Point pt1
 		////////////////////////////////////////// read pdf matrix
 
 			pdfFilename = pdfName.GetFullPath()+ "_Eye.txt";
-			fpPdf = fopen(pdfFilename.ToAscii(), "r");
-			if(fpPdf ==NULL) {
-				wxString str = pdfFilename + ": read error";
-				wxLogMessage(str);
-				continue;
-			}
-			for(int i=0; i<EAR_RECT; i++)
-				for(int c=0; c<EAR_RECT; c++) {
-					fscanf(fpPdf, "%f", &probability);
-					mPdf.at<float>(i, c) = probability;
-				}
-			fclose(fpPdf);
+            if(opticalLoadPDFfile(pdfFilename.ToAscii(), mPdf)==false) continue;   
 
 			strOutName = saveName.GetFullPath() + "_Eye";
 			saveDotDensity(plotSavePGN, mFlow, ptEyeC, strOutName, mPdf, threshold);

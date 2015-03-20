@@ -72,7 +72,7 @@ public:
 	void 	DC_removal(int nFirstLED, vector <float>& vecSignal);
 	void	getLightRange(int& from, int& to) { from = m_nLED1; to = m_nLED_End; }
 
-	bool	processAbdomen(Point ptAbdoBorder, Point ptAbdoIn);
+	bool	processAbdomen(Point ptAbdoRed, Point ptAbdoCyan);
 	bool	processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR);
 
 	void 	findEyeCenter(Point& ptEye0, vector <Point>& vecEye, vector <float>&  vecEyeMove);
@@ -89,16 +89,21 @@ public:
 
 	void	opticalFlow(int nFrameSteps);
 	void 	opticalDrawFlowmap(Point pt1, Point pt2, int nFrameSteps, char type);
+    void 	opticalDrawFlowmapWithPDF(Point pt1, Point pt2, int nFrameSteps, char type, float threshold);
+    
 	void 	opticalFlowDistribution(vector<Mat>& vecFlow, char* subpath, vector <float>& vecPdf1, vector <float>& vecPdf2,
 									Point pt1, Point pt2, char* extName1, char* extName2, char* title1, char* title2, float threshold);
-	void 	opticalSaveScatterPlot(vector<Mat>& vecFlow, char* subpath, Point pt1, Point pt2,
+	void 	opticalScatterPlotSave(vector<Mat>& vecFlow, char* subpath, Point pt1, Point pt2,
 									char* extName1, char* extName2, char* title1, char* title2, float threshold, char* pdfPath);
 
 	float 	optical_compute_movement(Mat& mFlow, Mat& mDistEar, Point pt, float threshold);
 	void 	saveDotDensity(Gnuplot& plotSavePGN, Mat& mFlow, Point pt, wxString& strOutName, Mat& mPdf, float threshold);	
 	float 	opticalBuildPDF(Gnuplot& plotSavePGN, Mat& mFlow, Mat& mGaus, Mat& mDist, Point pt, wxString& strOutName);
 	void	drawOptFlowMap(Mat& cflowmap, const Mat& flow, int step, const Scalar& color);
+    void    drawOptFlowMapWithPDF(Mat& cflowmap, const Mat& flow,  int step, Mat &mPdf);
+    void    opticalAssignThresholdMap(Mat& mThMap, Mat& mFlow, Mat& mPdf, float th, Point pt);
 	void	opticalFlowAnalysis(vector<Mat>& vecFlow, Point ptEar, vector <float>& vecEarFlow);
+    bool    opticalLoadPDFfile(uchar* filename, Mat &mPdf);
 	void    saveDistributionAsCSVandPNG();
 	void 	linearRegression(vector <float>& vecSignal, vector <float>& vecOut, vector <float>& vecSubOut);
 	
@@ -135,8 +140,8 @@ public:
 	Point	m_ptEyeR;
 	Point	m_ptEarL;
 	Point	m_ptEarR;
-	Point 	m_ptAbdoBo;
-	Point	m_ptAbdoIn;
+	Point 	m_ptAbdoRed;
+	Point	m_ptAbdoCyan;
 	
 //	vector <double>  m_vecLEyeGrayDiff;
 //	vector <double>  m_vecREyeGrayDiff;
