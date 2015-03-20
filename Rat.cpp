@@ -430,13 +430,6 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 		return false;
 	}	
 	
-	vector <float>  vecAbdoRedGrayDiff;
-	vector <float>  vecAbdoCyanGrayDiff;
-	graylevelDiff(m_referFrame, ptAbdoRed, ptAbdoCyan, vecAbdoRedGrayDiff, vecAbdoCyanGrayDiff);
-	
-	DC_removal(m_nLED1, vecAbdoRedGrayDiff);
-	DC_removal(m_nLED1, vecAbdoCyanGrayDiff);
-	
 	/////////////////////////////////////////////////////////////optical flow
 	int  newFrameSteps;
 	static int frameStep = 5;	
@@ -447,6 +440,7 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	
 	static bool bEyeMove = false;
 	static bool bGrayDiff = false;
+	static bool bAdjDiff = false;
 	static bool bOptical = false;
 	static bool bOpticalPDF = true;
 	static bool bAccumulate = true;
@@ -469,14 +463,14 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	
 	DlgOpticalInput dlg(frameStep, threshold, MainFrame::m_pThis);
 	dlg.setVerticalLine(bLED, bPinna, bVerLine, verLine);
-	dlg.setSeriesLine(bEyeMove, bGrayDiff, bOptical, bOpticalPDF, bAccumulate);
+	dlg.setSeriesLine(bEyeMove, bGrayDiff, bAdjDiff, bOptical, bOpticalPDF, bAccumulate);
 	dlg.setYRange(ymin, ymax);
 	
 	if(dlg.ShowModal() !=  wxID_OK) return false;
 	newFrameSteps = dlg.getFrameSteps();
 	threshold = dlg.getThreshold();
 	dlg.getVerticalLine(bLED, bPinna, bVerLine, verLine);
-	dlg.getSeriesLine(bEyeMove, bGrayDiff, bOptical, bOpticalPDF, bAccumulate);
+	dlg.getSeriesLine(bEyeMove, bGrayDiff, bAdjDiff, bOptical, bOpticalPDF, bAccumulate);
 	dlg.getYRange(ymin, ymax);
 	dlg.Destroy();
 	
@@ -500,10 +494,25 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	}
 	frameStep = newFrameSteps;
 	
-	MainFrame:: myMsgOutput("PDF threshold %f, frame steps %d, bAccumulate %d, y range [%d, %d]\n", 
+	MainFrame:: myMsgOutput("PDF threshold %f, frame steps %d, bAccumulate %d, y range [%.2f, %.2f]\n", 
 			threshold, frameStep, bAccumulate, ymin, ymax);
 	
-//	opticalDrawFlowmap(ptAbdoRed, ptAbdoCyan, frameStep, 'A');
+	vector <float>  vecAbdoRedGrayDiff;
+	vector <float>  vecAbdoCyanGrayDiff;	
+	if(bGrayDiff) {
+		graylevelDiff(m_referFrame, ptAbdoRed, ptAbdoCyan, vecAbdoRedGrayDiff, vecAbdoCyanGrayDiff);
+		
+		DC_removal(m_nLED1, vecAbdoRedGrayDiff);
+		DC_removal(m_nLED1, vecAbdoCyanGrayDiff);
+	}
+	
+	vector <float>  vecAdjDiff;
+	vector <Mat> vecMatAdjDiff;
+	if(bAdjDiff)  {
+		adjacentDiff(vecMatAdjDiff, vecAdjDiff, 1);
+		saveResult("adjDiff", vecMatAdjDiff);
+	}
+	
 	
 	if(bOpticalPDF) {
 		opticalFlowDistribution(m_vecFlow, "pdf", vecLEarFlowPdf, vecREarFlowPdf, ptAbdoRed, ptAbdoCyan, 
@@ -560,35 +569,20 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 		_gnuplotLED(gPlotL, m_nLED1, m_nLED2);
 		_gnuplotLED(gPlotR, m_nLED1, m_nLED2);
 	}
-/*
-	if(bPinna) {
-		if(vecLEarGrayDiff[maxPointL]> vecREarGrayDiff[maxPointR]) {
-			MainFrame:: myMsgOutput("max motion: left ear %d\n", maxPointL);
-			_gnuplotVerticalLine(gPlotL, maxPointL);
-			_gnuplotVerticalLine(gPlotR, maxPointL);
-			saveEarROI(m_referFrame, maxPointL, ptEarL);
-		}else {
-			MainFrame:: myMsgOutput("max motion: right ear %d\n", maxPointR);
-			_gnuplotVerticalLine(gPlotL, maxPointR);
-			_gnuplotVerticalLine(gPlotR, maxPointL);
-			saveEarROI(m_referFrame, maxPointR, ptEarR);
-		}	
-	}
-*/	
+	
 	if(bVerLine && verLine >0) {
 		_gnuplotVerticalLine(gPlotL, verLine);
 		_gnuplotVerticalLine(gPlotR, verLine);		
 	}
-/*	
-	if(bEyeMove) {
-		_gnuplotLine(gPlotL, "LEyeMove", m_vecEyeLMove, "#008B0000", ".");
-		_gnuplotLine(gPlotR, "REyeMove", m_vecEyeRMove, "#008B0000", ".");
-	}
-	 */ 
+
 	if(bGrayDiff) {
 		_gnuplotLine(gPlotL, "Red GraylevelDiff", vecAbdoRedGrayDiff, "#00008000");
 		_gnuplotLine(gPlotR, "Cyan GraylevelDiff", vecAbdoCyanGrayDiff, "#00008000");
 	}
+	if(bAdjDiff)  {
+		_gnuplotLine(gPlotL, "AdjDiff", vecAdjDiff, "#00808000");
+		_gnuplotLine(gPlotR, "AdjDiff", vecAdjDiff, "#00808000");
+	}	
 	if(bOptical) {
 		_gnuplotLine(gPlotL, "Red Flow", vecLEarFlow, "#00FF4500");
 		_gnuplotLine(gPlotR, "Cyan Flow", vecREarFlow, "#00FF4500");
@@ -661,21 +655,7 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 //	saveEyeTrajectory();
 //	_OutputVecPoints(m_vecEyeL, "_eyeLeft.txt");
 	
-	vector <float>  vecLEarGrayDiff;
-	vector <float>  vecREarGrayDiff;
-	graylevelDiff(m_referFrame, ptEarL, ptEarR, vecLEarGrayDiff, vecREarGrayDiff);
 
-	vector<float> smoothL;
-	smoothData(vecLEarGrayDiff, smoothL, 2);	
-	
-	vector<float> smoothR;
-	smoothData(vecREarGrayDiff, smoothR, 2);	
-		
-	int maxPointL = findMaxMotionPoint(smoothL);
-	int maxPointR = findMaxMotionPoint(smoothR);	
-
-	DC_removal(m_nLED1, vecLEarGrayDiff);
-	DC_removal(m_nLED1, vecREarGrayDiff);
 	
 	/////////////////////////////////////////////////////////////optical flow
 	int  newFrameSteps;
@@ -687,6 +667,7 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	
 	static bool bEyeMove = false;
 	static bool bGrayDiff = false;
+	static bool bAdjDiff = false;
 	static bool bOptical = false;
 	static bool bOpticalPDF = true;
 	static bool bAccumulate = true;
@@ -710,14 +691,14 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	
 	DlgOpticalInput dlg(frameStep, threshold, MainFrame::m_pThis);
 	dlg.setVerticalLine(bLED, bPinna, bVerLine, verLine);
-	dlg.setSeriesLine(bEyeMove, bGrayDiff, bOptical, bOpticalPDF, bAccumulate);
+	dlg.setSeriesLine(bEyeMove, bGrayDiff, bAdjDiff, bOptical, bOpticalPDF, bAccumulate);
 	dlg.setYRange(ymin, ymax);
 	
 	if(dlg.ShowModal() !=  wxID_OK) return false;
 	newFrameSteps = dlg.getFrameSteps();
 	threshold = dlg.getThreshold();
 	dlg.getVerticalLine(bLED, bPinna, bVerLine, verLine);
-	dlg.getSeriesLine(bEyeMove, bGrayDiff, bOptical, bOpticalPDF, bAccumulate);
+	dlg.getSeriesLine(bEyeMove, bGrayDiff, bAdjDiff, bOptical, bOpticalPDF, bAccumulate);
 	dlg.getYRange(ymin, ymax);
 	dlg.Destroy();
 	
@@ -745,7 +726,23 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	MainFrame:: myMsgOutput("PDF threshold %f, frame steps %d, bAccumulate %d, y range [%d, %d]\n", 
 			threshold, frameStep, bAccumulate, ymin, ymax);
 	
-	//opticalDrawFlowmap(m_ptEarL, m_ptEarR, frameStep, 'E');
+	vector <float>  vecLEarGrayDiff;
+	vector <float>  vecREarGrayDiff;
+	vector<float> smoothL;	
+	vector<float> smoothR;
+	int maxPointL, maxPointR;
+	maxPointL = maxPointR = -1;
+	if(bGrayDiff || bPinna) {
+		graylevelDiff(m_referFrame, ptEarL, ptEarR, vecLEarGrayDiff, vecREarGrayDiff);
+		smoothData(vecLEarGrayDiff, smoothL, 2);	
+		smoothData(vecREarGrayDiff, smoothR, 2);	
+		
+		maxPointL = findMaxMotionPoint(smoothL);
+		maxPointR = findMaxMotionPoint(smoothR);	
+
+		DC_removal(m_nLED1, vecLEarGrayDiff);
+		DC_removal(m_nLED1, vecREarGrayDiff);
+	}
 	
 	if(bOpticalPDF) {
 		opticalFlowDistribution(m_vecFlow, "pdf", vecLEarFlowPdf, vecREarFlowPdf, m_ptEarL, m_ptEarR, 
@@ -803,7 +800,7 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 		_gnuplotLED(gPlotR, m_nLED1, m_nLED2);
 	}
 
-	if(bPinna) {
+	if(bPinna && maxPointL>=0 && maxPointR>=0) {
 		if(vecLEarGrayDiff[maxPointL]> vecREarGrayDiff[maxPointR]) {
 			MainFrame:: myMsgOutput("max motion: left ear %d\n", maxPointL);
 			_gnuplotVerticalLine(gPlotL, maxPointL);
@@ -1250,6 +1247,26 @@ void CRat::graylevelDiff_Eye(int refer, Point ptEar, vector <Point>& vecEye, vec
 		cv::absdiff(mROIRefer, mROI, mDiff);
 		Scalar sSum = cv::mean(mDiff);		
 		vecEarGrayDiff[i] = sSum[0];
+	}
+}
+
+void CRat::adjacentDiff(vector<Mat>& vecMatDiff, vector <float>& vecAdjDiff, int nFrameSteps)
+{
+	vecMatDiff.resize(m_nSlices - nFrameSteps);
+	vecAdjDiff.resize(m_nSlices - nFrameSteps);
+	int imgSz = m_vecMat[0].rows * m_vecMat[0].cols;
+	
+	for(int i=0; i<m_nSlices - nFrameSteps; i++) {
+		Mat mSrc1, mSrc2, mDiff;
+		mSrc1 = m_vecMat[i];
+		mSrc2 = m_vecMat[i+nFrameSteps];
+		cv::absdiff(mSrc1, mSrc2, mDiff);
+		//cv::threshold(mDiff, mDiff,0, 255, cv::THRESH_BINARY); 
+		
+		vecMatDiff[i] = mDiff;
+		
+		Scalar sSum = cv::sum(mDiff);
+		vecAdjDiff[i] = sSum[0]/(imgSz);
 	}
 }
 

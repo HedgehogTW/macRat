@@ -109,6 +109,11 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     
     gridBagSizer82->Add(m_checkBoxGrayDiff, wxGBPosition(3,1), wxGBSpan(1,1), wxALL, 5);
     
+    m_checkBoxAdjDiff = new wxCheckBox(m_panel80, wxID_ANY, _("Adjacent Diff"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_checkBoxAdjDiff->SetValue(false);
+    
+    gridBagSizer82->Add(m_checkBoxAdjDiff, wxGBPosition(3,2), wxGBSpan(1,1), wxALL, 5);
+    
     m_staticLine86 = new wxStaticLine(m_panel80, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxLI_HORIZONTAL);
     
     gridBagSizer82->Add(m_staticLine86, wxGBPosition(4,0), wxGBSpan(1,3), wxALL|wxEXPAND, 5);

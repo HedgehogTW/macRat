@@ -30,10 +30,11 @@ void DlgOpticalInput::setVerticalLine(bool bLED, bool bPinna, bool bVerLine, dou
 	*m_textCtrlVerLine << str1;
 }
 
-void DlgOpticalInput::setSeriesLine(bool bEyeMove, bool bGrayDiff, bool bOptical, bool bOpticalPDF, bool bAccumulate)
+void DlgOpticalInput::setSeriesLine(bool bEyeMove, bool bGrayDiff, bool bAdjDiff, bool bOptical, bool bOpticalPDF, bool bAccumulate)
 {
 	m_checkBoxEyeMove->SetValue(bEyeMove);
 	m_checkBoxGrayDiff->SetValue(bGrayDiff);
+	m_checkBoxAdjDiff->SetValue(bAdjDiff);
 	m_checkBoxOptical->SetValue(bOptical);	
 	m_checkBoxOpticalPDF->SetValue(bOpticalPDF);	
 	m_radioButtonAccumu->SetValue(bAccumulate);	
@@ -62,10 +63,11 @@ void DlgOpticalInput::getVerticalLine(bool& bLED, bool& bPinna, bool& bVerLine, 
 	x = value;
 }
 
-void DlgOpticalInput::getSeriesLine(bool& bEyeMove, bool& bGrayDiff, bool& bOptical, bool& bOpticalPDF, bool& bAccumulate)
+void DlgOpticalInput::getSeriesLine(bool& bEyeMove, bool& bGrayDiff, bool& bAdjDiff, bool& bOptical, bool& bOpticalPDF, bool& bAccumulate)
 {
 	bEyeMove = m_checkBoxEyeMove->GetValue();
 	bGrayDiff = m_checkBoxGrayDiff->GetValue();
+	bAdjDiff = m_checkBoxAdjDiff->GetValue();
 	bOptical = m_checkBoxOptical->GetValue();
 	bOpticalPDF = m_checkBoxOpticalPDF->GetValue();
 	bAccumulate = m_radioButtonAccumu->GetValue();

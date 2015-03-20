@@ -9,11 +9,11 @@ public:
     virtual ~DlgOpticalInput();
 	
 	void setVerticalLine(bool bLED, bool bPinna, bool bVerLine, double x=0);
-	void setSeriesLine(bool bEyeMove, bool bGrayDiff, bool bOptical, bool bOpticalPDF, bool bAccumulate);
+	void setSeriesLine(bool bEyeMove, bool bGrayDiff, bool bAdjDiff, bool bOptical, bool bOpticalPDF, bool bAccumulate);
 	void setYRange(double min, double max);
 
 	void getVerticalLine(bool& bLED, bool& bPinna, bool& bVerLine, double& x);
-	void getSeriesLine(bool& bEyeMove, bool& bGrayDiff, bool& bOptical, bool& bOpticalPDF, bool& bAccumulate);
+	void getSeriesLine(bool& bEyeMove, bool& bGrayDiff, bool& bAdjDiff, bool& bOptical, bool& bOpticalPDF, bool& bAccumulate);
 	void getYRange(double& min, double& max);
 	
 	double getThreshold() { 

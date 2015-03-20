@@ -41,6 +41,7 @@ protected:
     wxStaticLine* m_staticLine84;
     wxCheckBox* m_checkBoxEyeMove;
     wxCheckBox* m_checkBoxGrayDiff;
+    wxCheckBox* m_checkBoxAdjDiff;
     wxStaticLine* m_staticLine86;
     wxCheckBox* m_checkBoxOptical;
     wxCheckBox* m_checkBoxOpticalPDF;

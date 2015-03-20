@@ -14,7 +14,7 @@ void _gnuplotInit(Gnuplot& gnuPlot, const char* title, double ymin, double ymax)
 	gnuPlot.set_title(title);
 	gnuPlot.set_grid();	
 	
-	if(ymin!=0 && ymax!=0) {
+	if(ymin!=0 || ymax!=0) {
 		gnuPlot.set_yrange(ymin, ymax);
 	}else gnuPlot.set_yrange(_MIN_Y, _MAX_Y);
 

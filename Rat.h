@@ -84,6 +84,7 @@ public:
 	int 	findMaxMotionPoint(vector<float>& inData);
 	void	graylevelDiff_Eye(int refer, Point ptEar, vector <Point>& vecEye, vector <float>& vecEarGrayDiff);
 	void 	graylevelDiff(int refer, Point& ptEarL, Point& ptEarR, vector <float>& vLEarGray,  vector <float>& vREarGray);
+	void 	adjacentDiff(vector<Mat>& vecDiff, vector <float>& vecAdjDiff, int nFrameSteps);
 	void 	saveEarROI(int stable, int motion, Point& pt);
 	void 	saveEyeTrajectory();
 
