@@ -444,9 +444,7 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	static bool bOptical = false;
 	static bool bOpticalPDF = true;
 	static bool bAccumulate = true;
-	
 	static double verLine = 190;
-	
 	static double  ymin, ymax;
     if(frameStep==0) {
 		ymin = -2;
