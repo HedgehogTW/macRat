@@ -47,10 +47,26 @@ public:
 	double area;
 };
 
-struct TwoPts{
-	cv::Point ptL;
-	cv::Point ptR;
+
+class MyConfigData{
+public:	
+	long 	m_frameStep;	
+	double 	m_threshold;
+	bool 	m_bLED;
+	bool 	m_bPinna;
+	bool 	m_bVerLine;
+
+	bool 	m_bEyeMove;
+	bool 	m_bGrayDiff;
+	bool 	m_bAdjDiff;
+	bool 	m_bOptical;
+	bool 	m_bOpticalPDF;
+	bool 	m_bAccumulate;
+	double 	m_verLine;
+	double  m_ymin;
+	double	m_ymax;	
 };
+
 
 class CRat
 {

@@ -31,6 +31,9 @@ public:
 	inline uchar*	getPixelAddr() { return m_mOut.data; }
 	inline int		getStep() { return m_mOut.step[0]; }
 
+	void	getConfigData(MyConfigData& data)  { data = m_configData; }
+	void	setConfigData(MyConfigData& data)  { m_configData = data; }
+	
 	void	updateOutData(Mat& mOut);
 	Mat &   getCurrentMat(int idx) { return m_Rat.getSrcImg(idx); }
 	Mat &   getResultMat(int idx) { return m_Rat.getResultImg(idx); }
@@ -96,6 +99,9 @@ protected:
 	wxFileHistory* 		m_FileHistory;
 	wxString			m_Filename;
 
+///////////////////// config
+	MyConfigData	m_configData;
+
 
 //////////////// Rat
 //	RGBQUAD	m_Palette[PALETTE_SIZE];
@@ -122,6 +128,6 @@ protected:
 	Point 	m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR;
 	Point 	m_ptAbdoRed, m_ptAbdoCyan;
 
-	long m_nFrameSteps;	
+
 };
 #endif // MAINFRAME_H

@@ -51,12 +51,32 @@ MainFrame::MainFrame(wxWindow* parent)
 	m_FileHistory->AddFilesToMenu(m_menuFile);
 	m_FileHistory->Load(*pConfig);
 	
+	////////////////////////////
+	m_configData.m_frameStep = pConfig->ReadLong("/optical/frameStep", 5);
+	m_configData.m_threshold = pConfig->ReadDouble("/optical/threshold", 0.001);
+	m_configData.m_bLED = pConfig->ReadBool("/optical/bLED", false);
+	m_configData.m_bPinna = pConfig->ReadBool("/optical/bPinna", false);
+	m_configData.m_bVerLine = pConfig->ReadBool("/optical/bVerLine", false);
+	
+	m_configData.m_bEyeMove = pConfig->ReadBool("/optical/bEyeMove", false);
+	m_configData.m_bGrayDiff = pConfig->ReadBool("/optical/bGrayDiff", false);
+	m_configData.m_bAdjDiff = pConfig->ReadBool("/optical/bAdjDiff", false);
+	m_configData.m_bOptical = pConfig->ReadBool("/optical/bOptical", false);
+	m_configData.m_bOpticalPDF = pConfig->ReadBool("/optical/bOpticalPDF", true);
+	m_configData.m_bAccumulate = pConfig->ReadBool("/optical/bAccumulate", true);
+	
+	m_configData.m_verLine = pConfig->ReadDouble("/optical/verLine", 190);
+	m_configData.m_ymin = pConfig->ReadDouble("/optical/ymin", 0);
+	m_configData.m_ymax = pConfig->ReadDouble("/optical/ymax", 5);
+	
+	
+
 	this->Connect(wxID_FILE1, wxID_FILE9, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrame::OnMRUFile), NULL, this);
 	
 	SetSize(800, 650);
 	Center();
 	
-	m_nFrameSteps = 2;	
+
 	
 	DeleteContents();
 
@@ -75,6 +95,25 @@ MainFrame::~MainFrame()
 void MainFrame::DeleteContents()
 {
 	// TODO: Add your specialized code here and/or call the base class
+	wxConfigBase *pConfig = wxConfigBase::Get();
+	pConfig->Write("/optical/frameStep", m_configData.m_frameStep);
+	pConfig->Write("/optical/threshold", m_configData.m_threshold);
+	pConfig->Write("/optical/bLED", m_configData.m_bLED);
+	pConfig->Write("/optical/bPinna", m_configData.m_bPinna);
+	pConfig->Write("/optical/bVerLine", m_configData.m_bVerLine);
+	
+	pConfig->Write("/optical/bEyeMove", m_configData.m_bEyeMove);
+	pConfig->Write("/optical/bGrayDiff", m_configData.m_bGrayDiff);
+	pConfig->Write("/optical/bAdjDiff", m_configData.m_bAdjDiff);
+	pConfig->Write("/optical/bOptical", m_configData.m_bOptical);
+	pConfig->Write("/optical/bOpticalPDF", m_configData.m_bOpticalPDF);
+	pConfig->Write("/optical/bAccumulate", m_configData.m_bAccumulate);
+	
+	pConfig->Write("/optical/verLine", m_configData.m_verLine);
+	pConfig->Write("/optical/ymin", m_configData.m_ymin);
+	pConfig->Write("/optical/ymax", m_configData.m_ymax);
+	
+	
 	m_nSlices = 0;
 	m_nCageLine = -1;
 	m_bCropped = false;

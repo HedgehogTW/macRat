@@ -422,30 +422,37 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	m_ptAbdoRed = ptAbdoRed;
 	m_ptAbdoCyan = ptAbdoCyan;
 	
-	m_referFrame = findReferenceFrame(m_ptAbdoRed);
+	m_referFrame = findReferenceFrame(ptAbdoCyan);
 	
-	MainFrame:: myMsgOutput("Reference frame %d\n", m_referFrame);
+	MainFrame::myMsgOutput("Reference frame %d\n", m_referFrame);
 	if(m_referFrame <0) {
 		wxLogMessage("cannot find reference frame");
 		return false;
 	}	
-	
+	MainFrame::myMsgOutput("IMage size w%d, h%d, Abdomen Red [%d, %d], Cyan [%d, %d]\n", m_vecMat[0].cols, m_vecMat[0].rows,
+		ptAbdoRed.x, ptAbdoRed.y, ptAbdoCyan.x, ptAbdoCyan.y );
+
 	/////////////////////////////////////////////////////////////optical flow
-	int  newFrameSteps;
-	static int frameStep = 5;	
-	static double threshold = 0.001;
-	static bool bLED = false;
-	static bool bPinna = false;
-	static bool bVerLine = false;
+	MyConfigData  configData;
+	MainFrame::m_pThis->getConfigData(configData);
 	
-	static bool bEyeMove = false;
-	static bool bGrayDiff = false;
-	static bool bAdjDiff = false;
-	static bool bOptical = false;
-	static bool bOpticalPDF = true;
-	static bool bAccumulate = true;
-	static double verLine = 190;
-	static double  ymin, ymax;
+	int  newFrameSteps;
+	int frameStep = configData.m_frameStep;	
+	double threshold = configData.m_threshold;
+	bool bLED = configData.m_bLED;
+	bool bPinna = configData.m_bPinna;
+	bool bVerLine = configData.m_bVerLine;
+	
+	bool bEyeMove = configData.m_bEyeMove;
+	bool bGrayDiff = configData.m_bGrayDiff;
+	bool bAdjDiff = configData.m_bAdjDiff;
+	bool bOptical = configData.m_bOptical;
+	bool bOpticalPDF = configData.m_bOpticalPDF;
+	bool bAccumulate = configData.m_bAccumulate;
+	double verLine = configData.m_verLine;
+	double ymin = configData.m_ymin;
+	double ymax = configData.m_ymax;
+/*	
     if(frameStep==0) {
 		ymin = -2;
 		ymax = 25;
@@ -458,7 +465,7 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
             ymax = 120;
         }		
 	} 
-	
+	*/
 	DlgOpticalInput dlg(frameStep, threshold, MainFrame::m_pThis);
 	dlg.setVerticalLine(bLED, bPinna, bVerLine, verLine);
 	dlg.setSeriesLine(bEyeMove, bGrayDiff, bAdjDiff, bOptical, bOpticalPDF, bAccumulate);
@@ -471,6 +478,24 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	dlg.getSeriesLine(bEyeMove, bGrayDiff, bAdjDiff, bOptical, bOpticalPDF, bAccumulate);
 	dlg.getYRange(ymin, ymax);
 	dlg.Destroy();
+	
+	configData.m_frameStep = newFrameSteps;	
+	configData.m_threshold = threshold;
+	configData.m_bLED = bLED;
+	configData.m_bPinna = bPinna;
+	configData.m_bVerLine = bVerLine;
+	
+	configData.m_bEyeMove = bEyeMove;
+	configData.m_bGrayDiff = bGrayDiff;
+	configData.m_bAdjDiff = bAdjDiff;
+	configData.m_bOptical = bOptical;
+	configData.m_bOpticalPDF = bOpticalPDF;
+	configData.m_bAccumulate = bAccumulate;
+	configData.m_verLine = verLine;
+	configData.m_ymin = ymin;
+	configData.m_ymax = ymax;
+	
+	MainFrame::m_pThis->setConfigData(configData);
 	
 	clock_t start, finish;
 	double  duration;
@@ -656,23 +681,26 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 
 	
 	/////////////////////////////////////////////////////////////optical flow
+	MyConfigData  configData;
+	MainFrame::m_pThis->getConfigData(configData);
+	
 	int  newFrameSteps;
-	static int frameStep = 5;	
-	static double threshold = 0.001;
-	static bool bLED = false;
-	static bool bPinna = false;
-	static bool bVerLine = false;
+	int frameStep = configData.m_frameStep;	
+	double threshold = configData.m_threshold;
+	bool bLED = configData.m_bLED;
+	bool bPinna = configData.m_bPinna;
+	bool bVerLine = configData.m_bVerLine;
 	
-	static bool bEyeMove = false;
-	static bool bGrayDiff = false;
-	static bool bAdjDiff = false;
-	static bool bOptical = false;
-	static bool bOpticalPDF = true;
-	static bool bAccumulate = true;
-	
-	static double verLine = 190;
-	
-	static double  ymin, ymax;
+	bool bEyeMove = configData.m_bEyeMove;
+	bool bGrayDiff = configData.m_bGrayDiff;
+	bool bAdjDiff = configData.m_bAdjDiff;
+	bool bOptical = configData.m_bOptical;
+	bool bOpticalPDF = configData.m_bOpticalPDF;
+	bool bAccumulate = configData.m_bAccumulate;
+	double verLine = configData.m_verLine;
+	double ymin = configData.m_ymin;
+	double ymax = configData.m_ymax;
+/*	
     if(frameStep==0) {
 		ymin = -2;
 		ymax = 25;
@@ -685,7 +713,7 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
             ymax = 120;
         }		
 	} 
-
+*/
 	
 	DlgOpticalInput dlg(frameStep, threshold, MainFrame::m_pThis);
 	dlg.setVerticalLine(bLED, bPinna, bVerLine, verLine);
@@ -699,6 +727,24 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	dlg.getSeriesLine(bEyeMove, bGrayDiff, bAdjDiff, bOptical, bOpticalPDF, bAccumulate);
 	dlg.getYRange(ymin, ymax);
 	dlg.Destroy();
+	
+	configData.m_frameStep = newFrameSteps;	
+	configData.m_threshold = threshold;
+	configData.m_bLED = bLED;
+	configData.m_bPinna = bPinna;
+	configData.m_bVerLine = bVerLine;
+	
+	configData.m_bEyeMove = bEyeMove;
+	configData.m_bGrayDiff = bGrayDiff;
+	configData.m_bAdjDiff = bAdjDiff;
+	configData.m_bOptical = bOptical;
+	configData.m_bOpticalPDF = bOpticalPDF;
+	configData.m_bAccumulate = bAccumulate;
+	configData.m_verLine = verLine;
+	configData.m_ymin = ymin;
+	configData.m_ymax = ymax;
+	
+	MainFrame::m_pThis->setConfigData(configData);
 	
 	clock_t start, finish;
 	double  duration;
