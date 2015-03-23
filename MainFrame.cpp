@@ -117,6 +117,7 @@ void MainFrame::DeleteContents()
 	m_nSlices = 0;
 	m_nCageLine = -1;
 	m_bCropped = false;
+    m_minusCageLine = 0;
 	
 	m_bMarkEye = false;
 	m_bMarkEar = false;
@@ -127,7 +128,7 @@ void MainFrame::DeleteContents()
 	m_dqEarPts.clear();
 	m_dqAbdoPts.clear();
 	
-	m_ptAbdoRed = m_ptAbdoCyan = m_ptEyeL = m_ptEyeR = m_ptEarL = m_ptEarR = Point(0,0);
+	m_ptEyeL = m_ptEyeR = m_ptEarL = m_ptEarR = Point(0,0);
 }
 void MainFrame::OnMRUFile(wxCommandEvent& event)
 {
@@ -173,7 +174,7 @@ void MainFrame::readMarks(wxString &dirName)
 	
 			
 	Point ptEyeL, ptEyeR, ptEarL, ptEarR;
-	Point ptAbdoRed, ptAbdoCyan;
+	Point ptAbdo;
 	int n, line;
 	char  type;
 	FILE* fp = fopen(dataName.GetFullPath(), "r");
@@ -201,14 +202,14 @@ void MainFrame::readMarks(wxString &dirName)
 				myMsgOutput("Y %d %d %d %d\n", ptEyeL.x, ptEyeL.y, ptEyeR.x, ptEyeR.y );
 				break;
 			case 'A':
-				n = fscanf(fp, "%d %d %d %d\n", &ptAbdoRed.x, &ptAbdoRed.y, &ptAbdoCyan.x, &ptAbdoCyan.y );
-				if(n==4) {
-					m_dqAbdoPts.push_back(ptAbdoRed);
-					m_dqAbdoPts.push_back(ptAbdoCyan);
-					m_ptAbdoRed = m_dqAbdoPts[0];
-					m_ptAbdoCyan = m_dqAbdoPts[1];
-				}		
-				myMsgOutput("A Red[%d %d], Cyan[%d %d]\n", ptAbdoRed.x, ptAbdoRed.y, ptAbdoCyan.x, ptAbdoCyan.y );
+                do{
+                    n = fscanf(fp, "%d%d", &ptAbdo.x, &ptAbdo.y);
+                    if(n==2) {
+                        m_dqAbdoPts.push_back(ptAbdo);
+                        myMsgOutput("A [%d %d], ", ptAbdo.x, ptAbdo.y );
+                    }	
+                }while(n==2);
+				myMsgOutput("\n");
 				break;	
 			case 'C':
 				n = fscanf(fp, "%d\n", &line);
@@ -443,67 +444,7 @@ void MainFrame::OnMarkCageline(wxCommandEvent& event)
 	}		
 }
 
-void MainFrame::OnLeftButtonDown(wxMouseEvent& event)
-{
-	if(m_bMarkEye==false && m_bMarkEar == false && m_bMarkAbdomen == false && m_bMarkCageline == false)  return;
-	if (getNumSlices() <= 0)  return;
-	
-	wxClientDC *pDC = new wxClientDC(this);
-	wxPoint pt1 = event.GetLogicalPosition(*pDC);
-	wxPoint pt;
-	m_scrollWin->CalcUnscrolledPosition(pt1.x, pt1.y, &pt.x, &pt.y);
-	
-	Mat mat = getCurrentMat(0);
-	
-	if (pt.x >= mat.cols || pt.y >= mat.rows)
-		return;
-	if(m_bMarkEye) {
-		Point ptEye = Point(pt.x, pt.y);
-		m_dqEyePts.push_back(ptEye);
-		int sz = m_dqEyePts.size();
-        if(sz>2) 	{
-            m_dqEyePts.pop_front();	
-            sz--;
-        }
-        for(int i=0; i<sz; i++) {
-            if(i==0)	m_ptEyeL = m_dqEyePts[0];
-            if(i==1)	m_ptEyeR = m_dqEyePts[1];			
-		}
-	}else if(m_bMarkEar) {
-		Point ptEar = Point(pt.x, pt.y);
-		m_dqEarPts.push_back(ptEar);
-		int sz = m_dqEarPts.size();
-        if(sz>2) 	{
-            m_dqEarPts.pop_front();	
-            sz--;
-        }
-        for(int i=0; i<sz; i++) {
-            if(i==0)	m_ptEarL = m_dqEarPts[0];
-            if(i==1)	m_ptEarR = m_dqEarPts[1];			
-		}	
-	}else if(m_bMarkAbdomen) {
-		Point ptEar = Point(pt.x, pt.y);
-		m_dqAbdoPts.push_back(ptEar);
-		int sz = m_dqAbdoPts.size();
-        if(sz>2)  {	
-            m_dqAbdoPts.pop_front();
-            sz--;
-        }
-        for(int i=0; i<sz; i++) {
-            if(i==0)	m_ptAbdoRed = m_dqAbdoPts[0];
-            if(i==1)	m_ptAbdoCyan = m_dqAbdoPts[1];
-        }
-	}else if(m_bMarkCageline) {
-		m_nCageLine = pt.y;
-		myMsgOutput("cage line %d\n", m_nCageLine);
-	}
-	
-	Refresh();
-}
-void MainFrame::recognizeInsideBody(Point& ptInside, Point& ptBorder)
-{
-	
-}
+
 void MainFrame::recognizeLeftRight(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR)
 {
 	Point eyeCenter = (ptEyeL + ptEyeR) *0.5;
@@ -549,7 +490,7 @@ bool MainFrame::preprocessing(char pos)
 			return false;
 		}
 	}else if(pos=='A') {
-		if(m_dqAbdoPts.size()!=2) {
+		if(m_dqAbdoPts.size()<=0) {
 			wxMessageBox("Select abdomen points", "error");
 			return false;
 		}	
@@ -566,9 +507,12 @@ bool MainFrame::preprocessing(char pos)
 			fprintf(fp, "E%d %d %d %d\n", m_dqEarPts[0].x, m_dqEarPts[0].y, m_dqEarPts[1].x, m_dqEarPts[1].y );
 			myMsgOutput("Left Ear: [%d, %d], Right Ear: [%d, %d]\n", m_dqEarPts[0].x, m_dqEarPts[0].y, m_dqEarPts[1].x, m_dqEarPts[1].y);
 		}
-		if(m_dqAbdoPts.size()>=2) {
-			fprintf(fp, "A%d %d %d %d\n", m_dqAbdoPts[0].x, m_dqAbdoPts[0].y, m_dqAbdoPts[1].x, m_dqAbdoPts[1].y );
-			myMsgOutput("Abdomen Border: [%d, %d], Inside Abdomen [%d, %d]\n",m_dqAbdoPts[0].x, m_dqAbdoPts[0].y, m_dqAbdoPts[1].x, m_dqAbdoPts[1].y );
+		if(m_dqAbdoPts.size()>0) {
+            fprintf(fp, "A");
+            for(int i=0; i<m_dqAbdoPts.size(); i++)
+                fprintf(fp, "%d %d ", m_dqAbdoPts[i].x, m_dqAbdoPts[i].y);
+            fprintf(fp, "\n");    
+			//myMsgOutput("Abdomen Border: [%d, %d], Inside Abdomen [%d, %d]\n",m_dqAbdoPts[0].x, m_dqAbdoPts[0].y, m_dqAbdoPts[1].x, m_dqAbdoPts[1].y );
 		}
 		if(m_nCageLine >0)
 			fprintf(fp, "C%d\n", m_nCageLine );
@@ -625,16 +569,18 @@ void MainFrame::OnRatAbdomen(wxCommandEvent& event)
 		return;
 	}
 	//Point ptAbdoBo, ptAbdoIn;
-	m_ptAbdoRed = m_dqAbdoPts[0];
-	m_ptAbdoCyan = m_dqAbdoPts[1];
+	//m_ptAbdoRed = m_dqAbdoPts[0];
+	//m_ptAbdoCyan = m_dqAbdoPts[1];
 	
 	int imgH = m_szOriSize.height;
+    m_minusCageLine = 0;
 	if(m_nCageLine < imgH/2) {
-		m_ptAbdoRed.y -= m_nCageLine;
-		m_ptAbdoCyan.y -= m_nCageLine;	
+//		m_ptAbdoRed.y -= m_nCageLine;
+//		m_ptAbdoCyan.y -= m_nCageLine;	
+        m_minusCageLine = m_nCageLine;
 	}	
 	
-	bool bRet = m_Rat.processAbdomen(m_ptAbdoRed, m_ptAbdoCyan);
+	bool bRet = m_Rat.processAbdomen(m_dqAbdoPts, m_minusCageLine);
 	if(bRet ==false) return;
 	
 	updateOutData(m_Rat.getResultImg(0));
@@ -896,4 +842,75 @@ void MainFrame::OnView3DData(wxCommandEvent& event)
 	Gnuplot gPlot3D("lines");
     gPlot3D.cmd(cmdstr.str());	
 	wxMessageBox("Hit Enter to continue", "continue...");
+}
+void MainFrame::OnMouseLButtonDown(wxMouseEvent& event)
+{
+	if(m_bMarkEye==false && m_bMarkEar == false && m_bMarkAbdomen == false && m_bMarkCageline == false)  return;
+	if (getNumSlices() <= 0)  return;
+	
+	wxClientDC *pDC = new wxClientDC(this);
+	wxPoint pt1 = event.GetLogicalPosition(*pDC);
+	wxPoint pt;
+	m_scrollWin->CalcUnscrolledPosition(pt1.x, pt1.y, &pt.x, &pt.y);
+	
+	Mat mat = getCurrentMat(0);
+	
+	if (pt.x >= mat.cols || pt.y >= mat.rows)
+		return;
+	if(m_bMarkEye) {
+		Point ptEye = Point(pt.x, pt.y);
+		m_dqEyePts.push_back(ptEye);
+		int sz = m_dqEyePts.size();
+        if(sz>2) 	{
+            m_dqEyePts.pop_front();	
+            sz--;
+        }
+        for(int i=0; i<sz; i++) {
+            if(i==0)	m_ptEyeL = m_dqEyePts[0];
+            if(i==1)	m_ptEyeR = m_dqEyePts[1];			
+		}
+	}else if(m_bMarkEar) {
+		Point ptEar = Point(pt.x, pt.y);
+		m_dqEarPts.push_back(ptEar);
+		int sz = m_dqEarPts.size();
+        if(sz>2) 	{
+            m_dqEarPts.pop_front();	
+            sz--;
+        }
+        for(int i=0; i<sz; i++) {
+            if(i==0)	m_ptEarL = m_dqEarPts[0];
+            if(i==1)	m_ptEarR = m_dqEarPts[1];			
+		}	
+	}else if(m_bMarkAbdomen) {
+		Point ptEar = Point(pt.x, pt.y);
+		m_dqAbdoPts.push_back(ptEar);
+/*        
+		int sz = m_dqAbdoPts.size();
+        if(sz>2)  {	
+            m_dqAbdoPts.pop_front();
+            sz--;
+        }
+        for(int i=0; i<sz; i++) {
+            if(i==0)	m_ptAbdoRed = m_dqAbdoPts[0];
+            if(i==1)	m_ptAbdoCyan = m_dqAbdoPts[1];
+        }
+         */ 
+	}else if(m_bMarkCageline) {
+		m_nCageLine = pt.y;
+		myMsgOutput("cage line %d\n", m_nCageLine);
+	}
+	
+	Refresh();
+}
+void MainFrame::OnMouseRButtonDown(wxMouseEvent& event)
+{
+	if(m_bMarkEye) {
+        m_dqEyePts.clear();
+	}else if(m_bMarkEar) {
+        m_dqEarPts.clear();
+	}else if(m_bMarkAbdomen) {
+        m_dqAbdoPts.clear();
+	}
+	
+	Refresh();
 }
