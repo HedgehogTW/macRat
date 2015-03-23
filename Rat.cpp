@@ -48,6 +48,7 @@ void CRat::clearData()
 	m_vecMat.clear();
 	m_vecDest.clear();	
 	m_vecFlow.clear();
+	m_vmGrayDiff.clear();
 	
 	m_vecEyeL.clear();
 	m_vecEyeR.clear();
@@ -422,13 +423,15 @@ bool CRat::processAbdomen(deque<Point>&  dqAbdoPts, int minusCageLine)
     int  sz = dqAbdoPts.size();
     if(sz <=0)  return;
     
-    m_dqAbdoPts.resize(sz);
+	vector<Point>  vecAbdoPts;
+	
+    vecAbdoPts.resize(sz);
     for(int i=0; i<sz; i++) {
-        m_dqAbdoPts[i] = dqAbdoPts[i];
-        m_dqAbdoPts[i].y -= minusCageLine;
+        vecAbdoPts[i] = dqAbdoPts[i];
+        vecAbdoPts[i].y -= minusCageLine;
     }
-	m_ptAbdoRed = m_dqAbdoPts[0];
-	m_ptAbdoCyan = m_dqAbdoPts[1];
+	m_ptAbdoRed = vecAbdoPts[0];
+	m_ptAbdoCyan = vecAbdoPts[1];
 	
 	m_referFrame = findReferenceFrame(m_ptAbdoCyan);
 	
@@ -528,19 +531,19 @@ bool CRat::processAbdomen(deque<Point>&  dqAbdoPts, int minusCageLine)
 	MainFrame:: myMsgOutput("PDF threshold %f, frame steps %d, bAccumulate %d, y range [%.2f, %.2f]\n", 
 			threshold, frameStep, bAccumulate, ymin, ymax);
 	
-	vector <float>  vecAbdoRedGrayDiff;
-	vector <float>  vecAbdoCyanGrayDiff;	
+	vector<vector <float> > vvAbdoGrayDiff;	
 	if(bGrayDiff) {
-		graylevelDiff(m_referFrame, m_ptAbdoRed, m_ptAbdoCyan, vecAbdoRedGrayDiff, vecAbdoCyanGrayDiff);
-		
-		DC_removal(m_nLED1, vecAbdoRedGrayDiff);
-		DC_removal(m_nLED1, vecAbdoCyanGrayDiff);
+		graylevelDiff(m_referFrame);
+		for(int i=0; i<vecAbdoPts.size(); i++) {
+			graylevelDiff_ROIAvg(vecAbdoPts[i], vvAbdoGrayDiff[i]);
+			DC_removal(m_nLED1, vvAbdoGrayDiff[i]);
+		}
 	}
 	
 	vector <float>  vecAdjDiff;
 	vector <Mat> vecMatAdjDiff;
 	if(bAdjDiff)  {
-		adjacentDiff(vecMatAdjDiff, vecAdjDiff, 1);
+		adjacentDiff_WholeImage(vecMatAdjDiff, vecAdjDiff, 1);
 		saveResult("adjDiff", vecMatAdjDiff);
 	}
 	
@@ -785,7 +788,10 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	int maxPointL, maxPointR;
 	maxPointL = maxPointR = -1;
 	if(bGrayDiff || bPinna) {
-		graylevelDiff(m_referFrame, ptEarL, ptEarR, vecLEarGrayDiff, vecREarGrayDiff);
+		graylevelDiff(m_referFrame);
+		graylevelDiff_ROIAvg(ptEarL, vecLEarGrayDiff);
+		graylevelDiff_ROIAvg(ptEarR, vecREarGrayDiff);	
+	
 		smoothData(vecLEarGrayDiff, smoothL, 2);	
 		smoothData(vecREarGrayDiff, smoothR, 2);	
 		
@@ -1302,7 +1308,7 @@ void CRat::graylevelDiff_Eye(int refer, Point ptEar, vector <Point>& vecEye, vec
 	}
 }
 
-void CRat::adjacentDiff(vector<Mat>& vecMatDiff, vector <float>& vecAdjDiff, int nFrameSteps)
+void CRat::adjacentDiff_WholeImage(vector<Mat>& vecMatDiff, vector <float>& vecAdjDiff, int nFrameSteps)
 {
 	vecMatDiff.resize(m_nSlices - nFrameSteps);
 	vecAdjDiff.resize(m_nSlices - nFrameSteps);
@@ -1321,25 +1327,26 @@ void CRat::adjacentDiff(vector<Mat>& vecMatDiff, vector <float>& vecAdjDiff, int
 		vecAdjDiff[i] = sSum[0]/(imgSz);
 	}
 }
-
-void CRat::graylevelDiff(int refer, Point& ptEarL, Point& ptEarR, vector <float>& vLEarGray,  vector <float>& vREarGray)
+void CRat::graylevelDiff_ROIAvg(Point& pt, vector <float>& vecAvg)
 {
-	vLEarGray.resize(m_nSlices);
-	vREarGray.resize(m_nSlices);
+	vecAvg.resize(m_nSlices);
 	
+	for(int i=0; i<m_nSlices; i++) {
+		double avg;
+		avg = errorSum(m_vmGrayDiff[i], pt);
+		vecAvg[i] = avg;
+	}	
+}
+void CRat::graylevelDiff(int refer)
+{
+	m_vmGrayDiff.resize(m_nSlices);
 	Mat mSrc1, mSrc2, mDiff;
 	
 	mSrc1 = m_vecMat[refer]; //17
 	
 	for(int i=0; i<m_nSlices; i++) {
-		double errSumL, errSumR;
 		mSrc2 = m_vecMat[i];
-		cv::absdiff(mSrc1, mSrc2, mDiff);
-		
-		errSumL = errorSum(mDiff, ptEarL);
-		errSumR = errorSum(mDiff, ptEarR);
-		vLEarGray[i] = errSumL;
-		vREarGray[i] = errSumR;
+		cv::absdiff(mSrc1, mSrc2, m_vmGrayDiff[i]);
 	}
 }
 
