@@ -88,7 +88,7 @@ public:
 	void 	DC_removal(int nFirstLED, vector <float>& vecSignal);
 	void	getLightRange(int& from, int& to) { from = m_nLED1; to = m_nLED_End; }
 
-	bool	processAbdomen(deque<Point>&  dqAbdoPts, int minusCageLine);
+	bool	processAbdomen(Point ptAbdoRed, Point ptAbdoCyan);
 	bool	processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR);
 
 	void 	findEyeCenter(Point& ptEye0, vector <Point>& vecEye, vector <float>&  vecEyeMove);
@@ -159,7 +159,6 @@ public:
 	Point	m_ptEarR;
 	Point 	m_ptAbdoRed;
 	Point	m_ptAbdoCyan;
-    deque<Point>  m_dqAbdoPts;
 	
 //	vector <double>  m_vecLEyeGrayDiff;
 //	vector <double>  m_vecREyeGrayDiff;

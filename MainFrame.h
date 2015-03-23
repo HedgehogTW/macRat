@@ -41,11 +41,11 @@ public:
 	int		getCageHeight() { return m_Rat.m_nCageLine; }
 
 	void	recognizeLeftRight(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR);
+	void	recognizeInsideBody(Point& ptInside, Point& ptBorder);
 	
 	void 	getEyePts(Point& eyeL, Point& eyeR) { eyeL = m_ptEyeL; eyeR = m_ptEyeR; }
 	void 	getEarPts(Point& earL, Point& earR) { earL = m_ptEarL; earR = m_ptEarR;}
-//	void 	getAbdoPts(Point& abRed, Point& abCyan) { abRed = m_ptAbdoRed; abCyan = m_ptAbdoCyan;}
-    void 	getAbdoPts(deque <Point>& vecPts, int& minus) {  vecPts = m_dqAbdoPts; minus = m_minusCageLine; }
+	void 	getAbdoPts(Point& abRed, Point& abCyan) { abRed = m_ptAbdoRed; abCyan = m_ptAbdoCyan;}
 	
 	int		getCageline() { return m_nCageLine; }
 	bool	getCroppedStatus()  { return m_bCropped; }
@@ -72,8 +72,6 @@ public:
 	
 	
 protected:
-    virtual void OnMouseLButtonDown(wxMouseEvent& event);
-    virtual void OnMouseRButtonDown(wxMouseEvent& event);
     virtual void OnRatProcessEar(wxCommandEvent& event);
     virtual void OnMarkCageline(wxCommandEvent& event);
     virtual void OnRatAbdomen(wxCommandEvent& event);
@@ -88,7 +86,7 @@ protected:
     virtual void OnRatLoadResult(wxCommandEvent& event);
     virtual void OnRatShowResults(wxCommandEvent& event);
     virtual void OnMarkEars(wxCommandEvent& event);
-//    virtual void OnLeftButtonDown(wxMouseEvent& event);
+    virtual void OnLeftButtonDown(wxMouseEvent& event);
     virtual void OnMarkEyes(wxCommandEvent& event);
 	virtual void OnMouseMotion(wxMouseEvent& event);
 	virtual void OnUpdateViewMsgPane(wxUpdateUIEvent& event);
@@ -118,7 +116,6 @@ protected:
 	int		m_nSlices ;
 	int		m_nCageLine;
 	bool	m_bCropped;
-    int     m_minusCageLine;
 ////////////////////////////////mark eyes and ears
 	bool    m_bMarkEye;
 	bool    m_bMarkEar;
@@ -129,7 +126,7 @@ protected:
 	deque<Point>  m_dqEarPts;
 	deque<Point>  m_dqAbdoPts;
 	Point 	m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR;
-//	Point 	m_ptAbdoRed, m_ptAbdoCyan;
+	Point 	m_ptAbdoRed, m_ptAbdoCyan;
 
 
 };

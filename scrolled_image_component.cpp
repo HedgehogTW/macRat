@@ -92,7 +92,7 @@ void ScrolledImageComponent::OnDraw(wxDC& dc)
 		dc.DrawCircle(ptEarL.x, ptEarL.y, 2);
 		dc.DrawCircle(ptEarR.x, ptEarR.y, 2);
 	}	
-	
+   /* 	
     int minusCage;
     deque <Point> vecPts;
     MainFrame::m_pThis->getAbdoPts(vecPts, minusCage);
@@ -106,7 +106,7 @@ void ScrolledImageComponent::OnDraw(wxDC& dc)
 		dc.SetBrush(*wxRED_BRUSH);
 		dc.DrawCircle(vecPts[i].x, vecPts[i].y-minusCage, 2);	       
     }
-   /* 
+*/
     Point 	ptAbdoRed, ptAbdoCyan;
 	MainFrame::m_pThis->getAbdoPts(ptAbdoRed, ptAbdoCyan);
 	if(ptAbdoRed.x != 0 ) {
@@ -117,7 +117,7 @@ void ScrolledImageComponent::OnDraw(wxDC& dc)
         dc.SetPen(*wxCYAN_PEN);
 		dc.SetBrush(*wxCYAN_BRUSH);
 		dc.DrawCircle(ptAbdoCyan.x, ptAbdoCyan.y, 2);
-	}	*/
+	}	
 	//MainFrame:: myMsgOutput("ptAbdoBo y %d\n", ptAbdoBo.y);
 }
 
