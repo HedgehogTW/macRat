@@ -49,7 +49,7 @@ public:
 	
 	int		getCageline() { return m_nCageLine; }
 	bool	getCroppedStatus()  { return m_bCropped; }
-	bool	preprocessing(char pos);
+	bool	preprocessing();
 	void 	readMarks(wxString &dirName);
 	
 	static void myMsgOutput(wxString szFormat,...) {

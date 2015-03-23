@@ -228,6 +228,7 @@ void MainFrame::openFile(wxString &dirName)
 	DeleteContents();
 
 	m_strSourcePath = dirName;
+	myMsgOutput("++++++++++++++++++++++++++++++++++++++++++++++++\n");
 	myMsgOutput( "Load " + dirName + "\n");
 
 	bool  bRet = false;
@@ -454,6 +455,11 @@ void MainFrame::OnLeftButtonDown(wxMouseEvent& event)
 	m_scrollWin->CalcUnscrolledPosition(pt1.x, pt1.y, &pt.x, &pt.y);
 	
 	Mat mat = getCurrentMat(0);
+//	int imgH = m_szOriSize.height;
+	
+//	if(mat.rows <imgH && m_nCageLine < imgH/2) {
+//		pt.y += m_nCageLine;
+//	}
 	
 	if (pt.x >= mat.cols || pt.y >= mat.rows)
 		return;
@@ -533,27 +539,12 @@ void MainFrame::recognizeLeftRight(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, 
 //	gpOutput->ShowMessage("angle %.2f\n", angle);
 }
 
-bool MainFrame::preprocessing(char pos)
+bool MainFrame::preprocessing()
 {
 	if(m_nCageLine<=0) {
 		wxMessageBox("set cage horizontal line", "error");
 		return false;
 	}	
-	if(pos=='E') {
-		if(m_dqEyePts.size()!=2) {
-			wxMessageBox("Select eye points", "error");
-			return false;
-		}
-		if(m_dqEarPts.size()!=2) {
-			wxMessageBox("Select ear points", "error");
-			return false;
-		}
-	}else if(pos=='A') {
-		if(m_dqAbdoPts.size()!=2) {
-			wxMessageBox("Select abdomen points", "error");
-			return false;
-		}	
-	}
 	
 	wxFileName dataName(m_strSourcePath, "_Marks.txt");
 	FILE* fp = fopen(dataName.GetFullPath(), "w");
@@ -568,7 +559,7 @@ bool MainFrame::preprocessing(char pos)
 		}
 		if(m_dqAbdoPts.size()>=2) {
 			fprintf(fp, "A%d %d %d %d\n", m_dqAbdoPts[0].x, m_dqAbdoPts[0].y, m_dqAbdoPts[1].x, m_dqAbdoPts[1].y );
-			myMsgOutput("Abdomen Border: [%d, %d], Inside Abdomen [%d, %d]\n",m_dqAbdoPts[0].x, m_dqAbdoPts[0].y, m_dqAbdoPts[1].x, m_dqAbdoPts[1].y );
+			myMsgOutput("Abdomen [%d, %d], [%d, %d]\n",m_dqAbdoPts[0].x, m_dqAbdoPts[0].y, m_dqAbdoPts[1].x, m_dqAbdoPts[1].y );
 		}
 		if(m_nCageLine >0)
 			fprintf(fp, "C%d\n", m_nCageLine );
@@ -592,24 +583,39 @@ bool MainFrame::preprocessing(char pos)
 }
 void MainFrame::OnRatProcessEar(wxCommandEvent& event)
 {
-	if(preprocessing('E')==false)  {
-		//wxLogMessage("preprocessing error");
-		return;
+	if(m_dqEyePts.size()!=2) {
+		wxMessageBox("Select eye points", "error");
+		return false;
 	}
-	//Point ptEyeL, ptEyeR, ptEarL, ptEarR;
+	if(m_dqEarPts.size()!=2) {
+		wxMessageBox("Select ear points", "error");
+		return false;
+	}
+	
 	m_ptEyeL = m_dqEyePts[0];
 	m_ptEyeR = m_dqEyePts[1];
 	m_ptEarL = m_dqEarPts[0];
 	m_ptEarR = m_dqEarPts[1];
 	
 	int imgH = m_szOriSize.height;
-	if(m_nCageLine < imgH/2) {
+	Mat mat = getCurrentMat(0);
+	if(mat.rows ==imgH && m_nCageLine < imgH/2) {
 		m_ptEyeL.y -= m_nCageLine;
 		m_ptEyeR.y -= m_nCageLine;
 		m_ptEarL.y -= m_nCageLine;
 		m_ptEarR.y -= m_nCageLine;	
+	}else if(m_nCageLine < imgH/2)	{
+		m_dqEyePts[0].y += m_nCageLine;
+		m_dqEyePts[1].y += m_nCageLine;
+		m_dqEarPts[0].y += m_nCageLine;
+		m_dqEarPts[1].y += m_nCageLine;	
+	}	
+	recognizeLeftRight(m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR);	
+	
+	if(preprocessing()==false)  {
+		//wxLogMessage("preprocessing error");
+		return;
 	}
-	recognizeLeftRight(m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR);
 	
 	bool bRet = m_Rat.processEar(m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR);
 	if(bRet ==false) return;
@@ -620,20 +626,48 @@ void MainFrame::OnRatProcessEar(wxCommandEvent& event)
 
 void MainFrame::OnRatAbdomen(wxCommandEvent& event)
 {
-	if(preprocessing('A')==false)  {
-		//wxLogMessage("preprocessing error");
-		return;
-	}
-	//Point ptAbdoBo, ptAbdoIn;
+	if(m_dqAbdoPts.size()!=2) {
+		wxMessageBox("Select abdomen points", "error");
+		return false;
+	}	
 	m_ptAbdoRed = m_dqAbdoPts[0];
 	m_ptAbdoCyan = m_dqAbdoPts[1];
 	
+	Mat mat = getCurrentMat(0);
 	int imgH = m_szOriSize.height;
-	if(m_nCageLine < imgH/2) {
+	if(mat.rows ==imgH && m_nCageLine < imgH/2) {
 		m_ptAbdoRed.y -= m_nCageLine;
 		m_ptAbdoCyan.y -= m_nCageLine;	
-	}	
+	}else if(m_nCageLine < imgH/2)	{
+		m_dqAbdoPts[0].y += m_nCageLine;
+		m_dqAbdoPts[1].y += m_nCageLine;
+	}
 	
+	if(m_dqEyePts.size()>0 && m_dqEarPts.size()>0) {
+		m_ptEyeL = m_dqEyePts[0];
+		m_ptEyeR = m_dqEyePts[1];
+		m_ptEarL = m_dqEarPts[0];
+		m_ptEarR = m_dqEarPts[1];
+		
+		if(mat.rows ==imgH && m_nCageLine < imgH/2) {
+			m_ptEyeL.y -= m_nCageLine;
+			m_ptEyeR.y -= m_nCageLine;
+			m_ptEarL.y -= m_nCageLine;
+			m_ptEarR.y -= m_nCageLine;	
+		}else if(m_nCageLine < imgH/2)	{
+			m_dqEyePts[0].y += m_nCageLine;
+			m_dqEyePts[1].y += m_nCageLine;
+			m_dqEarPts[0].y += m_nCageLine;
+			m_dqEarPts[1].y += m_nCageLine;	
+		}
+		recognizeLeftRight(m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR);
+	}
+		
+	if(preprocessing()==false)  {
+		//wxLogMessage("preprocessing error");
+		return;
+	}
+
 	bool bRet = m_Rat.processAbdomen(m_ptAbdoRed, m_ptAbdoCyan);
 	if(bRet ==false) return;
 	

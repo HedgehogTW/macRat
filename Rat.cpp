@@ -142,6 +142,12 @@ void CRat::saveResult(const char *subpath, vector <Mat> &vecM)
 		fileName.AppendDir(subpath);
 		wxFileName savePath = fileName.GetPath();
 		wxFileName saveName(savePath.GetFullPath(), fileName.GetFullName());
+		
+		if(i>=m_nLED1 && i<m_nLED_End) 
+			cv::circle(vecM[i], Point(15, 15), 7, cv::Scalar(255), -1);
+		if(i==m_nLED2) 
+			cv::circle(vecM[i], Point(vecM[i].cols-15, 15), 7, cv::Scalar(255), -1);
+	
 		imwrite(saveName.GetFullPath().ToStdString(), vecM[i]);
 	}
 
@@ -377,11 +383,11 @@ bool CRat::prepareData()
 
 			vecData.push_back(mData);
 			vFilenames.push_back(m_vFilenames[i]);
-			
+		/*	
 			if(i>=m_nLED1 && i<m_nLED_End) 
 				cv::circle(mData, Point(15, 15), 7, cv::Scalar(255), -1);
 			if(i==m_nLED2) 
-				cv::circle(mData, Point(mData.cols-15, 15), 7, cv::Scalar(255), -1);
+				cv::circle(mData, Point(mData.cols-15, 15), 7, cv::Scalar(255), -1);*/
 		}
 		m_vecMat.clear();
 		int sz= vecData.size();
@@ -397,7 +403,7 @@ bool CRat::prepareData()
 	m_szImg = Size(m_vecMat[0].cols, m_vecMat[0].rows );
 	m_nSlices = m_vecMat.size();
 
-	saveResult("cage", m_vecMat);
+//	saveResult("cage", m_vecMat);
 	
 	return m_bCropped;
 }
@@ -532,8 +538,15 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	vector <float>  vecAdjDiff;
 	vector <Mat> vecMatAdjDiff;
 	if(bAdjDiff)  {
-		adjacentDiff(vecMatAdjDiff, vecAdjDiff, 1);
+		adjacentDiff(vecMatAdjDiff, vecAdjDiff, 0);
 		saveResult("adjDiff", vecMatAdjDiff);
+	}
+	
+	if(bEyeMove)  {
+		Point 	ptEyeL, ptEyeR;
+		MainFrame::m_pThis->getEyePts(ptEyeL, ptEyeR);
+		findEyeCenter(ptEyeL, m_vecEyeL, m_vecEyeLMove);
+		findEyeCenter(ptEyeR, m_vecEyeR, m_vecEyeRMove);
 	}
 	
 	
@@ -597,7 +610,10 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 		_gnuplotVerticalLine(gPlotL, verLine);
 		_gnuplotVerticalLine(gPlotR, verLine);		
 	}
-
+	if(bEyeMove) {
+		_gnuplotLine(gPlotL, "LEyeMove", m_vecEyeLMove, "#008B0000", ".");
+		_gnuplotLine(gPlotR, "REyeMove", m_vecEyeRMove, "#008B0000", ".");
+	}
 	if(bGrayDiff) {
 		_gnuplotLine(gPlotL, "Red GraylevelDiff", vecAbdoRedGrayDiff, "#00008000");
 		_gnuplotLine(gPlotR, "Cyan GraylevelDiff", vecAbdoCyanGrayDiff, "#00008000");
@@ -1302,7 +1318,11 @@ void CRat::adjacentDiff(vector<Mat>& vecMatDiff, vector <float>& vecAdjDiff, int
 	
 	for(int i=0; i<m_nSlices - nFrameSteps; i++) {
 		Mat mSrc1, mSrc2, mDiff;
-		mSrc1 = m_vecMat[i];
+		if(nFrameSteps==0)
+			mSrc1 = m_vecMat[m_referFrame];
+		else
+			mSrc1 = m_vecMat[i];
+			
 		mSrc2 = m_vecMat[i+nFrameSteps];
 		cv::absdiff(mSrc1, mSrc2, mDiff);
 		//cv::threshold(mDiff, mDiff,0, 255, cv::THRESH_BINARY); 
