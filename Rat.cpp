@@ -423,12 +423,20 @@ void CRat::DC_removal(int nFirstLED, vector <float>& vecSignal)
 	for(int i=0; i<nFirstLED; i++)  vecSignal[i] -= mean;	
 }
 
-bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
+bool CRat::processAbdomen(deque<Point>&  dqAbdoPts, int minusCageLine)
 {
-	m_ptAbdoRed = ptAbdoRed;
-	m_ptAbdoCyan = ptAbdoCyan;
+    int  sz = dqAbdoPts.size();
+    if(sz <=0)  return;
+    
+    m_dqAbdoPts.resize(sz);
+    for(int i=0; i<sz; i++) {
+        m_dqAbdoPts[i] = dqAbdoPts[i];
+        m_dqAbdoPts[i].y -= minusCageLine;
+    }
+	m_ptAbdoRed = m_dqAbdoPts[0];
+	m_ptAbdoCyan = m_dqAbdoPts[1];
 	
-	m_referFrame = findReferenceFrame(ptAbdoCyan);
+	m_referFrame = findReferenceFrame(m_ptAbdoCyan);
 	
 	MainFrame::myMsgOutput("Reference frame %d\n", m_referFrame);
 	if(m_referFrame <0) {
@@ -436,7 +444,7 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 		return false;
 	}	
 	MainFrame::myMsgOutput("IMage size w%d, h%d, Abdomen Red [%d, %d], Cyan [%d, %d]\n", m_vecMat[0].cols, m_vecMat[0].rows,
-		ptAbdoRed.x, ptAbdoRed.y, ptAbdoCyan.x, ptAbdoCyan.y );
+		m_ptAbdoRed.x, m_ptAbdoRed.y, m_ptAbdoCyan.x, m_ptAbdoCyan.y );
 
 	/////////////////////////////////////////////////////////////optical flow
 	MyConfigData  configData;
@@ -529,7 +537,7 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	vector <float>  vecAbdoRedGrayDiff;
 	vector <float>  vecAbdoCyanGrayDiff;	
 	if(bGrayDiff) {
-		graylevelDiff(m_referFrame, ptAbdoRed, ptAbdoCyan, vecAbdoRedGrayDiff, vecAbdoCyanGrayDiff);
+		graylevelDiff(m_referFrame, m_ptAbdoRed, m_ptAbdoCyan, vecAbdoRedGrayDiff, vecAbdoCyanGrayDiff);
 		
 		DC_removal(m_nLED1, vecAbdoRedGrayDiff);
 		DC_removal(m_nLED1, vecAbdoCyanGrayDiff);
@@ -551,11 +559,11 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	
 	
 	if(bOpticalPDF) {
-		opticalFlowDistribution(m_vecFlow, "pdf", vecLEarFlowPdf, vecREarFlowPdf, ptAbdoRed, ptAbdoCyan, 
+		opticalFlowDistribution(m_vecFlow, "pdf", vecLEarFlowPdf, vecREarFlowPdf, m_ptAbdoRed, m_ptAbdoCyan, 
 									"_Red", "_Cyan", "Red", "Cyan", threshold);
-		opticalScatterPlotSave(m_vecFlow, "scatter", ptAbdoRed, ptAbdoCyan, "_Red", "_Cyan", "Red", "Cyan", threshold, "pdf");
+		opticalScatterPlotSave(m_vecFlow, "scatter", m_ptAbdoRed, m_ptAbdoCyan, "_Red", "_Cyan", "Red", "Cyan", threshold, "pdf");
 		
-        opticalDrawFlowmapWithPDF(ptAbdoRed, ptAbdoCyan, frameStep, 'A', threshold);
+        opticalDrawFlowmapWithPDF(m_ptAbdoRed, m_ptAbdoCyan, frameStep, 'A', threshold);
         
 		int sz = vecLEarFlowPdf.size();
 		if(frameStep > 0 && bAccumulate) {
@@ -574,8 +582,8 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	}
 	 
 	if(bOptical) {
-		opticalFlowAnalysis(m_vecFlow, ptAbdoRed, vecLEarFlow);
-		opticalFlowAnalysis(m_vecFlow, ptAbdoCyan, vecREarFlow);	
+		opticalFlowAnalysis(m_vecFlow, m_ptAbdoRed, vecLEarFlow);
+		opticalFlowAnalysis(m_vecFlow, m_ptAbdoCyan, vecREarFlow);	
 		
 		int sz = vecLEarFlow.size();
 		if(frameStep > 0 && bAccumulate) {	
@@ -641,10 +649,10 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	
 	////////////////////// save result to dest
 	m_vecDest.resize(m_nSlices);
-	Point ptL1 (ptAbdoRed-m_offsetEar);
-	Point ptL2 (ptAbdoRed+m_offsetEar);
-	Point ptR1 (ptAbdoCyan-m_offsetEar);
-	Point ptR2 (ptAbdoCyan+m_offsetEar);
+	Point ptL1 (m_ptAbdoRed-m_offsetEar);
+	Point ptL2 (m_ptAbdoRed+m_offsetEar);
+	Point ptR1 (m_ptAbdoCyan-m_offsetEar);
+	Point ptR2 (m_ptAbdoCyan+m_offsetEar);
 	
 	
 	for (int i = 0; i < m_nSlices; i++)

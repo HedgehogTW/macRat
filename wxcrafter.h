@@ -94,7 +94,8 @@ protected:
     virtual void OnRatLoadResult(wxCommandEvent& event) { event.Skip(); }
     virtual void OnAbout(wxCommandEvent& event) { event.Skip(); }
     virtual void OnMouseMotion(wxMouseEvent& event) { event.Skip(); }
-    virtual void OnLeftButtonDown(wxMouseEvent& event) { event.Skip(); }
+    virtual void OnMouseLButtonDown(wxMouseEvent& event) { event.Skip(); }
+    virtual void OnMouseRButtonDown(wxMouseEvent& event) { event.Skip(); }
     virtual void OnMarkCageline(wxCommandEvent& event) { event.Skip(); }
     virtual void OnMarkEyes(wxCommandEvent& event) { event.Skip(); }
     virtual void OnMarkEars(wxCommandEvent& event) { event.Skip(); }
