@@ -84,7 +84,7 @@ public:
 	void	saveResult(const char *subpath, vector <Mat> &vecDest);
 	bool	detectLED(int nCageLine);
 	Point	aspectRatio(vector<cv::Point> &con, double &ratio, double &angle );
-	bool	prepareData();
+	void	cropImage(bool& bCutTop);
 	void 	DC_removal(int nFirstLED, vector <float>& vecSignal);
 	void	getLightRange(int& from, int& to) { from = m_nLED1; to = m_nLED_End; }
 
@@ -175,7 +175,7 @@ public:
 	int		m_nLED_End;
 	bool	m_bLED_OK;
 	int		m_nCageLine;
-	bool	m_bCropped;
+//	bool	m_bCutTop;
 
 	int 	m_referFrame;
 	

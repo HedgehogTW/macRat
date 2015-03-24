@@ -62,7 +62,7 @@ void CRat::clearData()
 	m_nLED2 = -1;
 	m_nLED_End = -1;
 	m_nCageLine = -1;
-	m_bCropped = false;
+//	m_bCutTop = false;
 	m_bLED_OK = false;
 }
 
@@ -362,21 +362,23 @@ Point CRat::aspectRatio(vector<cv::Point> &con, double &ratio, double &angle )
 	return box.center;
 }
 
-bool CRat::prepareData()
+void CRat::cropImage(bool& bCutTop)
 {
 	vector <Mat> vecData;
 	vector <string> vFilenames;
 	int w = m_vecMat[0].cols;
 	int h = m_vecMat[0].rows;
 	
-	if(h <=m_nCageLine) return m_bCropped;
+	if(h <=m_nCageLine) return;
 	if(m_nCageLine >0) {
 		for(int i=0; i<m_nSlices; i++)  {
 			Mat mSrc;
 			if(m_nCageLine > h/2)
 				mSrc = m_vecMat[i].rowRange(0, m_nCageLine);
-			else
+			else {
 				mSrc = m_vecMat[i].rowRange(m_nCageLine, h);
+                bCutTop = true;
+            }
 				
 			Mat mData;
 			mSrc.copyTo(mData);
@@ -396,8 +398,6 @@ bool CRat::prepareData()
 			
 		std::copy(vecData.begin(), vecData.end(), m_vecMat.begin());
 		std::copy(vFilenames.begin(), vFilenames.end(), m_vFilenames.begin());
-		
-		m_bCropped = true;
 	}
 
 	m_szImg = Size(m_vecMat[0].cols, m_vecMat[0].rows );
@@ -405,7 +405,7 @@ bool CRat::prepareData()
 
 //	saveResult("cage", m_vecMat);
 	
-	return m_bCropped;
+	return;
 }
 void CRat::DC_removal(int nFirstLED, vector <float>& vecSignal)
 {
@@ -420,7 +420,7 @@ void CRat::DC_removal(int nFirstLED, vector <float>& vecSignal)
 	
 	for(int i=0; i<nFirstLED; i++) 	mean += vecSignal[i];
 	mean /= nFirstLED;
-	for(int i=0; i<nFirstLED; i++)  vecSignal[i] -= mean;	
+	for(int i=0; i<n; i++)  vecSignal[i] -= mean;	
 }
 
 bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
@@ -539,7 +539,8 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	vector <Mat> vecMatAdjDiff;
 	if(bAdjDiff)  {
 		adjacentDiff(vecMatAdjDiff, vecAdjDiff, 0);
-		saveResult("adjDiff", vecMatAdjDiff);
+        //DC_removal(m_nLED1, vecAdjDiff);
+		//saveResult("adjDiff", vecMatAdjDiff);
 	}
 	
 	if(bEyeMove)  {
@@ -658,7 +659,7 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 		rectangle(mDestColor, Rect(ptL1, ptL2), Scalar(255,0,0));
 		rectangle(mDestColor, Rect(ptR1, ptR2), Scalar(255,0,0));
 	}
-	saveResult("dest", m_vecDest);
+	//saveResult("dest", m_vecDest);
 
 	finish = clock();
 	duration = (double)(finish - start) / CLOCKS_PER_SEC;
@@ -940,7 +941,7 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 		rectangle(mDestColor, Rect(ptL1n, ptL2n), Scalar(0,255,0));
 		rectangle(mDestColor, Rect(ptR1n, ptR2n), Scalar(0,255,0));
 	}
-	saveResult("dest", m_vecDest);
+	//saveResult("dest", m_vecDest);
 
 	finish = clock();
 	duration = (double)(finish - start) / CLOCKS_PER_SEC;
