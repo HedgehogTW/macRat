@@ -68,7 +68,7 @@ MainFrame::MainFrame(wxWindow* parent)
 	m_configData.m_verLine = pConfig->ReadDouble("/optical/verLine", 190);
 	m_configData.m_ymin = pConfig->ReadDouble("/optical/ymin", 0);
 	m_configData.m_ymax = pConfig->ReadDouble("/optical/ymax", 5);
-	
+	m_configData.m_szROI = pConfig->ReadLong("/optical/ROISize", 40);
 	
 
 	this->Connect(wxID_FILE1, wxID_FILE9, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrame::OnMRUFile), NULL, this);
@@ -112,11 +112,12 @@ void MainFrame::DeleteContents()
 	pConfig->Write("/optical/verLine", m_configData.m_verLine);
 	pConfig->Write("/optical/ymin", m_configData.m_ymin);
 	pConfig->Write("/optical/ymax", m_configData.m_ymax);
-	
+	pConfig->Write("/optical/ROISize", m_configData.m_szROI);
 	
 	m_nSlices = 0;
 	m_nCageLine = -1;
 	m_bCutTop = false;
+	m_bHasCrop = false;
 	
 	m_bMarkEye = false;
 	m_bMarkEar = false;
@@ -507,8 +508,11 @@ bool MainFrame::preprocessing()
 		wxLogMessage(str);
 		return false;
 	}
-	m_Rat.cropImage(m_bCutTop);
-	updateOutData(m_Rat.getSrcImg(0));	
+	if(!m_bHasCrop ) {
+		m_Rat.cropImage(m_bCutTop);
+		updateOutData(m_Rat.getSrcImg(0));	
+		m_bHasCrop = true;
+	}
 	
 	myMsgOutput("After preprocessing, %d frames are used, cage size w%d, h%d\n",
 		m_nSlices, m_Rat.m_szImg.width, m_Rat.m_szImg.height );	

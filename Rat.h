@@ -13,7 +13,7 @@
 #include "gnuplot_i.h"
 
 #define NUM_FEATURE	 6
-#define EAR_RECT	40
+//#define m_RectSize	40
 
 using namespace std;
 using namespace cv;
@@ -65,6 +65,7 @@ public:
 	double 	m_verLine;
 	double  m_ymin;
 	double	m_ymax;	
+	long	m_szROI;
 };
 
 
@@ -91,8 +92,8 @@ public:
 	bool	processAbdomen(Point ptAbdoRed, Point ptAbdoCyan);
 	bool	processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR);
 
-	void 	findEyeCenter(Point& ptEye0, vector <Point>& vecEye, vector <float>&  vecEyeMove);
-	void  	findNewEarCenter(vector <Point>& vecEye, Point ptEar0, vector <Point>& vecEar);
+	void 	findEyeCenter(Point& ptEye0, vector <Point>& vecEye, vector <float>&  vecEyeMove, int referFrame);
+	void  	findNewEarCenter(vector <Point>& vecEye, Point ptEar0, vector <Point>& vecEar, int referFrame);
 	
 	void 	smoothData(vector<float>& inData, vector<float>& outData, int bw=5);
 	double 	errorSum(Mat &mDiff, Point ptEarL);
@@ -100,6 +101,8 @@ public:
 	int 	findMaxMotionPoint(vector<float>& inData);
 	void	graylevelDiff_Eye(int refer, Point ptEar, vector <Point>& vecEye, vector <float>& vecEarGrayDiff);
 	void 	graylevelDiff(int refer, Point& ptEarL, Point& ptEarR, vector <float>& vLEarGray,  vector <float>& vREarGray);
+	void	pointGraylevel(Point ptAbdoRed, Point ptAbdoCyan, vector <float>& vecRedPoint, vector <float>& vecCyanPoint);
+	
 	void 	adjacentDiff(vector<Mat>& vecDiff, vector <float>& vecAdjDiff, int nFrameSteps);
 	void 	saveEarROI(int stable, int motion, Point& pt);
 	void 	saveEyeTrajectory();
@@ -151,7 +154,6 @@ public:
 	vector <float>  m_vecEyeRMove;
 	
 	Point	m_offsetEar; //(50, 50);
-	Point	m_offsetEye;
 
 	Point 	m_ptEyeL;
 	Point	m_ptEyeR;
@@ -165,7 +167,7 @@ public:
 
 
 
-	
+	long	m_RectSize;
 	int		m_nSlices ;
 	Size	m_szImg;
 	wxString  m_strSrcPath;

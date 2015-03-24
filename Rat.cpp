@@ -26,8 +26,8 @@ Gnuplot gPlotR("lines");
 
 CRat::CRat()
 {
-	m_offsetEar = Point(EAR_RECT, EAR_RECT);
-	m_offsetEye = Point(10, 10);
+	
+	m_offsetEar = Point(40, 40);
 
 	m_nCageLine = -1;
 
@@ -427,14 +427,10 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 {
 	m_ptAbdoRed = ptAbdoRed;
 	m_ptAbdoCyan = ptAbdoCyan;
-	
-	m_referFrame = findReferenceFrame(ptAbdoCyan);
-	
-	MainFrame::myMsgOutput("Reference frame %d\n", m_referFrame);
-	if(m_referFrame <0) {
-		wxLogMessage("cannot find reference frame");
-		return false;
-	}	
+
+	m_vecEyeL.clear();
+	m_vecEyeR.clear();	
+
 	MainFrame::myMsgOutput("IMage size w%d, h%d, Abdomen Red [%d, %d], Cyan [%d, %d]\n", m_vecMat[0].cols, m_vecMat[0].rows,
 		ptAbdoRed.x, ptAbdoRed.y, ptAbdoCyan.x, ptAbdoCyan.y );
 
@@ -458,31 +454,19 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	double verLine = configData.m_verLine;
 	double ymin = configData.m_ymin;
 	double ymax = configData.m_ymax;
-/*	
-    if(frameStep==0) {
-		ymin = -2;
-		ymax = 25;
-	}else {
-		if(bAccumulate ==false) {
-            ymin = -2;
-            ymax = 2;	
-        }else {
-            ymin = -20;
-            ymax = 120;
-        }		
-	} 
-	*/
+	m_RectSize = configData.m_szROI;
+
 	DlgOpticalInput dlg(frameStep, threshold, MainFrame::m_pThis);
 	dlg.setVerticalLine(bLED, bPinna, bVerLine, verLine);
 	dlg.setSeriesLine(bEyeMove, bGrayDiff, bAdjDiff, bOptical, bOpticalPDF, bAccumulate);
-	dlg.setYRange(ymin, ymax);
+	dlg.setYRange(ymin, ymax, m_RectSize);
 	
 	if(dlg.ShowModal() !=  wxID_OK) return false;
 	newFrameSteps = dlg.getFrameSteps();
 	threshold = dlg.getThreshold();
 	dlg.getVerticalLine(bLED, bPinna, bVerLine, verLine);
 	dlg.getSeriesLine(bEyeMove, bGrayDiff, bAdjDiff, bOptical, bOpticalPDF, bAccumulate);
-	dlg.getYRange(ymin, ymax);
+	dlg.getYRange(ymin, ymax, m_RectSize);
 	dlg.Destroy();
 	
 	configData.m_frameStep = newFrameSteps;	
@@ -500,8 +484,17 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	configData.m_verLine = verLine;
 	configData.m_ymin = ymin;
 	configData.m_ymax = ymax;
+	configData.m_szROI = m_RectSize;
 	
-	MainFrame::m_pThis->setConfigData(configData);
+	MainFrame::m_pThis->setConfigData(configData);	
+	m_offsetEar = Point(m_RectSize/2, m_RectSize/2);
+	
+	m_referFrame = findReferenceFrame(ptAbdoCyan);
+	MainFrame::myMsgOutput("Reference frame %d\n", m_referFrame);
+	if(m_referFrame <0) {
+		wxLogMessage("cannot find reference frame");
+		return false;
+	}	
 	
 	clock_t start, finish;
 	double  duration;
@@ -523,14 +516,17 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	}
 	frameStep = newFrameSteps;
 	
-	MainFrame:: myMsgOutput("PDF threshold %f, frame steps %d, bAccumulate %d, y range [%.2f, %.2f]\n", 
-			threshold, frameStep, bAccumulate, ymin, ymax);
+	MainFrame:: myMsgOutput("PDF threshold %f, frame steps %d, bAccumulate %d, y range [%.2f, %.2f], szROI %d\n", 
+			threshold, frameStep, bAccumulate, ymin, ymax, m_RectSize);
+	
+//	vector <float>  vecRedPoint;
+//	vector <float>  vecCyanPoint;	
 	
 	vector <float>  vecAbdoRedGrayDiff;
 	vector <float>  vecAbdoCyanGrayDiff;	
 	if(bGrayDiff) {
 		graylevelDiff(m_referFrame, ptAbdoRed, ptAbdoCyan, vecAbdoRedGrayDiff, vecAbdoCyanGrayDiff);
-		
+//		pointGraylevel(ptAbdoRed, ptAbdoCyan, vecRedPoint, vecCyanPoint);
 		DC_removal(m_nLED1, vecAbdoRedGrayDiff);
 		DC_removal(m_nLED1, vecAbdoCyanGrayDiff);
 	}
@@ -546,8 +542,10 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	if(bEyeMove)  {
 		Point 	ptEyeL, ptEyeR;
 		MainFrame::m_pThis->getEyePts(ptEyeL, ptEyeR);
-		findEyeCenter(ptEyeL, m_vecEyeL, m_vecEyeLMove);
-		findEyeCenter(ptEyeR, m_vecEyeR, m_vecEyeRMove);
+		if(ptEyeL != Point(0,0))
+			findEyeCenter(ptEyeL, m_vecEyeL, m_vecEyeLMove, m_referFrame);
+		if(ptEyeR != Point(0,0))
+			findEyeCenter(ptEyeR, m_vecEyeR, m_vecEyeRMove, m_referFrame);
 	}
 	
 	
@@ -612,8 +610,10 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 		_gnuplotVerticalLine(gPlotR, verLine);		
 	}
 	if(bEyeMove) {
-		_gnuplotLine(gPlotL, "LEyeMove", m_vecEyeLMove, "#008B0000", ".");
-		_gnuplotLine(gPlotR, "REyeMove", m_vecEyeRMove, "#008B0000", ".");
+		if(m_vecEyeLMove.size()>0)
+			_gnuplotLine(gPlotL, "LEyeMove", m_vecEyeLMove, "#008B0000", ".");
+		if(m_vecEyeRMove.size()>0)
+			_gnuplotLine(gPlotR, "REyeMove", m_vecEyeRMove, "#008B0000", ".");
 	}
 	if(bGrayDiff) {
 		_gnuplotLine(gPlotL, "Red GraylevelDiff", vecAbdoRedGrayDiff, "#00008000");
@@ -677,20 +677,9 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	m_ptEarL = ptEarL;
 	m_ptEarR = ptEarR;
 	
-	m_referFrame = findReferenceFrame(ptEarL);
-	
-	MainFrame:: myMsgOutput("Reference frame %d\n", m_referFrame);
-	if(m_referFrame <0) {
-		wxLogMessage("cannot find reference frame");
-		return false;
-	}
-	findEyeCenter(ptEyeL, m_vecEyeL, m_vecEyeLMove);
-	findEyeCenter(ptEyeR, m_vecEyeR, m_vecEyeRMove);
-	
-	vector <Point>  vecEarL;
-	vector <Point>  vecEarR;
-	findNewEarCenter(m_vecEyeL, ptEarL, vecEarL);
-	findNewEarCenter(m_vecEyeR, ptEarR, vecEarR);
+	m_vecEyeL.clear();
+	m_vecEyeR.clear();
+
 	
 //	saveEyeTrajectory();
 //	_OutputVecPoints(m_vecEyeL, "_eyeLeft.txt");
@@ -717,32 +706,19 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	double verLine = configData.m_verLine;
 	double ymin = configData.m_ymin;
 	double ymax = configData.m_ymax;
-/*	
-    if(frameStep==0) {
-		ymin = -2;
-		ymax = 25;
-	}else {
-		if(bAccumulate ==false) {
-            ymin = -2;
-            ymax = 2;	
-        }else {
-            ymin = -20;
-            ymax = 120;
-        }		
-	} 
-*/
+	m_RectSize = configData.m_szROI;
 	
 	DlgOpticalInput dlg(frameStep, threshold, MainFrame::m_pThis);
 	dlg.setVerticalLine(bLED, bPinna, bVerLine, verLine);
 	dlg.setSeriesLine(bEyeMove, bGrayDiff, bAdjDiff, bOptical, bOpticalPDF, bAccumulate);
-	dlg.setYRange(ymin, ymax);
+	dlg.setYRange(ymin, ymax, m_RectSize);
 	
 	if(dlg.ShowModal() !=  wxID_OK) return false;
 	newFrameSteps = dlg.getFrameSteps();
 	threshold = dlg.getThreshold();
 	dlg.getVerticalLine(bLED, bPinna, bVerLine, verLine);
 	dlg.getSeriesLine(bEyeMove, bGrayDiff, bAdjDiff, bOptical, bOpticalPDF, bAccumulate);
-	dlg.getYRange(ymin, ymax);
+	dlg.getYRange(ymin, ymax, m_RectSize);
 	dlg.Destroy();
 	
 	configData.m_frameStep = newFrameSteps;	
@@ -760,9 +736,27 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	configData.m_verLine = verLine;
 	configData.m_ymin = ymin;
 	configData.m_ymax = ymax;
+	configData.m_szROI = m_RectSize;
 	
 	MainFrame::m_pThis->setConfigData(configData);
+	m_offsetEar = Point(m_RectSize/2, m_RectSize/2);
 	
+	m_referFrame = findReferenceFrame(ptEarL);
+	MainFrame:: myMsgOutput("Reference frame %d\n", m_referFrame);
+	if(m_referFrame <0) {
+		wxLogMessage("cannot find reference frame");
+		return false;
+	}
+	
+	findEyeCenter(ptEyeL, m_vecEyeL, m_vecEyeLMove, m_referFrame);
+	findEyeCenter(ptEyeR, m_vecEyeR, m_vecEyeRMove, m_referFrame);
+/*	
+	vector <Point>  vecEarL;
+	vector <Point>  vecEarR;
+	findNewEarCenter(m_vecEyeL, ptEarL, vecEarL, m_referFrame);
+	findNewEarCenter(m_vecEyeR, ptEarR, vecEarR, m_referFrame);
+*/
+//////////////////////////////////////////////////////////////////////	
 	clock_t start, finish;
 	double  duration;
 	start = clock();
@@ -784,8 +778,8 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	}
 	frameStep = newFrameSteps;
 	
-	MainFrame:: myMsgOutput("PDF threshold %f, frame steps %d, bAccumulate %d, y range [%d, %d]\n", 
-			threshold, frameStep, bAccumulate, ymin, ymax);
+	MainFrame:: myMsgOutput("PDF threshold %f, frame steps %d, bAccumulate %d, y range [%d, %d], szROI %d\n", 
+			threshold, frameStep, bAccumulate, ymin, ymax, m_RectSize);
 	
 	vector <float>  vecLEarGrayDiff;
 	vector <float>  vecREarGrayDiff;
@@ -934,12 +928,14 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 		circle(mDestColor, Point(ptEyeR.x, ptEyeR.y), 2, Scalar(0, 255, 255), -1);	
 		
 		// new positions of ears 
+		/*
 		Point ptL1n (vecEarL[i]-m_offsetEar);
 		Point ptL2n (vecEarL[i]+m_offsetEar);
 		Point ptR1n (vecEarR[i]-m_offsetEar);
 		Point ptR2n (vecEarR[i]+m_offsetEar);	
 		rectangle(mDestColor, Rect(ptL1n, ptL2n), Scalar(0,255,0));
 		rectangle(mDestColor, Rect(ptR1n, ptR2n), Scalar(0,255,0));
+		*/
 	}
 	//saveResult("dest", m_vecDest);
 
@@ -982,18 +978,18 @@ void CRat::linearRegression(vector <float>& vecSignal, vector <float>& vecOut, v
 	}
 	
 }
-void  CRat::findNewEarCenter(vector <Point>& vecEye, Point ptEar0, vector <Point>& vecEar)
+void  CRat::findNewEarCenter(vector <Point>& vecEye, Point ptEar0, vector <Point>& vecEar, int referFrame)
 {
 	vecEar.clear();	
 	vecEar.resize(m_nSlices);	
 	
-	Point ptReferEye = vecEye[m_referFrame];
+	Point ptReferEye = vecEye[referFrame];
 	for (int i = 0; i < m_nSlices; i++)	{
 		Point ptOffset = vecEye[i] - ptReferEye;
 		vecEar[i] = ptEar0 + ptOffset;	
 	}
 }
-void CRat::findEyeCenter(Point& ptEye0, vector <Point>& vecEye, vector <float>&  vecEyeMove)
+void CRat::findEyeCenter(Point& ptEye0, vector <Point>& vecEye, vector <float>&  vecEyeMove, int referFrame)
 {
 	
 	vecEye.clear();	
@@ -1030,7 +1026,7 @@ void CRat::findEyeCenter(Point& ptEye0, vector <Point>& vecEye, vector <float>& 
 		
 	}
 	
-	Point eyeRef = vecEye[m_referFrame];
+	Point eyeRef = vecEye[referFrame];
 	
 	for (int i = 0; i < m_nSlices; i++) {
 		vecEyeMove[i] = sqrt(	(vecEye[i].x-eyeRef.x)*(vecEye[i].x-eyeRef.x) + 
@@ -1334,7 +1330,18 @@ void CRat::adjacentDiff(vector<Mat>& vecMatDiff, vector <float>& vecAdjDiff, int
 		vecAdjDiff[i] = sSum[0]/(imgSz);
 	}
 }
+void CRat::pointGraylevel(Point ptAbdoRed, Point ptAbdoCyan, vector <float>& vecRedPoint, vector <float>& vecCyanPoint)
+{
+	vecRedPoint.resize(m_nSlices);
+	vecCyanPoint.resize(m_nSlices);
 
+	for(int i=0; i<m_nSlices; i++) {
+		Mat mSrc = m_vecMat[i];
+		vecRedPoint[i] = mSrc.at<uchar>(ptAbdoRed.y, ptAbdoRed.x);
+		vecCyanPoint[i] = mSrc.at<uchar>(ptAbdoCyan.y, ptAbdoCyan.x);
+	}
+	
+}
 void CRat::graylevelDiff(int refer, Point& ptEarL, Point& ptEarR, vector <float>& vLEarGray,  vector <float>& vREarGray)
 {
 	vLEarGray.resize(m_nSlices);
@@ -1410,8 +1417,8 @@ bool CRat::opticalLoadPDFfile(uchar* filename, Mat &mPdf)
         //wxLogMessage(str);
         return false;
     }
-    for(int i=0; i<EAR_RECT; i++)
-        for(int c=0; c<EAR_RECT; c++) {
+    for(int i=0; i<m_RectSize; i++)
+        for(int c=0; c<m_RectSize; c++) {
             fscanf(fpPdf, "%f", &probability);
             mPdf.at<float>(i, c) = probability;
         }
@@ -1452,7 +1459,7 @@ void CRat::opticalDrawFlowmapWithPDF(Point pt1, Point pt2, int nFrameSteps, char
 	}
     wxString pdfName1, pdfName2, pdfNameEye; 
     char pdfPath[] = "pdf";
-    Mat mPdf(EAR_RECT, EAR_RECT, CV_32FC1);	
+    Mat mPdf(m_RectSize, m_RectSize, CV_32FC1);	
     Mat mThMap(m_vecFlow[0].size(), CV_8UC1);
 	for(int i=0; i<m_nSlices - nFrameSteps; i++) {
 		// assign pdf filename
@@ -1615,7 +1622,7 @@ void CRat::opticalScatterPlotSave(vector<Mat>& vecFlow, char* subpath, Point pt1
 		ptEyeC.x= (m_vecEyeL[m_referFrame].x+m_vecEyeR[m_referFrame].x)/2;
 		ptEyeC.y= (m_vecEyeL[m_referFrame].y+m_vecEyeR[m_referFrame].y)/2;
 	}
-	Mat mPdf(EAR_RECT, EAR_RECT, CV_32FC1);	
+	Mat mPdf(m_RectSize, m_RectSize, CV_32FC1);	
 	int sz = vecFlow.size();
 	for(int i=0; i<sz; i++) {
 		Mat& mFlow = vecFlow[i];	

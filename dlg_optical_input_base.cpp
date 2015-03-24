@@ -167,6 +167,24 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     
     boxSizer98->Add(m_textCtrlYmax, 0, wxALL, 5);
     
+    m_panel116 = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxTAB_TRAVERSAL);
+    
+    boxSizer315->Add(m_panel116, 0, wxLEFT|wxRIGHT|wxBOTTOM, 5);
+    
+    wxBoxSizer* boxSizer118 = new wxBoxSizer(wxHORIZONTAL);
+    m_panel116->SetSizer(boxSizer118);
+    
+    m_staticText124 = new wxStaticText(m_panel116, wxID_ANY, _("ROI Size"), wxDefaultPosition, wxSize(-1,-1), 0);
+    
+    boxSizer118->Add(m_staticText124, 0, wxALL, 5);
+    
+    m_textCtrlROISize = new wxTextCtrl(m_panel116, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(-1,-1), 0);
+    #if wxVERSION_NUMBER >= 3000
+    m_textCtrlROISize->SetHint(wxT(""));
+    #endif
+    
+    boxSizer118->Add(m_textCtrlROISize, 0, wxALL, 5);
+    
     m_staticLine108 = new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxLI_HORIZONTAL);
     
     boxSizer315->Add(m_staticLine108, 0, wxALL|wxEXPAND, 5);

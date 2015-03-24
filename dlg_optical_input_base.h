@@ -52,6 +52,9 @@ protected:
     wxTextCtrl* m_textCtrlYmin;
     wxStaticText* m_staticText104;
     wxTextCtrl* m_textCtrlYmax;
+    wxPanel* m_panel116;
+    wxStaticText* m_staticText124;
+    wxTextCtrl* m_textCtrlROISize;
     wxStaticLine* m_staticLine108;
     wxStdDialogButtonSizer* m_stdBtnSizer52;
     wxButton* m_button56;

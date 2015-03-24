@@ -10,11 +10,11 @@ public:
 	
 	void setVerticalLine(bool bLED, bool bPinna, bool bVerLine, double x=0);
 	void setSeriesLine(bool bEyeMove, bool bGrayDiff, bool bAdjDiff, bool bOptical, bool bOpticalPDF, bool bAccumulate);
-	void setYRange(double min, double max);
+	void setYRange(double min, double max, long szROI);
 
 	void getVerticalLine(bool& bLED, bool& bPinna, bool& bVerLine, double& x);
 	void getSeriesLine(bool& bEyeMove, bool& bGrayDiff, bool& bAdjDiff, bool& bOptical, bool& bOpticalPDF, bool& bAccumulate);
-	void getYRange(double& min, double& max);
+	void getYRange(double& min, double& max, long& szROI);
 	
 	double getThreshold() { 
 		wxString  str = m_textCtrlThreshold->GetValue();

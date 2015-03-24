@@ -117,6 +117,7 @@ protected:
 	int		m_nSlices ;
 	int		m_nCageLine;
 	bool	m_bCutTop;
+	bool	m_bHasCrop;
 ////////////////////////////////mark eyes and ears
 	bool    m_bMarkEye;
 	bool    m_bMarkEar;
