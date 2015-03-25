@@ -69,6 +69,7 @@ MainFrame::MainFrame(wxWindow* parent)
 	m_configData.m_ymin = pConfig->ReadDouble("/optical/ymin", 0);
 	m_configData.m_ymax = pConfig->ReadDouble("/optical/ymax", 5);
 	m_configData.m_szROI = pConfig->ReadLong("/optical/ROISize", 40);
+    m_configData.m_referFrame = pConfig->ReadLong("/optical/referFrame", 0);
 	
 
 	this->Connect(wxID_FILE1, wxID_FILE9, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrame::OnMRUFile), NULL, this);
@@ -113,6 +114,7 @@ void MainFrame::DeleteContents()
 	pConfig->Write("/optical/ymin", m_configData.m_ymin);
 	pConfig->Write("/optical/ymax", m_configData.m_ymax);
 	pConfig->Write("/optical/ROISize", m_configData.m_szROI);
+    pConfig->Write("/optical/referFrame", m_configData.m_referFrame);
 	
 	m_nSlices = 0;
 	m_nCageLine = -1;

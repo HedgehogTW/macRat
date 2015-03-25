@@ -66,6 +66,7 @@ public:
 	double  m_ymin;
 	double	m_ymax;	
 	long	m_szROI;
+    long    m_referFrame;
 };
 
 

@@ -55,6 +55,9 @@ protected:
     wxPanel* m_panel116;
     wxStaticText* m_staticText124;
     wxTextCtrl* m_textCtrlROISize;
+    wxStaticText* m_staticText126;
+    wxTextCtrl* m_textCtrlReferFrame;
+    wxStaticText* m_staticText130;
     wxStaticLine* m_staticLine108;
     wxStdDialogButtonSizer* m_stdBtnSizer52;
     wxButton* m_button56;

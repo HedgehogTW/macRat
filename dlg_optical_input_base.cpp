@@ -69,7 +69,7 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     
     gridBagSizer82->Add(m_checkBoxGrayDiff, wxGBPosition(3,1), wxGBSpan(1,1), wxALL, 5);
     
-    m_checkBoxAdjDiff = new wxCheckBox(m_panel80, wxID_ANY, _("Adjacent Diff"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_checkBoxAdjDiff = new wxCheckBox(m_panel80, wxID_ANY, _("ImageDiff"), wxDefaultPosition, wxSize(-1,-1), 0);
     m_checkBoxAdjDiff->SetValue(false);
     
     gridBagSizer82->Add(m_checkBoxAdjDiff, wxGBPosition(3,2), wxGBSpan(1,1), wxALL, 5);
@@ -149,7 +149,7 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     
     boxSizer98->Add(m_staticText100, 0, wxALL, 5);
     
-    m_textCtrlYmin = new wxTextCtrl(m_panel96, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_textCtrlYmin = new wxTextCtrl(m_panel96, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(60,-1), 0);
     #if wxVERSION_NUMBER >= 3000
     m_textCtrlYmin->SetHint(wxT(""));
     #endif
@@ -160,7 +160,7 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     
     boxSizer98->Add(m_staticText104, 0, wxALL, 5);
     
-    m_textCtrlYmax = new wxTextCtrl(m_panel96, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_textCtrlYmax = new wxTextCtrl(m_panel96, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(60,-1), 0);
     #if wxVERSION_NUMBER >= 3000
     m_textCtrlYmax->SetHint(wxT(""));
     #endif
@@ -178,12 +178,27 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     
     boxSizer118->Add(m_staticText124, 0, wxALL, 5);
     
-    m_textCtrlROISize = new wxTextCtrl(m_panel116, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_textCtrlROISize = new wxTextCtrl(m_panel116, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(50,-1), 0);
     #if wxVERSION_NUMBER >= 3000
     m_textCtrlROISize->SetHint(wxT(""));
     #endif
     
     boxSizer118->Add(m_textCtrlROISize, 0, wxALL, 5);
+    
+    m_staticText126 = new wxStaticText(m_panel116, wxID_ANY, _("Refer. Frame"), wxDefaultPosition, wxSize(-1,-1), 0);
+    
+    boxSizer118->Add(m_staticText126, 0, wxALL, 5);
+    
+    m_textCtrlReferFrame = new wxTextCtrl(m_panel116, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(50,-1), 0);
+    #if wxVERSION_NUMBER >= 3000
+    m_textCtrlReferFrame->SetHint(wxT(""));
+    #endif
+    
+    boxSizer118->Add(m_textCtrlReferFrame, 0, wxALL, 5);
+    
+    m_staticText130 = new wxStaticText(m_panel116, wxID_ANY, _("0: automatic"), wxDefaultPosition, wxSize(-1,-1), 0);
+    
+    boxSizer118->Add(m_staticText130, 0, wxALL, 5);
     
     m_staticLine108 = new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxLI_HORIZONTAL);
     

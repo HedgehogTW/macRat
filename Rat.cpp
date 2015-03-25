@@ -455,18 +455,19 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	double ymin = configData.m_ymin;
 	double ymax = configData.m_ymax;
 	m_RectSize = configData.m_szROI;
+    long referFrame = configData.m_referFrame;
 
 	DlgOpticalInput dlg(frameStep, threshold, MainFrame::m_pThis);
 	dlg.setVerticalLine(bLED, bPinna, bVerLine, verLine);
 	dlg.setSeriesLine(bEyeMove, bGrayDiff, bAdjDiff, bOptical, bOpticalPDF, bAccumulate);
-	dlg.setYRange(ymin, ymax, m_RectSize);
+	dlg.setYRange(ymin, ymax, m_RectSize, referFrame);
 	
 	if(dlg.ShowModal() !=  wxID_OK) return false;
 	newFrameSteps = dlg.getFrameSteps();
 	threshold = dlg.getThreshold();
 	dlg.getVerticalLine(bLED, bPinna, bVerLine, verLine);
 	dlg.getSeriesLine(bEyeMove, bGrayDiff, bAdjDiff, bOptical, bOpticalPDF, bAccumulate);
-	dlg.getYRange(ymin, ymax, m_RectSize);
+	dlg.getYRange(ymin, ymax, m_RectSize, referFrame);
 	dlg.Destroy();
 	
 	configData.m_frameStep = newFrameSteps;	
@@ -485,11 +486,16 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	configData.m_ymin = ymin;
 	configData.m_ymax = ymax;
 	configData.m_szROI = m_RectSize;
+    configData.m_referFrame = referFrame;
 	
 	MainFrame::m_pThis->setConfigData(configData);	
 	m_offsetEar = Point(m_RectSize/2, m_RectSize/2);
 	
-	m_referFrame = findReferenceFrame(ptAbdoCyan);
+    if(referFrame<=0)
+        m_referFrame = findReferenceFrame(ptAbdoCyan);
+    else
+        m_referFrame = referFrame;
+        
 	MainFrame::myMsgOutput("Reference frame %d\n", m_referFrame);
 	if(m_referFrame <0) {
 		wxLogMessage("cannot find reference frame");
@@ -535,7 +541,7 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	vector <Mat> vecMatAdjDiff;
 	if(bAdjDiff)  {
 		adjacentDiff(vecMatAdjDiff, vecAdjDiff, 0);
-        //DC_removal(m_nLED1, vecAdjDiff);
+        DC_removal(m_nLED1, vecAdjDiff);
 		//saveResult("adjDiff", vecMatAdjDiff);
 	}
 	
@@ -620,8 +626,8 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 		_gnuplotLine(gPlotR, "Cyan GraylevelDiff", vecAbdoCyanGrayDiff, "#00008000");
 	}
 	if(bAdjDiff)  {
-		_gnuplotLine(gPlotL, "AdjDiff", vecAdjDiff, "#00808000");
-		_gnuplotLine(gPlotR, "AdjDiff", vecAdjDiff, "#00808000");
+		_gnuplotLine(gPlotL, "ImageDiff", vecAdjDiff, "#00808000");
+		_gnuplotLine(gPlotR, "ImageDiff", vecAdjDiff, "#00808000");
 	}	
 	if(bOptical) {
 		_gnuplotLine(gPlotL, "Red Flow", vecLEarFlow, "#00FF4500");
@@ -707,18 +713,19 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	double ymin = configData.m_ymin;
 	double ymax = configData.m_ymax;
 	m_RectSize = configData.m_szROI;
+    long referFrame = configData.m_referFrame;
 	
 	DlgOpticalInput dlg(frameStep, threshold, MainFrame::m_pThis);
 	dlg.setVerticalLine(bLED, bPinna, bVerLine, verLine);
 	dlg.setSeriesLine(bEyeMove, bGrayDiff, bAdjDiff, bOptical, bOpticalPDF, bAccumulate);
-	dlg.setYRange(ymin, ymax, m_RectSize);
+	dlg.setYRange(ymin, ymax, m_RectSize, referFrame);
 	
 	if(dlg.ShowModal() !=  wxID_OK) return false;
 	newFrameSteps = dlg.getFrameSteps();
 	threshold = dlg.getThreshold();
 	dlg.getVerticalLine(bLED, bPinna, bVerLine, verLine);
 	dlg.getSeriesLine(bEyeMove, bGrayDiff, bAdjDiff, bOptical, bOpticalPDF, bAccumulate);
-	dlg.getYRange(ymin, ymax, m_RectSize);
+	dlg.getYRange(ymin, ymax, m_RectSize, referFrame);
 	dlg.Destroy();
 	
 	configData.m_frameStep = newFrameSteps;	
@@ -737,11 +744,16 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	configData.m_ymin = ymin;
 	configData.m_ymax = ymax;
 	configData.m_szROI = m_RectSize;
+    configData.m_referFrame = referFrame;
 	
 	MainFrame::m_pThis->setConfigData(configData);
 	m_offsetEar = Point(m_RectSize/2, m_RectSize/2);
 	
-	m_referFrame = findReferenceFrame(ptEarL);
+    if(referFrame<=0)
+        m_referFrame = findReferenceFrame(ptEarL);
+    else
+        m_referFrame = referFrame;
+        
 	MainFrame:: myMsgOutput("Reference frame %d\n", m_referFrame);
 	if(m_referFrame <0) {
 		wxLogMessage("cannot find reference frame");
@@ -1175,49 +1187,27 @@ int CRat::findReferenceFrame(Point& pt)
 	
 	vector <double>  vSeries;
 	
+    vSeries.resize(end);
+    
 	Mat mSrc1, mSrc2, mDiff;
-
+    m_vecMat[end/2].convertTo(mSrc2, CV_16S);;
+    double mu;
 	for(int i=0; i<end; i++) {
-		mSrc1 = m_vecMat[i]; //17
-		double errSumL, errSumR;
-		mSrc2 = m_vecMat[i+2];
-		cv::absdiff(mSrc1, mSrc2, mDiff);
-		
-		errSumL = errorSum(mDiff, pt);
-//		errSumR = errorSum(mDiff, ptEarR);
-		vSeries.push_back(errSumL);
-//		m_vecREarGrayDiff.push_back(errSumR);
+		m_vecMat[i].convertTo(mSrc1, CV_16S);        
+        mDiff = mSrc1 - mSrc2;
+        mu = errorSum(mDiff, pt);
+        vSeries[i] = mu;
+    }
+    
+  	int  idxMin= -1;  
+    double min = vSeries[0];
+    for(int i=0; i<end; i++) {
+        if(vSeries[i] < min) {
+            min = vSeries[i];
+            idxMin = i;
+        }
 	}
-//	_gnuplotLine("LeftEar", vSeries);	
-	
-	double *seg, *x;
-	double a1, b1, cov00, cov01, cov11, sumsq;
-
-	seg = new double[lenSeg]; 
-	x = new double[lenSeg]; 
-
-	double min = 9999;
-	int  idxMin= -1;
-//FILE* fp= fopen("mse.csv", "w");
-	for(int k=start ; k<= end-lenSeg+1; k++) {
-		for(int i=0; i<lenSeg; i++) {
-			seg[i] = vSeries[k+i];
-			x[i] = i;
-		}
-		
-		gsl_fit_linear(x, 1, seg, 1, lenSeg, &a1, &b1, &cov00, &cov01, &cov11, &sumsq);
-		if(sumsq < min){
-			min = sumsq;
-			idxMin = k;
-		}
-//		fprintf(fp, "%d, %.3f\n", k, sumsq);
-	}
-//fclose(fp);
-
-	delete [] seg;
-	delete [] x;	
-	
-	return idxMin +2;
+	return idxMin;
 }
 
 double CRat::errorSum(Mat &mDiff, Point ptEarL)
