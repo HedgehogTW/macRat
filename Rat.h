@@ -104,7 +104,7 @@ public:
 	void 	graylevelDiff(int refer, Point& ptEarL, Point& ptEarR, vector <float>& vLEarGray,  vector <float>& vREarGray);
 	void	pointGraylevel(Point ptAbdoRed, Point ptAbdoCyan, vector <float>& vecRedPoint, vector <float>& vecCyanPoint);
 	
-	void 	adjacentDiff(vector<Mat>& vecDiff, vector <float>& vecAdjDiff, int nFrameSteps);
+	void 	imageDiff(vector<Mat>& vecDiff, vector <float>& vecAdjDiff, int nFrameSteps);
 	void 	saveEarROI(int stable, int motion, Point& pt);
 	void 	saveEyeTrajectory();
 
