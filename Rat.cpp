@@ -438,6 +438,7 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	MyConfigData  configData;
 	MainFrame::m_pThis->getConfigData(configData);
 	
+	int  newReferFrame;
 	int  newFrameSteps;
 	int frameStep = configData.m_frameStep;	
 	double threshold = configData.m_threshold;
@@ -492,12 +493,12 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	m_offsetEar = Point(m_RectSize/2, m_RectSize/2);
 	
     if(referFrame<=0)
-        m_referFrame = findReferenceFrame(ptAbdoCyan);
+        newReferFrame = findReferenceFrame(ptAbdoCyan);
     else
-        m_referFrame = referFrame;
+        newReferFrame = referFrame;
         
-	MainFrame::myMsgOutput("Reference frame %d\n", m_referFrame);
-	if(m_referFrame <0) {
+	MainFrame::myMsgOutput("Reference frame %d\n", newReferFrame);
+	if(newReferFrame <0) {
 		wxLogMessage("cannot find reference frame");
 		return false;
 	}	
@@ -517,10 +518,11 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	vector <float>  vecREarFlowPdfSubRegres;
 	
 	int szVecFlow = m_vecFlow.size();
-	if(newFrameSteps != frameStep || szVecFlow ==0 ) {
-		opticalFlow(newFrameSteps);
+	if(newFrameSteps != frameStep || szVecFlow ==0 || m_referFrame != newReferFrame) {
+		opticalFlow(newFrameSteps, newReferFrame);
 	}
 	frameStep = newFrameSteps;
+	m_referFrame = newReferFrame;
 	
 	MainFrame:: myMsgOutput("PDF threshold %f, frame steps %d, bAccumulate %d, y range [%.2f, %.2f], szROI %d\n", 
 			threshold, frameStep, bAccumulate, ymin, ymax, m_RectSize);
@@ -696,6 +698,7 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	MyConfigData  configData;
 	MainFrame::m_pThis->getConfigData(configData);
 	
+	int  newReferFrame;
 	int  newFrameSteps;
 	int frameStep = configData.m_frameStep;	
 	double threshold = configData.m_threshold;
@@ -750,18 +753,18 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	m_offsetEar = Point(m_RectSize/2, m_RectSize/2);
 	
     if(referFrame<=0)
-        m_referFrame = findReferenceFrame(ptEarL);
+        newReferFrame = findReferenceFrame(m_ptEarL);
     else
-        m_referFrame = referFrame;
+        newReferFrame = referFrame;
         
-	MainFrame:: myMsgOutput("Reference frame %d\n", m_referFrame);
-	if(m_referFrame <0) {
+	MainFrame::myMsgOutput("Reference frame %d\n", newReferFrame);
+	if(newReferFrame <0) {
 		wxLogMessage("cannot find reference frame");
 		return false;
-	}
+	}	
 	
-	findEyeCenter(ptEyeL, m_vecEyeL, m_vecEyeLMove, m_referFrame);
-	findEyeCenter(ptEyeR, m_vecEyeR, m_vecEyeRMove, m_referFrame);
+	findEyeCenter(ptEyeL, m_vecEyeL, m_vecEyeLMove, newReferFrame);
+	findEyeCenter(ptEyeR, m_vecEyeR, m_vecEyeRMove, newReferFrame);
 /*	
 	vector <Point>  vecEarL;
 	vector <Point>  vecEarR;
@@ -785,10 +788,11 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	vector <float>  vecREarFlowPdfSubRegres;
 	
 	int szVecFlow = m_vecFlow.size();
-	if(newFrameSteps != frameStep || szVecFlow ==0 ) {
-		opticalFlow(newFrameSteps);
+	if(newFrameSteps != frameStep || szVecFlow ==0 || m_referFrame != newReferFrame) {
+		opticalFlow(newFrameSteps, newReferFrame);
 	}
 	frameStep = newFrameSteps;
+	m_referFrame = newReferFrame;
 	
 	MainFrame:: myMsgOutput("PDF threshold %f, frame steps %d, bAccumulate %d, y range [%d, %d], szROI %d\n", 
 			threshold, frameStep, bAccumulate, ymin, ymax, m_RectSize);
@@ -1353,7 +1357,7 @@ void CRat::graylevelDiff(int refer, Point& ptEarL, Point& ptEarR, vector <float>
 	}
 }
 
-void CRat::opticalFlow(int nFrameSteps)
+void CRat::opticalFlow(int nFrameSteps, int refFrame)
 {
 	// optical flow
 	double pyr_scale = 0.5;
@@ -1362,9 +1366,6 @@ void CRat::opticalFlow(int nFrameSteps)
 	int nWinSize = 3;
 	int poly_n = 7;
 	double dblSigma = 1.5;
-
-//	gpMainFrame->CreateProgressBar(0, m_nSlices, 1);
-//	CProgressCtrl *pb =  gpMainFrame->GetProgressBarCtrl();
 
 	m_vecFlow.resize(m_nSlices  - nFrameSteps);
 	
@@ -1379,7 +1380,7 @@ void CRat::opticalFlow(int nFrameSteps)
 //#pragma omp parallel for 
 	for(int i=0; i<m_nSlices - nFrameSteps; i++) {
 		int referFrame;
-		if(nFrameSteps==0)  referFrame= m_referFrame;
+		if(nFrameSteps==0)  referFrame= refFrame;
 		else referFrame = i;
 		
 		Mat mSrc1, mSrc2;

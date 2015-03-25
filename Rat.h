@@ -108,7 +108,7 @@ public:
 	void 	saveEarROI(int stable, int motion, Point& pt);
 	void 	saveEyeTrajectory();
 
-	void	opticalFlow(int nFrameSteps);
+	void	opticalFlow(int nFrameSteps, int referFrame);
 	void 	opticalDrawFlowmap(Point pt1, Point pt2, int nFrameSteps, char type);
     void 	opticalDrawFlowmapWithPDF(Point pt1, Point pt2, int nFrameSteps, char type, float threshold);
     

@@ -131,6 +131,10 @@ void MainFrame::DeleteContents()
 	m_dqAbdoPts.clear();
 	
 	m_ptAbdoRed = m_ptAbdoCyan = m_ptEyeL = m_ptEyeR = m_ptEarL = m_ptEarR = Point(0,0);
+	
+	m_bmpToggleBtnMarkEyes->SetValue(false);
+	m_bmpToggleBtnMarkEars->SetValue(false);	
+	m_bmpToggleBtnMarkAbdo->SetValue(false);
 }
 void MainFrame::OnMRUFile(wxCommandEvent& event)
 {
