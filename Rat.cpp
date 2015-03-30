@@ -518,9 +518,12 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	vector <float>  vecREarFlowPdfSubRegres;
 	
 	int szVecFlow = m_vecFlow.size();
-	if(newFrameSteps != frameStep || szVecFlow ==0 || m_referFrame != newReferFrame) {
-		opticalFlow(newFrameSteps, newReferFrame);
-	}
+    if(bOpticalPDF || bOptical) {
+        if(newFrameSteps != frameStep || szVecFlow ==0 || m_referFrame != newReferFrame) {
+            opticalFlow(newFrameSteps, newReferFrame);
+        }
+    }
+    
 	frameStep = newFrameSteps;
 	m_referFrame = newReferFrame;
 	
@@ -578,6 +581,11 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 			linearRegression(vecLEarFlowPdf, vecLEarFlowPdfRegres, vecLEarFlowPdfSubRegres);
 			linearRegression(vecREarFlowPdf, vecREarFlowPdfRegres, vecREarFlowPdfSubRegres);
 		}
+        
+        FILE* fp = fopen("_pdf.dat", "w");
+        for(int i=0; i<vecLEarFlowPdfSubRegres.size(); i++)
+            fprintf(fp, "%f %f\n", vecLEarFlowPdfSubRegres[i], vecREarFlowPdfSubRegres[i]);
+        fclose(fp);        
 	}
 	 
 	if(bOptical) {
@@ -622,6 +630,12 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 			_gnuplotLine(gPlotL, "LEyeMove", m_vecEyeLMove, "#008B0000", ".");
 		if(m_vecEyeRMove.size()>0)
 			_gnuplotLine(gPlotR, "REyeMove", m_vecEyeRMove, "#008B0000", ".");
+            
+        
+        FILE* fp = fopen("_eye.dat", "w");
+        for(int i=0; i<m_vecEyeLMove.size(); i++)
+            fprintf(fp, "%f %f\n", m_vecEyeLMove[i], m_vecEyeRMove[i]);
+        fclose(fp);            
 	}
 	if(bGrayDiff) {
 		_gnuplotLine(gPlotL, "Red GraylevelDiff", vecAbdoRedGrayDiff, "#00008000");
@@ -788,9 +802,11 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	vector <float>  vecREarFlowPdfSubRegres;
 	
 	int szVecFlow = m_vecFlow.size();
-	if(newFrameSteps != frameStep || szVecFlow ==0 || m_referFrame != newReferFrame) {
-		opticalFlow(newFrameSteps, newReferFrame);
-	}
+    if(bOpticalPDF || bOptical) {
+        if(newFrameSteps != frameStep || szVecFlow ==0 || m_referFrame != newReferFrame) {
+            opticalFlow(newFrameSteps, newReferFrame);
+        }
+    }
 	frameStep = newFrameSteps;
 	m_referFrame = newReferFrame;
 	
@@ -893,6 +909,11 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	if(bEyeMove) {
 		_gnuplotLine(gPlotL, "LEyeMove", m_vecEyeLMove, "#008B0000", ".");
 		_gnuplotLine(gPlotR, "REyeMove", m_vecEyeRMove, "#008B0000", ".");
+               
+        FILE* fp = fopen("_eye.csv", "w");
+        for(int i=0; i<vecLEarFlowPdfSubRegres.size(); i++)
+            fprintf(fp, "%f, %f\n", vecLEarFlowPdfSubRegres[i], vecREarFlowPdfSubRegres[i]);
+        fclose(fp); 
 	}
 	if(bGrayDiff) {
 		_gnuplotLine(gPlotL, "LEarGraylevelDiff", vecLEarGrayDiff, "#00008000");
@@ -1396,7 +1417,7 @@ void CRat::opticalFlow(int nFrameSteps, int refFrame)
 	int minutes = duration / 60;
 	int second = duration - minutes * 60;
 	MainFrame:: myMsgOutput("Opticalflow computation time: %02dm:%02ds\n", minutes, second);
-	MainFrame:: myMsgOutput("Opticalflow done, m_vecFlow size %d------\n", m_vecFlow.size());
+//	MainFrame:: myMsgOutput("Opticalflow done, m_vecFlow size %d------\n", m_vecFlow.size());
 }
 bool CRat::opticalLoadPDFfile(uchar* filename, Mat &mPdf)
 {
