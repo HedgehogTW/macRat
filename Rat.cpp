@@ -508,14 +508,14 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	start = clock();
 	
 	wxBeginBusyCursor();
-	vector <float>  vecLEarFlow;  // Red
-	vector <float>  vecREarFlow;  // Cyan
-	vector <float>  vecLEarFlowPdf;
-	vector <float>  vecREarFlowPdf;
-	vector <float>  vecLEarFlowPdfRegres;
-	vector <float>  vecREarFlowPdfRegres;
-	vector <float>  vecLEarFlowPdfSubRegres;
-	vector <float>  vecREarFlowPdfSubRegres;
+	vector <float>  vecARedFlow;  // Red
+	vector <float>  vecACyanFlow;  // Cyan
+	vector <float>  vecARedFlowPdf;
+	vector <float>  vecACyanFlowPdf;
+	vector <float>  vecARedFlowPdfRegres;
+	vector <float>  vecACyanFlowPdfRegres;
+	vector <float>  vecARedFlowPdfSubRegres;
+	vector <float>  vecACyanFlowPdfSubRegres;
 	
 	int szVecFlow = m_vecFlow.size();
     if(bOpticalPDF || bOptical) {
@@ -561,46 +561,46 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	
 	
 	if(bOpticalPDF) {
-		opticalFlowDistribution(m_vecFlow, "pdf", vecLEarFlowPdf, vecREarFlowPdf, ptAbdoRed, ptAbdoCyan, 
+		opticalFlowDistribution(m_vecFlow, "pdf", vecARedFlowPdf, vecACyanFlowPdf, ptAbdoRed, ptAbdoCyan, 
 									"_Red", "_Cyan", "Red", "Cyan", threshold);
 		opticalScatterPlotSave(m_vecFlow, "scatter", ptAbdoRed, ptAbdoCyan, "_Red", "_Cyan", "Red", "Cyan", threshold, "pdf");
 		
         opticalDrawFlowmapWithPDF(ptAbdoRed, ptAbdoCyan, frameStep, 'A', threshold);
         
-		int sz = vecLEarFlowPdf.size();
+		int sz = vecARedFlowPdf.size();
 		if(frameStep > 0 && bAccumulate) {
 			for(int i=+1; i<sz; i++) {
-				vecLEarFlowPdf[i] += vecLEarFlowPdf[i-1];
-				vecREarFlowPdf[i] += vecREarFlowPdf[i-1];
+				vecARedFlowPdf[i] += vecARedFlowPdf[i-1];
+				vecACyanFlowPdf[i] += vecACyanFlowPdf[i-1];
 			}
 		}
-		DC_removal(m_nLED1, vecLEarFlowPdf);
-		DC_removal(m_nLED1, vecREarFlowPdf);				
+		DC_removal(m_nLED1, vecARedFlowPdf);
+		DC_removal(m_nLED1, vecACyanFlowPdf);				
 		
 		if(frameStep > 0 && bAccumulate) {
-			linearRegression(vecLEarFlowPdf, vecLEarFlowPdfRegres, vecLEarFlowPdfSubRegres);
-			linearRegression(vecREarFlowPdf, vecREarFlowPdfRegres, vecREarFlowPdfSubRegres);
+			linearRegression(vecARedFlowPdf, vecARedFlowPdfRegres, vecARedFlowPdfSubRegres);
+			linearRegression(vecACyanFlowPdf, vecACyanFlowPdfRegres, vecACyanFlowPdfSubRegres);
 		}
         
         FILE* fp = fopen("_pdf.dat", "w");
-        for(int i=0; i<vecLEarFlowPdfSubRegres.size(); i++)
-            fprintf(fp, "%f %f\n", vecLEarFlowPdfSubRegres[i], vecREarFlowPdfSubRegres[i]);
+        for(int i=0; i<vecARedFlowPdfSubRegres.size(); i++)
+            fprintf(fp, "%f %f\n", vecARedFlowPdfSubRegres[i], vecACyanFlowPdfSubRegres[i]);
         fclose(fp);        
 	}
 	 
 	if(bOptical) {
-		opticalFlowAnalysis(m_vecFlow, ptAbdoRed, vecLEarFlow);
-		opticalFlowAnalysis(m_vecFlow, ptAbdoCyan, vecREarFlow);	
+		opticalFlowAnalysis(m_vecFlow, ptAbdoRed, vecARedFlow);
+		opticalFlowAnalysis(m_vecFlow, ptAbdoCyan, vecACyanFlow);	
 		
-		int sz = vecLEarFlow.size();
+		int sz = vecARedFlow.size();
 		if(frameStep > 0 && bAccumulate) {	
 			for(int i=+1; i<sz; i++) {
-				vecLEarFlow[i] += vecLEarFlow[i-1];
-				vecREarFlow[i] += vecREarFlow[i-1];
+				vecARedFlow[i] += vecARedFlow[i-1];
+				vecACyanFlow[i] += vecACyanFlow[i-1];
 			}
 		}
-		DC_removal(m_nLED1, vecLEarFlow);
-		DC_removal(m_nLED1, vecREarFlow);	
+		DC_removal(m_nLED1, vecARedFlow);
+		DC_removal(m_nLED1, vecACyanFlow);	
 	}
 	wxEndBusyCursor(); 
 	
@@ -646,19 +646,19 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 		_gnuplotLine(gPlotR, "ImageDiff", vecAdjDiff, "#00808000");
 	}	
 	if(bOptical) {
-		_gnuplotLine(gPlotL, "Red Flow", vecLEarFlow, "#00FF4500");
-		_gnuplotLine(gPlotR, "Cyan Flow", vecREarFlow, "#00FF4500");
+		_gnuplotLine(gPlotL, "Red Flow", vecARedFlow, "#00FF4500");
+		_gnuplotLine(gPlotR, "Cyan Flow", vecACyanFlow, "#00FF4500");
 	}
 	if(bOpticalPDF) {
-		_gnuplotLine(gPlotL, "Red FlowPDF", vecLEarFlowPdf, "#000000FF");
-		_gnuplotLine(gPlotR, "Cyan FlowPDF", vecREarFlowPdf, "#000000FF");
+		_gnuplotLine(gPlotL, "Red FlowPDF", vecARedFlowPdf, "#000000FF");
+		_gnuplotLine(gPlotR, "Cyan FlowPDF", vecACyanFlowPdf, "#000000FF");
 		
 		if(frameStep > 0 && bAccumulate ) {
-			_gnuplotLine(gPlotL, "Red PDFRegress", vecLEarFlowPdfRegres, "#000000FF", "-");
-			_gnuplotLine(gPlotR, "Cyan PDFRegress", vecREarFlowPdfRegres, "#000000FF", "-");
+			_gnuplotLine(gPlotL, "Red PDFRegress", vecARedFlowPdfRegres, "#000000FF", "-");
+			_gnuplotLine(gPlotR, "Cyan PDFRegress", vecACyanFlowPdfRegres, "#000000FF", "-");
 			
-			_gnuplotLine(gPlotL, "Red PDF-Regress", vecLEarFlowPdfSubRegres, "#00FF0000");
-			_gnuplotLine(gPlotR, "Cyan PDF-Regress", vecREarFlowPdfSubRegres, "#00FF0000");
+			_gnuplotLine(gPlotL, "Red PDF-Regress", vecARedFlowPdfSubRegres, "#00FF0000");
+			_gnuplotLine(gPlotR, "Cyan PDF-Regress", vecACyanFlowPdfSubRegres, "#00FF0000");
 		}
 	}
 	
