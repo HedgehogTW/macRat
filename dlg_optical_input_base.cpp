@@ -121,18 +121,40 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     
     m_staticText1320 = new wxStaticText(m_panel38, wxID_ANY, _("0: use single reference frame"), wxDefaultPosition, wxSize(-1,-1), 0);
     
-    gridBagSizer40->Add(m_staticText1320, wxGBPosition(0,2), wxGBSpan(1,1), wxALL, 5);
+    gridBagSizer40->Add(m_staticText1320, wxGBPosition(0,2), wxGBSpan(1,2), wxALL, 5);
     
     m_staticText1923 = new wxStaticText(m_panel38, wxID_ANY, _("Probability threshold"), wxDefaultPosition, wxSize(-1,-1), 0);
     
     gridBagSizer40->Add(m_staticText1923, wxGBPosition(1,0), wxGBSpan(1,1), wxALL, 5);
     
-    m_textCtrlThreshold = new wxTextCtrl(m_panel38, wxID_ANY, wxT("0.005"), wxDefaultPosition, wxSize(90,-1), wxTE_RIGHT);
+    m_textCtrlThreshold = new wxTextCtrl(m_panel38, wxID_ANY, wxT("0.005"), wxDefaultPosition, wxSize(50,-1), wxTE_RIGHT);
     #if wxVERSION_NUMBER >= 3000
     m_textCtrlThreshold->SetHint(wxT(""));
     #endif
     
     gridBagSizer40->Add(m_textCtrlThreshold, wxGBPosition(1,1), wxGBSpan(1,1), wxALL, 5);
+    
+    m_staticText132 = new wxStaticText(m_panel38, wxID_ANY, _("eye gain"), wxDefaultPosition, wxSize(-1,-1), 0);
+    
+    gridBagSizer40->Add(m_staticText132, wxGBPosition(2,0), wxGBSpan(1,1), wxALL, 5);
+    
+    m_textCtrlEyeGain = new wxTextCtrl(m_panel38, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(50,-1), 0);
+    #if wxVERSION_NUMBER >= 3000
+    m_textCtrlEyeGain->SetHint(wxT(""));
+    #endif
+    
+    gridBagSizer40->Add(m_textCtrlEyeGain, wxGBPosition(2,1), wxGBSpan(1,1), wxALL, 5);
+    
+    m_staticText136 = new wxStaticText(m_panel38, wxID_ANY, _("optical PDF gain"), wxDefaultPosition, wxSize(-1,-1), 0);
+    
+    gridBagSizer40->Add(m_staticText136, wxGBPosition(2,2), wxGBSpan(1,1), wxALL, 5);
+    
+    m_textCtrlPDFGain = new wxTextCtrl(m_panel38, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(50,-1), 0);
+    #if wxVERSION_NUMBER >= 3000
+    m_textCtrlPDFGain->SetHint(wxT(""));
+    #endif
+    
+    gridBagSizer40->Add(m_textCtrlPDFGain, wxGBPosition(2,3), wxGBSpan(1,1), wxALL, 5);
     
     m_staticLine78 = new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxLI_HORIZONTAL);
     

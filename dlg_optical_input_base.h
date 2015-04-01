@@ -46,6 +46,10 @@ protected:
     wxStaticText* m_staticText1320;
     wxStaticText* m_staticText1923;
     wxTextCtrl* m_textCtrlThreshold;
+    wxStaticText* m_staticText132;
+    wxTextCtrl* m_textCtrlEyeGain;
+    wxStaticText* m_staticText136;
+    wxTextCtrl* m_textCtrlPDFGain;
     wxStaticLine* m_staticLine78;
     wxPanel* m_panel96;
     wxStaticText* m_staticText100;

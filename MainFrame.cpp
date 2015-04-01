@@ -70,6 +70,8 @@ MainFrame::MainFrame(wxWindow* parent)
 	m_configData.m_ymax = pConfig->ReadDouble("/optical/ymax", 5);
 	m_configData.m_szROI = pConfig->ReadLong("/optical/ROISize", 40);
     m_configData.m_referFrame = pConfig->ReadLong("/optical/referFrame", 0);
+	m_configData.m_gainEye = pConfig->ReadDouble("/optical/gainEye", 2.5);
+	m_configData.m_gainPDF = pConfig->ReadDouble("/optical/gainPDF", 4);
 	
 
 	this->Connect(wxID_FILE1, wxID_FILE9, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrame::OnMRUFile), NULL, this);
@@ -115,6 +117,9 @@ void MainFrame::DeleteContents()
 	pConfig->Write("/optical/ymax", m_configData.m_ymax);
 	pConfig->Write("/optical/ROISize", m_configData.m_szROI);
     pConfig->Write("/optical/referFrame", m_configData.m_referFrame);
+	
+	pConfig->Write("/optical/gainEye", m_configData.m_gainEye);
+    pConfig->Write("/optical/gainPDF", m_configData.m_gainPDF);	
 	
 	m_nSlices = 0;
 	m_nCageLine = -1;

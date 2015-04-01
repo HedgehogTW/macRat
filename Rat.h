@@ -67,6 +67,9 @@ public:
 	double	m_ymax;	
 	long	m_szROI;
     long    m_referFrame;
+	
+	double	m_gainEye;
+	double	m_gainPDF;
 };
 
 

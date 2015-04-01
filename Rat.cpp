@@ -457,11 +457,17 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	double ymax = configData.m_ymax;
 	m_RectSize = configData.m_szROI;
     long referFrame = configData.m_referFrame;
+	
+	double gainEye = configData.m_gainEye;
+	double gainPDF = configData.m_gainPDF;
+	
+	
 
 	DlgOpticalInput dlg(frameStep, threshold, MainFrame::m_pThis);
 	dlg.setVerticalLine(bLED, bPinna, bVerLine, verLine);
 	dlg.setSeriesLine(bEyeMove, bGrayDiff, bAdjDiff, bOptical, bOpticalPDF, bAccumulate);
 	dlg.setYRange(ymin, ymax, m_RectSize, referFrame);
+	dlg.setGain(gainEye, gainPDF);
 	
 	if(dlg.ShowModal() !=  wxID_OK) return false;
 	newFrameSteps = dlg.getFrameSteps();
@@ -469,6 +475,7 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	dlg.getVerticalLine(bLED, bPinna, bVerLine, verLine);
 	dlg.getSeriesLine(bEyeMove, bGrayDiff, bAdjDiff, bOptical, bOpticalPDF, bAccumulate);
 	dlg.getYRange(ymin, ymax, m_RectSize, referFrame);
+	dlg.getGain(gainEye, gainPDF);
 	dlg.Destroy();
 	
 	configData.m_frameStep = newFrameSteps;	
@@ -476,7 +483,6 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	configData.m_bLED = bLED;
 	configData.m_bPinna = bPinna;
 	configData.m_bVerLine = bVerLine;
-	
 	configData.m_bEyeMove = bEyeMove;
 	configData.m_bGrayDiff = bGrayDiff;
 	configData.m_bAdjDiff = bAdjDiff;
@@ -488,6 +494,8 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	configData.m_ymax = ymax;
 	configData.m_szROI = m_RectSize;
     configData.m_referFrame = referFrame;
+	configData.m_gainEye = gainEye;
+	configData.m_gainPDF = gainPDF;
 	
 	MainFrame::m_pThis->setConfigData(configData);	
 	m_offsetEar = Point(m_RectSize/2, m_RectSize/2);
@@ -544,6 +552,7 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	
 	vector <float>  vecAdjDiff;
 	vector <Mat> vecMatAdjDiff;
+
 	if(bAdjDiff)  {
 		imageDiff(vecMatAdjDiff, vecAdjDiff, 0);
         DC_removal(m_nLED1, vecAdjDiff);
@@ -553,10 +562,20 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	if(bEyeMove)  {
 		Point 	ptEyeL, ptEyeR;
 		MainFrame::m_pThis->getEyePts(ptEyeL, ptEyeR);
-		if(ptEyeL != Point(0,0))
+		if(ptEyeL != Point(0,0)) {
 			findEyeCenter(ptEyeL, m_vecEyeL, m_vecEyeLMove, m_referFrame);
-		if(ptEyeR != Point(0,0))
+			int sz = m_vecEyeLMove.size();
+			for(int i=0; i<sz; i++) {
+				m_vecEyeLMove[i] = m_vecEyeLMove[i]*gainEye;
+			}
+		}
+		if(ptEyeR != Point(0,0)) {
 			findEyeCenter(ptEyeR, m_vecEyeR, m_vecEyeRMove, m_referFrame);
+			int sz = m_vecEyeRMove.size();
+			for(int i=0; i<sz; i++) {
+				m_vecEyeRMove[i] = m_vecEyeRMove[i]*gainEye;
+			}
+		}
 	}
 	
 	
@@ -580,6 +599,13 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 		if(frameStep > 0 && bAccumulate) {
 			linearRegression(vecARedFlowPdf, vecARedFlowPdfRegres, vecARedFlowPdfSubRegres);
 			linearRegression(vecACyanFlowPdf, vecACyanFlowPdfRegres, vecACyanFlowPdfSubRegres);
+			
+			int sz = vecARedFlowPdfSubRegres.size();
+			for(int i=0; i<sz; i++) {
+				vecARedFlowPdfSubRegres[i] = vecARedFlowPdfSubRegres[i] /gainPDF;
+				vecACyanFlowPdfSubRegres[i] = vecACyanFlowPdfSubRegres[i]/gainPDF;
+			}
+				
 		}
         
         FILE* fp = fopen("_pdf.dat", "w");
@@ -626,12 +652,16 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 		_gnuplotVerticalLine(gPlotR, verLine);		
 	}
 	if(bEyeMove) {
-		if(m_vecEyeLMove.size()>0)
+		if(m_vecEyeLMove.size()>0) {
 			_gnuplotLine(gPlotL, "LEyeMove", m_vecEyeLMove, "#008B0000", ".");
-		if(m_vecEyeRMove.size()>0)
+			//_gnuplotLine(gPlotL, "LEyeMoveS", smoothL, "#008B00FF", ".");
+		}
+		if(m_vecEyeRMove.size()>0) {
 			_gnuplotLine(gPlotR, "REyeMove", m_vecEyeRMove, "#008B0000", ".");
-            
-        
+			//_gnuplotLine(gPlotR, "LEyeMoveS", smoothR, "#008B00FF", ".");
+		}
+
+     
         FILE* fp = fopen("_eye.dat", "w");
         for(int i=0; i<m_vecEyeLMove.size(); i++)
             fprintf(fp, "%f %f\n", m_vecEyeLMove[i], m_vecEyeRMove[i]);
@@ -731,11 +761,14 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	double ymax = configData.m_ymax;
 	m_RectSize = configData.m_szROI;
     long referFrame = configData.m_referFrame;
+	double gainEye = configData.m_gainEye;
+	double gainPDF = configData.m_gainPDF;
 	
 	DlgOpticalInput dlg(frameStep, threshold, MainFrame::m_pThis);
 	dlg.setVerticalLine(bLED, bPinna, bVerLine, verLine);
 	dlg.setSeriesLine(bEyeMove, bGrayDiff, bAdjDiff, bOptical, bOpticalPDF, bAccumulate);
 	dlg.setYRange(ymin, ymax, m_RectSize, referFrame);
+	dlg.setGain(gainEye, gainPDF);
 	
 	if(dlg.ShowModal() !=  wxID_OK) return false;
 	newFrameSteps = dlg.getFrameSteps();
@@ -743,6 +776,7 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	dlg.getVerticalLine(bLED, bPinna, bVerLine, verLine);
 	dlg.getSeriesLine(bEyeMove, bGrayDiff, bAdjDiff, bOptical, bOpticalPDF, bAccumulate);
 	dlg.getYRange(ymin, ymax, m_RectSize, referFrame);
+	dlg.getGain(gainEye, gainPDF);
 	dlg.Destroy();
 	
 	configData.m_frameStep = newFrameSteps;	
@@ -762,6 +796,8 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	configData.m_ymax = ymax;
 	configData.m_szROI = m_RectSize;
     configData.m_referFrame = referFrame;
+	configData.m_gainEye = gainEye;
+	configData.m_gainPDF = gainPDF;
 	
 	MainFrame::m_pThis->setConfigData(configData);
 	m_offsetEar = Point(m_RectSize/2, m_RectSize/2);

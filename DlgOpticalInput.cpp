@@ -57,6 +57,16 @@ void DlgOpticalInput::setYRange(double min, double max, long szROI, long referFr
 	*m_textCtrlReferFrame << str4;   
 }
 
+void DlgOpticalInput::setGain(double gainEye, double gainPDF)
+{
+	wxString  str1, str2;
+	str1 << gainEye;
+	*m_textCtrlEyeGain << str1;
+	
+	str2 << gainPDF;
+	*m_textCtrlPDFGain << str2;
+}
+
 void DlgOpticalInput::getVerticalLine(bool& bLED, bool& bPinna, bool& bVerLine, double& x)
 {
 	bLED = m_checkBoxLED->GetValue();
@@ -98,4 +108,17 @@ void DlgOpticalInput::getYRange(double& min, double& max, long& szROI, long& ref
    	str = m_textCtrlReferFrame->GetValue();
 	str.ToLong(&a);	
 	referFrame = a;	 
+}
+
+void DlgOpticalInput::getGain(double& gainEye, double &gainPDF)
+{
+	wxString  str = m_textCtrlEyeGain->GetValue();
+	double  value;
+	str.ToDouble(&value);	
+	gainEye = value;	
+
+	str = m_textCtrlPDFGain->GetValue();
+	str.ToDouble(&value);	
+	gainPDF = value;	
+
 }
