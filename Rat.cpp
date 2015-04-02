@@ -422,7 +422,10 @@ void CRat::DC_removal(int nFirstLED, vector <float>& vecSignal)
 	mean /= nFirstLED;
 	for(int i=0; i<n; i++)  vecSignal[i] -= mean;	
 }
-
+void CRat::Notch_removal(vector <float>& vecSignal, int refFrame)
+{
+    vecSignal[refFrame] = (vecSignal[refFrame-1] + vecSignal[refFrame+1]) /2.0;
+}
 bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 {
 	m_ptAbdoRed = ptAbdoRed;
@@ -548,6 +551,8 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 //		pointGraylevel(ptAbdoRed, ptAbdoCyan, vecRedPoint, vecCyanPoint);
 		DC_removal(m_nLED1, vecAbdoRedGrayDiff);
 		DC_removal(m_nLED1, vecAbdoCyanGrayDiff);
+        Notch_removal(vecAbdoCyanGrayDiff, m_referFrame);
+        Notch_removal(vecAbdoRedGrayDiff, m_referFrame);
 	}
 	
 	vector <float>  vecAdjDiff;
@@ -557,6 +562,7 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 		imageDiff(vecMatAdjDiff, vecAdjDiff, 0);
         DC_removal(m_nLED1, vecAdjDiff);
 		//saveResult("adjDiff", vecMatAdjDiff);
+        Notch_removal(vecAdjDiff, m_referFrame);
 	}
 	
 	if(bEyeMove)  {
@@ -568,6 +574,7 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 			for(int i=0; i<sz; i++) {
 				m_vecEyeLMove[i] = m_vecEyeLMove[i]*gainEye;
 			}
+            Notch_removal(m_vecEyeLMove, m_referFrame);
 		}
 		if(ptEyeR != Point(0,0)) {
 			findEyeCenter(ptEyeR, m_vecEyeR, m_vecEyeRMove, m_referFrame);
@@ -575,6 +582,7 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 			for(int i=0; i<sz; i++) {
 				m_vecEyeRMove[i] = m_vecEyeRMove[i]*gainEye;
 			}
+            Notch_removal(m_vecEyeRMove, m_referFrame);
 		}
 	}
 	
@@ -594,7 +602,9 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 			}
 		}
 		DC_removal(m_nLED1, vecARedFlowPdf);
-		DC_removal(m_nLED1, vecACyanFlowPdf);				
+		DC_removal(m_nLED1, vecACyanFlowPdf);		
+        Notch_removal(vecARedFlowPdf, m_referFrame);
+        Notch_removal(vecACyanFlowPdf, m_referFrame);			
 		
 		if(frameStep > 0 && bAccumulate) {
 			linearRegression(vecARedFlowPdf, vecARedFlowPdfRegres, vecARedFlowPdfSubRegres);
@@ -605,13 +615,7 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 				vecARedFlowPdfSubRegres[i] = vecARedFlowPdfSubRegres[i] /gainPDF;
 				vecACyanFlowPdfSubRegres[i] = vecACyanFlowPdfSubRegres[i]/gainPDF;
 			}
-				
 		}
-        
-        FILE* fp = fopen("_pdf.dat", "w");
-        for(int i=0; i<vecARedFlowPdfSubRegres.size(); i++)
-            fprintf(fp, "%f %f\n", vecARedFlowPdfSubRegres[i], vecACyanFlowPdfSubRegres[i]);
-        fclose(fp);        
 	}
 	 
 	if(bOptical) {
@@ -627,6 +631,9 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 		}
 		DC_removal(m_nLED1, vecARedFlow);
 		DC_removal(m_nLED1, vecACyanFlow);	
+        
+        Notch_removal(vecARedFlow, m_referFrame);
+        Notch_removal(vecACyanFlow, m_referFrame);
 	}
 	wxEndBusyCursor(); 
 	
@@ -865,6 +872,9 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 
 		DC_removal(m_nLED1, vecLEarGrayDiff);
 		DC_removal(m_nLED1, vecREarGrayDiff);
+        
+        Notch_removal(vecLEarGrayDiff, m_referFrame);
+        Notch_removal(vecREarGrayDiff, m_referFrame);
 	}
 	
 	if(bOpticalPDF) {
@@ -882,7 +892,10 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 			}
 		}
 		DC_removal(m_nLED1, vecLEarFlowPdf);
-		DC_removal(m_nLED1, vecREarFlowPdf);				
+		DC_removal(m_nLED1, vecREarFlowPdf);		
+		
+        Notch_removal(vecLEarFlowPdf, m_referFrame);
+        Notch_removal(vecREarFlowPdf, m_referFrame);
 		
 		if(frameStep > 0 && bAccumulate) {
 			linearRegression(vecLEarFlowPdf, vecLEarFlowPdfRegres, vecLEarFlowPdfSubRegres);
@@ -903,6 +916,8 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 		}
 		DC_removal(m_nLED1, vecLEarFlow);
 		DC_removal(m_nLED1, vecREarFlow);	
+        Notch_removal(vecLEarFlow, m_referFrame);
+        Notch_removal(vecREarFlow, m_referFrame);        
 	}
 	wxEndBusyCursor(); 
 	
@@ -1434,7 +1449,7 @@ void CRat::opticalFlow(int nFrameSteps, int refFrame)
 //	ptEyeC.x= (m_vecEyeL[m_referFrame].x+m_vecEyeR[m_referFrame].x)/2;
 //	ptEyeC.y= (m_vecEyeL[m_referFrame].y+m_vecEyeR[m_referFrame].y)/2;
 	
-//#pragma omp parallel for 
+#pragma omp parallel for 
 	for(int i=0; i<m_nSlices - nFrameSteps; i++) {
 		int referFrame;
 		if(nFrameSteps==0)  referFrame= refFrame;
@@ -1805,11 +1820,9 @@ void CRat::saveDotDensity(Gnuplot& plotSavePGN, Mat& mFlow, Point pt, wxString& 
     plotSavePGN.cmd(cmdstr1.str());	
 }
 
-//FILE *fp = fopen("_move.csv", "w");
 void CRat::opticalFlowDistribution(vector<Mat>& vecFlow, char* subpath, vector <float>& vecPdf1, vector <float>& vecPdf2,
 									Point pt1, Point pt2, char* extName1, char* extName2, char* title1, char* title2, float threshold)
 {
-//	char subpath[] = "distribution";
 	cv::Mat	 cvMat;
 	cv::Mat	 cvMatGray;
 	wxString outpath; 
@@ -1881,13 +1894,10 @@ void CRat::opticalFlowDistribution(vector<Mat>& vecFlow, char* subpath, vector <
 	Mat mDistEye(40, 40, CV_32FC1, Scalar(0));
 	int sz = vecFlow.size();
 	
-//	vecPdf1.clear();
-//	vecPdf2.clear();
-	
 	vecPdf1.resize(sz);
 	vecPdf2.resize(sz);
 	
-//	FILE* fp = fopen("_threshold.csv", "w");	
+
 	for(int i=0; i<sz; i++) {
 		Mat& mFlow = vecFlow[i];
 		
@@ -1947,18 +1957,11 @@ void CRat::opticalFlowDistribution(vector<Mat>& vecFlow, char* subpath, vector <
 			opticalBuildPDF(plot, mFlow, mGaus, mDistEye, ptEyeC, strOutName);
 		}
 		plot.cmd("unset multiplot");
-//	fprintf(fp, "%d\n", i);	
+	
 		/////////////////////////////////////// compute movement
-		float moveEarL = optical_compute_movement(mFlow, mDistEarL, pt1, threshold);
-		float moveEarR = optical_compute_movement(mFlow, mDistEarR, pt2, threshold);
-		
-		vecPdf1[i] = moveEarL;
-		vecPdf2[i] = moveEarR;
-		
-//		fprintf(fp, "%f, %f\n", thLEar, thREar);
-
+		vecPdf1[i] = optical_compute_movement(mFlow, mDistEarL, pt1, threshold);
+		vecPdf2[i] = optical_compute_movement(mFlow, mDistEarR, pt2, threshold);		
 	}	
-//	fclose(fp);
 	plot.cmd("reset");
 
 }
@@ -1972,6 +1975,7 @@ float CRat::optical_compute_movement(Mat& mFlow, Mat& mDistEar, Point pt, float 
 	float movement = 0;
 	double alpha = 5;
 	float count = 0;
+
     for(int y = 0; y < mROI.rows; y ++)
         for(int x = 0; x < mROI.cols; x ++)
         {
@@ -1984,9 +1988,7 @@ float CRat::optical_compute_movement(Mat& mFlow, Mat& mDistEar, Point pt, float 
 			if(fxy.y >= 40 || fxy.y <0) continue;
 			
 			float Pear = mDistEar.at<float>(fxy.y+0.5, fxy.x+0.5);
-//			float Peye = mDistEye.at<float>(fxy.y+0.5, fxy.x+0.5);
-			
-			//movement += mv * Pear;//;// /(1.+exp(-Peye*alpha));
+
 			if(Pear >= threshold) {
 				movement += mv;
 				count++;  

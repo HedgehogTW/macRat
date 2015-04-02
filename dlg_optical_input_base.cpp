@@ -134,7 +134,7 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     
     gridBagSizer40->Add(m_textCtrlThreshold, wxGBPosition(1,1), wxGBSpan(1,1), wxALL, 5);
     
-    m_staticText132 = new wxStaticText(m_panel38, wxID_ANY, _("eye gain"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_staticText132 = new wxStaticText(m_panel38, wxID_ANY, _("eye gain *"), wxDefaultPosition, wxSize(-1,-1), 0);
     
     gridBagSizer40->Add(m_staticText132, wxGBPosition(2,0), wxGBSpan(1,1), wxALL, 5);
     
@@ -145,7 +145,7 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     
     gridBagSizer40->Add(m_textCtrlEyeGain, wxGBPosition(2,1), wxGBSpan(1,1), wxALL, 5);
     
-    m_staticText136 = new wxStaticText(m_panel38, wxID_ANY, _("optical PDF gain"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_staticText136 = new wxStaticText(m_panel38, wxID_ANY, _("optical PDF gain /"), wxDefaultPosition, wxSize(-1,-1), 0);
     
     gridBagSizer40->Add(m_staticText136, wxGBPosition(2,2), wxGBSpan(1,1), wxALL, 5);
     

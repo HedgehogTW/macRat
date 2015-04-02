@@ -91,10 +91,13 @@ public:
 	Point	aspectRatio(vector<cv::Point> &con, double &ratio, double &angle );
 	void	cropImage(bool& bCutTop);
 	void 	DC_removal(int nFirstLED, vector <float>& vecSignal);
+    void    Notch_removal(vector <float>& vecSignal, int refFrame);
+        
 	void	getLightRange(int& from, int& to) { from = m_nLED1; to = m_nLED_End; }
 
 	bool	processAbdomen(Point ptAbdoRed, Point ptAbdoCyan);
 	bool	processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR);
+
 
 	void 	findEyeCenter(Point& ptEye0, vector <Point>& vecEye, vector <float>&  vecEyeMove, int referFrame);
 	void  	findNewEarCenter(vector <Point>& vecEye, Point ptEar0, vector <Point>& vecEar, int referFrame);

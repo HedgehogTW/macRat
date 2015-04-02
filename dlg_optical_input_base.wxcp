@@ -1780,7 +1780,7 @@
             }, {
              "type": "multi-string",
              "m_label": "Label:",
-             "m_value": "eye gain"
+             "m_value": "eye gain *"
             }, {
              "type": "string",
              "m_label": "Wrap:",
@@ -1942,7 +1942,7 @@
             }, {
              "type": "multi-string",
              "m_label": "Label:",
-             "m_value": "optical PDF gain"
+             "m_value": "optical PDF gain /"
             }, {
              "type": "string",
              "m_label": "Wrap:",
