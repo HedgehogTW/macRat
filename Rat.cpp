@@ -137,6 +137,7 @@ void CRat::saveResult(const char *subpath, vector <Mat> &vecM)
 		}
 	}
 	int sz = vecM.size();
+	
 	for(int i=0; i<sz; i++) {
 		wxFileName fileName = wxString(m_vFilenames[i]);
 		fileName.AppendDir(subpath);
@@ -504,7 +505,7 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	m_offsetEar = Point(m_RectSize/2, m_RectSize/2);
 	
     if(referFrame<=0)
-        newReferFrame = findReferenceFrame(ptAbdoCyan);
+        newReferFrame = findReferenceFrame(ptAbdoRed);
     else
         newReferFrame = referFrame;
         
@@ -513,10 +514,6 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 		wxLogMessage("cannot find reference frame");
 		return false;
 	}	
-	
-	clock_t start, finish;
-	double  duration;
-	start = clock();
 	
 	wxBeginBusyCursor();
 	vector <float>  vecARedFlow;  // Red
@@ -540,6 +537,11 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	
 	MainFrame:: myMsgOutput("PDF threshold %f, frame steps %d, bAccumulate %d, y range [%.2f, %.2f], szROI %d\n", 
 			threshold, frameStep, bAccumulate, ymin, ymax, m_RectSize);
+	
+	clock_t start, finish;
+	int minutes, second;
+	double  duration;
+	start = clock();
 	
 //	vector <float>  vecRedPoint;
 //	vector <float>  vecCyanPoint;	
@@ -588,12 +590,14 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	
 	
 	if(bOpticalPDF) {
+		
 		opticalFlowDistribution(m_vecFlow, "pdf", vecARedFlowPdf, vecACyanFlowPdf, ptAbdoRed, ptAbdoCyan, 
 									"_Red", "_Cyan", "Red", "Cyan", threshold);
+									
 		opticalScatterPlotSave(m_vecFlow, "scatter", ptAbdoRed, ptAbdoCyan, "_Red", "_Cyan", "Red", "Cyan", threshold, "pdf");
-		
+  
         opticalDrawFlowmapWithPDF(ptAbdoRed, ptAbdoCyan, frameStep, 'A', threshold);
-        
+     
 		int sz = vecARedFlowPdf.size();
 		if(frameStep > 0 && bAccumulate) {
 			for(int i=+1; i<sz; i++) {
@@ -601,6 +605,7 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 				vecACyanFlowPdf[i] += vecACyanFlowPdf[i-1];
 			}
 		}
+
 		DC_removal(m_nLED1, vecARedFlowPdf);
 		DC_removal(m_nLED1, vecACyanFlowPdf);		
         Notch_removal(vecARedFlowPdf, m_referFrame);
@@ -616,6 +621,7 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 				vecACyanFlowPdfSubRegres[i] = vecACyanFlowPdfSubRegres[i]/gainPDF;
 			}
 		}
+		
 	}
 	 
 	if(bOptical) {
@@ -635,8 +641,15 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
         Notch_removal(vecARedFlow, m_referFrame);
         Notch_removal(vecACyanFlow, m_referFrame);
 	}
-	wxEndBusyCursor(); 
+
 	
+	finish = clock();
+	duration = (double)(finish - start) / CLOCKS_PER_SEC;
+	minutes = duration / 60;
+	second = duration - minutes * 60;
+	MainFrame::myMsgOutput("processAbdomen: computation time: %02dm:%02ds\n", minutes, second);
+	
+	wxEndBusyCursor(); 	
 ///////////G N U P L O T//////////////////////////////////////////////////////////////////////////////
 
 
@@ -700,31 +713,22 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	}
 	
 	////////////////////// save result to dest
+	
 	m_vecDest.resize(m_nSlices);
 	Point ptL1 (ptAbdoRed-m_offsetEar);
 	Point ptL2 (ptAbdoRed+m_offsetEar);
 	Point ptR1 (ptAbdoCyan-m_offsetEar);
 	Point ptR2 (ptAbdoCyan+m_offsetEar);
 	
-	
-	for (int i = 0; i < m_nSlices; i++)
-		cvtColor(m_vecMat[i], m_vecDest[i], CV_GRAY2BGR);
 
-	for (int i = 0; i < m_nSlices; i++)
-	{
-		Mat mDestColor;
-		mDestColor = m_vecDest[i];
-		// original ears
-		rectangle(mDestColor, Rect(ptL1, ptL2), Scalar(255,0,0));
-		rectangle(mDestColor, Rect(ptR1, ptR2), Scalar(255,0,0));
+	for (int i = 0; i < m_nSlices; i++) {
+		cvtColor(m_vecMat[i], m_vecDest[i], CV_GRAY2BGR);
+		rectangle(m_vecDest[i], Rect(ptL1, ptL2), Scalar(255,0,0));
+		rectangle(m_vecDest[i], Rect(ptR1, ptR2), Scalar(255,0,0));
 	}
 	//saveResult("dest", m_vecDest);
 
-	finish = clock();
-	duration = (double)(finish - start) / CLOCKS_PER_SEC;
-	int minutes = duration / 60;
-	int second = duration - minutes * 60;
-	MainFrame::myMsgOutput("processAbdomen: computation time: %02dm:%02ds\n", minutes, second);
+
 	
 	return true;
 }
@@ -1441,13 +1445,9 @@ void CRat::opticalFlow(int nFrameSteps, int refFrame)
 
 	m_vecFlow.resize(m_nSlices  - nFrameSteps);
 	
-	clock_t start, finish;
-	double  duration;
-	start = clock();
-	
-//	Point ptEyeC;
-//	ptEyeC.x= (m_vecEyeL[m_referFrame].x+m_vecEyeR[m_referFrame].x)/2;
-//	ptEyeC.y= (m_vecEyeL[m_referFrame].y+m_vecEyeR[m_referFrame].y)/2;
+//	clock_t start, finish;
+//	double  duration;
+//	start = clock();
 	
 #pragma omp parallel for 
 	for(int i=0; i<m_nSlices - nFrameSteps; i++) {
@@ -1463,12 +1463,13 @@ void CRat::opticalFlow(int nFrameSteps, int refFrame)
 
         calcOpticalFlowFarneback(mSrc1, mSrc2, mFlow, pyr_scale, levels, nWinSize, nIter, poly_n, dblSigma, 0);
 	}
+	/*
 	finish = clock();
 	duration = (double)(finish - start) / CLOCKS_PER_SEC;
 	int minutes = duration / 60;
 	int second = duration - minutes * 60;
 	MainFrame:: myMsgOutput("Opticalflow computation time: %02dm:%02ds\n", minutes, second);
-//	MainFrame:: myMsgOutput("Opticalflow done, m_vecFlow size %d------\n", m_vecFlow.size());
+*/
 }
 bool CRat::opticalLoadPDFfile(uchar* filename, Mat &mPdf)
 {
@@ -1524,6 +1525,7 @@ void CRat::opticalDrawFlowmapWithPDF(Point pt1, Point pt2, int nFrameSteps, char
     char pdfPath[] = "pdf";
     Mat mPdf(m_RectSize, m_RectSize, CV_32FC1);	
     Mat mThMap(m_vecFlow[0].size(), CV_8UC1);
+	
 	for(int i=0; i<m_nSlices - nFrameSteps; i++) {
 		// assign pdf filename
 		wxFileName fileName = wxString(m_vFilenames[i]);
