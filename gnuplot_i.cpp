@@ -1116,6 +1116,7 @@ void Gnuplot::init()
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__TOS_WIN__)
     gnucmd = _popen(tmp.c_str(),"w");
 #elif defined(unix) || defined(__unix) || defined(__unix__) || defined(__APPLE__)
+	tmp = "/usr/local/bin/gnuplot";
     gnucmd = popen(tmp.c_str(),"w");
 #endif
 

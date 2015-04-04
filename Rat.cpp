@@ -543,6 +543,9 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	double  duration;
 	start = clock();
 	
+	time_t start_tm, finish_tm;
+	time(&start_tm); 
+	
 //	vector <float>  vecRedPoint;
 //	vector <float>  vecCyanPoint;	
 	
@@ -641,13 +644,15 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
         Notch_removal(vecARedFlow, m_referFrame);
         Notch_removal(vecACyanFlow, m_referFrame);
 	}
-
+	
+	time(&finish_tm);
+	double elapsed_tm=difftime(finish_tm,start_tm); 
 	
 	finish = clock();
 	duration = (double)(finish - start) / CLOCKS_PER_SEC;
 	minutes = duration / 60;
 	second = duration - minutes * 60;
-	MainFrame::myMsgOutput("processAbdomen: computation time: %02dm:%02ds\n", minutes, second);
+	MainFrame::myMsgOutput("processAbdomen: computation time: %02dm:%02ds, tm_sec %.2f\n", minutes, second, elapsed_tm);
 	
 	wxEndBusyCursor(); 	
 ///////////G N U P L O T//////////////////////////////////////////////////////////////////////////////
@@ -1471,7 +1476,7 @@ void CRat::opticalFlow(int nFrameSteps, int refFrame)
 	MainFrame:: myMsgOutput("Opticalflow computation time: %02dm:%02ds\n", minutes, second);
 */
 }
-bool CRat::opticalLoadPDFfile(uchar* filename, Mat &mPdf)
+bool CRat::opticalLoadPDFfile(const char* filename, Mat &mPdf)
 {
     float  probability;
     FILE* fpPdf = fopen(filename, "r");

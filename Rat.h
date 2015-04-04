@@ -130,7 +130,7 @@ public:
     void    drawOptFlowMapWithPDF(Mat& cflowmap, const Mat& flow,  int step, Mat &mPdf);
     void    opticalAssignThresholdMap(Mat& mThMap, Mat& mFlow, Mat& mPdf, float th, Point pt);
 	void	opticalFlowAnalysis(vector<Mat>& vecFlow, Point ptEar, vector <float>& vecEarFlow);
-    bool    opticalLoadPDFfile(uchar* filename, Mat &mPdf);
+    bool    opticalLoadPDFfile(const char* filename, Mat &mPdf);
 	void    saveDistributionAsCSVandPNG();
 	void 	linearRegression(vector <float>& vecSignal, vector <float>& vecOut, vector <float>& vecSubOut);
 	

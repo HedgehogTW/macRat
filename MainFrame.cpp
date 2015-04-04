@@ -68,7 +68,7 @@ MainFrame::MainFrame(wxWindow* parent)
 	m_configData.m_verLine = pConfig->ReadDouble("/optical/verLine", 190);
 	m_configData.m_ymin = pConfig->ReadDouble("/optical/ymin", 0);
 	m_configData.m_ymax = pConfig->ReadDouble("/optical/ymax", 5);
-	m_configData.m_szROI = pConfig->ReadLong("/optical/ROISize", 40);
+	m_configData.m_szROI = pConfig->ReadLong("/optical/ROISize", 80);
     m_configData.m_referFrame = pConfig->ReadLong("/optical/referFrame", 0);
 	m_configData.m_gainEye = pConfig->ReadDouble("/optical/gainEye", 2.5);
 	m_configData.m_gainPDF = pConfig->ReadDouble("/optical/gainPDF", 4);
@@ -534,11 +534,11 @@ void MainFrame::OnRatProcessEar(wxCommandEvent& event)
 {
 	if(m_dqEyePts.size()!=2) {
 		wxMessageBox("Select eye points", "error");
-		return false;
+		return;
 	}
 	if(m_dqEarPts.size()!=2) {
 		wxMessageBox("Select ear points", "error");
-		return false;
+		return;
 	}
 	
 	m_ptEyeL = m_dqEyePts[0];
@@ -569,7 +569,7 @@ void MainFrame::OnRatAbdomen(wxCommandEvent& event)
 {
 	if(m_dqAbdoPts.size()!=2) {
 		wxMessageBox("Select abdomen points", "error");
-		return false;
+		return;
 	}	
    
 	m_ptAbdoRed = m_dqAbdoPts[0];

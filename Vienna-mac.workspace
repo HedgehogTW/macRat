@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<CodeLite_Workspace Name="Vienna" Database="">
-  <Project Name="Vienna" Path="Vienna.project" Active="Yes"/>
+<CodeLite_Workspace Name="Vienna-mac" Database="">
+  <Project Name="Vienna" Path="Vienna-mac.project" Active="Yes"/>
   <BuildMatrix>
     <WorkspaceConfiguration Name="Debug" Selected="yes">
       <Project Name="Vienna" ConfigName="Debug"/>
