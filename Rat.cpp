@@ -386,11 +386,11 @@ void CRat::cropImage(bool& bCutTop)
 
 			vecData.push_back(mData);
 			vFilenames.push_back(m_vFilenames[i]);
-		/*	
+		
 			if(i>=m_nLED1 && i<m_nLED_End) 
 				cv::circle(mData, Point(15, 15), 7, cv::Scalar(255), -1);
 			if(i==m_nLED2) 
-				cv::circle(mData, Point(mData.cols-15, 15), 7, cv::Scalar(255), -1);*/
+				cv::circle(mData, Point(mData.cols-15, 15), 7, cv::Scalar(255), -1);
 		}
 		m_vecMat.clear();
 		int sz= vecData.size();
@@ -828,9 +828,17 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 		wxLogMessage("cannot find reference frame");
 		return false;
 	}	
-	
-	findEyeCenter(ptEyeL, m_vecEyeL, m_vecEyeLMove, newReferFrame);
-	findEyeCenter(ptEyeR, m_vecEyeR, m_vecEyeRMove, newReferFrame);
+	if(bEyeMove) {
+		findEyeCenter(ptEyeL, m_vecEyeL, m_vecEyeLMove, newReferFrame);
+		findEyeCenter(ptEyeR, m_vecEyeR, m_vecEyeRMove, newReferFrame);
+	}else {
+		m_vecEyeR.resize(m_nSlices);
+		m_vecEyeL.resize(m_nSlices);
+		for(int i=0; i<m_nSlices;i++) {
+			m_vecEyeR[i] = ptEyeR;
+			m_vecEyeL[i] = ptEyeL;
+		}
+	}
 /*	
 	vector <Point>  vecEarL;
 	vector <Point>  vecEarR;
@@ -1017,9 +1025,10 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 		rectangle(mDestColor, Rect(ptR1, ptR2), Scalar(255,0,0));
 		
 		// new positions of eyes 
-		circle(mDestColor, Point(m_vecEyeL[i].x, m_vecEyeL[i].y), 3, Scalar(0, 0, 255), -1);	
-		circle(mDestColor, Point(m_vecEyeR[i].x, m_vecEyeR[i].y), 3, Scalar(0, 0, 255), -1);	
-		
+		if(bEyeMove) {
+			circle(mDestColor, Point(m_vecEyeL[i].x, m_vecEyeL[i].y), 3, Scalar(0, 0, 255), -1);	
+			circle(mDestColor, Point(m_vecEyeR[i].x, m_vecEyeR[i].y), 3, Scalar(0, 0, 255), -1);	
+		}
 		// original eyes
 		circle(mDestColor, Point(ptEyeL.x, ptEyeL.y), 2, Scalar(0, 255, 255), -1);	
 		circle(mDestColor, Point(ptEyeR.x, ptEyeR.y), 2, Scalar(0, 255, 255), -1);	
@@ -1089,10 +1098,10 @@ void  CRat::findNewEarCenter(vector <Point>& vecEye, Point ptEar0, vector <Point
 void CRat::findEyeCenter(Point& ptEye0, vector <Point>& vecEye, vector <float>&  vecEyeMove, int referFrame)
 {
 	
-	vecEye.clear();	
+//	vecEye.clear();	
 	vecEye.resize(m_nSlices);
 
-	vecEyeMove.clear();	
+//	vecEyeMove.clear();	
 	vecEyeMove.resize(m_nSlices);	
 	
 	Point	offset(20, 20);
@@ -1113,7 +1122,15 @@ void CRat::findEyeCenter(Point& ptEye0, vector <Point>& vecEye, vector <float>& 
 		Mat mROIsm(mSmooth, Rect(Point(10, 10), Point(30, 30)));
 		double min;
 		Point minLoc;
+		try {
 		minMaxLoc(mROIsm, &min, NULL, &minLoc);
+		
+		}catch(cv::Exception& e){
+			wxString str;
+			str.Printf("Bad allocation: %s", e.what() );
+			wxLogMessage( str);
+			continue;
+		}
 		minLoc = minLoc + Point(10, 10) + pt1;
 	//MainFrame:: myMsgOutput("eye center [%d, %d]= %f, ori eye [%d, %d]\n", minLoc.x, minLoc.y, min, ptEye.x, ptEye.y);	
 	

@@ -761,13 +761,14 @@ void MainFrame::OnViewResultSeries(wxCommandEvent& event)
 	int pos = 0;
 	cv::createTrackbar("slice", "ResultSeries", &pos, m_nSlices-1, ResultSlice, this);
 	//cv::setMouseCallback("ResultSeries", onCVMouse, this);
-    
+  /*  
     cv::namedWindow("xxx");
 	for(int i=0; i<m_nSlices; i++)	{
         Mat &mSrc = getResultMat(i);
         cv::imshow("xxx", mSrc);  
         waitKey(16);     
     }
+	 */ 
 }
 
 
