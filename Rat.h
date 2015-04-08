@@ -13,7 +13,7 @@
 #include "gnuplot_i.h"
 
 #define NUM_FEATURE	 6
-//#define m_RectSize	40
+//#define m_ROIsz	40
 
 using namespace std;
 using namespace cv;
@@ -175,7 +175,7 @@ public:
 
 
 
-	long	m_RectSize;
+	long	m_ROIsz;
 	int		m_nSlices ;
 	Size	m_szImg;
 	wxString  m_strSrcPath;

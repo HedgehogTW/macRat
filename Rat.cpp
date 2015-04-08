@@ -14,12 +14,13 @@
 //#include "MyContour.h"
 #include "MyUtil.h"
 #include <gsl/gsl_fit.h>
-
 #include "BendPoint.h"
-
 #include "DlgOpticalInput.h"
 
+#define PDF_SIZE    40
+
 using namespace cv;
+
 
 Gnuplot gPlotL("lines");
 Gnuplot gPlotR("lines");
@@ -459,7 +460,7 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	double verLine = configData.m_verLine;
 	double ymin = configData.m_ymin;
 	double ymax = configData.m_ymax;
-	m_RectSize = configData.m_szROI;
+	m_ROIsz = configData.m_szROI;
     long referFrame = configData.m_referFrame;
 	
 	double gainEye = configData.m_gainEye;
@@ -470,7 +471,7 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	DlgOpticalInput dlg(frameStep, threshold, MainFrame::m_pThis);
 	dlg.setVerticalLine(bLED, bRefLine, bPinna, bVerLine, verLine);
 	dlg.setSeriesLine(bEyeMove, bGrayDiff, bAdjDiff, bOptical, bOpticalPDF, bAccumulate);
-	dlg.setYRange(ymin, ymax, m_RectSize, referFrame);
+	dlg.setYRange(ymin, ymax, m_ROIsz, referFrame);
 	dlg.setGain(gainEye, gainPDF);
 	
 	if(dlg.ShowModal() !=  wxID_OK) return false;
@@ -478,7 +479,7 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	threshold = dlg.getThreshold();
 	dlg.getVerticalLine(bLED, bRefLine, bPinna, bVerLine, verLine);
 	dlg.getSeriesLine(bEyeMove, bGrayDiff, bAdjDiff, bOptical, bOpticalPDF, bAccumulate);
-	dlg.getYRange(ymin, ymax, m_RectSize, referFrame);
+	dlg.getYRange(ymin, ymax, m_ROIsz, referFrame);
 	dlg.getGain(gainEye, gainPDF);
 	dlg.Destroy();
 	
@@ -497,13 +498,13 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	configData.m_verLine = verLine;
 	configData.m_ymin = ymin;
 	configData.m_ymax = ymax;
-	configData.m_szROI = m_RectSize;
+	configData.m_szROI = m_ROIsz;
     configData.m_referFrame = referFrame;
 	configData.m_gainEye = gainEye;
 	configData.m_gainPDF = gainPDF;
 	
 	MainFrame::m_pThis->setConfigData(configData);	
-	m_offsetEar = Point(m_RectSize/2, m_RectSize/2);
+	m_offsetEar = Point(m_ROIsz/2, m_ROIsz/2);
 	
     if(referFrame<=0)
         newReferFrame = findReferenceFrame(ptAbdoRed);
@@ -537,7 +538,7 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	m_referFrame = newReferFrame;
 	
 	MainFrame:: myMsgOutput("PDF threshold %f, frame steps %d, bAccumulate %d, y range [%.2f, %.2f], szROI %d\n", 
-			threshold, frameStep, bAccumulate, ymin, ymax, m_RectSize);
+			threshold, frameStep, bAccumulate, ymin, ymax, m_ROIsz);
 	
 	clock_t start, finish;
 	int minutes, second;
@@ -780,7 +781,7 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	double verLine = configData.m_verLine;
 	double ymin = configData.m_ymin;
 	double ymax = configData.m_ymax;
-	m_RectSize = configData.m_szROI;
+	m_ROIsz = configData.m_szROI;
     long referFrame = configData.m_referFrame;
 	double gainEye = configData.m_gainEye;
 	double gainPDF = configData.m_gainPDF;
@@ -788,7 +789,7 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	DlgOpticalInput dlg(frameStep, threshold, MainFrame::m_pThis);
 	dlg.setVerticalLine(bLED, bRefLine, bPinna, bVerLine, verLine);
 	dlg.setSeriesLine(bEyeMove, bGrayDiff, bAdjDiff, bOptical, bOpticalPDF, bAccumulate);
-	dlg.setYRange(ymin, ymax, m_RectSize, referFrame);
+	dlg.setYRange(ymin, ymax, m_ROIsz, referFrame);
 	dlg.setGain(gainEye, gainPDF);
 	
 	if(dlg.ShowModal() !=  wxID_OK) return false;
@@ -796,7 +797,7 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	threshold = dlg.getThreshold();
 	dlg.getVerticalLine(bLED, bRefLine, bPinna, bVerLine, verLine);
 	dlg.getSeriesLine(bEyeMove, bGrayDiff, bAdjDiff, bOptical, bOpticalPDF, bAccumulate);
-	dlg.getYRange(ymin, ymax, m_RectSize, referFrame);
+	dlg.getYRange(ymin, ymax, m_ROIsz, referFrame);
 	dlg.getGain(gainEye, gainPDF);
 	dlg.Destroy();
 	
@@ -816,13 +817,13 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	configData.m_verLine = verLine;
 	configData.m_ymin = ymin;
 	configData.m_ymax = ymax;
-	configData.m_szROI = m_RectSize;
+	configData.m_szROI = m_ROIsz;
     configData.m_referFrame = referFrame;
 	configData.m_gainEye = gainEye;
 	configData.m_gainPDF = gainPDF;
 	
 	MainFrame::m_pThis->setConfigData(configData);
-	m_offsetEar = Point(m_RectSize/2, m_RectSize/2);
+	m_offsetEar = Point(m_ROIsz/2, m_ROIsz/2);
 	
     if(referFrame<=0)
         newReferFrame = findReferenceFrame(m_ptEarL);
@@ -877,7 +878,7 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	m_referFrame = newReferFrame;
 	
 	MainFrame:: myMsgOutput("PDF threshold %f, frame steps %d, bAccumulate %d, y range [%d, %d], szROI %d\n", 
-			threshold, frameStep, bAccumulate, ymin, ymax, m_RectSize);
+			threshold, frameStep, bAccumulate, ymin, ymax, m_ROIsz);
 	
 	vector <float>  vecLEarGrayDiff;
 	vector <float>  vecREarGrayDiff;
@@ -1516,8 +1517,8 @@ bool CRat::opticalLoadPDFfile(const char* filename, Mat &mPdf)
         //wxLogMessage(str);
         return false;
     }
-    for(int i=0; i<m_RectSize; i++)
-        for(int c=0; c<m_RectSize; c++) {
+    for(int i=0; i<PDF_SIZE; i++)
+        for(int c=0; c<PDF_SIZE; c++) {
             fscanf(fpPdf, "%f", &probability);
             mPdf.at<float>(i, c) = probability;
         }
@@ -1535,10 +1536,10 @@ void CRat::opticalAssignThresholdMap(Mat& mThMap, Mat& mFlow, Mat& mPdf, float t
         for(int x = 0; x < mROI.cols; x ++)
         {
             Point2f fxy = mROI.at<Point2f>(y, x);
-            Point2f fxy1 = fxy + Point2f(20, 20);
+            Point2f fxy1 = fxy + Point2f(PDF_SIZE/2, PDF_SIZE/2);
             
-            if(fxy1.x >= 40 || fxy1.x <0)  continue;
-            if(fxy1.y >= 40 || fxy1.y <0)  continue;
+            if(fxy1.x >= PDF_SIZE || fxy1.x <0)  continue;
+            if(fxy1.y >= PDF_SIZE || fxy1.y <0)  continue;
             
             float probability = mPdf.at<float>(fxy1.y+0.5, fxy1.x+0.5);
             if(probability >= th) 	
@@ -1558,7 +1559,7 @@ void CRat::opticalDrawFlowmapWithPDF(Point pt1, Point pt2, int nFrameSteps, char
 	}
     wxString pdfName1, pdfName2, pdfNameEye; 
     char pdfPath[] = "pdf";
-    Mat mPdf(m_RectSize, m_RectSize, CV_32FC1);	
+    Mat mPdf(PDF_SIZE, PDF_SIZE, CV_32FC1);	
     Mat mThMap(m_vecFlow[0].size(), CV_8UC1);
 	
 	for(int i=0; i<m_nSlices - nFrameSteps; i++) {
@@ -1722,7 +1723,7 @@ void CRat::opticalScatterPlotSave(vector<Mat>& vecFlow, char* subpath, Point pt1
 		ptEyeC.x= (m_vecEyeL[m_referFrame].x+m_vecEyeR[m_referFrame].x)/2;
 		ptEyeC.y= (m_vecEyeL[m_referFrame].y+m_vecEyeR[m_referFrame].y)/2;
 	}
-	Mat mPdf(m_RectSize, m_RectSize, CV_32FC1);	
+	Mat mPdf(m_ROIsz, m_ROIsz, CV_32FC1);	
 	int sz = vecFlow.size();
 	for(int i=0; i<sz; i++) {
 		Mat& mFlow = vecFlow[i];	
@@ -1821,13 +1822,13 @@ void CRat::saveDotDensity(Gnuplot& plotSavePGN, Mat& mFlow, Point pt, wxString& 
         for(int x = 0; x < mROI.cols; x ++)
         {
 			Point2f fxy = mROI.at<Point2f>(y, x);
-			Point2f fxy1 = fxy + Point2f(20, 20);
+			Point2f fxy1 = fxy + Point2f(PDF_SIZE/2, PDF_SIZE/2);
 			
-			if(fxy1.x >= 40 || fxy1.x <0) {
+			if(fxy1.x >= PDF_SIZE || fxy1.x <0) {
 				vDataBelow.push_back(fxy);
 				continue;
 			}
-			if(fxy1.y >= 40 || fxy1.y <0) {
+			if(fxy1.y >= PDF_SIZE || fxy1.y <0) {
 				vDataBelow.push_back(fxy);
 				continue;
 			}
@@ -1926,9 +1927,9 @@ void CRat::opticalFlowDistribution(vector<Mat>& vecFlow, char* subpath, vector <
 		ptEyeC.y= (m_vecEyeL[m_referFrame].y+m_vecEyeR[m_referFrame].y)/2;
 	}
 	
-	Mat mDistEarL(40, 40, CV_32FC1, Scalar(0));
-	Mat mDistEarR(40, 40, CV_32FC1, Scalar(0));
-	Mat mDistEye(40, 40, CV_32FC1, Scalar(0));
+	Mat mDistEarL(PDF_SIZE, PDF_SIZE, CV_32FC1, Scalar(0));
+	Mat mDistEarR(PDF_SIZE, PDF_SIZE, CV_32FC1, Scalar(0));
+	Mat mDistEye(PDF_SIZE, PDF_SIZE, CV_32FC1, Scalar(0));
 	int sz = vecFlow.size();
 	
 	vecPdf1.resize(sz);
@@ -2019,10 +2020,10 @@ float CRat::optical_compute_movement(Mat& mFlow, Mat& mDistEar, Point pt, float 
 			Point2f fxy = mROI.at<Point2f>(y, x);
 			float mv  = cv::norm(fxy);	
 			
-			fxy += Point2f(20, 20);
+			fxy += Point2f(PDF_SIZE/2, PDF_SIZE/2);
 			
-			if(fxy.x >= 40 || fxy.x <0) continue;
-			if(fxy.y >= 40 || fxy.y <0) continue;
+			if(fxy.x >= PDF_SIZE || fxy.x <0) continue;
+			if(fxy.y >= PDF_SIZE || fxy.y <0) continue;
 			
 			float Pear = mDistEar.at<float>(fxy.y+0.5, fxy.x+0.5);
 

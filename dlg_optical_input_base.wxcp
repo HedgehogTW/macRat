@@ -1716,7 +1716,7 @@
             }, {
              "type": "string",
              "m_label": "Size:",
-             "m_value": "50,-1"
+             "m_value": "60,-1"
             }, {
              "type": "string",
              "m_label": "Minimum Size:",

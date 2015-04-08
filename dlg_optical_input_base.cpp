@@ -132,7 +132,7 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     
     gridBagSizer40->Add(m_staticText1923, wxGBPosition(1,0), wxGBSpan(1,1), wxALL, 5);
     
-    m_textCtrlThreshold = new wxTextCtrl(m_panel38, wxID_ANY, wxT("0.005"), wxDefaultPosition, wxSize(50,-1), wxTE_RIGHT);
+    m_textCtrlThreshold = new wxTextCtrl(m_panel38, wxID_ANY, wxT("0.005"), wxDefaultPosition, wxSize(60,-1), wxTE_RIGHT);
     #if wxVERSION_NUMBER >= 3000
     m_textCtrlThreshold->SetHint(wxT(""));
     #endif
