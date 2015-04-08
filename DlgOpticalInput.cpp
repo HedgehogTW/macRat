@@ -19,9 +19,10 @@ DlgOpticalInput::~DlgOpticalInput()
 {
 }
 
-void DlgOpticalInput::setVerticalLine(bool bLED, bool bPinna, bool bVerLine, double x)
+void DlgOpticalInput::setVerticalLine(bool bLED, bool bRefLine, bool bPinna, bool bVerLine, double x)
 {
 	m_checkBoxLED->SetValue(bLED);
+    m_checkBoxRef->SetValue(bRefLine);
 	m_checkBoxPinna->SetValue(bPinna);
 	m_checkBoxVerLine->SetValue(bVerLine);
 	
@@ -67,9 +68,10 @@ void DlgOpticalInput::setGain(double gainEye, double gainPDF)
 	*m_textCtrlPDFGain << str2;
 }
 
-void DlgOpticalInput::getVerticalLine(bool& bLED, bool& bPinna, bool& bVerLine, double& x)
+void DlgOpticalInput::getVerticalLine(bool& bLED, bool& bRefLine, bool& bPinna, bool& bVerLine, double& x)
 {
 	bLED = m_checkBoxLED->GetValue();
+    bRefLine = m_checkBoxRef->GetValue();
 	bPinna = m_checkBoxPinna->GetValue();
 	bVerLine = m_checkBoxVerLine->GetValue();
 	

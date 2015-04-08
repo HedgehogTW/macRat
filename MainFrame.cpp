@@ -54,7 +54,8 @@ MainFrame::MainFrame(wxWindow* parent)
 	////////////////////////////
 	m_configData.m_frameStep = pConfig->ReadLong("/optical/frameStep", 5);
 	m_configData.m_threshold = pConfig->ReadDouble("/optical/threshold", 0.001);
-	m_configData.m_bLED = pConfig->ReadBool("/optical/bLED", false);
+	m_configData.m_bLED = pConfig->ReadBool("/optical/bLED", false);    
+    m_configData.m_bRefLine = pConfig->ReadBool("/optical/bRefLine", true);
 	m_configData.m_bPinna = pConfig->ReadBool("/optical/bPinna", false);
 	m_configData.m_bVerLine = pConfig->ReadBool("/optical/bVerLine", false);
 	
@@ -102,6 +103,7 @@ void MainFrame::DeleteContents()
 	pConfig->Write("/optical/frameStep", m_configData.m_frameStep);
 	pConfig->Write("/optical/threshold", m_configData.m_threshold);
 	pConfig->Write("/optical/bLED", m_configData.m_bLED);
+    pConfig->Write("/optical/bRefLine", m_configData.m_bRefLine);
 	pConfig->Write("/optical/bPinna", m_configData.m_bPinna);
 	pConfig->Write("/optical/bVerLine", m_configData.m_bVerLine);
 	
@@ -512,13 +514,15 @@ bool MainFrame::preprocessing()
 			fprintf(fp, "C%d\n", m_nCageLine );
 		fclose(fp);
 	}
-	
-	if(m_Rat.detectLED(m_nCageLine)==false) {
-		wxString str;
-		str.Printf("detectLED error, LED1 %d, LED2 %d, LED end %d", m_Rat.m_nLED1, m_Rat.m_nLED2, m_Rat.m_nLED_End);
-		wxLogMessage(str);
-		return false;
-	}
+
+    if(m_bHasCrop ==false) {
+        if(m_Rat.detectLED(m_nCageLine)==false) {
+            wxString str;
+            str.Printf("detectLED error, LED1 %d, LED2 %d, LED end %d", m_Rat.m_nLED1, m_Rat.m_nLED2, m_Rat.m_nLED_End);
+            wxLogMessage(str);
+            //return false;
+        }
+    }
 	if(!m_bHasCrop ) {
 		m_Rat.cropImage(m_bCutTop);
 		updateOutData(m_Rat.getSrcImg(0));	
@@ -761,14 +765,14 @@ void MainFrame::OnViewResultSeries(wxCommandEvent& event)
 	int pos = 0;
 	cv::createTrackbar("slice", "ResultSeries", &pos, m_nSlices-1, ResultSlice, this);
 	//cv::setMouseCallback("ResultSeries", onCVMouse, this);
-  /*  
+    
     cv::namedWindow("xxx");
 	for(int i=0; i<m_nSlices; i++)	{
         Mat &mSrc = getResultMat(i);
         cv::imshow("xxx", mSrc);  
         waitKey(16);     
     }
-	 */ 
+	wxBell(); 
 }
 
 

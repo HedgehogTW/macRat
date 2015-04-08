@@ -53,6 +53,7 @@ public:
 	long 	m_frameStep;	
 	double 	m_threshold;
 	bool 	m_bLED;
+    bool    m_bRefLine;
 	bool 	m_bPinna;
 	bool 	m_bVerLine;
 
@@ -125,7 +126,7 @@ public:
 
 	float 	optical_compute_movement(Mat& mFlow, Mat& mDistEar, Point pt, float threshold);
 	void 	saveDotDensity(Gnuplot& plotSavePGN, Mat& mFlow, Point pt, wxString& strOutName, Mat& mPdf, float threshold);	
-	float 	opticalBuildPDF(Gnuplot& plotSavePGN, Mat& mFlow, Mat& mGaus, Mat& mDist, Point pt, wxString& strOutName);
+	void 	opticalBuildPDF(Gnuplot& plotSavePGN, Mat& mFlow, Mat& mGaus, Mat& mDist, Point pt, wxString& strOutName);
 	void	drawOptFlowMap(Mat& cflowmap, const Mat& flow, int step, const Scalar& color);
     void    drawOptFlowMapWithPDF(Mat& cflowmap, const Mat& flow,  int step, Mat &mPdf);
     void    opticalAssignThresholdMap(Mat& mThMap, Mat& mFlow, Mat& mPdf, float th, Point pt);

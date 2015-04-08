@@ -320,8 +320,7 @@ bool CRat::detectLED(int nCageLine)
 	}
 	if(m_nLED_End==-1)  m_nLED_End = m_nSlices-1;
 
-	MainFrame:: myMsgOutput("1-LED frames [%d..%d], ----> 2-LED frame %d\n", 
-		m_nLED1+1, m_nLED_End+1, m_nLED2+1); 
+	MainFrame:: myMsgOutput("1-LED: %d, 2-LED: %d\n", m_nLED1+1, m_nLED2+1); 
 
 //saveResult("LED", m_vecDest);
 
@@ -447,6 +446,7 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	int frameStep = configData.m_frameStep;	
 	double threshold = configData.m_threshold;
 	bool bLED = configData.m_bLED;
+    bool bRefLine = configData.m_bRefLine;
 	bool bPinna = configData.m_bPinna;
 	bool bVerLine = configData.m_bVerLine;
 	
@@ -468,7 +468,7 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	
 
 	DlgOpticalInput dlg(frameStep, threshold, MainFrame::m_pThis);
-	dlg.setVerticalLine(bLED, bPinna, bVerLine, verLine);
+	dlg.setVerticalLine(bLED, bRefLine, bPinna, bVerLine, verLine);
 	dlg.setSeriesLine(bEyeMove, bGrayDiff, bAdjDiff, bOptical, bOpticalPDF, bAccumulate);
 	dlg.setYRange(ymin, ymax, m_RectSize, referFrame);
 	dlg.setGain(gainEye, gainPDF);
@@ -476,7 +476,7 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	if(dlg.ShowModal() !=  wxID_OK) return false;
 	newFrameSteps = dlg.getFrameSteps();
 	threshold = dlg.getThreshold();
-	dlg.getVerticalLine(bLED, bPinna, bVerLine, verLine);
+	dlg.getVerticalLine(bLED, bRefLine, bPinna, bVerLine, verLine);
 	dlg.getSeriesLine(bEyeMove, bGrayDiff, bAdjDiff, bOptical, bOpticalPDF, bAccumulate);
 	dlg.getYRange(ymin, ymax, m_RectSize, referFrame);
 	dlg.getGain(gainEye, gainPDF);
@@ -485,6 +485,7 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	configData.m_frameStep = newFrameSteps;	
 	configData.m_threshold = threshold;
 	configData.m_bLED = bLED;
+    configData.m_bRefLine = bRefLine;
 	configData.m_bPinna = bPinna;
 	configData.m_bVerLine = bVerLine;
 	configData.m_bEyeMove = bEyeMove;
@@ -667,11 +668,14 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	gPlotL.cmd("set termoption noenhanced");
 	gPlotR.cmd("set termoption noenhanced");
 	
-	if(bLED) {
+	if(bLED && m_nLED1>0 && m_nLED2 >0) {
 		_gnuplotLED(gPlotL, m_nLED1, m_nLED2);
 		_gnuplotLED(gPlotR, m_nLED1, m_nLED2);
 	}
-	
+	if(bRefLine) {
+		_gnuplotVerticalLine(gPlotL, m_referFrame);
+		_gnuplotVerticalLine(gPlotR, m_referFrame);        
+    }
 	if(bVerLine && verLine >0) {
 		_gnuplotVerticalLine(gPlotL, verLine);
 		_gnuplotVerticalLine(gPlotR, verLine);		
@@ -763,6 +767,7 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	int frameStep = configData.m_frameStep;	
 	double threshold = configData.m_threshold;
 	bool bLED = configData.m_bLED;
+    bool bRefLine = configData.m_bRefLine;
 	bool bPinna = configData.m_bPinna;
 	bool bVerLine = configData.m_bVerLine;
 	
@@ -781,7 +786,7 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	double gainPDF = configData.m_gainPDF;
 	
 	DlgOpticalInput dlg(frameStep, threshold, MainFrame::m_pThis);
-	dlg.setVerticalLine(bLED, bPinna, bVerLine, verLine);
+	dlg.setVerticalLine(bLED, bRefLine, bPinna, bVerLine, verLine);
 	dlg.setSeriesLine(bEyeMove, bGrayDiff, bAdjDiff, bOptical, bOpticalPDF, bAccumulate);
 	dlg.setYRange(ymin, ymax, m_RectSize, referFrame);
 	dlg.setGain(gainEye, gainPDF);
@@ -789,7 +794,7 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	if(dlg.ShowModal() !=  wxID_OK) return false;
 	newFrameSteps = dlg.getFrameSteps();
 	threshold = dlg.getThreshold();
-	dlg.getVerticalLine(bLED, bPinna, bVerLine, verLine);
+	dlg.getVerticalLine(bLED, bRefLine, bPinna, bVerLine, verLine);
 	dlg.getSeriesLine(bEyeMove, bGrayDiff, bAdjDiff, bOptical, bOpticalPDF, bAccumulate);
 	dlg.getYRange(ymin, ymax, m_RectSize, referFrame);
 	dlg.getGain(gainEye, gainPDF);
@@ -798,6 +803,7 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	configData.m_frameStep = newFrameSteps;	
 	configData.m_threshold = threshold;
 	configData.m_bLED = bLED;
+    configData.m_bRefLine = bRefLine;
 	configData.m_bPinna = bPinna;
 	configData.m_bVerLine = bVerLine;
 	
@@ -950,11 +956,14 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	gPlotL.cmd("set termoption noenhanced");
 	gPlotR.cmd("set termoption noenhanced");
 	
-	if(bLED) {
+	if(bLED && m_nLED1>0 && m_nLED2 >0) {
 		_gnuplotLED(gPlotL, m_nLED1, m_nLED2);
 		_gnuplotLED(gPlotR, m_nLED1, m_nLED2);
 	}
-
+	if(bRefLine) {
+		_gnuplotVerticalLine(gPlotL, m_referFrame);
+		_gnuplotVerticalLine(gPlotR, m_referFrame);        
+    }
 	if(bPinna && maxPointL>=0 && maxPointR>=0) {
 		if(vecLEarGrayDiff[maxPointL]> vecREarGrayDiff[maxPointR]) {
 			MainFrame:: myMsgOutput("max motion: left ear %d\n", maxPointL);
@@ -1021,8 +1030,8 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 		Mat mDestColor;
 		mDestColor = m_vecDest[i];
 		// original ears
-		rectangle(mDestColor, Rect(ptL1, ptL2), Scalar(255,0,0));
-		rectangle(mDestColor, Rect(ptR1, ptR2), Scalar(255,0,0));
+		rectangle(mDestColor, Rect(ptL1, ptL2), Scalar(0, 255,255));
+		rectangle(mDestColor, Rect(ptR1, ptR2), Scalar(0, 255,255));
 		
 		// new positions of eyes 
 		if(bEyeMove) {
@@ -1284,7 +1293,11 @@ int CRat::findReferenceFrame(Point& pt)
 {
 	int start, end, lenSeg;
 	start = 0;
-	end = m_nLED2 + 10;
+    if(m_nLED2>0)
+        end = m_nLED2 + 10;
+    else
+        end = m_nSlices/2;
+        
 	lenSeg = 10;
 	
 	vector <double>  vSeries;
@@ -1876,7 +1889,7 @@ void CRat::opticalFlowDistribution(vector<Mat>& vecFlow, char* subpath, vector <
 	int ksize = 9;
 	Mat mGaus ; 
 	createGaussianMask(sigma, ksize, mGaus);
-	MainFrame:: myMsgOutput("createGaussianMask: sigma %.2f, ksize %d\n", sigma, ksize);
+//	MainFrame:: myMsgOutput("createGaussianMask: sigma %.2f, ksize %d\n", sigma, ksize);
 	
 	Gnuplot plot("lines");
 #if defined(unix) || defined(__unix) || defined(__unix__) || defined(__APPLE__) 
@@ -2026,7 +2039,7 @@ float CRat::optical_compute_movement(Mat& mFlow, Mat& mDistEar, Point pt, float 
 	return (movement);
 }
 
-float CRat::opticalBuildPDF(Gnuplot& plot, Mat& mFlow, Mat& mGaus, Mat& mDist, Point pt, wxString& strOutName)
+void CRat::opticalBuildPDF(Gnuplot& plot, Mat& mFlow, Mat& mGaus, Mat& mDist, Point pt, wxString& strOutName)
 {
 	Point pt1 (pt-m_offsetEar);
 	Point pt2 (pt+m_offsetEar);
@@ -2059,9 +2072,6 @@ float CRat::opticalBuildPDF(Gnuplot& plot, Mat& mFlow, Mat& mGaus, Mat& mDist, P
 	std::ostringstream cmdstr;
     cmdstr << "splot '" << fNameBin.ToAscii() << "' binary matrix using 1:2:3";
     plot.cmd(cmdstr.str());		
-
-	float threshold = 0.001;
-	return threshold; 
 }
 
 void CRat::createGaussianMask(double& sigma, int& ksize, Mat& mKernel)
