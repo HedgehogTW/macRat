@@ -52,7 +52,7 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     
     gridSizer167->Add(m_checkBoxPinna, 0, wxALL, 5);
     
-    m_checkBoxEyeMove = new wxCheckBox(m_panel163, wxID_ANY, _("Eye movement"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_checkBoxEyeMove = new wxCheckBox(m_panel163, wxID_ANY, _("Eye"), wxDefaultPosition, wxSize(-1,-1), 0);
     m_checkBoxEyeMove->SetValue(false);
     
     gridSizer167->Add(m_checkBoxEyeMove, 0, wxALL, 5);
@@ -90,11 +90,6 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     
     staticBoxSizer173->Add(gridSizer175, 1, wxALL|wxEXPAND, 5);
     
-    m_checkBoxOptical = new wxCheckBox(m_panel171, wxID_ANY, _("Opticalflow"), wxDefaultPosition, wxSize(-1,-1), 0);
-    m_checkBoxOptical->SetValue(false);
-    
-    gridSizer175->Add(m_checkBoxOptical, 0, wxALL, 5);
-    
     m_checkBoxOpticalPDF = new wxCheckBox(m_panel171, wxID_ANY, _("Opticalflow w/ PDF"), wxDefaultPosition, wxSize(-1,-1), 0);
     m_checkBoxOpticalPDF->SetValue(false);
     
@@ -104,6 +99,11 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     m_checkBoxGrayDiff->SetValue(false);
     
     gridSizer175->Add(m_checkBoxGrayDiff, 0, wxALL, 5);
+    
+    m_checkBoxSaveFlow = new wxCheckBox(m_panel171, wxID_ANY, _("Save OpFlow"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_checkBoxSaveFlow->SetValue(false);
+    
+    gridSizer175->Add(m_checkBoxSaveFlow, 0, wxALL, 5);
     
     m_radioButtonInstan = new wxRadioButton(m_panel171, wxID_ANY, _("Instantaneous"), wxDefaultPosition, wxSize(-1,-1), wxRB_GROUP);
     m_radioButtonInstan->SetValue(1);

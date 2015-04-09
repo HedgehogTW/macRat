@@ -818,9 +818,7 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
     configData.m_referFrame = referFrame;
 	configData.m_gainEye = gainEye;
 	configData.m_gainPDF = gainPDF;
-	
-    m_bEyeMove = bEyeMove;
-    
+	   
 	MainFrame::m_pThis->setConfigData(configData);
 	m_offsetEar = Point(m_ROIsz/2, m_ROIsz/2);
 	
@@ -834,7 +832,7 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 		wxLogMessage("cannot find reference frame");
 		return false;
 	}
-/*	
+	
 	if(bEyeMove) {
 		findEyeCenter(ptEyeL, m_vecEyeL, m_vecEyeLMove, newReferFrame);
 		findEyeCenter(ptEyeR, m_vecEyeR, m_vecEyeRMove, newReferFrame);
@@ -846,7 +844,7 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 			m_vecEyeL[i] = ptEyeL;
 		}
 	}
-     */ 
+     
 /*	
 	vector <Point>  vecEarL;
 	vector <Point>  vecEarR;
@@ -1060,6 +1058,327 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	return true;
 }
 
+bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, Point& ptAbdoRed, Point& ptAbdoCyan)
+{
+	m_ptEyeL = ptEyeL;
+	m_ptEyeR = ptEyeR;
+	m_ptEarL = ptEarL;
+	m_ptEarR = ptEarR;
+    
+	m_ptAbdoRed = ptAbdoRed;
+	m_ptAbdoCyan = ptAbdoCyan;
+	
+	m_vecEyeL.clear();
+	m_vecEyeR.clear();
+
+
+	/////////////////////////////////////////////////////////////optical flow
+	MyConfigData  configData;
+	MainFrame::m_pThis->getConfigData(configData);
+	
+	int  newReferFrame;
+	int  newFrameSteps;
+	int frameStep = configData.m_frameStep;	
+	double threshold = configData.m_threshold;
+	bool bLED = configData.m_bLED;
+    bool bRefLine = configData.m_bRefLine;
+	bool bPinna = configData.m_bPinna;
+	bool bVerLine = configData.m_bVerLine;
+	
+	bool bEyeMove = configData.m_bEyeMove;
+	bool bGrayDiff = configData.m_bGrayDiff;
+	bool bAbdo = configData.m_bAbdo;
+    bool bEar = configData.m_bEar;
+	bool bOptical = configData.m_bOptical;
+	bool bOpticalPDF = configData.m_bOpticalPDF;
+	bool bAccumulate = configData.m_bAccumulate;
+	double verLine = configData.m_verLine;
+	double ymin = configData.m_ymin;
+	double ymax = configData.m_ymax;
+	m_ROIsz = configData.m_szROI;
+    long referFrame = configData.m_referFrame;
+	double gainEye = configData.m_gainEye;
+	double gainPDF = configData.m_gainPDF;
+	
+	DlgOpticalInput dlg(frameStep, threshold, MainFrame::m_pThis);
+	dlg.setVerticalLine(bLED, bRefLine, bPinna, bVerLine, verLine);
+	dlg.setSeriesLine(bEyeMove, bEar, bGrayDiff, bAbdo, bOptical, bOpticalPDF, bAccumulate);
+	dlg.setYRange(ymin, ymax, m_ROIsz, referFrame);
+	dlg.setGain(gainEye, gainPDF);
+	
+	if(dlg.ShowModal() !=  wxID_OK) return false;
+	newFrameSteps = dlg.getFrameSteps();
+	threshold = dlg.getThreshold();
+	dlg.getVerticalLine(bLED, bRefLine, bPinna, bVerLine, verLine);
+	dlg.getSeriesLine(bEyeMove, bEar, bGrayDiff, bAbdo, bOptical, bOpticalPDF, bAccumulate);
+	dlg.getYRange(ymin, ymax, m_ROIsz, referFrame);
+	dlg.getGain(gainEye, gainPDF);
+	dlg.Destroy();
+	
+	configData.m_frameStep = newFrameSteps;	
+	configData.m_threshold = threshold;
+	configData.m_bLED = bLED;
+    configData.m_bRefLine = bRefLine;
+	configData.m_bPinna = bPinna;
+	configData.m_bVerLine = bVerLine;
+	
+	configData.m_bEyeMove = bEyeMove;
+	configData.m_bGrayDiff = bGrayDiff;
+    configData.m_bEar = bEar;
+	configData.m_bAbdo = bAbdo;
+	configData.m_bOptical = bOptical;
+	configData.m_bOpticalPDF = bOpticalPDF;
+	configData.m_bAccumulate = bAccumulate;
+	configData.m_verLine = verLine;
+	configData.m_ymin = ymin;
+	configData.m_ymax = ymax;
+	configData.m_szROI = m_ROIsz;
+    configData.m_referFrame = referFrame;
+	configData.m_gainEye = gainEye;
+	configData.m_gainPDF = gainPDF;
+	
+    m_bDispEye = bEyeMove;
+    m_bDispEar = bEar;
+    m_bDispAbdo = bAbdo;
+   
+	MainFrame::m_pThis->setConfigData(configData);
+	m_offsetEar = Point(m_ROIsz/2, m_ROIsz/2);
+	
+    if(referFrame<=0)
+        newReferFrame = findReferenceFrame(m_ptEarL);
+    else
+        newReferFrame = referFrame;
+        
+	MainFrame::myMsgOutput("Reference frame %d\n", newReferFrame);
+	if(newReferFrame <0) {
+		wxLogMessage("cannot find reference frame");
+		return false;
+	}
+	
+	if(bEyeMove) {
+		findEyeCenter(ptEyeL, m_vecEyeL, m_vecEyeLMove, newReferFrame);
+		findEyeCenter(ptEyeR, m_vecEyeR, m_vecEyeRMove, newReferFrame);
+	}else {
+		m_vecEyeR.resize(m_nSlices);
+		m_vecEyeL.resize(m_nSlices);
+		for(int i=0; i<m_nSlices;i++) {
+			m_vecEyeR[i] = ptEyeR;
+			m_vecEyeL[i] = ptEyeL;
+		}
+	}
+      
+/*	
+	vector <Point>  vecEarL;
+	vector <Point>  vecEarR;
+	findNewEarCenter(m_vecEyeL, ptEarL, vecEarL, m_referFrame);
+	findNewEarCenter(m_vecEyeR, ptEarR, vecEarR, m_referFrame);
+*/
+//////////////////////////////////////////////////////////////////////	
+	clock_t start, finish;
+	double  duration;
+	start = clock();
+	
+	wxBeginBusyCursor();
+	vector <float>  vecLEarFlow;
+	vector <float>  vecREarFlow;
+	
+	vector <float>  vecLEarFlowPdf;
+	vector <float>  vecREarFlowPdf;
+	vector <float>  vecLEarFlowPdfRegres;
+	vector <float>  vecREarFlowPdfRegres;
+	vector <float>  vecLEarFlowPdfSubRegres;
+	vector <float>  vecREarFlowPdfSubRegres;
+	
+	int szVecFlow = m_vecFlow.size();
+    if(bOpticalPDF || bOptical) {
+        if(newFrameSteps != frameStep || szVecFlow ==0 || m_referFrame != newReferFrame) {
+            opticalFlow(newFrameSteps, newReferFrame);
+        }
+    }
+	frameStep = newFrameSteps;
+	m_referFrame = newReferFrame;
+	
+	MainFrame:: myMsgOutput("PDF threshold %f, frame steps %d, bAccumulate %d, y range [%d, %d], szROI %d\n", 
+			threshold, frameStep, bAccumulate, ymin, ymax, m_ROIsz);
+	
+	vector <float>  vecLEarGrayDiff;
+	vector <float>  vecREarGrayDiff;
+	vector<float> smoothL;	
+	vector<float> smoothR;
+	int maxPointL, maxPointR;
+	maxPointL = maxPointR = -1;
+	if(bGrayDiff || bPinna) {
+		graylevelDiff(m_referFrame, ptEarL, ptEarR, vecLEarGrayDiff, vecREarGrayDiff);
+		smoothData(vecLEarGrayDiff, smoothL, 2);	
+		smoothData(vecREarGrayDiff, smoothR, 2);	
+		
+		maxPointL = findMaxMotionPoint(smoothL);
+		maxPointR = findMaxMotionPoint(smoothR);	
+
+		DC_removal(m_nLED1, vecLEarGrayDiff);
+		DC_removal(m_nLED1, vecREarGrayDiff);
+        
+        Notch_removal(vecLEarGrayDiff, m_referFrame);
+        Notch_removal(vecREarGrayDiff, m_referFrame);
+	}
+	
+	if(bOpticalPDF) {
+		opticalFlowDistribution(m_vecFlow, "pdf", vecLEarFlowPdf, vecREarFlowPdf, m_ptEarL, m_ptEarR, 
+									"_EarL", "_EarR", "Left Ear", "Right Ear", threshold);
+		opticalScatterPlotSave(m_vecFlow, "scatter", m_ptEarL, m_ptEarR, "_EarL", "_EarR", "Left Ear", "Right Ear", threshold, "pdf");
+		
+        opticalDrawFlowmapWithPDF(m_ptEarL, m_ptEarR, frameStep, 'E', threshold);
+        
+		int sz = vecLEarFlowPdf.size();
+		if(frameStep > 0 && bAccumulate) {
+			for(int i=+1; i<sz; i++) {
+				vecLEarFlowPdf[i] += vecLEarFlowPdf[i-1];
+				vecREarFlowPdf[i] += vecREarFlowPdf[i-1];
+			}
+		}
+		DC_removal(m_nLED1, vecLEarFlowPdf);
+		DC_removal(m_nLED1, vecREarFlowPdf);		
+		
+        Notch_removal(vecLEarFlowPdf, m_referFrame);
+        Notch_removal(vecREarFlowPdf, m_referFrame);
+		
+		if(frameStep > 0 && bAccumulate) {
+			linearRegression(vecLEarFlowPdf, vecLEarFlowPdfRegres, vecLEarFlowPdfSubRegres);
+			linearRegression(vecREarFlowPdf, vecREarFlowPdfRegres, vecREarFlowPdfSubRegres);
+		}
+	}
+	 
+	if(bOptical) {
+		opticalFlowAnalysis(m_vecFlow, ptEarL, vecLEarFlow);
+		opticalFlowAnalysis(m_vecFlow, ptEarR, vecREarFlow);	
+		
+		int sz = vecLEarFlow.size();
+		if(frameStep > 0 && bAccumulate) {	
+			for(int i=+1; i<sz; i++) {
+				vecLEarFlow[i] += vecLEarFlow[i-1];
+				vecREarFlow[i] += vecREarFlow[i-1];
+			}
+		}
+		DC_removal(m_nLED1, vecLEarFlow);
+		DC_removal(m_nLED1, vecREarFlow);	
+        Notch_removal(vecLEarFlow, m_referFrame);
+        Notch_removal(vecREarFlow, m_referFrame);        
+	}
+	wxEndBusyCursor(); 
+	
+///////////G N U P L O T//////////////////////////////////////////////////////////////////////////////
+
+
+	wxFileName fileName = m_strSrcPath;
+	const char* title =fileName.GetName();
+	_gnuplotInit(gPlotL, title, ymin, ymax);
+	_gnuplotInit(gPlotR, title, ymin, ymax);
+	gPlotL.set_legend("left");
+	gPlotR.set_legend("left");	
+	gPlotL.cmd("set termoption noenhanced");
+	gPlotR.cmd("set termoption noenhanced");
+	
+	if(bLED && m_nLED1>0 && m_nLED2 >0) {
+		_gnuplotLED(gPlotL, m_nLED1, m_nLED2);
+		_gnuplotLED(gPlotR, m_nLED1, m_nLED2);
+	}
+	if(bRefLine) {
+		_gnuplotVerticalLine(gPlotL, m_referFrame);
+		_gnuplotVerticalLine(gPlotR, m_referFrame);        
+    }
+	if(bPinna && maxPointL>=0 && maxPointR>=0) {
+		if(vecLEarGrayDiff[maxPointL]> vecREarGrayDiff[maxPointR]) {
+			MainFrame:: myMsgOutput("max motion: left ear %d\n", maxPointL);
+			_gnuplotVerticalLine(gPlotL, maxPointL);
+			_gnuplotVerticalLine(gPlotR, maxPointL);
+			saveEarROI(m_referFrame, maxPointL, ptEarL);
+		}else {
+			MainFrame:: myMsgOutput("max motion: right ear %d\n", maxPointR);
+			_gnuplotVerticalLine(gPlotL, maxPointR);
+			_gnuplotVerticalLine(gPlotR, maxPointL);
+			saveEarROI(m_referFrame, maxPointR, ptEarR);
+		}	
+	}
+	
+	if(bVerLine && verLine >0) {
+		_gnuplotVerticalLine(gPlotL, verLine);
+		_gnuplotVerticalLine(gPlotR, verLine);		
+	}
+	
+	if(bEyeMove) {
+		_gnuplotLine(gPlotL, "LEyeMove", m_vecEyeLMove, "#008B0000", ".");
+		_gnuplotLine(gPlotR, "REyeMove", m_vecEyeRMove, "#008B0000", ".");
+	}
+	if(bGrayDiff) {
+		_gnuplotLine(gPlotL, "LEarGraylevelDiff", vecLEarGrayDiff, "#00008000");
+		_gnuplotLine(gPlotR, "REarGraylevelDiff", vecREarGrayDiff, "#00008000");
+	}
+	if(bOptical) {
+		_gnuplotLine(gPlotL, "LEarFlow", vecLEarFlow, "#00FF4500");
+		_gnuplotLine(gPlotR, "REarFlow", vecREarFlow, "#00FF4500");
+	}
+	if(bOpticalPDF) {
+		_gnuplotLine(gPlotL, "LEarPDF", vecLEarFlowPdf, "#000000FF");
+		_gnuplotLine(gPlotR, "REarPDF", vecREarFlowPdf, "#000000FF");
+		
+		if(frameStep > 0 && bAccumulate ) {
+			_gnuplotLine(gPlotL, "LEarPDFRegress", vecLEarFlowPdfRegres, "#000000FF", "-");
+			_gnuplotLine(gPlotR, "REarPDFRegress", vecREarFlowPdfRegres, "#000000FF", "-");
+			
+			_gnuplotLine(gPlotL, "LEarPDF-Regress", vecLEarFlowPdfSubRegres, "#00FF0000");
+			_gnuplotLine(gPlotR, "REarPDF-Regress", vecREarFlowPdfSubRegres, "#00FF0000");
+		}
+	}
+	
+	//gPlotL.cmd("load '../_splot_move.gpt'");
+	////////////////////// save result to dest
+	m_vecDest.resize(m_nSlices);
+	Point ptL1 (ptEarL-m_offsetEar);
+	Point ptL2 (ptEarL+m_offsetEar);
+	Point ptR1 (ptEarR-m_offsetEar);
+	Point ptR2 (ptEarR+m_offsetEar);
+	
+	
+	for (int i = 0; i < m_nSlices; i++)
+		cvtColor(m_vecMat[i], m_vecDest[i], CV_GRAY2BGR);
+
+	for (int i = 0; i < m_nSlices; i++)
+	{
+		Mat mDestColor;
+		mDestColor = m_vecDest[i];
+		// original ears
+		rectangle(mDestColor, Rect(ptL1, ptL2), Scalar(0, 255,255));
+		rectangle(mDestColor, Rect(ptR1, ptR2), Scalar(0, 255,255));
+		
+		// new positions of eyes 
+		if(bEyeMove) {
+			circle(mDestColor, Point(m_vecEyeL[i].x, m_vecEyeL[i].y), 3, Scalar(0, 0, 255), -1);	
+			circle(mDestColor, Point(m_vecEyeR[i].x, m_vecEyeR[i].y), 3, Scalar(0, 0, 255), -1);	
+		}
+		// original eyes
+		circle(mDestColor, Point(ptEyeL.x, ptEyeL.y), 2, Scalar(0, 255, 255), -1);	
+		circle(mDestColor, Point(ptEyeR.x, ptEyeR.y), 2, Scalar(0, 255, 255), -1);	
+		
+		// new positions of ears 
+		/*
+		Point ptL1n (vecEarL[i]-m_offsetEar);
+		Point ptL2n (vecEarL[i]+m_offsetEar);
+		Point ptR1n (vecEarR[i]-m_offsetEar);
+		Point ptR2n (vecEarR[i]+m_offsetEar);	
+		rectangle(mDestColor, Rect(ptL1n, ptL2n), Scalar(0,255,0));
+		rectangle(mDestColor, Rect(ptR1n, ptR2n), Scalar(0,255,0));
+		*/
+	}
+	//saveResult("dest", m_vecDest);
+
+	finish = clock();
+	duration = (double)(finish - start) / CLOCKS_PER_SEC;
+	int minutes = duration / 60;
+	int second = duration - minutes * 60;
+	MainFrame::myMsgOutput("OnRatProcessEar: computation time: %02dm:%02ds\n", minutes, second);
+	
+	return true;
+}
 void CRat::linearRegression(vector <float>& vecSignal, vector <float>& vecOut, vector <float>& vecSubOut)
 {
 	int i, pivot, dataLen, len, c;

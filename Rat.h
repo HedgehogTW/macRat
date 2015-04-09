@@ -99,7 +99,7 @@ public:
 
 	bool	processAbdomen(Point ptAbdoRed, Point ptAbdoCyan);
 	bool	processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR);
-
+    bool	process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, Point& ptAbdoRed, Point& ptAbdoCyan);
 
 	void 	findEyeCenter(Point& ptEye0, vector <Point>& vecEye, vector <float>&  vecEyeMove, int referFrame);
 	void  	findNewEarCenter(vector <Point>& vecEye, Point ptEar0, vector <Point>& vecEar, int referFrame);
@@ -156,12 +156,12 @@ public:
 	vector <Mat> m_vecDest;
 	vector <Mat> m_vecFlow;
 
-/*	
+	
 	vector <Point>  m_vecEyeL;
 	vector <Point>  m_vecEyeR;
 	vector <float>  m_vecEyeLMove;
 	vector <float>  m_vecEyeRMove;
-*/	
+	
 	Point	m_offsetEar; //(50, 50);
 
 	Point 	m_ptEyeL;
@@ -174,7 +174,10 @@ public:
 //	vector <double>  m_vecLEyeGrayDiff;
 //	vector <double>  m_vecREyeGrayDiff;
 
-    bool    m_bEyeMove;
+    bool    m_bDispEye;
+    bool    m_bDispEar;
+    bool    m_bDispAbdo;
+    
     vector <float>  m_vecEyeFlowPdf;
     
 	long	m_ROIsz;

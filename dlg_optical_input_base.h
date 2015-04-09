@@ -37,9 +37,9 @@ protected:
     wxCheckBox* m_checkBoxVerLine;
     wxTextCtrl* m_textCtrlVerLine;
     wxPanel* m_panel171;
-    wxCheckBox* m_checkBoxOptical;
     wxCheckBox* m_checkBoxOpticalPDF;
     wxCheckBox* m_checkBoxGrayDiff;
+    wxCheckBox* m_checkBoxSaveFlow;
     wxRadioButton* m_radioButtonInstan;
     wxRadioButton* m_radioButtonAccumu;
     wxStaticLine* m_staticLine781;
