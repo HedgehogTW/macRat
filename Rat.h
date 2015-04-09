@@ -61,9 +61,9 @@ public:
     bool    m_bEar;
 	bool 	m_bAbdo;	
     bool 	m_bGrayDiff;
-	bool 	m_bOptical;
 	bool 	m_bOpticalPDF;
 	bool 	m_bAccumulate;
+	bool	m_bSaveFile;
 	double 	m_verLine;
 	double  m_ymin;
 	double	m_ymax;	
@@ -117,8 +117,10 @@ public:
 	void 	saveEyeTrajectory();
 
 	void	opticalFlow(int nFrameSteps, int referFrame);
+	void	opticalMovement(Point pt, vector<float>& vecPdfMove, vector <Mat>& vecmDist, float threshold);
 	void 	opticalDrawFlowmap(Point pt1, Point pt2, int nFrameSteps, char type);
     void 	opticalDrawFlowmapWithPDF(Point pt1, Point pt2, int nFrameSteps, char type, float threshold);
+	void  	opticalDrawFlowmapWithPDF(Point pt1, Point pt2, vector<Mat>& vecmDist1, vector<Mat>& vecmDist2, int nFrameSteps, float threshold);
     
 	void 	opticalFlowDistribution(vector<Mat>& vecFlow, char* subpath, vector <float>& vecPdf1, vector <float>& vecPdf2,
 									Point pt1, Point pt2, char* extName1, char* extName2, char* title1, char* title2, float threshold);
@@ -128,6 +130,7 @@ public:
 	float 	optical_compute_movement(Mat& mFlow, Mat& mDistEar, Point pt, float threshold);
 	void 	saveDotDensity(Gnuplot& plotSavePGN, Mat& mFlow, Point pt, wxString& strOutName, Mat& mPdf, float threshold);	
 	void 	opticalBuildPDF(Gnuplot& plotSavePGN, Mat& mFlow, Mat& mGaus, Mat& mDist, Point pt, wxString& strOutName);
+	void	opticalBuildPDF(Mat& mFlow, Mat& mGaus, Mat& mDist, Point pt);
 	void	drawOptFlowMap(Mat& cflowmap, const Mat& flow, int step, const Scalar& color);
     void    drawOptFlowMapWithPDF(Mat& cflowmap, const Mat& flow,  int step, Mat &mPdf);
     void    opticalAssignThresholdMap(Mat& mThMap, Mat& mFlow, Mat& mPdf, float th, Point pt);
@@ -156,6 +159,8 @@ public:
 	vector <Mat> m_vecDest;
 	vector <Mat> m_vecFlow;
 
+	vector <Mat> m_vecmDistEyeL;
+	vector <Mat> m_vecmDistEyeR;
 	
 	vector <Point>  m_vecEyeL;
 	vector <Point>  m_vecEyeR;
@@ -168,8 +173,8 @@ public:
 	Point	m_ptEyeR;
 	Point	m_ptEarL;
 	Point	m_ptEarR;
-	Point 	m_ptAbdoRed;
-	Point	m_ptAbdoCyan;
+	Point 	m_ptRed;
+	Point	m_ptCyan;
 	
 //	vector <double>  m_vecLEyeGrayDiff;
 //	vector <double>  m_vecREyeGrayDiff;

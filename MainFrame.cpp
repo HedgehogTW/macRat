@@ -63,9 +63,9 @@ MainFrame::MainFrame(wxWindow* parent)
 	m_configData.m_bGrayDiff = pConfig->ReadBool("/optical/bGrayDiff", false);
     m_configData.m_bEar = pConfig->ReadBool("/optical/bEar", false);
 	m_configData.m_bAbdo = pConfig->ReadBool("/optical/bAbdo", false);
-	m_configData.m_bOptical = pConfig->ReadBool("/optical/bOptical", false);
 	m_configData.m_bOpticalPDF = pConfig->ReadBool("/optical/bOpticalPDF", true);
 	m_configData.m_bAccumulate = pConfig->ReadBool("/optical/bAccumulate", true);
+	m_configData.m_bSaveFile = pConfig->ReadBool("/optical/bSaveFile", false);
 	
 	m_configData.m_verLine = pConfig->ReadDouble("/optical/verLine", 190);
 	m_configData.m_ymin = pConfig->ReadDouble("/optical/ymin", 0);
@@ -112,9 +112,9 @@ void MainFrame::DeleteContents()
     pConfig->Write("/optical/bEar", m_configData.m_bEar);
 	pConfig->Write("/optical/bAbdo", m_configData.m_bAbdo);
    	pConfig->Write("/optical/bGrayDiff", m_configData.m_bGrayDiff); 
-	pConfig->Write("/optical/bOptical", m_configData.m_bOptical);
 	pConfig->Write("/optical/bOpticalPDF", m_configData.m_bOpticalPDF);
 	pConfig->Write("/optical/bAccumulate", m_configData.m_bAccumulate);
+	pConfig->Write("/optical/bSaveFile", m_configData.m_bSaveFile);
 	
 	pConfig->Write("/optical/verLine", m_configData.m_verLine);
 	pConfig->Write("/optical/ymin", m_configData.m_ymin);
@@ -546,11 +546,16 @@ void MainFrame::OnRatProcessEar(wxCommandEvent& event)
 		wxMessageBox("Select ear points", "error");
 		return;
 	}
-	
+	if(m_dqAbdoPts.size()!=2) {
+		wxMessageBox("Select abdomen points", "error");
+		return;
+	}	
 	m_ptEyeL = m_dqEyePts[0];
 	m_ptEyeR = m_dqEyePts[1];
 	m_ptEarL = m_dqEarPts[0];
 	m_ptEarR = m_dqEarPts[1];
+	m_ptAbdoRed = m_dqAbdoPts[0];
+	m_ptAbdoCyan = m_dqAbdoPts[1];
 	
 	recognizeLeftRight(m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR);	
 	
@@ -562,9 +567,12 @@ void MainFrame::OnRatProcessEar(wxCommandEvent& event)
  		m_ptEyeL.y -= m_nCageLine;
 		m_ptEyeR.y -= m_nCageLine;
 		m_ptEarL.y -= m_nCageLine;
-		m_ptEarR.y -= m_nCageLine;	       
+		m_ptEarR.y -= m_nCageLine;	 
+        m_ptAbdoRed.y -= m_nCageLine;
+		m_ptAbdoCyan.y -= m_nCageLine;	      
     }
-	bool bRet = m_Rat.processEar(m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR);
+	//bool bRet = m_Rat.processEar(m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR);
+	bool bRet = m_Rat.process(m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR, m_ptAbdoRed, m_ptAbdoCyan);
 	if(bRet ==false) return;
 	
 	updateOutData(m_Rat.getResultImg(0));
