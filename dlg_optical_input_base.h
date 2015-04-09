@@ -17,10 +17,10 @@
 #include <wx/panel.h>
 #include <wx/gbsizer.h>
 #include <wx/checkbox.h>
-#include <wx/textctrl.h>
 #include <wx/statline.h>
 #include <wx/radiobut.h>
 #include <wx/stattext.h>
+#include <wx/textctrl.h>
 #include <wx/button.h>
 
 class DlgOpticalInputBase : public wxDialog
@@ -30,9 +30,6 @@ protected:
     wxCheckBox* m_checkBoxLED;
     wxCheckBox* m_checkBoxRef;
     wxCheckBox* m_checkBoxPinna;
-    wxCheckBox* m_checkBoxVerLine;
-    wxTextCtrl* m_textCtrlVerLine;
-    wxStaticLine* m_staticLine84;
     wxCheckBox* m_checkBoxEyeMove;
     wxCheckBox* m_checkBoxGrayDiff;
     wxCheckBox* m_checkBoxAdjDiff;
@@ -41,6 +38,7 @@ protected:
     wxCheckBox* m_checkBoxOpticalPDF;
     wxRadioButton* m_radioButtonInstan;
     wxRadioButton* m_radioButtonAccumu;
+    wxStaticLine* m_staticLine84;
     wxPanel* m_panel38;
     wxStaticText* m_staticText718;
     wxTextCtrl* m_textCtrlFrameSteps;
@@ -63,6 +61,9 @@ protected:
     wxStaticText* m_staticText126;
     wxTextCtrl* m_textCtrlReferFrame;
     wxStaticText* m_staticText130;
+    wxPanel* m_panel144;
+    wxCheckBox* m_checkBoxVerLine;
+    wxTextCtrl* m_textCtrlVerLine;
     wxStaticLine* m_staticLine108;
     wxStdDialogButtonSizer* m_stdBtnSizer52;
     wxButton* m_button56;

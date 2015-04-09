@@ -987,11 +987,6 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	if(bEyeMove) {
 		_gnuplotLine(gPlotL, "LEyeMove", m_vecEyeLMove, "#008B0000", ".");
 		_gnuplotLine(gPlotR, "REyeMove", m_vecEyeRMove, "#008B0000", ".");
-               
-        FILE* fp = fopen("_eye.csv", "w");
-        for(int i=0; i<vecLEarFlowPdfSubRegres.size(); i++)
-            fprintf(fp, "%f, %f\n", vecLEarFlowPdfSubRegres[i], vecREarFlowPdfSubRegres[i]);
-        fclose(fp); 
 	}
 	if(bGrayDiff) {
 		_gnuplotLine(gPlotL, "LEarGraylevelDiff", vecLEarGrayDiff, "#00008000");

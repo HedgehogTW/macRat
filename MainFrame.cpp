@@ -529,8 +529,8 @@ bool MainFrame::preprocessing()
 		m_bHasCrop = true;
 	}
 	
-	myMsgOutput("After preprocessing, %d frames are used, cage size w%d, h%d\n",
-		m_nSlices, m_Rat.m_szImg.width, m_Rat.m_szImg.height );	
+//	myMsgOutput("After preprocessing, %d frames are used, cage size w%d, h%d\n",
+//		m_nSlices, m_Rat.m_szImg.width, m_Rat.m_szImg.height );	
 	
 	return true;
 }
