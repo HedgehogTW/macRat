@@ -58,8 +58,9 @@ public:
 	bool 	m_bVerLine;
 
 	bool 	m_bEyeMove;
-	bool 	m_bGrayDiff;
-	bool 	m_bAdjDiff;
+    bool    m_bEar;
+	bool 	m_bAbdo;	
+    bool 	m_bGrayDiff;
 	bool 	m_bOptical;
 	bool 	m_bOpticalPDF;
 	bool 	m_bAccumulate;
@@ -155,12 +156,12 @@ public:
 	vector <Mat> m_vecDest;
 	vector <Mat> m_vecFlow;
 
-	
+/*	
 	vector <Point>  m_vecEyeL;
 	vector <Point>  m_vecEyeR;
 	vector <float>  m_vecEyeLMove;
 	vector <float>  m_vecEyeRMove;
-	
+*/	
 	Point	m_offsetEar; //(50, 50);
 
 	Point 	m_ptEyeL;
@@ -173,8 +174,9 @@ public:
 //	vector <double>  m_vecLEyeGrayDiff;
 //	vector <double>  m_vecREyeGrayDiff;
 
-
-
+    bool    m_bEyeMove;
+    vector <float>  m_vecEyeFlowPdf;
+    
 	long	m_ROIsz;
 	int		m_nSlices ;
 	Size	m_szImg;

@@ -437,7 +437,7 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 
 	MainFrame::myMsgOutput("IMage size w%d, h%d, Abdomen Red [%d, %d], Cyan [%d, %d]\n", m_vecMat[0].cols, m_vecMat[0].rows,
 		ptAbdoRed.x, ptAbdoRed.y, ptAbdoCyan.x, ptAbdoCyan.y );
-
+/*
 	/////////////////////////////////////////////////////////////optical flow
 	MyConfigData  configData;
 	MainFrame::m_pThis->getConfigData(configData);
@@ -453,7 +453,7 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	
 	bool bEyeMove = configData.m_bEyeMove;
 	bool bGrayDiff = configData.m_bGrayDiff;
-	bool bAdjDiff = configData.m_bAdjDiff;
+	bool bAdjDiff = configData.m_bAbdo;
 	bool bOptical = configData.m_bOptical;
 	bool bOpticalPDF = configData.m_bOpticalPDF;
 	bool bAccumulate = configData.m_bAccumulate;
@@ -491,7 +491,7 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	configData.m_bVerLine = bVerLine;
 	configData.m_bEyeMove = bEyeMove;
 	configData.m_bGrayDiff = bGrayDiff;
-	configData.m_bAdjDiff = bAdjDiff;
+	configData.m_bAbdo = bAdjDiff;
 	configData.m_bOptical = bOptical;
 	configData.m_bOpticalPDF = bOpticalPDF;
 	configData.m_bAccumulate = bAccumulate;
@@ -738,7 +738,7 @@ bool CRat::processAbdomen(Point ptAbdoRed, Point ptAbdoCyan)
 	}
 	//saveResult("dest", m_vecDest);
 
-
+*/
 	
 	return true;
 }
@@ -753,12 +753,7 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	m_vecEyeL.clear();
 	m_vecEyeR.clear();
 
-	
-//	saveEyeTrajectory();
-//	_OutputVecPoints(m_vecEyeL, "_eyeLeft.txt");
-	
 
-	
 	/////////////////////////////////////////////////////////////optical flow
 	MyConfigData  configData;
 	MainFrame::m_pThis->getConfigData(configData);
@@ -774,7 +769,8 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	
 	bool bEyeMove = configData.m_bEyeMove;
 	bool bGrayDiff = configData.m_bGrayDiff;
-	bool bAdjDiff = configData.m_bAdjDiff;
+	bool bAbdo = configData.m_bAbdo;
+    bool bEar = configData.m_bEar;
 	bool bOptical = configData.m_bOptical;
 	bool bOpticalPDF = configData.m_bOpticalPDF;
 	bool bAccumulate = configData.m_bAccumulate;
@@ -788,7 +784,7 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	
 	DlgOpticalInput dlg(frameStep, threshold, MainFrame::m_pThis);
 	dlg.setVerticalLine(bLED, bRefLine, bPinna, bVerLine, verLine);
-	dlg.setSeriesLine(bEyeMove, bGrayDiff, bAdjDiff, bOptical, bOpticalPDF, bAccumulate);
+	dlg.setSeriesLine(bEyeMove, bEar, bGrayDiff, bAbdo, bOptical, bOpticalPDF, bAccumulate);
 	dlg.setYRange(ymin, ymax, m_ROIsz, referFrame);
 	dlg.setGain(gainEye, gainPDF);
 	
@@ -796,7 +792,7 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	newFrameSteps = dlg.getFrameSteps();
 	threshold = dlg.getThreshold();
 	dlg.getVerticalLine(bLED, bRefLine, bPinna, bVerLine, verLine);
-	dlg.getSeriesLine(bEyeMove, bGrayDiff, bAdjDiff, bOptical, bOpticalPDF, bAccumulate);
+	dlg.getSeriesLine(bEyeMove, bEar, bGrayDiff, bAbdo, bOptical, bOpticalPDF, bAccumulate);
 	dlg.getYRange(ymin, ymax, m_ROIsz, referFrame);
 	dlg.getGain(gainEye, gainPDF);
 	dlg.Destroy();
@@ -810,7 +806,8 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	
 	configData.m_bEyeMove = bEyeMove;
 	configData.m_bGrayDiff = bGrayDiff;
-	configData.m_bAdjDiff = bAdjDiff;
+    configData.m_bEar = bEar;
+	configData.m_bAbdo = bAbdo;
 	configData.m_bOptical = bOptical;
 	configData.m_bOpticalPDF = bOpticalPDF;
 	configData.m_bAccumulate = bAccumulate;
@@ -822,6 +819,8 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	configData.m_gainEye = gainEye;
 	configData.m_gainPDF = gainPDF;
 	
+    m_bEyeMove = bEyeMove;
+    
 	MainFrame::m_pThis->setConfigData(configData);
 	m_offsetEar = Point(m_ROIsz/2, m_ROIsz/2);
 	
@@ -834,7 +833,8 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 	if(newReferFrame <0) {
 		wxLogMessage("cannot find reference frame");
 		return false;
-	}	
+	}
+/*	
 	if(bEyeMove) {
 		findEyeCenter(ptEyeL, m_vecEyeL, m_vecEyeLMove, newReferFrame);
 		findEyeCenter(ptEyeR, m_vecEyeR, m_vecEyeRMove, newReferFrame);
@@ -846,6 +846,7 @@ bool CRat::processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR
 			m_vecEyeL[i] = ptEyeL;
 		}
 	}
+     */ 
 /*	
 	vector <Point>  vecEarL;
 	vector <Point>  vecEarR;

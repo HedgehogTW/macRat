@@ -15,30 +15,34 @@
 #include <wx/artprov.h>
 #include <wx/sizer.h>
 #include <wx/panel.h>
-#include <wx/gbsizer.h>
+#include <wx/statbox.h>
 #include <wx/checkbox.h>
-#include <wx/statline.h>
-#include <wx/radiobut.h>
-#include <wx/stattext.h>
 #include <wx/textctrl.h>
+#include <wx/radiobut.h>
+#include <wx/statline.h>
+#include <wx/gbsizer.h>
+#include <wx/stattext.h>
 #include <wx/button.h>
 
 class DlgOpticalInputBase : public wxDialog
 {
 protected:
-    wxPanel* m_panel80;
+    wxPanel* m_panel163;
     wxCheckBox* m_checkBoxLED;
     wxCheckBox* m_checkBoxRef;
     wxCheckBox* m_checkBoxPinna;
     wxCheckBox* m_checkBoxEyeMove;
-    wxCheckBox* m_checkBoxGrayDiff;
-    wxCheckBox* m_checkBoxAdjDiff;
-    wxStaticLine* m_staticLine86;
+    wxCheckBox* m_checkBoxEar;
+    wxCheckBox* m_checkBoxAbdo;
+    wxCheckBox* m_checkBoxVerLine;
+    wxTextCtrl* m_textCtrlVerLine;
+    wxPanel* m_panel171;
     wxCheckBox* m_checkBoxOptical;
     wxCheckBox* m_checkBoxOpticalPDF;
+    wxCheckBox* m_checkBoxGrayDiff;
     wxRadioButton* m_radioButtonInstan;
     wxRadioButton* m_radioButtonAccumu;
-    wxStaticLine* m_staticLine84;
+    wxStaticLine* m_staticLine781;
     wxPanel* m_panel38;
     wxStaticText* m_staticText718;
     wxTextCtrl* m_textCtrlFrameSteps;
@@ -61,9 +65,6 @@ protected:
     wxStaticText* m_staticText126;
     wxTextCtrl* m_textCtrlReferFrame;
     wxStaticText* m_staticText130;
-    wxPanel* m_panel144;
-    wxCheckBox* m_checkBoxVerLine;
-    wxTextCtrl* m_textCtrlVerLine;
     wxStaticLine* m_staticLine108;
     wxStdDialogButtonSizer* m_stdBtnSizer52;
     wxButton* m_button56;

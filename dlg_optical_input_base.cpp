@@ -26,70 +26,98 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     wxBoxSizer* boxSizer315 = new wxBoxSizer(wxVERTICAL);
     this->SetSizer(boxSizer315);
     
-    m_panel80 = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxTAB_TRAVERSAL);
+    m_panel163 = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxTAB_TRAVERSAL);
     
-    boxSizer315->Add(m_panel80, 0, wxALL, 5);
+    boxSizer315->Add(m_panel163, 0, wxALL, 5);
     
-    wxGridBagSizer* gridBagSizer82 = new wxGridBagSizer(0, 0);
-    m_panel80->SetSizer(gridBagSizer82);
+    wxStaticBoxSizer* staticBoxSizer165 = new wxStaticBoxSizer( new wxStaticBox(m_panel163, wxID_ANY, _("Display signals")), wxVERTICAL);
+    m_panel163->SetSizer(staticBoxSizer165);
     
-    m_checkBoxLED = new wxCheckBox(m_panel80, wxID_ANY, _("LED"), wxDefaultPosition, wxSize(-1,-1), 0);
+    wxGridSizer* gridSizer167 = new wxGridSizer(0, 3, 0, 0);
+    
+    staticBoxSizer165->Add(gridSizer167, 1, wxALL|wxEXPAND, 5);
+    
+    m_checkBoxLED = new wxCheckBox(m_panel163, wxID_ANY, _("LED"), wxDefaultPosition, wxSize(-1,-1), 0);
     m_checkBoxLED->SetValue(false);
     
-    gridBagSizer82->Add(m_checkBoxLED, wxGBPosition(0,0), wxGBSpan(1,1), wxALL, 5);
+    gridSizer167->Add(m_checkBoxLED, 0, wxALL, 5);
     
-    m_checkBoxRef = new wxCheckBox(m_panel80, wxID_ANY, _("Ref. Frame"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_checkBoxRef = new wxCheckBox(m_panel163, wxID_ANY, _("Ref. Frame"), wxDefaultPosition, wxSize(-1,-1), 0);
     m_checkBoxRef->SetValue(false);
     
-    gridBagSizer82->Add(m_checkBoxRef, wxGBPosition(0,1), wxGBSpan(1,1), wxALL, 5);
+    gridSizer167->Add(m_checkBoxRef, 0, wxALL, 5);
     
-    m_checkBoxPinna = new wxCheckBox(m_panel80, wxID_ANY, _("Pinna detection"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_checkBoxPinna = new wxCheckBox(m_panel163, wxID_ANY, _("Pinna detection"), wxDefaultPosition, wxSize(-1,-1), 0);
     m_checkBoxPinna->SetValue(false);
     
-    gridBagSizer82->Add(m_checkBoxPinna, wxGBPosition(0,2), wxGBSpan(1,1), wxALL, 5);
+    gridSizer167->Add(m_checkBoxPinna, 0, wxALL, 5);
     
-    m_checkBoxEyeMove = new wxCheckBox(m_panel80, wxID_ANY, _("Eye movement"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_checkBoxEyeMove = new wxCheckBox(m_panel163, wxID_ANY, _("Eye movement"), wxDefaultPosition, wxSize(-1,-1), 0);
     m_checkBoxEyeMove->SetValue(false);
     
-    gridBagSizer82->Add(m_checkBoxEyeMove, wxGBPosition(1,0), wxGBSpan(1,1), wxALL, 5);
+    gridSizer167->Add(m_checkBoxEyeMove, 0, wxALL, 5);
     
-    m_checkBoxGrayDiff = new wxCheckBox(m_panel80, wxID_ANY, _("Graylevel Difference"), wxDefaultPosition, wxSize(-1,-1), 0);
-    m_checkBoxGrayDiff->SetValue(false);
+    m_checkBoxEar = new wxCheckBox(m_panel163, wxID_ANY, _("Ear"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_checkBoxEar->SetValue(false);
     
-    gridBagSizer82->Add(m_checkBoxGrayDiff, wxGBPosition(1,1), wxGBSpan(1,1), wxALL, 5);
+    gridSizer167->Add(m_checkBoxEar, 0, wxALL, 5);
     
-    m_checkBoxAdjDiff = new wxCheckBox(m_panel80, wxID_ANY, _("ImageDiff"), wxDefaultPosition, wxSize(-1,-1), 0);
-    m_checkBoxAdjDiff->SetValue(false);
+    m_checkBoxAbdo = new wxCheckBox(m_panel163, wxID_ANY, _("Abdomen"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_checkBoxAbdo->SetValue(false);
     
-    gridBagSizer82->Add(m_checkBoxAdjDiff, wxGBPosition(1,2), wxGBSpan(1,1), wxALL, 5);
+    gridSizer167->Add(m_checkBoxAbdo, 0, wxALL, 5);
     
-    m_staticLine86 = new wxStaticLine(m_panel80, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxLI_HORIZONTAL);
+    m_checkBoxVerLine = new wxCheckBox(m_panel163, wxID_ANY, _("Ver. Line (0-based)"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_checkBoxVerLine->SetValue(false);
     
-    gridBagSizer82->Add(m_staticLine86, wxGBPosition(2,0), wxGBSpan(1,3), wxALL|wxEXPAND, 5);
+    gridSizer167->Add(m_checkBoxVerLine, 0, wxLEFT|wxRIGHT|wxTOP, 5);
     
-    m_checkBoxOptical = new wxCheckBox(m_panel80, wxID_ANY, _("Opticalflow"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_textCtrlVerLine = new wxTextCtrl(m_panel163, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(50,-1), 0);
+    #if wxVERSION_NUMBER >= 3000
+    m_textCtrlVerLine->SetHint(wxT(""));
+    #endif
+    
+    gridSizer167->Add(m_textCtrlVerLine, 0, wxLEFT|wxRIGHT|wxTOP, 5);
+    
+    m_panel171 = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxTAB_TRAVERSAL);
+    
+    boxSizer315->Add(m_panel171, 0, wxALL, 5);
+    
+    wxStaticBoxSizer* staticBoxSizer173 = new wxStaticBoxSizer( new wxStaticBox(m_panel171, wxID_ANY, _("Signal types")), wxVERTICAL);
+    m_panel171->SetSizer(staticBoxSizer173);
+    
+    wxGridSizer* gridSizer175 = new wxGridSizer(0, 3, 0, 0);
+    
+    staticBoxSizer173->Add(gridSizer175, 1, wxALL|wxEXPAND, 5);
+    
+    m_checkBoxOptical = new wxCheckBox(m_panel171, wxID_ANY, _("Opticalflow"), wxDefaultPosition, wxSize(-1,-1), 0);
     m_checkBoxOptical->SetValue(false);
     
-    gridBagSizer82->Add(m_checkBoxOptical, wxGBPosition(3,0), wxGBSpan(1,1), wxALL, 5);
+    gridSizer175->Add(m_checkBoxOptical, 0, wxALL, 5);
     
-    m_checkBoxOpticalPDF = new wxCheckBox(m_panel80, wxID_ANY, _("Opticalflow with PDF"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_checkBoxOpticalPDF = new wxCheckBox(m_panel171, wxID_ANY, _("Opticalflow w/ PDF"), wxDefaultPosition, wxSize(-1,-1), 0);
     m_checkBoxOpticalPDF->SetValue(false);
     
-    gridBagSizer82->Add(m_checkBoxOpticalPDF, wxGBPosition(3,1), wxGBSpan(1,2), wxALL, 5);
+    gridSizer175->Add(m_checkBoxOpticalPDF, 0, wxALL, 5);
     
-    m_radioButtonInstan = new wxRadioButton(m_panel80, wxID_ANY, _("Instantaneous"), wxDefaultPosition, wxSize(-1,-1), wxRB_GROUP);
+    m_checkBoxGrayDiff = new wxCheckBox(m_panel171, wxID_ANY, _("Graylevel Diff"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_checkBoxGrayDiff->SetValue(false);
+    
+    gridSizer175->Add(m_checkBoxGrayDiff, 0, wxALL, 5);
+    
+    m_radioButtonInstan = new wxRadioButton(m_panel171, wxID_ANY, _("Instantaneous"), wxDefaultPosition, wxSize(-1,-1), wxRB_GROUP);
     m_radioButtonInstan->SetValue(1);
     
-    gridBagSizer82->Add(m_radioButtonInstan, wxGBPosition(4,0), wxGBSpan(1,1), wxALL, 5);
+    gridSizer175->Add(m_radioButtonInstan, 0, wxALL, 5);
     
-    m_radioButtonAccumu = new wxRadioButton(m_panel80, wxID_ANY, _("Accumulation"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_radioButtonAccumu = new wxRadioButton(m_panel171, wxID_ANY, _("Accumulation"), wxDefaultPosition, wxSize(-1,-1), 0);
     m_radioButtonAccumu->SetValue(1);
     
-    gridBagSizer82->Add(m_radioButtonAccumu, wxGBPosition(4,1), wxGBSpan(1,1), wxALL, 5);
+    gridSizer175->Add(m_radioButtonAccumu, 0, wxALL, 5);
     
-    m_staticLine84 = new wxStaticLine(m_panel80, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxLI_HORIZONTAL);
+    m_staticLine781 = new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxLI_HORIZONTAL);
     
-    gridBagSizer82->Add(m_staticLine84, wxGBPosition(5,0), wxGBSpan(1,3), wxALL|wxEXPAND, 5);
+    boxSizer315->Add(m_staticLine781, 0, wxALL|wxEXPAND, 5);
     
     m_panel38 = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxTAB_TRAVERSAL);
     m_panel38->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_BTNTEXT));
@@ -214,25 +242,6 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     m_staticText130 = new wxStaticText(m_panel116, wxID_ANY, _("0: automatic"), wxDefaultPosition, wxSize(-1,-1), 0);
     
     boxSizer118->Add(m_staticText130, 0, wxALL, 5);
-    
-    m_panel144 = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxTAB_TRAVERSAL);
-    
-    boxSizer315->Add(m_panel144, 0, wxLEFT|wxRIGHT, 5);
-    
-    wxBoxSizer* boxSizer146 = new wxBoxSizer(wxHORIZONTAL);
-    m_panel144->SetSizer(boxSizer146);
-    
-    m_checkBoxVerLine = new wxCheckBox(m_panel144, wxID_ANY, _("Vertical Line (0-based)"), wxDefaultPosition, wxSize(-1,-1), 0);
-    m_checkBoxVerLine->SetValue(false);
-    
-    boxSizer146->Add(m_checkBoxVerLine, 0, wxLEFT|wxRIGHT|wxTOP, 5);
-    
-    m_textCtrlVerLine = new wxTextCtrl(m_panel144, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(50,-1), 0);
-    #if wxVERSION_NUMBER >= 3000
-    m_textCtrlVerLine->SetHint(wxT(""));
-    #endif
-    
-    boxSizer146->Add(m_textCtrlVerLine, 0, wxLEFT|wxRIGHT|wxTOP, 5);
     
     m_staticLine108 = new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxLI_HORIZONTAL);
     
