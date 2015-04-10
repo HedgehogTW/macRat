@@ -613,10 +613,10 @@ void MainFrame::OnRatAbdomen(wxCommandEvent& event)
 		}
     }
     
-	bool bRet = m_Rat.processAbdomen(m_ptAbdoRed, m_ptAbdoCyan);
-	if(bRet ==false) return;
+//	bool bRet = m_Rat.processAbdomen(m_ptAbdoRed, m_ptAbdoCyan);
+//	if(bRet ==false) return;
 	
-	updateOutData(m_Rat.getResultImg(0));
+//	updateOutData(m_Rat.getResultImg(0));
 
 	wxBell();		
 }

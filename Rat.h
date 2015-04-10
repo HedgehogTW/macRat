@@ -97,8 +97,6 @@ public:
         
 	void	getLightRange(int& from, int& to) { from = m_nLED1; to = m_nLED_End; }
 
-	bool	processAbdomen(Point ptAbdoRed, Point ptAbdoCyan);
-	bool	processEar(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR);
     bool	process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, Point& ptRed, Point& ptCyan);
 
 	void 	findEyeCenter(Point& ptEye0, vector <Point>& vecEye, vector <float>&  vecEyeMove, int referFrame);
@@ -120,27 +118,21 @@ public:
 	void	opticalMovement(Point pt, vector<float>& vecPdfMove, vector <Mat>& vecmDist, float threshold);
 	void 	opticalDrawFlowmap(Point pt1, Point pt2, int nFrameSteps, char type);
     void 	opticalDrawFlowmapWithPDF(vector<Point>& vpDrawPtRect, int nFrameSteps);
-	void  	opticalDrawFlowmapWithPDF(Point pt1, Point pt2, int nFrameSteps, char type, float threshold);
+
 	void	drawOptFlowMap(Mat& cflowmap, const Mat& flow, int step, const Scalar& color);
     void    drawOptFlowMapWithPDF(Mat& cflowmap, const Mat& flow,  int step, Mat &mPdf);    
-    
-	void 	opticalFlowDistribution(vector<Mat>& vecFlow, char* subpath, vector <float>& vecPdf1, vector <float>& vecPdf2,
-									Point pt1, Point pt2, char* extName1, char* extName2, char* title1, char* title2, float threshold);
-	void 	opticalScatterPlotSave(vector<Mat>& vecFlow, char* subpath, Point pt1, Point pt2,
-									char* extName1, char* extName2, char* title1, char* title2, float threshold, char* pdfPath);
-    
-    bool    prepareSaveScatterPlot(Gnuplot& plotSave, int numPlots, char* subpath);
-    void    opticalSaveScatterPlot(char* subpath, float threshold);
-    void    saveSinglePlot(Gnuplot& plotSave, int i, wxFileName& saveName, Point pt, vector<Mat>& vmPDF,
+    									
+    bool    prepareGnuPlot(Gnuplot& plotSave, int numPlots, char* subpath);
+    void    opticalSavePlot(char* subpath, char* type, float threshold);
+    void    plotOneSpot(char* type, Gnuplot& plotSave, int i, wxFileName& saveName, Point pt, vector<Mat>& vmPDF,
 								char* extName1, char* title1, float threshold,
                                 float sizeX, float sizeY, float oriX, float oriY);
     
 	float 	optical_compute_movement(Mat& mFlow, Mat& mDistEar, Point pt, float threshold);
-	void 	saveDotDensity(Gnuplot& plotSavePGN, Mat& mFlow, Point pt, wxString& strOutName, Mat& mPdf, float threshold);	
-	void 	opticalBuildPDF(Gnuplot& plotSavePGN, Mat& mFlow, Mat& mGaus, Mat& mDist, Point pt, wxString& strOutName);
+	void 	plotDistribution(Gnuplot& plot, Mat& mDist, wxString& strOutName);
+	void 	plotDotScatter(Gnuplot& plotSavePGN, Mat& mFlow, Point pt, wxString& strOutName, Mat& mPdf, float threshold);	
 	void	opticalBuildPDF(Mat& mFlow, Mat& mGaus, Mat& mDist, Point pt);
 
-    void    opticalAssignThresholdMap(Mat& mThMap, Mat& mFlow, Mat& mPdf, float th, Point pt);
     void    opticalAssignThresholdMap(vector<Mat>& vmPDF, float th, Point pt);
 	void	opticalFlowAnalysis(vector<Mat>& vecFlow, Point ptEar, vector <float>& vecEarFlow);
     bool    opticalLoadPDFfile(const char* filename, Mat &mPdf);
