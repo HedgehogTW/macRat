@@ -544,12 +544,6 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 		}
 	}
       
-/*	
-	vector <Point>  vecEarL;
-	vector <Point>  vecEarR;
-	findNewEarCenter(m_vecEyeL, ptEarL, vecEarL, m_referFrame);
-	findNewEarCenter(m_vecEyeR, ptEarR, vecEarR, m_referFrame);
-*/
 //////////////////////////////////////////////////////////////////////	
 	clock_t start, finish;
 	double  duration;
@@ -559,6 +553,11 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	
 	vector <float>  vecEyeFlowPdfL;
 	vector <float>  vecEyeFlowPdfR;
+	vector <float>  vecEyeFlowPdfRegresL;
+	vector <float>  vecEyeFlowPdfRegresR;
+	vector <float>  vecEyeFlowPdfSubRegresL;
+	vector <float>  vecEyeFlowPdfSubRegresR;
+	
 	
 	vector <float>  vecLEarFlowPdf;
 	vector <float>  vecREarFlowPdf;
@@ -701,8 +700,30 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 					vecEyeFlowPdfR[i] = vecEyeFlowPdfR[i]*gainEye;
 				}
 			}
+			if(frameStep > 0 && bAccumulate) {			
+				for(int i=1; i<sz; i++) {
+					vecEyeFlowPdfL[i] += vecEyeFlowPdfL[i-1];
+					vecEyeFlowPdfR[i] += vecEyeFlowPdfR[i-1];
+				}
+				for(int i=1; i<sz; i++) {
+					vecEyeFlowPdfL[i] /= frameStep;
+					vecEyeFlowPdfR[i] /= frameStep;
+				}				
+			}
+			
 			Notch_removal(vecEyeFlowPdfL, m_referFrame);
             Notch_removal(vecEyeFlowPdfR, m_referFrame);
+			if(frameStep > 0 && bAccumulate) {
+				linearRegression(vecEyeFlowPdfL, vecEyeFlowPdfRegresL, vecEyeFlowPdfSubRegresL);
+				linearRegression(vecEyeFlowPdfR, vecEyeFlowPdfRegresR, vecEyeFlowPdfSubRegresR);
+				
+				int sz1 = vecEyeFlowPdfSubRegresL.size();
+				for(int i=0; i<sz1; i++) {
+					vecEyeFlowPdfSubRegresL[i] = vecEyeFlowPdfSubRegresL[i] /gainEye;
+					vecEyeFlowPdfSubRegresR[i] = vecEyeFlowPdfSubRegresR[i]/gainEye;
+				}		
+			}
+			
             if(bSaveFile) {
                 opticalAssignThresholdMap(m_vmDistEyeL, threshold, ptEyeL);
                 opticalAssignThresholdMap(m_vmDistEyeR, threshold, ptEyeR);
@@ -723,8 +744,6 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	wxEndBusyCursor(); 
 	
 ///////////G N U P L O T//////////////////////////////////////////////////////////////////////////////
-
-
 	wxFileName fileName = m_strSrcPath;
 	const char* title =fileName.GetName();
 	_gnuplotInit(gPlotL, title, ymin, ymax);
@@ -762,10 +781,9 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	}
 	
 	if(bEyeMove) {
-		_gnuplotLine(gPlotL, "LEyeMove", m_vecEyeLMove, "#008B0000", ".");
-		_gnuplotLine(gPlotR, "REyeMove", m_vecEyeRMove, "#008B0000", ".");
-		_gnuplotLine(gPlotL, "HeadMove", vecEyeFlowPdfL, "#008B0000");
-		_gnuplotLine(gPlotR, "HeadMove", vecEyeFlowPdfR, "#008B0000");		
+		_gnuplotLine(gPlotL, "LEyePosMove", m_vecEyeLMove, "#008B0000", ".");
+		_gnuplotLine(gPlotR, "REyePosMove", m_vecEyeRMove, "#008B0000", ".");
+	
 	}
 	if(bGrayDiff) {
 		if(m_bDispEar) {
@@ -802,23 +820,48 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 				_gnuplotLine(gPlotR, "Cyan PDF-Regress", vecCyanFlowPdfSubRegres, "#00FF8000");
 			}	
 		}
+		if(m_bDispEye) {
+			_gnuplotLine(gPlotL, "HeadMoveL", vecEyeFlowPdfL, "#008B0000");
+			_gnuplotLine(gPlotR, "HeadMoveR", vecEyeFlowPdfR, "#008B0000");				
+			if(frameStep > 0 && bAccumulate ) {
+				_gnuplotLine(gPlotL, "EyeL PDFRegress", vecEyeFlowPdfRegresL, "#00FFF900", "-");
+				_gnuplotLine(gPlotR, "EyeR PDFRegress", vecEyeFlowPdfRegresR, "#00FFF900", "-");
+				
+				_gnuplotLine(gPlotL, "EyeL PDF-Regress", vecEyeFlowPdfSubRegresL, "#00FF00FF");
+				_gnuplotLine(gPlotR, "EyeR PDF-Regress", vecEyeFlowPdfSubRegresR, "#00FF00FF");
+			}	
+		}		
 	}
 	
-	//gPlotL.cmd("load '../_splot_move.gpt'");
+	drawOnDestImage();
+	
+	finish = clock();
+	duration = (double)(finish - start) / CLOCKS_PER_SEC;
+	int minutes = duration / 60;
+	int second = duration - minutes * 60;
+	MainFrame::myMsgOutput("OnRatProcessEar: computation time: %02dm:%02ds\n", minutes, second);
+	
+	
+	return true;
+}
+void CRat::drawOnDestImage()
+{
 	////////////////////// save result to dest
 	m_vecDest.resize(m_nSlices);
-	Point ptL1 (ptEarL-m_offsetEar);
-	Point ptL2 (ptEarL+m_offsetEar);
-	Point ptR1 (ptEarR-m_offsetEar);
-	Point ptR2 (ptEarR+m_offsetEar);
+	Point ptL1 (m_ptEarL-m_offsetEar);
+	Point ptL2 (m_ptEarL+m_offsetEar);
+	Point ptR1 (m_ptEarR-m_offsetEar);
+	Point ptR2 (m_ptEarR+m_offsetEar);
 	
-	Point ptD1 (ptRed-m_offsetEar);
-	Point ptD2 (ptRed+m_offsetEar);
-	Point ptC1 (ptCyan-m_offsetEar);
-	Point ptC2 (ptCyan+m_offsetEar);
+	Point ptD1 (m_ptRed-m_offsetEar);
+	Point ptD2 (m_ptRed+m_offsetEar);
+	Point ptC1 (m_ptCyan-m_offsetEar);
+	Point ptC2 (m_ptCyan+m_offsetEar);
 	
-	Point ptY1 (ptEyeC-m_offsetEar);
-	Point ptY2 (ptEyeC+m_offsetEar);
+	Point ptEyeL1 (m_ptEyeL-m_offsetEar);
+	Point ptEyeL2 (m_ptEyeL+m_offsetEar);
+	Point ptEyeR1 (m_ptEyeR-m_offsetEar);
+	Point ptEyeR2 (m_ptEyeR+m_offsetEar);
 	
 	for (int i = 0; i < m_nSlices; i++)
 		cvtColor(m_vecMat[i], m_vecDest[i], CV_GRAY2BGR);
@@ -831,25 +874,18 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 		rectangle(mDestColor, Rect(ptL1, ptL2), Scalar(0, 255,255));
 		rectangle(mDestColor, Rect(ptR1, ptR2), Scalar(0, 255,255));
 	
-		rectangle(m_vecDest[i], Rect(ptD1, ptD2), Scalar(255,0,0));
-		rectangle(m_vecDest[i], Rect(ptC1, ptC2), Scalar(255,0,0));
+		rectangle(mDestColor, Rect(ptD1, ptD2), Scalar(255,0,0));
+		rectangle(mDestColor, Rect(ptC1, ptC2), Scalar(255,0,0));
 		
-		rectangle(m_vecDest[i], Rect(ptY1, ptY2), Scalar(255,0,0));
+		rectangle(mDestColor, Rect(ptEyeL1, ptEyeL2), Scalar(255, 0,255));
+		rectangle(mDestColor, Rect(ptEyeR1, ptEyeR2), Scalar(255, 0,255));
 	
 		// original eyes
-		circle(mDestColor, Point(ptEyeL.x, ptEyeL.y), 2, Scalar(0, 255, 255), -1);	
-		circle(mDestColor, Point(ptEyeR.x, ptEyeR.y), 2, Scalar(0, 255, 255), -1);	
+		circle(mDestColor, Point(m_ptEyeL.x, m_ptEyeL.y), 2, Scalar(0, 255, 255), -1);	
+		circle(mDestColor, Point(m_ptEyeR.x, m_ptEyeR.y), 2, Scalar(0, 255, 255), -1);	
 	}
 
-	//saveResult("dest", m_vecDest);
-
-	finish = clock();
-	duration = (double)(finish - start) / CLOCKS_PER_SEC;
-	int minutes = duration / 60;
-	int second = duration - minutes * 60;
-	MainFrame::myMsgOutput("OnRatProcessEar: computation time: %02dm:%02ds\n", minutes, second);
-	
-	return true;
+	//saveResult("dest", m_vecDest);	
 }
 void CRat::opticalMovement(Point pt, vector <float>& vecPdfMove, vector <Mat>& vecmDist, float threshold)
 {
@@ -1864,64 +1900,7 @@ void CRat::drawOptFlowMap(Mat& cflowmap, const Mat& flow,  int step, const Scala
             //circle(cflowmap, Point(x,y), 1, color, -1);
         }
 }
-void CRat::opticalFlowAnalysis(vector<Mat>& vecFlow, Point ptEar, vector <float>& vecEarFlow)
-{
-	// compute ear motion
-	int w = vecFlow[0].cols;
-	int h = vecFlow[0].rows;
-	
-	Point pt1 (ptEar-m_offsetEar);
-	Point pt2 (ptEar+m_offsetEar);
-	if(pt1.x <0) pt1.x = 0;
-	if(pt1.y <0) pt1.y = 0;
-	if(pt2.x >= w) pt2.x = w-1;
-	if(pt2.y >= h) pt2.y = h-1;	
-	
-//	Point ptReferEye = vecEye[m_referFrame];
-	int sz = vecFlow.size();	
-//	vecEarFlow.clear();
-	vecEarFlow.resize(sz);
-	for(int i=0; i<sz; i++) {
-		float motion;
-		Mat mROIEar(vecFlow[i], Rect(pt1, pt2));
-		/*
-		if(bOffset) {
-			//Point ptEyeOffset = vecEye[i] - ptReferEye;
-			motion = findAvgMotion(mROIEar);
-			motion -= vecEyeMove[i]*0.2;
-		}else */
-			motion = findAvgMotion(mROIEar);
-			
-		vecEarFlow[i] = motion;
-	}
-}
-float CRat::findAvgMotion(Mat& mFlowROI, cv::Point ptEyeOffset)
-{
-	float sum = 0;
-	int w = mFlowROI.cols;
-	int h = mFlowROI.rows;
-	int sz = 0;// h*w;
-    for(int y = 0; y <h; y++){
-        for(int x = 0; x <w; x ++)
-        {
-            Point2f fxy = mFlowROI.at<Point2f>(y, x);
-			//fxy.x -= ptEyeOffset.x;
-			//fxy.y -= ptEyeOffset.y;
-			
-			float mv  = cv::norm(fxy);
-			//if (mv >= 1) {
-				fxy.x -= ptEyeOffset.x;
-				fxy.y -= ptEyeOffset.y;
-				mv  = cv::norm(fxy);
-				sum += mv;
-				sz++;
-			//}
-        }
-	}
 
-	if (sz == 0) return 0;
-	return sum/ sz;
-}
 float CRat::findAvgMotion(Mat& mFlowROI)
 {
 	float sum = 0;

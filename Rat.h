@@ -99,6 +99,7 @@ public:
 
     bool	process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, Point& ptRed, Point& ptCyan);
 
+	void 	drawOnDestImage();
 	void 	findEyeCenter(Point& ptEye0, vector <Point>& vecEye, vector <float>&  vecEyeMove, int referFrame);
 	void  	findNewEarCenter(vector <Point>& vecEye, Point ptEar0, vector <Point>& vecEar, int referFrame);
 	
@@ -134,12 +135,12 @@ public:
 	void	opticalBuildPDF(Mat& mFlow, Mat& mGaus, Mat& mDist, Point pt);
 
     void    opticalAssignThresholdMap(vector<Mat>& vmPDF, float th, Point pt);
-	void	opticalFlowAnalysis(vector<Mat>& vecFlow, Point ptEar, vector <float>& vecEarFlow);
+
     bool    opticalLoadPDFfile(const char* filename, Mat &mPdf);
 	void    saveDistributionAsCSVandPNG();
 	void 	linearRegression(vector <float>& vecSignal, vector <float>& vecOut, vector <float>& vecSubOut);
 	
-	float	findAvgMotion(Mat& mFlowROI, cv::Point ptEyeOffset);
+
 	float	findAvgMotion(Mat& mFlowROI);
 	
 	void 	createGaussianMask(double& sigma, int& ksize, Mat& mKernel);
