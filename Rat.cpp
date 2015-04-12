@@ -514,9 +514,9 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	configData.m_gainEye = gainEye;
 	configData.m_gainPDF = gainPDF;
 	
-    m_bDispEye = bEyeMove;
-    m_bDispEar = bEar;
-    m_bDispAbdo = bAbdo;
+    m_bShowEye = bEyeMove;
+    m_bShowEar = bEar;
+    m_bShowAbdo = bAbdo;
    
 	MainFrame::m_pThis->setConfigData(configData);
 	m_offsetEar = Point(m_ROIsz/2, m_ROIsz/2);
@@ -577,7 +577,8 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	int szVecFlow = m_vecFlow.size();
     if(bOpticalPDF ) {
         if(newFrameSteps != frameStep || szVecFlow ==0 || m_referFrame != newReferFrame) {
-            opticalFlow(newFrameSteps, newReferFrame);
+            //opticalFlow(newFrameSteps, newReferFrame);
+			opticalFlow(newReferFrame);
         }
     }
 	frameStep = newFrameSteps;
@@ -596,7 +597,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	int maxPointL, maxPointR;
 	maxPointL = maxPointR = -1;
 	if(bGrayDiff || bPinna) {
-		if(m_bDispEar) {
+		if(m_bShowEar) {
 			graylevelDiff(m_referFrame, ptEarL, ptEarR, vecLEarGrayDiff, vecREarGrayDiff);
 			smoothData(vecLEarGrayDiff, smoothL, 2);	
 			smoothData(vecREarGrayDiff, smoothR, 2);	
@@ -610,7 +611,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			Notch_removal(vecLEarGrayDiff, m_referFrame);
 			Notch_removal(vecREarGrayDiff, m_referFrame);
 		}
-		if(m_bDispAbdo) {
+		if(m_bShowAbdo) {
 			graylevelDiff(m_referFrame, ptRed, ptCyan, vecRedGrayDiff, vecCyanGrayDiff);
 			DC_removal(m_nLED1, vecRedGrayDiff);
 			DC_removal(m_nLED1, vecCyanGrayDiff);
@@ -630,7 +631,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
             for(int i=0; i<sz; i++)
                 m_vmOpPDFMap[i] = Mat::zeros(m_vecFlow[0].size(), CV_8UC1);
         }
-		if(m_bDispEar) {
+		if(m_bShowEar) {
 			opticalMovement(ptEarL, vecLEarFlowPdf, m_vmDistEarL, threshold);
 			opticalMovement(ptEarR, vecREarFlowPdf, m_vmDistEarR, threshold);
 			if(frameStep > 0 && bAccumulate) {			
@@ -658,7 +659,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
             }
 		}
 		
-		if(m_bDispAbdo) {
+		if(m_bShowAbdo) {
 			opticalMovement(ptRed, vecRedFlowPdf, m_vmDistRed, threshold);
 			opticalMovement(ptCyan, vecCyanFlowPdf, m_vmDistCyan, threshold);
 			if(frameStep > 0 && bAccumulate) {			
@@ -691,7 +692,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
             }            
 		}
 		
-		if(m_bDispEye) {
+		if(m_bShowEye) {
 			opticalMovement(ptEyeL, vecEyeFlowPdfL, m_vmDistEyeL, threshold);
 			opticalMovement(ptEyeR, vecEyeFlowPdfR, m_vmDistEyeR, threshold);
 			if(gainEye!=1) {
@@ -786,17 +787,17 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	
 	}
 	if(bGrayDiff) {
-		if(m_bDispEar) {
+		if(m_bShowEar) {
 			_gnuplotLine(gPlotL, "LEarGraylevelDiff", vecLEarGrayDiff, "#00008000");
 			_gnuplotLine(gPlotR, "REarGraylevelDiff", vecREarGrayDiff, "#00008000");
 		}
-		if(m_bDispAbdo) {
+		if(m_bShowAbdo) {
 			_gnuplotLine(gPlotL, "Red GraylevelDiff", vecRedGrayDiff, "#000080F0");
 			_gnuplotLine(gPlotR, "Cyan GraylevelDiff", vecCyanGrayDiff, "#000080F0");
 		}
 	}
 	if(bOpticalPDF) {
-		if(m_bDispEar) {
+		if(m_bShowEar) {
 			_gnuplotLine(gPlotL, "LEarPDF", vecLEarFlowPdf, "#000000FF");
 			_gnuplotLine(gPlotR, "REarPDF", vecREarFlowPdf, "#000000FF");
 			
@@ -808,7 +809,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 				_gnuplotLine(gPlotR, "REarPDF-Regress", vecREarFlowPdfSubRegres, "#00FF0000");
 			}
 		}
-		if(m_bDispAbdo) {
+		if(m_bShowAbdo) {
 			_gnuplotLine(gPlotL, "Red FlowPDF", vecRedFlowPdf, "#00F000FF");
 			_gnuplotLine(gPlotR, "Cyan FlowPDF", vecCyanFlowPdf, "#00F000FF");
 			
@@ -820,7 +821,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 				_gnuplotLine(gPlotR, "Cyan PDF-Regress", vecCyanFlowPdfSubRegres, "#00FF8000");
 			}	
 		}
-		if(m_bDispEye) {
+		if(m_bShowEye) {
 			_gnuplotLine(gPlotL, "HeadMoveL", vecEyeFlowPdfL, "#008B0000");
 			_gnuplotLine(gPlotR, "HeadMoveR", vecEyeFlowPdfR, "#008B0000");				
 			if(frameStep > 0 && bAccumulate ) {
@@ -833,7 +834,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 		}		
 	}
 	
-	drawOnDestImage();
+	drawOnDestImage(bSaveFile);
 	
 	finish = clock();
 	duration = (double)(finish - start) / CLOCKS_PER_SEC;
@@ -844,7 +845,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	
 	return true;
 }
-void CRat::drawOnDestImage()
+void CRat::drawOnDestImage(bool bSaveFile)
 {
 	////////////////////// save result to dest
 	m_vecDest.resize(m_nSlices);
@@ -881,11 +882,12 @@ void CRat::drawOnDestImage()
 		rectangle(mDestColor, Rect(ptEyeR1, ptEyeR2), Scalar(255, 0,255));
 	
 		// original eyes
-		circle(mDestColor, Point(m_ptEyeL.x, m_ptEyeL.y), 2, Scalar(0, 255, 255), -1);	
-		circle(mDestColor, Point(m_ptEyeR.x, m_ptEyeR.y), 2, Scalar(0, 255, 255), -1);	
+		circle(mDestColor, Point(m_ptEyeL.x, m_ptEyeL.y), 2, Scalar(0, 0, 255), -1);	
+		circle(mDestColor, Point(m_ptEyeR.x, m_ptEyeR.y), 2, Scalar(0, 0, 255), -1);	
 	}
 
-	//saveResult("dest", m_vecDest);	
+	if(bSaveFile)
+		saveResult("dest", m_vecDest);	
 }
 void CRat::opticalMovement(Point pt, vector <float>& vecPdfMove, vector <Mat>& vecmDist, float threshold)
 {
@@ -1326,7 +1328,42 @@ void CRat::graylevelDiff(int refer, Point& ptEarL, Point& ptEarR, vector <float>
 		vREarGray[i] = errSumR;
 	}
 }
+void CRat::opticalFlow(int referFrame)
+{
+	// optical flow
+	double pyr_scale = 0.5;
+	int nIter = 3;
+	int levels= 1;
+	int nWinSize = 3;// 3;
+	int poly_n = 7; // 7
+	double dblSigma = 1.5;
 
+	m_vecFlow.resize(m_nSlices);
+	Mat mSrc1, mSrc2;
+
+	
+	for(int i=referFrame; i>=0; i-=5) {
+		mSrc1 = m_vecMat[i];
+		for(int k=0; k<5 && i-k>=0; k++) {
+			mSrc2 = m_vecMat[i-k];
+			Mat& mFlow = m_vecFlow[i-k];
+			calcOpticalFlowFarneback(mSrc1, mSrc2, mFlow, pyr_scale, levels, nWinSize, nIter, poly_n, dblSigma, 0);
+			if(i<referFrame)
+				m_vecFlow[i-k] += m_vecFlow[i+1];
+		}
+	}
+	for(int i=referFrame; i<m_nSlices; i+=5) {
+		mSrc1 = m_vecMat[i];
+		for(int k=0; k<5 && i+k<m_nSlices; k++) {
+			mSrc2 = m_vecMat[i+k];
+			Mat& mFlow = m_vecFlow[i+k];
+			calcOpticalFlowFarneback(mSrc1, mSrc2, mFlow, pyr_scale, levels, nWinSize, nIter, poly_n, dblSigma, 0);
+			if(i>referFrame)
+				m_vecFlow[i+k] += m_vecFlow[i-1];
+		}
+	}
+
+}
 void CRat::opticalFlow(int nFrameSteps, int refFrame)
 {
 	// optical flow
@@ -1343,7 +1380,7 @@ void CRat::opticalFlow(int nFrameSteps, int refFrame)
 //	double  duration;
 //	start = clock();
 	
-#pragma omp parallel for 
+//#pragma omp parallel for 
 	for(int i=0; i<m_nSlices - nFrameSteps; i++) {
 		int referFrame;
 		if(nFrameSteps==0)  referFrame= refFrame;
@@ -1396,14 +1433,15 @@ void CRat::opticalAssignThresholdMap(vector<Mat>& vmPDF, float th, Point pt)
 	if(p2.y >= m_vecFlow[0].rows) p2.y = m_vecFlow[0].rows-1;
 	
     int sz = m_vecFlow.size();
-    
+
     for(int i=0; i<sz; i++) {
         Mat& mFlow = m_vecFlow[i]; 
         Mat& mPdf = vmPDF[i];
         Mat& mThMap = m_vmOpPDFMap[i];
         
         Mat mROI(mFlow, Rect(p1, p2));
-        for(int y = 0; y < mROI.rows; y ++)
+		int count = 0;
+        for(int y = 0; y < mROI.rows; y ++) {
             for(int x = 0; x < mROI.cols; x ++)
             {
                 Point2f fxy = mROI.at<Point2f>(y, x);
@@ -1413,9 +1451,12 @@ void CRat::opticalAssignThresholdMap(vector<Mat>& vmPDF, float th, Point pt)
                 if(fxy1.y >= PDF_SIZE || fxy1.y <0)  continue;
                 
                 float probability = mPdf.at<float>(fxy1.y+0.5, fxy1.x+0.5);
-                if(probability >= th) 	
+                if(probability >= th) 	{
                     mThMap.at<uchar>(y+p1.y,x+p1.x) = 1;
+					count ++;
+				}
             } 
+		}
     }
 }
 
@@ -1570,9 +1611,9 @@ void CRat::opticalSavePlot(char* subpath, char* type, float threshold)
 {
     int numScatterPlot = 0;
     Gnuplot plotSave(type);
-    if(m_bDispEar)  numScatterPlot+=2;
-    if(m_bDispAbdo)  numScatterPlot+=2;
-    if(m_bDispEye)  numScatterPlot+=2;
+    if(m_bShowEar)  numScatterPlot+=2;
+    if(m_bShowAbdo)  numScatterPlot+=2;
+    if(m_bShowEye)  numScatterPlot+=2;
     bool bRet = prepareGnuPlot(plotSave, numScatterPlot, subpath);   
     
     if(bRet ==false) return;
@@ -1603,7 +1644,7 @@ void CRat::opticalSavePlot(char* subpath, char* type, float threshold)
         szX = 0.5;
         if(numScatterPlot ==2) {
             szY = 1;
-            if(m_bDispEar) {
+            if(m_bShowEar) {
                 oriX = 0; oriY = 0;
                 plotOneSpot(type, plotSave, i, saveName, m_ptEarL, m_vmDistEarL,
                         "_EarL", "Left Ear", threshold, szX, szY, oriX, oriY); 
@@ -1611,7 +1652,7 @@ void CRat::opticalSavePlot(char* subpath, char* type, float threshold)
                 plotOneSpot(type, plotSave, i, saveName, m_ptEarR, m_vmDistEarR,
                         "_EarR", "Right Ear", threshold, szX, szY, oriX, oriY); 
             }
-            if(m_bDispAbdo) {
+            if(m_bShowAbdo) {
                 oriX = 0; oriY = 0;
                 plotOneSpot(type, plotSave, i, saveName, m_ptRed, m_vmDistRed,
                         "_Red", "Red", threshold, szX, szY, oriX, oriY); 
@@ -1619,7 +1660,7 @@ void CRat::opticalSavePlot(char* subpath, char* type, float threshold)
                 plotOneSpot(type, plotSave, i, saveName, m_ptCyan, m_vmDistCyan,
                         "_Cyan", "Cyan", threshold, szX, szY, oriX, oriY); 
             }  
-            if(m_bDispEye) {
+            if(m_bShowEye) {
                 oriX = 0; oriY = 0;
                 plotOneSpot(type, plotSave, i, saveName, m_ptEyeL, m_vmDistEyeL,
                         "_EyeL", "Left Eye", threshold, szX, szY, oriX, oriY); 
@@ -1629,7 +1670,7 @@ void CRat::opticalSavePlot(char* subpath, char* type, float threshold)
             }                   
         }else if(numScatterPlot ==4) {
             szY = 0.5;
-            if(m_bDispEar && m_bDispAbdo) {
+            if(m_bShowEar && m_bShowAbdo) {
                 oriX = 0; oriY = 0.5;
                 plotOneSpot(type, plotSave, i, saveName, m_ptEarL, m_vmDistEarL,
                         "_EarL", "Left Ear", threshold, szX, szY, oriX, oriY); 
@@ -1644,7 +1685,7 @@ void CRat::opticalSavePlot(char* subpath, char* type, float threshold)
                 plotOneSpot(type, plotSave, i, saveName, m_ptCyan, m_vmDistCyan,
                         "_Cyan", "Cyan", threshold, szX, szY, oriX, oriY); 
             }
-            if(m_bDispAbdo && m_bDispEye) {
+            if(m_bShowAbdo && m_bShowEye) {
                 oriX = 0; oriY = 0.5;
                 plotOneSpot(type, plotSave, i, saveName, m_ptRed, m_vmDistRed,
                         "_Red", "Red", threshold, szX, szY, oriX, oriY); 
@@ -1659,7 +1700,7 @@ void CRat::opticalSavePlot(char* subpath, char* type, float threshold)
                 plotOneSpot(type, plotSave, i, saveName, m_ptEyeR, m_vmDistEyeR,
                         "_EyeR", "Right Eye", threshold, szX, szY, oriX, oriY);                         
             }  
-            if(m_bDispEar && m_bDispEye) {
+            if(m_bShowEar && m_bShowEye) {
                 oriX = 0; oriY = 0.5;
                 plotOneSpot(type, plotSave, i, saveName, m_ptEarL, m_vmDistEarL,
                         "_EarL", "Left Ear", threshold, szX, szY, oriX, oriY); 
@@ -1809,27 +1850,31 @@ float CRat::optical_compute_movement(Mat& mFlow, Mat& mDistEar, Point pt, float 
 	float movement = 0;
 	double alpha = 5;
 	float count = 0;
-
+	Point2f fxysum(0,0);
     for(int y = 0; y < mROI.rows; y ++)
         for(int x = 0; x < mROI.cols; x ++)
         {
 			Point2f fxy = mROI.at<Point2f>(y, x);
-			float mv  = cv::norm(fxy);	
+			Point2f fxy0 = fxy;
+			//float mv  = cv::norm(fxy);	
 			
 			fxy += Point2f(PDF_SIZE/2, PDF_SIZE/2);
 			
 			if(fxy.x >= PDF_SIZE || fxy.x <0) continue;
 			if(fxy.y >= PDF_SIZE || fxy.y <0) continue;
 			
-			float Pear = mDistEar.at<float>(fxy.y+0.5, fxy.x+0.5);
+			float Pr = mDistEar.at<float>(fxy.y+0.5, fxy.x+0.5);
 
-			if(Pear >= threshold) {
-				movement += mv;
-				count++;  
-				//count+=Pear;
+			if(Pr >= threshold) {
+				fxysum += fxy0;
+				//float w =  1./(1.+exp(-1*(mv-6)));
+				//movement += w*mv;
+				//count+=w; 
+				count++; 
 			}
 		}
-		
+	
+	movement  = cv::norm(fxysum);
 	if(count!=0)
 		movement = (movement /count);
 	  	

@@ -80,9 +80,17 @@ MainFrame::MainFrame(wxWindow* parent)
 	
 	SetSize(800, 650);
 	Center();
+/*	
+	m_fpLog = fopen("_log.txt", "w+");
 	
+	m_logger = new wxLogStderr(m_fpLog);
+	m_old_logger = wxLog::GetActiveTarget();
 
-	
+	wxLog::SetActiveTarget(m_logger);
+//	wxLog::AddTraceMask(wxTRACE_Messages);
+	wxLogDebug("Logging opened.");
+	wxLogTrace("%s", "log trace\n");
+	 * */
 	DeleteContents();
 
 }
@@ -90,7 +98,12 @@ MainFrame::MainFrame(wxWindow* parent)
 MainFrame::~MainFrame()
 {
 	DeleteContents();
-	
+/*	
+	wxLogDebug("Attempting to stop logger.");
+	wxLog::SetActiveTarget(m_old_logger);
+	delete m_logger;
+	fclose(m_fpLog);
+	*/
 	wxConfigBase *pConfig = wxConfigBase::Get();
 	m_FileHistory->Save(*pConfig);
 	delete m_FileHistory;	
@@ -245,7 +258,8 @@ void MainFrame::openFile(wxString &dirName)
 
 	m_strSourcePath = dirName;
 	myMsgOutput("++++++++++++++++++++++++++++++++++++++++++++++++\n");
-	myMsgOutput( "Load " + dirName + "\n");
+	myMsgOutput( "Load ... " + dirName + "\n");
+
 
 	bool  bRet = false;
 	if(m_Rat.readData(dirName) <=0) 

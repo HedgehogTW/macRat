@@ -99,7 +99,7 @@ public:
 
     bool	process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, Point& ptRed, Point& ptCyan);
 
-	void 	drawOnDestImage();
+	void 	drawOnDestImage(bool bSaveFile);
 	void 	findEyeCenter(Point& ptEye0, vector <Point>& vecEye, vector <float>&  vecEyeMove, int referFrame);
 	void  	findNewEarCenter(vector <Point>& vecEye, Point ptEar0, vector <Point>& vecEar, int referFrame);
 	
@@ -114,7 +114,8 @@ public:
 	void 	imageDiff(vector<Mat>& vecDiff, vector <float>& vecAdjDiff, int nFrameSteps);
 	void 	saveEarROI(int stable, int motion, Point& pt);
 	void 	saveEyeTrajectory();
-
+	
+	void 	opticalFlow(int referFrame);
 	void	opticalFlow(int nFrameSteps, int referFrame);
 	void	opticalMovement(Point pt, vector<float>& vecPdfMove, vector <Mat>& vecmDist, float threshold);
 	void 	opticalDrawFlowmap(Point pt1, Point pt2, int nFrameSteps, char type);
@@ -186,9 +187,9 @@ public:
 //	vector <double>  m_vecLEyeGrayDiff;
 //	vector <double>  m_vecREyeGrayDiff;
 
-    bool    m_bDispEye;
-    bool    m_bDispEar;
-    bool    m_bDispAbdo;
+    bool    m_bShowEye;
+    bool    m_bShowEar;
+    bool    m_bShowAbdo;
     
     vector <float>  m_vecEyeFlowPdf;
     

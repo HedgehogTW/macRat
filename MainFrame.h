@@ -102,7 +102,9 @@ protected:
 
 ///////////////////// config
 	MyConfigData	m_configData;
-
+	wxLog* 			m_logger;
+	wxLog*			m_old_logger;
+	FILE* 			m_fpLog;
 
 //////////////// Rat
 //	RGBQUAD	m_Palette[PALETTE_SIZE];
