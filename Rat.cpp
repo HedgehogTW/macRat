@@ -17,7 +17,7 @@
 #include "BendPoint.h"
 #include "DlgOpticalInput.h"
 
-#define PDF_SIZE    40
+#define PDF_SIZE    50
 
 using namespace cv;
 
@@ -712,8 +712,8 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 				}				
 			}
 			
-			Notch_removal(vecEyeFlowPdfL, m_referFrame);
-            Notch_removal(vecEyeFlowPdfR, m_referFrame);
+			//Notch_removal(vecEyeFlowPdfL, m_referFrame);
+            //Notch_removal(vecEyeFlowPdfR, m_referFrame);
 			if(frameStep > 0 && bAccumulate) {
 				linearRegression(vecEyeFlowPdfL, vecEyeFlowPdfRegresL, vecEyeFlowPdfSubRegresL);
 				linearRegression(vecEyeFlowPdfR, vecEyeFlowPdfRegresR, vecEyeFlowPdfSubRegresR);
@@ -1341,25 +1341,26 @@ void CRat::opticalFlow(int referFrame)
 	m_vecFlow.resize(m_nSlices);
 	Mat mSrc1, mSrc2;
 
-	
+	m_vecFlow[referFrame] = Mat::zeros(m_vecMat[0].size(),CV_32FC2);
 	for(int i=referFrame; i>=0; i-=5) {
 		mSrc1 = m_vecMat[i];
-		for(int k=0; k<5 && i-k>=0; k++) {
+		for(int k=1; k<=5 && i-k>=0; k++) {
 			mSrc2 = m_vecMat[i-k];
 			Mat& mFlow = m_vecFlow[i-k];
 			calcOpticalFlowFarneback(mSrc1, mSrc2, mFlow, pyr_scale, levels, nWinSize, nIter, poly_n, dblSigma, 0);
 			if(i<referFrame)
-				m_vecFlow[i-k] += m_vecFlow[i+1];
+				m_vecFlow[i-k] += m_vecFlow[i];
 		}
 	}
+    
 	for(int i=referFrame; i<m_nSlices; i+=5) {
 		mSrc1 = m_vecMat[i];
-		for(int k=0; k<5 && i+k<m_nSlices; k++) {
+		for(int k=1; k<=5 && i+k<m_nSlices; k++) {
 			mSrc2 = m_vecMat[i+k];
 			Mat& mFlow = m_vecFlow[i+k];
 			calcOpticalFlowFarneback(mSrc1, mSrc2, mFlow, pyr_scale, levels, nWinSize, nIter, poly_n, dblSigma, 0);
 			if(i>referFrame)
-				m_vecFlow[i+k] += m_vecFlow[i-1];
+				m_vecFlow[i+k] += m_vecFlow[i];
 		}
 	}
 
@@ -1447,7 +1448,12 @@ void CRat::opticalAssignThresholdMap(vector<Mat>& vmPDF, float th, Point pt)
                 Point2f fxy = mROI.at<Point2f>(y, x);
                 Point2f fxy1 = fxy + Point2f(PDF_SIZE/2, PDF_SIZE/2);
                 
-                if(fxy1.x >= PDF_SIZE || fxy1.x <0)  continue;
+                if(fxy1.x >= PDF_SIZE || fxy1.x <0)  {
+//                    wxString str;
+//                    str.Printf("[%f, %f]", fxy1.x, fxy1.y);
+//                    wxLogMessage(str);
+                    continue;
+                }
                 if(fxy1.y >= PDF_SIZE || fxy1.y <0)  continue;
                 
                 float probability = mPdf.at<float>(fxy1.y+0.5, fxy1.x+0.5);
@@ -1466,8 +1472,6 @@ void CRat::opticalDrawFlowmapWithPDF(vector<Point>& vpDrawPtRect, int nFrameStep
     
 	vector <Mat> vecFlowmap(sz);
 
-    Mat mThMap(m_vecFlow[0].size(), CV_8UC1);
-	
 	for(int i=0; i<sz; i++) {
         Mat& mThMap = m_vmOpPDFMap[i];
         Mat& mFlow = m_vecFlow[i]; 
@@ -1584,10 +1588,12 @@ bool CRat::prepareGnuPlot(Gnuplot& plotSave, int numPlots, char* subpath)
     else if(numPlots==6) 
         plotSave.cmd("set terminal pngcairo size 800, 1200");
 #endif	
+
+    int range = PDF_SIZE/2;
 	plotSave.cmd("set grid");
 	plotSave.cmd("unset key");	
-	plotSave.set_xrange(-20,20);
-	plotSave.set_yrange(-20,20);
+	plotSave.set_xrange(-range, range);
+	plotSave.set_yrange(-range, range);
 	plotSave.cmd("set size 1,1");
 	plotSave.cmd("set origin 0,0");
 	plotSave.cmd("set termoption noenhanced");
@@ -1894,17 +1900,17 @@ void CRat::opticalBuildPDF(Mat& mFlow, Mat& mGaus, Mat& mDist, Point pt)
 	
 	int ksize = mGaus.rows;
 	int border = ksize /2;
-	
+	int  pdfCenter = PDF_SIZE /2;
 	mDist = Scalar(0);
     for(int y = 0; y < mROI.rows; y ++)
         for(int x = 0; x < mROI.cols; x ++)
         {
             const Point2f& fxy = mROI.at<Point2f>(y, x);
-            if(fxy.x > 20-border-1 || fxy.x <-20+border+1) continue;
-			if(fxy.y > 20-border-1 || fxy.y <-20+border+1) continue;
+            if(fxy.x > pdfCenter-border-1 || fxy.x <-pdfCenter+border+1) continue;
+			if(fxy.y > pdfCenter-border-1 || fxy.y <-pdfCenter+border+1) continue;
 
-			Point pt1 (fxy.x+0.5-border+20, fxy.y+0.5-border+20);
-			Point pt2 (fxy.x+0.5+border+20+1, fxy.y+0.5+border+20+1);
+			Point pt1 (fxy.x+0.5-border+pdfCenter, fxy.y+0.5-border+pdfCenter);
+			Point pt2 (fxy.x+0.5+border+pdfCenter+1, fxy.y+0.5+border+pdfCenter+1);
 
 			Mat mask(mDist, Rect(pt1, pt2));
 			mask += mGaus;
