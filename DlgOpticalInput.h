@@ -9,12 +9,14 @@ public:
     virtual ~DlgOpticalInput();
 	
 	void setVerticalLine(bool bLED, bool bRefLine, bool bPinna, bool bVerLine, double x=0);
-	void setSeriesLine(bool bEyeMove, bool bEar, bool bGrayDiff, bool bAbdo, bool bOpticalPDF, bool bAccumulate, bool bSave);
+	void setSeriesLine(bool bEyeMove, bool bEar, bool bGrayDiff, bool bAbdo);
+	void setOptions(bool bOpticalPDF, bool bOpFlowV1, bool bAccumulate, bool bSave);
 	void setYRange(double min, double max, long szROI, long referFrame);
 	void setGain(double gainEye, double gainPDF);
 	
 	void getVerticalLine(bool& bLED, bool& bRefLine, bool& bPinna, bool& bVerLine, double& x);
-	void getSeriesLine(bool& bEyeMove, bool& bEar, bool& bGrayDiff, bool& bAbdo, bool& bOpticalPDF, bool& bAccumulate, bool& bSave);
+	void getSeriesLine(bool& bEyeMove, bool& bEar, bool& bGrayDiff, bool& bAbdo);
+	void getOptions(bool& bOpticalPDF, bool& bOpFlowV1, bool& bAccumulate, bool& bSave);
 	void getYRange(double& min, double& max, long& szROI, long& referFrame);
 	
 	void getGain(double& gainEye, double &gainPDF);

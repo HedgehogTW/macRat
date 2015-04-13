@@ -64,6 +64,7 @@ MainFrame::MainFrame(wxWindow* parent)
     m_configData.m_bEar = pConfig->ReadBool("/optical/bEar", false);
 	m_configData.m_bAbdo = pConfig->ReadBool("/optical/bAbdo", false);
 	m_configData.m_bOpticalPDF = pConfig->ReadBool("/optical/bOpticalPDF", true);
+	m_configData.m_bOpFlowV1 = pConfig->ReadBool("/optical/bOpFlowV1", true);
 	m_configData.m_bAccumulate = pConfig->ReadBool("/optical/bAccumulate", true);
 	m_configData.m_bSaveFile = pConfig->ReadBool("/optical/bSaveFile", false);
 	
@@ -126,6 +127,7 @@ void MainFrame::DeleteContents()
 	pConfig->Write("/optical/bAbdo", m_configData.m_bAbdo);
    	pConfig->Write("/optical/bGrayDiff", m_configData.m_bGrayDiff); 
 	pConfig->Write("/optical/bOpticalPDF", m_configData.m_bOpticalPDF);
+	pConfig->Write("/optical/bOpFlowV1", m_configData.m_bOpFlowV1);
 	pConfig->Write("/optical/bAccumulate", m_configData.m_bAccumulate);
 	pConfig->Write("/optical/bSaveFile", m_configData.m_bSaveFile);
 	

@@ -105,6 +105,20 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     
     gridSizer175->Add(m_checkBoxSaveFlow, 0, wxALL, 5);
     
+    m_staticText181 = new wxStaticText(m_panel171, wxID_ANY, _("OpticalFlow Type"), wxDefaultPosition, wxSize(-1,-1), 0);
+    
+    gridSizer175->Add(m_staticText181, 0, wxALL, 5);
+    
+    m_radioOpV1 = new wxRadioButton(m_panel171, wxID_ANY, _("V1 (stable)"), wxDefaultPosition, wxSize(-1,-1), wxRB_GROUP);
+    m_radioOpV1->SetValue(1);
+    
+    gridSizer175->Add(m_radioOpV1, 0, wxALL, 5);
+    
+    m_radioOpV2 = new wxRadioButton(m_panel171, wxID_ANY, _("V2 (drastic)"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_radioOpV2->SetValue(1);
+    
+    gridSizer175->Add(m_radioOpV2, 0, wxALL, 5);
+    
     m_radioButtonInstan = new wxRadioButton(m_panel171, wxID_ANY, _("Instantaneous"), wxDefaultPosition, wxSize(-1,-1), wxRB_GROUP);
     m_radioButtonInstan->SetValue(1);
     

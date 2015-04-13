@@ -62,6 +62,7 @@ public:
 	bool 	m_bAbdo;	
     bool 	m_bGrayDiff;
 	bool 	m_bOpticalPDF;
+	bool	m_bOpFlowV1;
 	bool 	m_bAccumulate;
 	bool	m_bSaveFile;
 	double 	m_verLine;
@@ -115,9 +116,9 @@ public:
 	void 	saveEarROI(int stable, int motion, Point& pt);
 	void 	saveEyeTrajectory();
 	
-	void 	opticalFlow(int referFrame);
-	void	opticalFlow(int nFrameSteps, int referFrame);
-	void	opticalMovement(Point pt, vector<float>& vecPdfMove, vector <Mat>& vecmDist, float threshold);
+	void 	opticalFlow_v2(int referFrame);
+	void	opticalFlow_v1(int nFrameSteps, int referFrame);
+	void	opticalMovement(Point pt, vector<float>& vecPdfMove, vector <Mat>& vecmDist, float threshold, bool bOpFlowV1);
 	void 	opticalDrawFlowmap(Point pt1, Point pt2, int nFrameSteps, char type);
     void 	opticalDrawFlowmapWithPDF(vector<Point>& vpDrawPtRect, int nFrameSteps);
 
@@ -129,8 +130,9 @@ public:
     void    plotOneSpot(char* type, Gnuplot& plotSave, int i, wxFileName& saveName, Point pt, vector<Mat>& vmPDF,
 								char* extName1, char* title1, float threshold,
                                 float sizeX, float sizeY, float oriX, float oriY);
-    
-	float 	optical_compute_movement(Mat& mFlow, Mat& mDistEar, Point pt, float threshold);
+								
+	float 	optical_compute_movement_v1(Mat& mFlow, Mat& mDistEar, Point pt, float threshold);
+	float 	optical_compute_movement_v2(Mat& mFlow, Mat& mDistEar, Point pt, float threshold);
 	void 	plotDistribution(Gnuplot& plot, Mat& mDist, wxString& strOutName);
 	void 	plotDotScatter(Gnuplot& plotSavePGN, Mat& mFlow, Point pt, wxString& strOutName, Mat& mPdf, float threshold);	
 	void	opticalBuildPDF(Mat& mFlow, Mat& mGaus, Mat& mDist, Point pt);
