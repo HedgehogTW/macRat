@@ -87,10 +87,10 @@ void ScrolledImageComponent::OnDraw(wxDC& dc)
 	
 	MainFrame::m_pThis->getEarPts(ptEarL, ptEarR);
 	if(ptEarL.x != 0 ) {
-		dc.SetPen(*wxGREEN_PEN);
-		dc.SetBrush(*wxGREEN_BRUSH);
-		dc.DrawCircle(ptEarL.x, ptEarL.y, 2);
-		dc.DrawCircle(ptEarR.x, ptEarR.y, 2);
+		dc.SetPen(*wxYELLOW_PEN);
+		dc.SetBrush(*wxYELLOW_BRUSH);
+		dc.DrawCircle(ptEarL.x, ptEarL.y, 3);
+		dc.DrawCircle(ptEarR.x, ptEarR.y, 3);
 	}	
    /* 	
     int minusCage;

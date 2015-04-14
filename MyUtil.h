@@ -75,6 +75,23 @@ void _OutputVecPoints(X &vecPoints, const char *filename, bool bhasComma)
 	fout.close(); 
 }
 
+template<typename X>
+void _OutputVec(X &vec, const char *filename)
+{
+
+    ofstream fout(filename); 
+    if(!fout) { 
+		wxMessageOutputMessageBox().Printf(_T("cannot create output file"));
+		return;
+    } 
+
+	int sz = vec.size();
+	for(int i=0; i<sz; i++) {
+		fout << vec[i] << endl;
+	}
+	fout.close(); 
+}
+
 void _redirectStandardOutputToFile ( string filePath, bool toPromptAlso );
 void _OutputMat(cv::Mat m, const char *filename, bool bhasComma=true);
 void _OutputBinaryMat(cv::Mat m, char *filename);
