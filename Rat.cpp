@@ -423,9 +423,10 @@ void CRat::DC_removal(int nFirstLED, vector <float>& vecSignal)
 	mean /= nFirstLED;
 	for(int i=0; i<n; i++)  vecSignal[i] -= mean;	
 }
-void CRat::Notch_removal(vector <float>& vecSignal, int refFrame)
+float CRat::Notch_removal(vector <float>& vecSignal, int refFrame)
 {
     vecSignal[refFrame] = (vecSignal[refFrame-1] + vecSignal[refFrame+1]) /2.0;
+	return vecSignal[refFrame];
 }
 
 bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, Point& ptRed, Point& ptCyan)
@@ -537,7 +538,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 		return false;
 	}
 	
-	if(bEyeMove) {
+	if(m_bShowEye) {
 		findEyeCenter(ptEyeL, m_vecEyeL, m_vecEyeLMove, newReferFrame);
 		findEyeCenter(ptEyeR, m_vecEyeR, m_vecEyeRMove, newReferFrame);
 	}else {
@@ -704,12 +705,24 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 		if(m_bShowEye) {
 			opticalMovement(ptEyeL, vecEyeFlowPdfL, m_vmDistEyeL, threshold, bOpFlowV1);
 			opticalMovement(ptEyeR, vecEyeFlowPdfR, m_vmDistEyeR, threshold, bOpFlowV1);
+			float gainL, gainR;
+			if(gainEye<0) {
+				Scalar muEyeL1 = mean(m_vecEyeLMove);
+				Scalar muEyeR1 = mean(m_vecEyeRMove);
+				Scalar muEyeL2 = mean(vecEyeFlowPdfL);
+				Scalar muEyeR2 = mean(vecEyeFlowPdfR);	
+				gainL = muEyeL1[0] / muEyeL2[0];
+				gainR = muEyeR1[0] / muEyeR2[0];
+			}else if(gainEye>1) {
+				gainL = gainR = gainEye;
+			}
+			
 			if(gainEye!=1) {
 				for(int i=0; i<sz; i++) {
-					vecEyeFlowPdfL[i] = vecEyeFlowPdfL[i]*gainEye;
-					vecEyeFlowPdfR[i] = vecEyeFlowPdfR[i]*gainEye;
+					vecEyeFlowPdfL[i] = vecEyeFlowPdfL[i]*gainL;
+					vecEyeFlowPdfR[i] = vecEyeFlowPdfR[i]*gainR;
 				}
-			}
+			} 
 			if(frameStep > 0 && bAccumulate) {			
 				for(int i=1; i<sz; i++) {
 					vecEyeFlowPdfL[i] += vecEyeFlowPdfL[i-1];
@@ -721,8 +734,13 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 				}				
 			}
 			
-			//Notch_removal(vecEyeFlowPdfL, m_referFrame);
-            //Notch_removal(vecEyeFlowPdfR, m_referFrame);
+			float baselineL = Notch_removal(vecEyeFlowPdfL, m_referFrame);
+            float baselineR = Notch_removal(vecEyeFlowPdfR, m_referFrame);
+			for(int i=0; i<sz; i++) {
+				vecEyeFlowPdfL[i] -= baselineL;
+				vecEyeFlowPdfR[i] -= baselineR;
+			}		
+			
 			if(frameStep > 0 && bAccumulate) {
 				linearRegression(vecEyeFlowPdfL, vecEyeFlowPdfRegresL, vecEyeFlowPdfSubRegresL);
 				linearRegression(vecEyeFlowPdfR, vecEyeFlowPdfRegresR, vecEyeFlowPdfSubRegresR);
@@ -789,12 +807,6 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 		_gnuplotVerticalLine(gPlotL, verLine);
 		_gnuplotVerticalLine(gPlotR, verLine);		
 	}
-	
-	if(bEyeMove) {
-		_gnuplotLine(gPlotL, "LEyePosMove", m_vecEyeLMove, "#008B0000", ".");
-		_gnuplotLine(gPlotR, "REyePosMove", m_vecEyeRMove, "#008B0000", ".");
-	
-	}
 	if(bGrayDiff) {
 		if(m_bShowEar) {
 			_gnuplotLine(gPlotL, "LEarGraylevelDiff", vecLEarGrayDiff, "#000000ff", ".");
@@ -805,6 +817,11 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			_gnuplotLine(gPlotL, "APB-Red GraylevelDiff", vecRedGrayDiff, "#00008000", ".");
 			_gnuplotLine(gPlotR, "APB-Cyan GraylevelDiff", vecCyanGrayDiff, "#00008000", ".");
 		}
+		if(bEyeMove) {
+			_gnuplotLine(gPlotL, "LEyePosMove", m_vecEyeLMove, "#008B0000", ".");
+			_gnuplotLine(gPlotR, "REyePosMove", m_vecEyeRMove, "#008B0000", ".");
+		
+		}		
 	}
 	if(bOpticalPDF) {
 		if(m_bShowEar) {
@@ -973,10 +990,9 @@ void  CRat::findNewEarCenter(vector <Point>& vecEye, Point ptEar0, vector <Point
 void CRat::findEyeCenter(Point& ptEye0, vector <Point>& vecEye, vector <float>&  vecEyeMove, int referFrame)
 {
 	
-//	vecEye.clear();	
+	int wImg = m_vecMat[0].cols;
+	int hImg = m_vecMat[0].rows;
 	vecEye.resize(m_nSlices);
-
-//	vecEyeMove.clear();	
 	vecEyeMove.resize(m_nSlices);	
 	
 	Point	offset(20, 20);
@@ -986,6 +1002,11 @@ void CRat::findEyeCenter(Point& ptEye0, vector <Point>& vecEye, vector <float>& 
 	for (int i = 0; i < m_nSlices; i++)	{	
 		Point pt1 (ptEye-offset);
 		Point pt2 (ptEye+offset);
+	
+		if(pt1.x <0) pt1.x = 0;
+		if(pt1.y <0) pt1.y = 0;
+		if(pt2.x >= wImg) pt2.x = wImg-1;
+		if(pt2.y >= hImg) pt2.y = hImg-1;
 	
 		Mat mROI(m_vecMat[i], Rect(pt1, pt2));	
 		Mat mROI32F, mSmooth;
@@ -1161,7 +1182,7 @@ int CRat::findReferenceFrame(Point& pt)
 	int start, end, lenSeg;
 	start = 0;
     if(m_nLED2>0)
-        end = m_nLED2 + 10;
+        end = m_nLED1;// + 10;
     else
         end = m_nSlices/2;
         

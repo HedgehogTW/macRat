@@ -73,7 +73,7 @@ MainFrame::MainFrame(wxWindow* parent)
 	m_configData.m_ymax = pConfig->ReadDouble("/optical/ymax", 5);
 	m_configData.m_szROI = pConfig->ReadLong("/optical/ROISize", 80);
     m_configData.m_referFrame = pConfig->ReadLong("/optical/referFrame", 0);
-	m_configData.m_gainEye = pConfig->ReadDouble("/optical/gainEye", 2.5);
+	m_configData.m_gainEye = pConfig->ReadDouble("/optical/gainEye", 3);
 	m_configData.m_gainPDF = pConfig->ReadDouble("/optical/gainPDF", 4);
 	
 

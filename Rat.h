@@ -94,7 +94,7 @@ public:
 	Point	aspectRatio(vector<cv::Point> &con, double &ratio, double &angle );
 	void	cropImage(bool& bCutTop);
 	void 	DC_removal(int nFirstLED, vector <float>& vecSignal);
-    void    Notch_removal(vector <float>& vecSignal, int refFrame);
+    float   Notch_removal(vector <float>& vecSignal, int refFrame);
         
 	void	getLightRange(int& from, int& to) { from = m_nLED1; to = m_nLED_End; }
 
