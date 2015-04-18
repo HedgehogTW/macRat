@@ -594,7 +594,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	m_referFrame = newReferFrame;
     
 	MainFrame:: myMsgOutput("y range [%d, %d], szROI %d, bSave %d\n", ymin, ymax, m_ROIsz, bSaveFile);	
-	MainFrame:: myMsgOutput("PDF threshold %f, frame steps %d, opticalFlow v1 %d, eyeGain %.2f, bAccumulate %d\n", 
+	MainFrame:: myMsgOutput("PDF threshold %f, frame steps %d, bOpFlowV1 %d, eyeGain %.2f, bAccumulate %d\n", 
 			threshold, frameStep, bOpFlowV1, gainEye, bAccumulate);
 	
 	vector <float>  vecRedGrayDiff;
@@ -1935,7 +1935,6 @@ float CRat::optical_compute_movement_v2(Mat& mFlow, Mat& mDistEar, Point pt, flo
 	
 	Mat mROI(mFlow, Rect(pt1, pt2));
 	float movement = 0;
-	double alpha = 5;
 	float count = 0;
 	Point2f fxysum(0,0);
     for(int y = 0; y < mROI.rows; y ++)
@@ -1943,8 +1942,7 @@ float CRat::optical_compute_movement_v2(Mat& mFlow, Mat& mDistEar, Point pt, flo
         {
 			Point2f fxy = mROI.at<Point2f>(y, x);
 			Point2f fxy0 = fxy;
-			//float mv  = cv::norm(fxy);	
-			
+		
 			fxy += Point2f(PDF_SIZE/2, PDF_SIZE/2);
 			
 			if(fxy.x >= PDF_SIZE || fxy.x <0) continue;
@@ -1954,9 +1952,6 @@ float CRat::optical_compute_movement_v2(Mat& mFlow, Mat& mDistEar, Point pt, flo
 
 			if(Pr >= threshold) {
 				fxysum += fxy0;
-				//float w =  1./(1.+exp(-1*(mv-6)));
-				//movement += w*mv;
-				//count+=w; 
 				count++; 
 			}
 		}
