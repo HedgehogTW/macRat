@@ -71,6 +71,7 @@ public:
 	
 	
 protected:
+    virtual void OnToolsCleanOutput(wxCommandEvent& event);
     virtual void OnMouseLButtonDown(wxMouseEvent& event);
     virtual void OnMouseRButtonDown(wxMouseEvent& event);
     virtual void OnRatProcessEar(wxCommandEvent& event);

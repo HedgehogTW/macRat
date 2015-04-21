@@ -63,6 +63,8 @@ protected:
     wxMenuItem* m_menuItemAbdomen;
     wxMenuItem* m_menuItemShowResults;
     wxMenuItem* m_menuItemLoadResult;
+    wxMenu* m_menuTools;
+    wxMenuItem* m_menuItemCleanOutput;
     wxMenu* m_nameHelp;
     wxMenuItem* m_menuItem9;
     wxAuiManager* m_auimgr11;
@@ -92,6 +94,7 @@ protected:
     virtual void OnRatAbdomen(wxCommandEvent& event) { event.Skip(); }
     virtual void OnRatShowResults(wxCommandEvent& event) { event.Skip(); }
     virtual void OnRatLoadResult(wxCommandEvent& event) { event.Skip(); }
+    virtual void OnToolsCleanOutput(wxCommandEvent& event) { event.Skip(); }
     virtual void OnAbout(wxCommandEvent& event) { event.Skip(); }
     virtual void OnMouseMotion(wxMouseEvent& event) { event.Skip(); }
     virtual void OnMouseLButtonDown(wxMouseEvent& event) { event.Skip(); }

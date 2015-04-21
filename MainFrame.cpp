@@ -11,6 +11,7 @@
 #include <wx/filename.h>
 #include <wx/utils.h> 
 #include <wx/dir.h>
+#include <wx/msgdlg.h>
 
 #include <opencv2/opencv.hpp>
 #include "KDE.h"
@@ -982,4 +983,74 @@ void MainFrame::OnMouseLButtonDown(wxMouseEvent& event)
 }
 void MainFrame::OnMouseRButtonDown(wxMouseEvent& event)
 {
+}
+void MainFrame::OnToolsCleanOutput(wxCommandEvent& event)
+{
+	wxString  strHistoryFile = wxEmptyString;
+	if(m_FileHistory->GetCount() >0) 
+		strHistoryFile= m_FileHistory->GetHistoryFile(0);
+	
+	static wxString strInitDir (strHistoryFile);
+    
+    wxDirDialog dlg(NULL, "Choose directory", strInitDir,
+                wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
+
+    if(dlg.ShowModal()!=wxID_OK)  return;
+    
+    wxString inputPath =dlg.GetPath();
+ 	if(inputPath.empty())  return;   
+ 
+	wxString fileSpec = _T("*");
+	wxArrayString  	topDirs;
+	//wxDir::GetAllFiles(inputPath, &files,  fileSpec, wxDIR_DIRS );
+	wxDir dir(inputPath);
+    
+    wxString dirName;
+    bool cont = dir.GetFirst(&dirName, fileSpec, wxDIR_DIRS);
+    while ( cont )
+    {   
+        wxString subDirName = inputPath + "\\" + dirName;
+        topDirs.Add(subDirName);
+        cont = dir.GetNext(&dirName);
+    }
+    
+    // remove subdir
+    bool bConfirm = false;
+    int count = topDirs.GetCount();
+    for(int i=0; i<count; i++) {
+        MainFrame::myMsgOutput(topDirs[i]+ "\n");
+        wxDir subdir(topDirs[i]);
+        wxString subName;
+        bool bCont = subdir.GetFirst(&subName, fileSpec, wxDIR_DIRS);
+        
+        if(bConfirm==false) {
+            wxString str = "Remove " + subName + "??";
+            wxMessageDialog dlg(this, str, "Remove Dir", wxOK|wxCANCEL);
+            if(dlg.ShowModal()==wxID_CANCEL) break;
+            bConfirm = true;
+        }
+
+        while ( bCont ) {
+            wxString deleteDirName = topDirs[i]+ "\\" + subName;
+            wxFileName::Rmdir(deleteDirName, wxPATH_RMDIR_RECURSIVE);
+            MainFrame::myMsgOutput("   -->remove "+subName+ "\n");
+            bCont = subdir.GetNext(&subName);
+        }  
+    }
+
+    // remove files "_xxx"
+    for(int i=0; i<count; i++) {
+        MainFrame::myMsgOutput(topDirs[i]+ "\n");
+        wxDir subdir(topDirs[i]);
+        wxString subName;
+        bool bCont = subdir.GetFirst(&subName, "_*", wxDIR_FILES );
+        while ( bCont ) {
+            if(subName.CmpNoCase("_Marks.txt")!=0) {
+                wxString deleteDirName = topDirs[i]+ "\\" + subName;
+                wxRemoveFile(deleteDirName);
+                MainFrame::myMsgOutput("   -->remove "+subName+ "\n");
+            }
+            bCont = subdir.GetNext(&subName);
+        }  
+    }
 }
