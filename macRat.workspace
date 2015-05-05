@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<CodeLite_Workspace Name="Vienna" Database="">
-  <Project Name="Vienna" Path="Vienna.project" Active="Yes"/>
+<CodeLite_Workspace Name="macRat" Database="">
+  <Project Name="macRat" Path="macRat.project" Active="Yes"/>
   <BuildMatrix>
     <WorkspaceConfiguration Name="Debug" Selected="yes">
-      <Project Name="Vienna" ConfigName="Debug"/>
+      <Project Name="macRat" ConfigName="Debug"/>
     </WorkspaceConfiguration>
     <WorkspaceConfiguration Name="Release" Selected="yes">
-      <Project Name="Vienna" ConfigName="Release"/>
+      <Project Name="macRat" ConfigName="Release"/>
     </WorkspaceConfiguration>
   </BuildMatrix>
 </CodeLite_Workspace>

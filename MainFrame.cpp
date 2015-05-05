@@ -53,9 +53,9 @@ MainFrame::MainFrame(wxWindow* parent)
 	m_FileHistory->Load(*pConfig);
 	
 	////////////////////////////
-	m_configData.m_frameStep = pConfig->ReadLong("/optical/frameStep", 5);
+	m_configData.m_frameStep = pConfig->ReadLong("/optical/frameStep", 0);
 	m_configData.m_threshold = pConfig->ReadDouble("/optical/threshold", 0.001);
-	m_configData.m_bLED = pConfig->ReadBool("/optical/bLED", false);    
+	m_configData.m_bLED = pConfig->ReadBool("/optical/bLED", true);    
     m_configData.m_bRefLine = pConfig->ReadBool("/optical/bRefLine", true);
 	m_configData.m_bPinna = pConfig->ReadBool("/optical/bPinna", false);
 	m_configData.m_bVerLine = pConfig->ReadBool("/optical/bVerLine", false);
@@ -70,8 +70,8 @@ MainFrame::MainFrame(wxWindow* parent)
 	m_configData.m_bSaveFile = pConfig->ReadBool("/optical/bSaveFile", false);
 	
 	m_configData.m_verLine = pConfig->ReadDouble("/optical/verLine", 190);
-	m_configData.m_ymin = pConfig->ReadDouble("/optical/ymin", 0);
-	m_configData.m_ymax = pConfig->ReadDouble("/optical/ymax", 5);
+	m_configData.m_ymin = pConfig->ReadDouble("/optical/ymin", -1);
+	m_configData.m_ymax = pConfig->ReadDouble("/optical/ymax", 3);
 	m_configData.m_szROI = pConfig->ReadLong("/optical/ROISize", 80);
     m_configData.m_referFrame = pConfig->ReadLong("/optical/referFrame", 0);
 	m_configData.m_gainEye = pConfig->ReadDouble("/optical/gainEye", 3);
