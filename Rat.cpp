@@ -892,6 +892,16 @@ void CRat::drawOnDestImage(bool bSaveFile)
 	Point ptEyeR1 (m_ptEyeR-m_offsetEar);
 	Point ptEyeR2 (m_ptEyeR+m_offsetEar);
 	
+	double dist = sqrt((m_ptEyeL.x - m_ptEyeR.x)*(m_ptEyeL.x - m_ptEyeR.x) + 
+						(m_ptEyeL.y - m_ptEyeR.y)*(m_ptEyeL.y - m_ptEyeR.y));
+						
+	Point offset(dist*0.9, dist*0.9);
+	Point ptEye;
+	ptEye.x = (m_ptEyeL.x + m_ptEyeR.x)/2;
+	ptEye.y = (m_ptEyeL.y + m_ptEyeR.y)/2;
+	Point ptEye1 (ptEye-offset);
+	Point ptEye2 (ptEye+offset);
+		
 	for (int i = 0; i < m_nSlices; i++)
 		cvtColor(m_vecMat[i], m_vecDest[i], CV_GRAY2BGR);
 
@@ -909,7 +919,8 @@ void CRat::drawOnDestImage(bool bSaveFile)
             rectangle(mDestColor, Rect(ptC1, ptC2), Scalar(0,128,0));
         }
 		if(m_bShowEye) {
-            rectangle(mDestColor, Rect(ptEyeL1, ptEyeL2), Scalar(255, 0,255));
+            rectangle(mDestColor, Rect(ptEye1, ptEye2), Scalar(0, 0,255));
+			rectangle(mDestColor, Rect(ptEyeL1, ptEyeL2), Scalar(255, 0,255));
             rectangle(mDestColor, Rect(ptEyeR1, ptEyeR2), Scalar(255, 0,255));
         }
 		// original eyes

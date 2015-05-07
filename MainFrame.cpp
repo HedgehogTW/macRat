@@ -60,10 +60,10 @@ MainFrame::MainFrame(wxWindow* parent)
 	m_configData.m_bPinna = pConfig->ReadBool("/optical/bPinna", false);
 	m_configData.m_bVerLine = pConfig->ReadBool("/optical/bVerLine", false);
 	
-	m_configData.m_bEyeMove = pConfig->ReadBool("/optical/bEyeMove", false);
+	m_configData.m_bEyeMove = pConfig->ReadBool("/optical/bEyeMove", true);
 	m_configData.m_bGrayDiff = pConfig->ReadBool("/optical/bGrayDiff", false);
-    m_configData.m_bEar = pConfig->ReadBool("/optical/bEar", false);
-	m_configData.m_bAbdo = pConfig->ReadBool("/optical/bAbdo", false);
+    m_configData.m_bEar = pConfig->ReadBool("/optical/bEar", true);
+	m_configData.m_bAbdo = pConfig->ReadBool("/optical/bAbdo", true);
 	m_configData.m_bOpticalPDF = pConfig->ReadBool("/optical/bOpticalPDF", true);
 	m_configData.m_bOpFlowV1 = pConfig->ReadBool("/optical/bOpFlowV1", true);
 	m_configData.m_bAccumulate = pConfig->ReadBool("/optical/bAccumulate", true);
