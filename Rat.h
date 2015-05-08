@@ -100,44 +100,44 @@ public:
 
     bool	process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, Point& ptRed, Point& ptCyan);
 
-	void 	drawOnDestImage(bool bSaveFile);
+	void 	drawOnDestImage(bool bSaveFile, Point offset);
 	void 	findEyeCenter(Point& ptEye0, vector <Point>& vecEye, vector <float>&  vecEyeMove, int referFrame);
 	void  	findNewEarCenter(vector <Point>& vecEye, Point ptEar0, vector <Point>& vecEar, int referFrame);
 	
 	void 	smoothData(vector<float>& inData, vector<float>& outData, int bw=5);
-	double 	errorSum(Mat &mDiff, Point ptEarL);
-	int		findReferenceFrame(Point& pt);
+	double 	errorSum(Mat &mDiff, Point ptEarL, Point offset);
+	int		findReferenceFrame(Point& pt, Point offset);
 	int 	findMaxMotionPoint(vector<float>& inData);
-	void	graylevelDiff_Eye(int refer, Point ptEar, vector <Point>& vecEye, vector <float>& vecEarGrayDiff);
-	void 	graylevelDiff(int refer, Point& ptEarL, Point& ptEarR, vector <float>& vLEarGray,  vector <float>& vREarGray);
+//	void	graylevelDiff_Eye(int refer, Point ptEar, Point offset, vector <Point>& vecEye, vector <float>& vecEarGrayDiff);
+	void 	graylevelDiff(int refer, Point& ptEarL, Point& ptEarR, Point offset, vector <float>& vLEarGray,  vector <float>& vREarGray);
 	void	pointGraylevel(Point ptAbdoRed, Point ptAbdoCyan, vector <float>& vecRedPoint, vector <float>& vecCyanPoint);
 	
 	void 	imageDiff(vector<Mat>& vecDiff, vector <float>& vecAdjDiff, int nFrameSteps);
-	void 	saveEarROI(int stable, int motion, Point& pt);
+	void 	saveEarROI(int stable, int motion, Point& pt, Point	offset);
 	void 	saveEyeTrajectory();
 	
 	void 	opticalFlow_v2(int referFrame);
 	void	opticalFlow_v1(int nFrameSteps, int referFrame);
-	void	opticalMovement(Point pt, vector<float>& vecPdfMove, vector <Mat>& vecmDist, float threshold, bool bOpFlowV1);
-	void 	opticalDrawFlowmap(Point pt1, Point pt2, int nFrameSteps, char type);
-    void 	opticalDrawFlowmapWithPDF(vector<Point>& vpDrawPtRect, int nFrameSteps);
+	void	opticalMovement(Point pt, Point	offset, vector<float>& vecPdfMove, vector <Mat>& vecmDist, float threshold, bool bOpFlowV1);
+	void 	opticalDrawFlowmap(Point pt1, Point pt2, Point offset, int nFrameSteps, char type);
+    void 	opticalDrawFlowmapWithPDF(vector<Point>& vpDrawPtRect, Point offset, int nFrameSteps);
 
 	void	drawOptFlowMap(Mat& cflowmap, const Mat& flow, int step, const Scalar& color);
     void    drawOptFlowMapWithPDF(Mat& cflowmap, const Mat& flow,  int step, Mat &mPdf);    
     									
     bool    prepareGnuPlot(Gnuplot& plotSave, int numPlots, char* subpath);
-    void    opticalSavePlot(char* subpath, char* type, float threshold);
-    void    plotOneSpot(char* type, Gnuplot& plotSave, int i, wxFileName& saveName, Point pt, vector<Mat>& vmPDF,
+    void    opticalSavePlot(char* subpath, char* type, float threshold, Point offset);
+    void    plotOneSpot(char* type, Gnuplot& plotSave, int i, wxFileName& saveName, Point pt, Point offset, vector<Mat>& vmPDF,
 								char* extName1, char* title1, float threshold,
                                 float sizeX, float sizeY, float oriX, float oriY);
 								
-	float 	optical_compute_movement_v1(Mat& mFlow, Mat& mDistEar, Point pt, float threshold);
-	float 	optical_compute_movement_v2(Mat& mFlow, Mat& mDistEar, Point pt, float threshold);
+	float 	optical_compute_movement_v1(Mat& mFlow, Mat& mDistEar, Point pt, float threshold, Point	offset);
+	float 	optical_compute_movement_v2(Mat& mFlow, Mat& mDistEar, Point pt, float threshold, Point	offset);
 	void 	plotDistribution(Gnuplot& plot, Mat& mDist, wxString& strOutName);
-	void 	plotDotScatter(Gnuplot& plotSavePGN, Mat& mFlow, Point pt, wxString& strOutName, Mat& mPdf, float threshold);	
-	void	opticalBuildPDF(Mat& mFlow, Mat& mGaus, Mat& mDist, Point pt);
+	void 	plotDotScatter(Gnuplot& plotSavePGN, Mat& mFlow, Point pt, Point offset, wxString& strOutName, Mat& mPdf, float threshold);	
+	void	opticalBuildPDF(Mat& mFlow, Mat& mGaus, Mat& mDist, Point pt, Point	offset);
 
-    void    opticalAssignThresholdMap(vector<Mat>& vmPDF, float th, Point pt);
+    void    opticalAssignThresholdMap(vector<Mat>& vmPDF, float th, Point pt, Point	offset);
 
     bool    opticalLoadPDFfile(const char* filename, Mat &mPdf);
 	void    saveDistributionAsCSVandPNG();
@@ -177,10 +177,11 @@ public:
 	vector <float>  m_vecEyeLMove;
 	vector <float>  m_vecEyeRMove;
 	
-	Point	m_offsetEar; //(50, 50);
+//	Point	m_offsetEar; //(50, 50);
 
 	Point 	m_ptEyeL;
 	Point	m_ptEyeR;
+    Point	m_ptEyeC;
 	Point	m_ptEarL;
 	Point	m_ptEarR;
 	Point 	m_ptRed;
