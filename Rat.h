@@ -111,7 +111,8 @@ public:
 //	void	graylevelDiff_Eye(int refer, Point ptEar, Point offset, vector <Point>& vecEye, vector <float>& vecEarGrayDiff);
 	void 	graylevelDiff(int refer, Point& ptEarL, Point& ptEarR, Point offset, vector <float>& vLEarGray,  vector <float>& vREarGray);
 	void	pointGraylevel(Point ptAbdoRed, Point ptAbdoCyan, vector <float>& vecRedPoint, vector <float>& vecCyanPoint);
-	
+	int     isRedRignificant(vector<float>& vecRed, vector<float>& vecCyan);
+    
 	void 	imageDiff(vector<Mat>& vecDiff, vector <float>& vecAdjDiff, int nFrameSteps);
 	void 	saveEarROI(int stable, int motion, Point& pt, Point	offset);
 	void 	saveEyeTrajectory();
@@ -120,7 +121,7 @@ public:
 	void	opticalFlow_v1(int nFrameSteps, int referFrame);
 	void	opticalMovement(Point pt, Point	offset, vector<float>& vecPdfMove, vector <Mat>& vecmDist, float threshold, bool bOpFlowV1);
 	void 	opticalDrawFlowmap(Point pt1, Point pt2, Point offset, int nFrameSteps, char type);
-    void 	opticalDrawFlowmapWithPDF(vector<Point>& vpDrawPtRect, Point offset, int nFrameSteps);
+    void 	opticalDrawFlowmapWithPDF(vector<Point>& vpDrawPtRect, vector<Point>& vpOffset, int nFrameSteps);
 
 	void	drawOptFlowMap(Mat& cflowmap, const Mat& flow, int step, const Scalar& color);
     void    drawOptFlowMapWithPDF(Mat& cflowmap, const Mat& flow,  int step, Mat &mPdf);    
@@ -177,6 +178,8 @@ public:
 	vector <float>  m_vecEyeLMove;
 	vector <float>  m_vecEyeRMove;
 	
+    int     m_BigRedPdf;
+    int     m_BigRedGray;
 //	Point	m_offsetEar; //(50, 50);
 
 	Point 	m_ptEyeL;

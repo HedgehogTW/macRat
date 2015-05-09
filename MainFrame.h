@@ -44,7 +44,7 @@ public:
 	
 	void 	getEyePts(Point& eyeL, Point& eyeR) { eyeL = m_ptEyeL; eyeR = m_ptEyeR; }
 	void 	getEarPts(Point& earL, Point& earR) { earL = m_ptEarL; earR = m_ptEarR;}
-	void 	getAbdoPts(Point& abRed, Point& abCyan) { abRed = m_ptAbdoRed; abCyan = m_ptAbdoCyan;}
+	int 	getAbdoPts(Point& abRed, Point& abCyan) { abRed = m_ptAbdoRed; abCyan = m_ptAbdoCyan; return m_Rat.m_BigRedPdf; }
 	
 	int		getCageline() { return m_nCageLine; }
 	bool	getCroppedStatus()  { return m_bCutTop; }

@@ -108,15 +108,18 @@ void ScrolledImageComponent::OnDraw(wxDC& dc)
     }
 */
     Point 	ptAbdoRed, ptAbdoCyan;
-	MainFrame::m_pThis->getAbdoPts(ptAbdoRed, ptAbdoCyan);
+	int bigRedPdf = MainFrame::m_pThis->getAbdoPts(ptAbdoRed, ptAbdoCyan);
 	if(ptAbdoRed.x != 0 ) {
-		dc.SetPen(*wxRED_PEN);
-		dc.SetBrush(*wxRED_BRUSH);
-		dc.DrawCircle(ptAbdoRed.x, ptAbdoRed.y, 2);		
-        
-        dc.SetPen(*wxCYAN_PEN);
-		dc.SetBrush(*wxCYAN_BRUSH);
-		dc.DrawCircle(ptAbdoCyan.x, ptAbdoCyan.y, 2);
+        if(bigRedPdf==-1 || bigRedPdf==1) {
+            dc.SetPen(*wxRED_PEN);
+            dc.SetBrush(*wxRED_BRUSH);
+            dc.DrawCircle(ptAbdoRed.x, ptAbdoRed.y, 2);		
+        }
+        if(bigRedPdf==-1 || bigRedPdf==0) {
+            dc.SetPen(*wxCYAN_PEN);
+            dc.SetBrush(*wxCYAN_BRUSH);
+            dc.DrawCircle(ptAbdoCyan.x, ptAbdoCyan.y, 2);
+        }
 	}	
 	//MainFrame:: myMsgOutput("ptAbdoBo y %d\n", ptAbdoBo.y);
 }

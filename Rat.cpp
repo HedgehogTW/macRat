@@ -35,7 +35,8 @@ CRat::CRat()
 	m_mean = m_stddev = 0;
 	m_nProcessFrame = -1;
 	m_classifier = 0;
-	
+
+    
 	clearData();
 	_redirectStandardOutputToFile("_cout.txt", true);
 }
@@ -65,6 +66,9 @@ void CRat::clearData()
 	m_nCageLine = -1;
 //	m_bCutTop = false;
 	m_bLED_OK = false;
+    
+	m_BigRedPdf = -1;
+    m_BigRedGray = -1;    
 }
 
 int CRat::readData(wxString inputPath)
@@ -428,6 +432,20 @@ float CRat::Notch_removal(vector <float>& vecSignal, int refFrame)
     vecSignal[refFrame] = (vecSignal[refFrame-1] + vecSignal[refFrame+1]) /2.0;
 	return vecSignal[refFrame];
 }
+int CRat::isRedRignificant(vector<float>& vecRed, vector<float>& vecCyan)
+{
+    auto minMaxRed = std::minmax_element (vecRed.begin(), vecRed.end());
+    float distRed = *minMaxRed.second - *minMaxRed.first;
+    
+    auto minMaxCyan = std::minmax_element (vecCyan.begin(), vecCyan.end());
+    float distCyan = *minMaxCyan.second - *minMaxCyan.first;   
+    
+    int bBigRed;
+    if(distRed > distCyan ) bBigRed = 1;
+    else bBigRed = 0;   
+
+    return bBigRed;
+}
 
 bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, Point& ptRed, Point& ptCyan)
 {
@@ -579,7 +597,6 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	vector <float>  vecRedFlowPdfSubRegres;
 	vector <float>  vecCyanFlowPdfSubRegres;
 	
-	
 	int szVecFlow = m_vecFlow.size();
     if(bOpticalPDF ) {
         if(newFrameSteps != frameStep || szVecFlow ==0 || m_referFrame != newReferFrame || bNewOpFlowV1 != bOpFlowV1) {
@@ -627,12 +644,15 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			DC_removal(m_nLED1, vecRedGrayDiff);
 			DC_removal(m_nLED1, vecCyanGrayDiff);
 			Notch_removal(vecCyanGrayDiff, m_referFrame);
-			Notch_removal(vecRedGrayDiff, m_referFrame);			
+			Notch_removal(vecRedGrayDiff, m_referFrame);	
+
+            m_BigRedGray = isRedRignificant(vecRedGrayDiff, vecCyanGrayDiff);
 		}
 	}
 	
 
 	vector <Point> vpDrawPtRect;
+    vector <Point> vpDrawPtOffset;
     
 	if(bOpticalPDF) {
 		int sz = m_vecFlow.size();
@@ -667,12 +687,15 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
                 opticalAssignThresholdMap(m_vmDistEarR, threshold, ptEarR, offset);
                 vpDrawPtRect.push_back(ptEarL);
                 vpDrawPtRect.push_back(ptEarR);
+                vpDrawPtOffset.push_back(offset);
+                vpDrawPtOffset.push_back(offset);
             }
 		}
 		
 		if(m_bShowAbdo) {
 			opticalMovement(ptRed, offset, vecRedFlowPdf, m_vmDistRed, threshold, bOpFlowV1);
-			opticalMovement(ptCyan, offset, vecCyanFlowPdf, m_vmDistCyan, threshold, bOpFlowV1);
+			opticalMovement(ptCyan, offset, vecCyanFlowPdf, m_vmDistCyan, threshold, bOpFlowV1);      
+            
 			if(frameStep > 0 && bAccumulate) {			
 				for(int i=1; i<sz; i++) {
 					vecRedFlowPdf[i] += vecRedFlowPdf[i-1];
@@ -685,21 +708,32 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			Notch_removal(vecRedFlowPdf, m_referFrame);
 			Notch_removal(vecCyanFlowPdf, m_referFrame);
 			
+            m_BigRedPdf = isRedRignificant(vecRedFlowPdf, vecCyanFlowPdf);
+            
 			if(frameStep > 0 && bAccumulate) {
-				linearRegression(vecRedFlowPdf, vecRedFlowPdfRegres, vecRedFlowPdfSubRegres);
-				linearRegression(vecCyanFlowPdf, vecCyanFlowPdfRegres, vecCyanFlowPdfSubRegres);
+                if(m_BigRedPdf>0)
+                    linearRegression(vecRedFlowPdf, vecRedFlowPdfRegres, vecRedFlowPdfSubRegres);
+                else
+                    linearRegression(vecCyanFlowPdf, vecCyanFlowPdfRegres, vecCyanFlowPdfSubRegres);
 				
-				int sz1 = vecRedFlowPdfSubRegres.size();
+				int sz1 = vecRedFlowPdf.size();
 				for(int i=0; i<sz1; i++) {
-					vecRedFlowPdfSubRegres[i] = vecRedFlowPdfSubRegres[i] /gainPDF;
-					vecCyanFlowPdfSubRegres[i] = vecCyanFlowPdfSubRegres[i]/gainPDF;
+                    if(m_BigRedPdf>0)
+                        vecRedFlowPdfSubRegres[i] = vecRedFlowPdfSubRegres[i] /gainPDF;
+                    else
+                        vecCyanFlowPdfSubRegres[i] = vecCyanFlowPdfSubRegres[i]/gainPDF;
 				}		
 			}
 			if(bSaveFile) {
-                opticalAssignThresholdMap(m_vmDistRed, threshold, ptRed, offset);
-                opticalAssignThresholdMap(m_vmDistCyan, threshold, ptCyan, offset);
-                vpDrawPtRect.push_back(ptRed);
-                vpDrawPtRect.push_back(ptCyan);
+                if(m_BigRedPdf>0) {
+                    opticalAssignThresholdMap(m_vmDistRed, threshold, ptRed, offset);
+                    vpDrawPtRect.push_back(ptRed);
+                    vpDrawPtOffset.push_back(offset);
+                }else {
+                    opticalAssignThresholdMap(m_vmDistCyan, threshold, ptCyan, offset);
+                    vpDrawPtRect.push_back(ptCyan);
+                    vpDrawPtOffset.push_back(offset);            
+                }                
             }            
 		}
 		
@@ -762,6 +796,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
                 opticalAssignThresholdMap(m_vmDistEyeL, threshold, m_ptEyeC, offset);
                 //opticalAssignThresholdMap(m_vmDistEyeR, threshold, ptEyeR);
                 vpDrawPtRect.push_back(m_ptEyeC);
+                vpDrawPtOffset.push_back(offset);    
                 //vpDrawPtRect.push_back(ptEyeR);                
             } 
 		}
@@ -769,7 +804,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 
         
         if(bSaveFile) {
-            opticalDrawFlowmapWithPDF(vpDrawPtRect, offset, frameStep);
+            opticalDrawFlowmapWithPDF(vpDrawPtRect, vpDrawPtOffset, frameStep);
             opticalSavePlot("scatter", "dots", threshold, offset);
 			opticalSavePlot("pdf", "lines", threshold, offset);
         }
@@ -820,8 +855,13 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 		}
 		if(m_bShowAbdo) {
             //_OutputVec(vecRedGrayDiff, "_redgray.csv");
-			_gnuplotLine(gPlotL, "APB-Red GraylevelDiff", vecRedGrayDiff, "#00008000", ".");
-			_gnuplotLine(gPlotR, "APB-Cyan GraylevelDiff", vecCyanGrayDiff, "#00008000", ".");
+            if(m_BigRedGray>0) {
+                _gnuplotLine(gPlotL, "APB-Red GraylevelDiff", vecRedGrayDiff, "#00008000", ".");
+                _gnuplotLine(gPlotR, "APB-Red GraylevelDiff", vecRedGrayDiff, "#00008000", ".");
+            }else {
+                _gnuplotLine(gPlotL, "APB-Cyan GraylevelDiff", vecCyanGrayDiff, "#00008000", ".");
+                _gnuplotLine(gPlotR, "APB-Cyan GraylevelDiff", vecCyanGrayDiff, "#00008000", ".");               
+            }
 		}
 		if(bEyeMove) {
 			_gnuplotLine(gPlotL, "LEyePosMove", m_vecEyeLMove, "#008B0000", ".");
@@ -844,20 +884,33 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 		}
 		if(m_bShowAbdo) {
             //_OutputVec(vecRedFlowPdf, "_redw.csv");
-			_gnuplotLine(gPlotL, "APB-Red FlowPDF", vecRedFlowPdf, "#00008000");
-			_gnuplotLine(gPlotR, "APB-Cyan FlowPDF", vecCyanFlowPdf, "#00008000");
+            if(m_BigRedPdf>0) {
+                _gnuplotLine(gPlotL, "APB-Red FlowPDF", vecRedFlowPdf, "#00008000");
+                _gnuplotLine(gPlotR, "APB-Red FlowPDF", vecRedFlowPdf, "#00008000");
+            }else {
+                 _gnuplotLine(gPlotL, "APB-Cyan FlowPDF", vecCyanFlowPdf, "#00008000");
+                _gnuplotLine(gPlotR, "APB-Cyan FlowPDF", vecCyanFlowPdf, "#00008000");               
+            }
 			
 			if(frameStep > 0 && bAccumulate ) {
-				_gnuplotLine(gPlotL, "APB-Red PDFRegress", vecRedFlowPdfRegres, "#00F000FF", "-");
-				_gnuplotLine(gPlotR, "APB-Cyan PDFRegress", vecCyanFlowPdfRegres, "#00F000FF", "-");
+                if(m_BigRedPdf>0) {
+                    _gnuplotLine(gPlotL, "APB-Red PDFRegress", vecRedFlowPdfRegres, "#00F000FF", "-");
+                    _gnuplotLine(gPlotR, "APB-Red PDFRegress", vecRedFlowPdfRegres, "#00F000FF", "-");
 				
-				_gnuplotLine(gPlotL, "APB-Red PDF-Regress", vecRedFlowPdfSubRegres, "#00FF8000");
-				_gnuplotLine(gPlotR, "APB-Cyan PDF-Regress", vecCyanFlowPdfSubRegres, "#00FF8000");
+                    _gnuplotLine(gPlotL, "APB-Red PDF-Regress", vecRedFlowPdfSubRegres, "#00FF8000");
+                    _gnuplotLine(gPlotR, "APB-Red PDF-Regress", vecRedFlowPdfSubRegres, "#00FF8000");
+                }else {
+                     _gnuplotLine(gPlotL, "APB-Cyan PDFRegress", vecCyanFlowPdfRegres, "#00F000FF", "-");
+                    _gnuplotLine(gPlotR, "APB-Cyan PDFRegress", vecCyanFlowPdfRegres, "#00F000FF", "-");
+				
+                    _gnuplotLine(gPlotL, "APB-Cyan PDF-Regress", vecCyanFlowPdfSubRegres, "#00FF8000");
+                    _gnuplotLine(gPlotR, "APB-Cyan PDF-Regress", vecCyanFlowPdfSubRegres, "#00FF8000");                   
+                }
 			}	
 		}
 		if(m_bShowEye) {
-			_gnuplotLine(gPlotL, "HeadMoveL", vecEyeFlowPdfL, "#008B0000");
-			_gnuplotLine(gPlotR, "HeadMoveR", vecEyeFlowPdfL, "#008B0000");				
+			_gnuplotLine(gPlotL, "HeadMove", vecEyeFlowPdfL, "#008B0000");
+			_gnuplotLine(gPlotR, "HeadMove", vecEyeFlowPdfL, "#008B0000");				
 			if(frameStep > 0 && bAccumulate ) {
 				_gnuplotLine(gPlotL, "EyeL PDFRegress", vecEyeFlowPdfRegresL, "#00B8860B", "-");
 				_gnuplotLine(gPlotR, "EyeR PDFRegress", vecEyeFlowPdfRegresL, "#00B8860B", "-");
@@ -874,7 +927,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	duration = (double)(finish - start) / CLOCKS_PER_SEC;
 	int minutes = duration / 60;
 	int second = duration - minutes * 60;
-	MainFrame::myMsgOutput("OnRatProcessEar: computation time: %02dm:%02ds\n", minutes, second);
+	MainFrame::myMsgOutput("OnRatProcessEar: computation time: %02dm:%02ds, bBigRedPdf %d\n", minutes, second, m_BigRedPdf);
 	
 	
 	return true;
@@ -918,8 +971,10 @@ void CRat::drawOnDestImage(bool bSaveFile, Point offset)
             rectangle(mDestColor, Rect(ptR1, ptR2), Scalar(255,0, 0));
         }
         if(m_bShowAbdo) {
-            rectangle(mDestColor, Rect(ptD1, ptD2), Scalar(0,128,0));
-            rectangle(mDestColor, Rect(ptC1, ptC2), Scalar(0,128,0));
+            if(m_BigRedPdf>0)
+                rectangle(mDestColor, Rect(ptD1, ptD2), Scalar(0,128,0));
+            else
+                rectangle(mDestColor, Rect(ptC1, ptC2), Scalar(0,128,0));
         }
 		if(m_bShowEye) {
             rectangle(mDestColor, Rect(ptEye1, ptEye2), Scalar(0, 0,255));
@@ -1520,7 +1575,7 @@ void CRat::opticalAssignThresholdMap(vector<Mat>& vmPDF, float th, Point pt, Poi
     }
 }
 
-void CRat::opticalDrawFlowmapWithPDF(vector<Point>& vpDrawPtRect, Point offset, int nFrameSteps)
+void CRat::opticalDrawFlowmapWithPDF(vector<Point>& vpDrawPtRect, vector<Point>& vpOffset, int nFrameSteps)
 {
     int sz = m_vecFlow.size();
     
@@ -1538,6 +1593,7 @@ void CRat::opticalDrawFlowmapWithPDF(vector<Point>& vpDrawPtRect, Point offset, 
 
         for(int k=0; k<vpDrawPtRect.size(); k++) {
             Point pt = vpDrawPtRect[k];
+            Point offset = vpOffset[k];
             cv::rectangle(mFlowmapColor,pt-offset,pt+offset, cv::Scalar(0, 255, 255)); 
             cv::circle(mFlowmapColor, pt, 2, Scalar(255, 255, 0), -1);	       
         }
@@ -1672,8 +1728,8 @@ void CRat::opticalSavePlot(char* subpath, char* type, float threshold, Point off
     int numScatterPlot = 0;
     Gnuplot plotSave(type);
     if(m_bShowEar)  numScatterPlot+=2;
-    if(m_bShowAbdo)  numScatterPlot+=2;
-    if(m_bShowEye)  numScatterPlot+=2;
+    if(m_bShowAbdo)  numScatterPlot+=1;
+    if(m_bShowEye)  numScatterPlot+=1;
     bool bRet = prepareGnuPlot(plotSave, numScatterPlot, subpath);   
     
     if(bRet ==false) return;
@@ -1707,7 +1763,26 @@ void CRat::opticalSavePlot(char* subpath, char* type, float threshold, Point off
       
         float szX, szY, oriX, oriY;
         szX = 0.5;
-        if(numScatterPlot ==2) {
+        if(numScatterPlot ==1) {
+            szY = 1;
+            if(m_bShowAbdo) {
+                oriX = 0; oriY = 0;
+                if(m_BigRedPdf >0 )
+                    plotOneSpot(type, plotSave, i, saveName, m_ptRed, offset, m_vmDistRed,
+                        "_Red", "Red", threshold, szX, szY, oriX, oriY); 
+                else 
+                    plotOneSpot(type, plotSave, i, saveName, m_ptCyan, offset, m_vmDistCyan,
+                        "_Cyan", "Cyan", threshold, szX, szY, oriX, oriY); 
+            }  
+            if(m_bShowEye) {
+                oriX = 0; oriY = 0;
+                plotOneSpot(type, plotSave, i, saveName, m_ptEyeC, offsetEye, m_vmDistEyeL,
+                        "_EyeL", "Left Eye", threshold, szX, szY, oriX, oriY); 
+                //oriX = 0.5; oriY = 0;
+                //plotOneSpot(type, plotSave, i, saveName, m_ptEyeR, offset, m_vmDistEyeR,
+                //        "_EyeR", "Right Eye", threshold, szX, szY, oriX, oriY); 
+            }                   
+        }else if(numScatterPlot ==2) {
             szY = 1;
             if(m_bShowEar) {
                 oriX = 0; oriY = 0;
@@ -1716,17 +1791,17 @@ void CRat::opticalSavePlot(char* subpath, char* type, float threshold, Point off
                 oriX = 0.5; oriY = 0;
                 plotOneSpot(type, plotSave, i, saveName, m_ptEarR, offset, m_vmDistEarR,
                         "_EarR", "Right Ear", threshold, szX, szY, oriX, oriY); 
-            }
-            if(m_bShowAbdo) {
+            }else {
+            
                 oriX = 0; oriY = 0;
-                plotOneSpot(type, plotSave, i, saveName, m_ptRed, offset, m_vmDistRed,
+                if(m_BigRedPdf >0 ) 
+                    plotOneSpot(type, plotSave, i, saveName, m_ptRed, offset, m_vmDistRed,
                         "_Red", "Red", threshold, szX, szY, oriX, oriY); 
-                oriX = 0.5; oriY = 0;
-                plotOneSpot(type, plotSave, i, saveName, m_ptCyan, offset, m_vmDistCyan,
+                else
+                    plotOneSpot(type, plotSave, i, saveName, m_ptCyan, offset, m_vmDistCyan,
                         "_Cyan", "Cyan", threshold, szX, szY, oriX, oriY); 
-            }  
-            if(m_bShowEye) {
-                oriX = 0; oriY = 0;
+         
+                oriX = 0.5; oriY = 0;
                 plotOneSpot(type, plotSave, i, saveName, m_ptEyeC, offsetEye, m_vmDistEyeL,
                         "_EyeL", "Left Eye", threshold, szX, szY, oriX, oriY); 
                 //oriX = 0.5; oriY = 0;
