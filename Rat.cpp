@@ -1777,7 +1777,7 @@ void CRat::opticalSavePlot(char* subpath, char* type, float threshold, Point off
             if(m_bShowEye) {
                 oriX = 0; oriY = 0;
                 plotOneSpot(type, plotSave, i, saveName, m_ptEyeC, offsetEye, m_vmDistEyeL,
-                        "_EyeL", "Left Eye", threshold, szX, szY, oriX, oriY); 
+                        "_Head", "Head", threshold, szX, szY, oriX, oriY); 
                 //oriX = 0.5; oriY = 0;
                 //plotOneSpot(type, plotSave, i, saveName, m_ptEyeR, offset, m_vmDistEyeR,
                 //        "_EyeR", "Right Eye", threshold, szX, szY, oriX, oriY); 
@@ -1803,81 +1803,34 @@ void CRat::opticalSavePlot(char* subpath, char* type, float threshold, Point off
          
                 oriX = 0.5; oriY = 0;
                 plotOneSpot(type, plotSave, i, saveName, m_ptEyeC, offsetEye, m_vmDistEyeL,
-                        "_EyeL", "Left Eye", threshold, szX, szY, oriX, oriY); 
+                        "_Head", "Head", threshold, szX, szY, oriX, oriY); 
                 //oriX = 0.5; oriY = 0;
                 //plotOneSpot(type, plotSave, i, saveName, m_ptEyeR, offset, m_vmDistEyeR,
                 //        "_EyeR", "Right Eye", threshold, szX, szY, oriX, oriY); 
             }                   
         }else if(numScatterPlot ==4) {
             szY = 0.5;
-            if(m_bShowEar && m_bShowAbdo) {
-                oriX = 0; oriY = 0.5;
-                plotOneSpot(type, plotSave, i, saveName, m_ptEarL, offset, m_vmDistEarL,
-                        "_EarL", "Left Ear", threshold, szX, szY, oriX, oriY); 
-                oriX = 0.5; oriY = 0.5;
-                plotOneSpot(type, plotSave, i, saveName, m_ptEarR, offset, m_vmDistEarR,
-                        "_EarR", "Right Ear", threshold, szX, szY, oriX, oriY); 
-                        
-                oriX = 0; oriY = 0;
-                plotOneSpot(type, plotSave, i, saveName, m_ptRed, offset, m_vmDistRed,
-                        "_Red", "Red", threshold, szX, szY, oriX, oriY); 
-                oriX = 0.5; oriY = 0;
-                plotOneSpot(type, plotSave, i, saveName, m_ptCyan, offset, m_vmDistCyan,
-                        "_Cyan", "Cyan", threshold, szX, szY, oriX, oriY); 
-            }
-            if(m_bShowAbdo && m_bShowEye) {
-                oriX = 0; oriY = 0.5;
-                plotOneSpot(type, plotSave, i, saveName, m_ptRed, offset, m_vmDistRed,
-                        "_Red", "Red", threshold, szX, szY, oriX, oriY); 
-                oriX = 0.5; oriY = 0.5;
-                plotOneSpot(type, plotSave, i, saveName, m_ptCyan, offset, m_vmDistCyan,
-                        "_Cyan", "Cyan", threshold, szX, szY, oriX, oriY); 
-                        
-                oriX = 0; oriY = 0;
-                plotOneSpot(type, plotSave, i, saveName, m_ptEyeC, offsetEye, m_vmDistEyeL,
-                        "_Head", "Head", threshold, szX, szY, oriX, oriY); 
-                //oriX = 0.5; oriY = 0;
-                //plotOneSpot(type, plotSave, i, saveName, m_ptEyeR, offset, m_vmDistEyeR,
-                //        "_EyeR", "Right Eye", threshold, szX, szY, oriX, oriY);                         
-            }  
-            if(m_bShowEar && m_bShowEye) {
-                oriX = 0; oriY = 0.5;
-                plotOneSpot(type, plotSave, i, saveName, m_ptEarL, offset, m_vmDistEarL,
-                        "_EarL", "Left Ear", threshold, szX, szY, oriX, oriY); 
-                oriX = 0.5; oriY = 0.5;
-                plotOneSpot(type, plotSave, i, saveName, m_ptEarR, offset, m_vmDistEarR,
-                        "_EarR", "Right Ear", threshold, szX, szY, oriX, oriY); 
-                
-                oriX = 0; oriY = 0;
-                plotOneSpot(type, plotSave, i, saveName, m_ptEyeC, offsetEye, m_vmDistEyeL,
-                        "_Head", "Head", threshold, szX, szY, oriX, oriY); 
-                //oriX = 0.5; oriY = 0;
-                //plotOneSpot(type, plotSave, i, saveName, m_ptEyeR, offset, m_vmDistEyeR,
-                //        "_EyeR", "Right Eye", threshold, szX, szY, oriX, oriY); 
-            }             
-        }else if(numScatterPlot ==6) {
-            szY = 0.33;
-            oriX = 0; oriY = 0.66;
+
+            oriX = 0; oriY = 0.5;
             plotOneSpot(type, plotSave, i, saveName, m_ptEarL, offset, m_vmDistEarL,
                     "_EarL", "Left Ear", threshold, szX, szY, oriX, oriY); 
-            oriX = 0.5; oriY = 0.66;
+            oriX = 0.5; oriY = 0.5;
             plotOneSpot(type, plotSave, i, saveName, m_ptEarR, offset, m_vmDistEarR,
                     "_EarR", "Right Ear", threshold, szX, szY, oriX, oriY); 
-            
-            oriX = 0; oriY = 0.33;
-            plotOneSpot(type, plotSave, i, saveName, m_ptRed, offset, m_vmDistRed,
+                
+
+            oriX = 0; oriY = 0;                
+            if(m_BigRedPdf >0 )         
+                plotOneSpot(type, plotSave, i, saveName, m_ptRed, offset, m_vmDistRed,
                     "_Red", "Red", threshold, szX, szY, oriX, oriY); 
-            oriX = 0.5; oriY = 0.33;
-            plotOneSpot(type, plotSave, i, saveName, m_ptCyan, offset, m_vmDistCyan,
+            else
+                plotOneSpot(type, plotSave, i, saveName, m_ptCyan, offset, m_vmDistCyan,
                     "_Cyan", "Cyan", threshold, szX, szY, oriX, oriY); 
-            
-            oriX = 0; oriY = 0;
+                    
+            oriX = 0.5; oriY = 0;           
             plotOneSpot(type, plotSave, i, saveName, m_ptEyeC, offsetEye, m_vmDistEyeL,
                     "_Head", "Head", threshold, szX, szY, oriX, oriY); 
-            //oriX = 0.5; oriY = 0;
-            //plotOneSpot(type, plotSave, i, saveName, m_ptEyeR, offset, m_vmDistEyeR,
-            //        "_EyeR", "Right Eye", threshold, szX, szY, oriX, oriY); 
-            
+                        
         }
 
         plotSave.cmd("unset multiplot");
