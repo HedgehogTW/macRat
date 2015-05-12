@@ -83,30 +83,50 @@ int CRat::readData(wxString inputPath)
     for(unsigned int i=0; i<files.size(); i++ ) {
  		wxFileName fileName = files[i];
 		wxString  fName = fileName.GetName();
-		char firstChar = fName[0];
-		if(firstChar=='_') {
+       int pos = fName.Find('_'); 
+       if(pos==0 || pos ==wxNOT_FOUND ) {
             files.RemoveAt(i);
             i--;
             continue;
         }
     }
+    
     for(unsigned int i=0; i<files.size(); i++ ) {
- 		wxString  fileNum = files[i].AfterLast('-');
-       if(fileNum.Len() >=3) continue;
-
+        wxFileName fileName = files[i];
+        wxString  fName = fileName.GetName();
+        wxString  fileNum = fName.AfterLast('_');
+        if(fileNum.IsEmpty()) continue;
+        if(fileNum.Len() >=3) continue;
+        long  num;
+        if(fileNum.ToLong(&num)) {
+            wxString strNum;
+            strNum.Printf("%03d", num);
+            wxString  fileNameBefore = files[i].BeforeLast('_');   
+            wxString  strExt = files[i].AfterLast('.');   
+            wxString  newfileName = fileNameBefore +"_"+ strNum +"."+ strExt;
+            //MainFrame::myMsgOutput(newfileName+ "\n");
+            if(!wxRenameFile(files[i], newfileName)) {
+                wxString strMsg = "rename error: " + files[i];
+                wxLogMessage(strMsg); 
+                break;
+            }
+       }
     }   
-	files.Sort();
+    wxArrayString  newFiles;
+	wxDir::GetAllFiles(inputPath, &newFiles, fileSpec, wxDIR_FILES );
+	//newFiles.Sort();
     
 	cv::Mat	 cvMat;
 	m_vecMat.clear();
 	m_vFilenames.clear();
-	for(unsigned int i=0; i<files.size(); i++ ) {
-		wxFileName fileName = files[i];
+	for(unsigned int i=0; i<newFiles.size(); i++ ) {
+ 		wxFileName fileName = newFiles[i];
 		wxString  fName = fileName.GetName();
-		char firstChar = fName[0];
-		if(firstChar=='_') continue;
-		MainFrame::myMsgOutput(files[i]+ "\n");
-		std::string strStd = files[i].ToStdString();
+       int pos = fName.Find('_'); 
+       if(pos==0 || pos ==wxNOT_FOUND ) continue;
+        
+		//MainFrame::myMsgOutput(newFiles[i]+ "\n");
+		std::string strStd = newFiles[i].ToStdString();
 		cvMat = cv::imread(strStd, CV_LOAD_IMAGE_UNCHANGED);
 		//gpOutput->ShowMessage("%s", castr);
 		if(cvMat.data == NULL) {
