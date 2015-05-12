@@ -80,7 +80,23 @@ int CRat::readData(wxString inputPath)
 	wxString fileSpec = _T("*.bmp");
 	wxArrayString  	files;
 	wxDir::GetAllFiles(inputPath, &files,  fileSpec, wxDIR_FILES );
-	
+    for(unsigned int i=0; i<files.size(); i++ ) {
+ 		wxFileName fileName = files[i];
+		wxString  fName = fileName.GetName();
+		char firstChar = fName[0];
+		if(firstChar=='_') {
+            files.RemoveAt(i);
+            i--;
+            continue;
+        }
+    }
+    for(unsigned int i=0; i<files.size(); i++ ) {
+ 		wxString  fileNum = files[i].AfterLast('-');
+       if(fileNum.Len() >=3) continue;
+
+    }   
+	files.Sort();
+    
 	cv::Mat	 cvMat;
 	m_vecMat.clear();
 	m_vFilenames.clear();
@@ -89,7 +105,7 @@ int CRat::readData(wxString inputPath)
 		wxString  fName = fileName.GetName();
 		char firstChar = fName[0];
 		if(firstChar=='_') continue;
-		//MainFrame::myMsgOutput(files[i]+ "\n");
+		MainFrame::myMsgOutput(files[i]+ "\n");
 		std::string strStd = files[i].ToStdString();
 		cvMat = cv::imread(strStd, CV_LOAD_IMAGE_UNCHANGED);
 		//gpOutput->ShowMessage("%s", castr);
@@ -103,7 +119,7 @@ int CRat::readData(wxString inputPath)
 		m_vFilenames.push_back(strStd);
 		
 	}
-	
+    
 	m_nSlices = m_vecMat.size();
 	if(m_nSlices <=0) {
 		wxLogMessage("cannot read images");
