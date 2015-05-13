@@ -195,34 +195,56 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     
     boxSizer315->Add(m_staticLine78, 0, wxALL|wxEXPAND, 5);
     
-    m_panel96 = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxTAB_TRAVERSAL);
+    m_panel187 = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxTAB_TRAVERSAL);
     
-    boxSizer315->Add(m_panel96, 0, wxLEFT|wxRIGHT, 5);
+    boxSizer315->Add(m_panel187, 0, wxALL, 5);
     
-    wxBoxSizer* boxSizer98 = new wxBoxSizer(wxHORIZONTAL);
-    m_panel96->SetSizer(boxSizer98);
+    wxGridSizer* gridSizer189 = new wxGridSizer(2, 4, 0, 0);
+    m_panel187->SetSizer(gridSizer189);
     
-    m_staticText100 = new wxStaticText(m_panel96, wxID_ANY, _("Y range, min"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_staticText100 = new wxStaticText(m_panel187, wxID_ANY, _("Y range, min"), wxDefaultPosition, wxSize(-1,-1), 0);
     
-    boxSizer98->Add(m_staticText100, 0, wxALL, 5);
+    gridSizer189->Add(m_staticText100, 0, wxALL, 5);
     
-    m_textCtrlYmin = new wxTextCtrl(m_panel96, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(60,-1), 0);
+    m_textCtrlYmin = new wxTextCtrl(m_panel187, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(50,-1), 0);
     #if wxVERSION_NUMBER >= 3000
     m_textCtrlYmin->SetHint(wxT(""));
     #endif
     
-    boxSizer98->Add(m_textCtrlYmin, 0, wxALL, 5);
+    gridSizer189->Add(m_textCtrlYmin, 0, wxALL, 5);
     
-    m_staticText104 = new wxStaticText(m_panel96, wxID_ANY, _("max"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_staticText104 = new wxStaticText(m_panel187, wxID_ANY, _("max"), wxDefaultPosition, wxSize(-1,-1), 0);
     
-    boxSizer98->Add(m_staticText104, 0, wxALL, 5);
+    gridSizer189->Add(m_staticText104, 0, wxALL|wxALIGN_RIGHT, 5);
     
-    m_textCtrlYmax = new wxTextCtrl(m_panel96, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(60,-1), 0);
+    m_textCtrlYmax = new wxTextCtrl(m_panel187, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(50,-1), 0);
     #if wxVERSION_NUMBER >= 3000
     m_textCtrlYmax->SetHint(wxT(""));
     #endif
     
-    boxSizer98->Add(m_textCtrlYmax, 0, wxALL, 5);
+    gridSizer189->Add(m_textCtrlYmax, 0, wxALL, 5);
+    
+    m_staticText124 = new wxStaticText(m_panel187, wxID_ANY, _("ROI Size, Ear"), wxDefaultPosition, wxSize(-1,-1), 0);
+    
+    gridSizer189->Add(m_staticText124, 0, wxALL, 5);
+    
+    m_textCtrlROIEar = new wxTextCtrl(m_panel187, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(50,-1), 0);
+    #if wxVERSION_NUMBER >= 3000
+    m_textCtrlROIEar->SetHint(wxT(""));
+    #endif
+    
+    gridSizer189->Add(m_textCtrlROIEar, 0, wxALL, 5);
+    
+    m_staticText1241 = new wxStaticText(m_panel187, wxID_ANY, _("APB"), wxDefaultPosition, wxSize(-1,-1), 0);
+    
+    gridSizer189->Add(m_staticText1241, 0, wxALL|wxALIGN_RIGHT, 5);
+    
+    m_textCtrlROIAPB = new wxTextCtrl(m_panel187, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(50,-1), 0);
+    #if wxVERSION_NUMBER >= 3000
+    m_textCtrlROIAPB->SetHint(wxT(""));
+    #endif
+    
+    gridSizer189->Add(m_textCtrlROIAPB, 0, wxALL, 5);
     
     m_panel116 = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxTAB_TRAVERSAL);
     
@@ -230,17 +252,6 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     
     wxBoxSizer* boxSizer118 = new wxBoxSizer(wxHORIZONTAL);
     m_panel116->SetSizer(boxSizer118);
-    
-    m_staticText124 = new wxStaticText(m_panel116, wxID_ANY, _("ROI Size"), wxDefaultPosition, wxSize(-1,-1), 0);
-    
-    boxSizer118->Add(m_staticText124, 0, wxALL, 5);
-    
-    m_textCtrlROISize = new wxTextCtrl(m_panel116, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(50,-1), 0);
-    #if wxVERSION_NUMBER >= 3000
-    m_textCtrlROISize->SetHint(wxT(""));
-    #endif
-    
-    boxSizer118->Add(m_textCtrlROISize, 0, wxALL, 5);
     
     m_staticText126 = new wxStaticText(m_panel116, wxID_ANY, _("Refer. Frame"), wxDefaultPosition, wxSize(-1,-1), 0);
     
@@ -273,11 +284,12 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     m_stdBtnSizer52->AddButton(m_button58);
     m_stdBtnSizer52->Realize();
     
+    SetName(wxT("DlgOpticalInputBase"));
     SetSizeHints(-1,-1);
     if ( GetSizer() ) {
          GetSizer()->Fit(this);
     }
-    Centre(wxBOTH);
+    CentreOnParent(wxBOTH);
 }
 
 DlgOpticalInputBase::~DlgOpticalInputBase()

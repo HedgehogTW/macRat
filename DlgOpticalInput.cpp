@@ -47,20 +47,23 @@ void DlgOpticalInput::setOptions(bool bOpticalPDF, bool bOpFlowV1, bool bAccumul
 	m_radioButtonInstan->SetValue(! bAccumulate);	
 	m_checkBoxSaveFlow->SetValue(bSave);
 }
-void DlgOpticalInput::setYRange(double min, double max, long szROI, long referFrame)
+void DlgOpticalInput::setYRange(double min, double max, long szROIEar, long szROIAPB, long referFrame)
 {
-	wxString  str1, str2, str3, str4;
+	wxString  str1, str2, str3, str4, str5;
 	str1 << min;
 	*m_textCtrlYmin << str1;
 	
 	str2 << max;
 	*m_textCtrlYmax << str2;
 	
-	str3 << szROI;
-	*m_textCtrlROISize << str3;
-    
- 	str4 << referFrame;
-	*m_textCtrlReferFrame << str4;   
+	str3 << szROIEar;
+	*m_textCtrlROIEar << str3;
+ 
+	str4 << szROIAPB;
+	*m_textCtrlROIAPB << str4;
+   
+ 	str5 << referFrame;
+	*m_textCtrlReferFrame << str5;   
 }
 
 void DlgOpticalInput::setGain(double gainEye, double gainPDF)
@@ -101,7 +104,7 @@ void DlgOpticalInput::getOptions(bool& bOpticalPDF, bool& bOpFlowV1, bool& bAccu
 	bSave = m_checkBoxSaveFlow->GetValue();
 }	
 
-void DlgOpticalInput::getYRange(double& min, double& max, long& szROI, long& referFrame)
+void DlgOpticalInput::getYRange(double& min, double& max, long& szROIEar, long& szROIAPB, long& referFrame)
 {
 	wxString  str = m_textCtrlYmin->GetValue();
 	double  value;
@@ -113,9 +116,13 @@ void DlgOpticalInput::getYRange(double& min, double& max, long& szROI, long& ref
 	max = value;
 	
 	long  a;
-	str = m_textCtrlROISize->GetValue();
+	str = m_textCtrlROIEar->GetValue();
 	str.ToLong(&a);	
-	szROI = a;	
+	szROIEar = a;	
+    
+	str = m_textCtrlROIAPB->GetValue();
+	str.ToLong(&a);	
+	szROIAPB = a;	
     
    	str = m_textCtrlReferFrame->GetValue();
 	str.ToLong(&a);	

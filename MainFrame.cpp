@@ -72,7 +72,8 @@ MainFrame::MainFrame(wxWindow* parent)
 	m_configData.m_verLine = pConfig->ReadDouble("/optical/verLine", 190);
 	m_configData.m_ymin = pConfig->ReadDouble("/optical/ymin", -1);
 	m_configData.m_ymax = pConfig->ReadDouble("/optical/ymax", 3);
-	m_configData.m_szROI = pConfig->ReadLong("/optical/ROISize", 80);
+	m_configData.m_szROIEar = pConfig->ReadLong("/optical/ROIEar", 80);
+    m_configData.m_szROIAPB = pConfig->ReadLong("/optical/ROIAPB", 80);
     m_configData.m_referFrame = pConfig->ReadLong("/optical/referFrame", 0);
 	m_configData.m_gainEye = pConfig->ReadDouble("/optical/gainEye", 3);
 	m_configData.m_gainPDF = pConfig->ReadDouble("/optical/gainPDF", 4);
@@ -135,7 +136,8 @@ void MainFrame::DeleteContents()
 	pConfig->Write("/optical/verLine", m_configData.m_verLine);
 	pConfig->Write("/optical/ymin", m_configData.m_ymin);
 	pConfig->Write("/optical/ymax", m_configData.m_ymax);
-	pConfig->Write("/optical/ROISize", m_configData.m_szROI);
+	pConfig->Write("/optical/ROIEar", m_configData.m_szROIEar);
+    pConfig->Write("/optical/ROIAPB", m_configData.m_szROIAPB);
     pConfig->Write("/optical/referFrame", m_configData.m_referFrame);
 	
 	pConfig->Write("/optical/gainEye", m_configData.m_gainEye);

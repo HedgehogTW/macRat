@@ -51,25 +51,26 @@ public:
 class MyConfigData{
 public:	
 	long 	m_frameStep;	
-	double 	m_threshold;
+	double m_threshold;
 	bool 	m_bLED;
-    bool    m_bRefLine;
+    bool   m_bRefLine;
 	bool 	m_bPinna;
 	bool 	m_bVerLine;
 
 	bool 	m_bEyeMove;
-    bool    m_bEar;
+    bool   m_bEar;
 	bool 	m_bAbdo;	
     bool 	m_bGrayDiff;
 	bool 	m_bOpticalPDF;
 	bool	m_bOpFlowV1;
 	bool 	m_bAccumulate;
 	bool	m_bSaveFile;
-	double 	m_verLine;
-	double  m_ymin;
+	double m_verLine;
+	double m_ymin;
 	double	m_ymax;	
-	long	m_szROI;
-    long    m_referFrame;
+    long	m_szROIEar;
+    long	m_szROIAPB;
+    long   m_referFrame;
 	
 	double	m_gainEye;
 	double	m_gainPDF;
@@ -100,7 +101,7 @@ public:
 
     bool	process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, Point& ptRed, Point& ptCyan);
 
-	void 	drawOnDestImage(bool bSaveFile, Point offset);
+	void 	drawOnDestImage(bool bSaveFile);
 	void 	findEyeCenter(Point& ptEye0, vector <Point>& vecEye, vector <float>&  vecEyeMove, int referFrame);
 	void  	findNewEarCenter(vector <Point>& vecEye, Point ptEar0, vector <Point>& vecEar, int referFrame);
 	
@@ -127,7 +128,7 @@ public:
     void    drawOptFlowMapWithPDF(Mat& cflowmap, const Mat& flow,  int step, Mat &mPdf);    
     									
     bool    prepareGnuPlot(Gnuplot& plotSave, int numPlots, char* subpath);
-    void    opticalSavePlot(char* subpath, char* type, float threshold, Point offset);
+    void    opticalSavePlot(char* subpath, char* type, float threshold);
     void    plotOneSpot(char* type, Gnuplot& plotSave, int i, wxFileName& saveName, Point pt, Point offset, vector<Mat>& vmPDF,
 								char* extName1, char* title1, float threshold,
                                 float sizeX, float sizeY, float oriX, float oriY);
@@ -199,7 +200,13 @@ public:
     
     vector <float>  m_vecEyeFlowPdf;
     
-	long	m_ROIsz;
+	long	m_ROIEar;
+	long	m_ROIAPB;
+	
+	Point 	m_offsetEye;
+	Point 	m_offsetEar;
+	Point 	m_offsetAPB;
+	
 	int		m_nSlices ;
 	Size	m_szImg;
 	wxString  m_strSrcPath;
@@ -209,7 +216,7 @@ public:
 	int		m_nLED_End;
 	bool	m_bLED_OK;
 	int		m_nCageLine;
-//	bool	m_bCutTop;
+
 
 	int 	m_referFrame;
 	
