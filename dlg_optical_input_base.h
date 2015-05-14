@@ -29,11 +29,11 @@ class DlgOpticalInputBase : public wxDialog
 protected:
     wxPanel* m_panel163;
     wxCheckBox* m_checkBoxLED;
-    wxCheckBox* m_checkBoxRef;
+    wxCheckBox* m_checkBoxBigHead;
     wxCheckBox* m_checkBoxPinna;
     wxCheckBox* m_checkBoxEyeMove;
     wxCheckBox* m_checkBoxEar;
-    wxCheckBox* m_checkBoxAbdo;
+    wxCheckBox* m_checkBoxBelly;
     wxCheckBox* m_checkBoxVerLine;
     wxTextCtrl* m_textCtrlVerLine;
     wxPanel* m_panel171;

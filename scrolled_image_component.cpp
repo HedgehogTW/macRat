@@ -95,7 +95,7 @@ void ScrolledImageComponent::OnDraw(wxDC& dc)
    /* 	
     int minusCage;
     deque <Point> vecPts;
-    MainFrame::m_pThis->getAbdoPts(vecPts, minusCage);
+    MainFrame::m_pThis->getBellyPts(vecPts, minusCage);
     dc.SetTextForeground(wxColour(0, 0, 139));
     for(int i=0; i<vecPts.size(); i++) {
         wxRect rect(vecPts[i].x, vecPts[i].y-minusCage, 7, 5);
@@ -107,21 +107,21 @@ void ScrolledImageComponent::OnDraw(wxDC& dc)
 		dc.DrawCircle(vecPts[i].x, vecPts[i].y-minusCage, 2);	       
     }
 */
-    Point 	ptAbdoRed, ptAbdoCyan;
-	int bigRedPdf = MainFrame::m_pThis->getAbdoPts(ptAbdoRed, ptAbdoCyan);
-	if(ptAbdoRed.x != 0 ) {
+    Point 	ptBellyRed, ptBellyCyan;
+	int bigRedPdf = MainFrame::m_pThis->getBellyPts(ptBellyRed, ptBellyCyan);
+	if(ptBellyRed.x != 0 ) {
         if(bigRedPdf==-1 || bigRedPdf==1) {
             dc.SetPen(*wxRED_PEN);
             dc.SetBrush(*wxRED_BRUSH);
-            dc.DrawCircle(ptAbdoRed.x, ptAbdoRed.y, 2);		
+            dc.DrawCircle(ptBellyRed.x, ptBellyRed.y, 2);		
         }
         if(bigRedPdf==-1 || bigRedPdf==0) {
             dc.SetPen(*wxCYAN_PEN);
             dc.SetBrush(*wxCYAN_BRUSH);
-            dc.DrawCircle(ptAbdoCyan.x, ptAbdoCyan.y, 2);
+            dc.DrawCircle(ptBellyCyan.x, ptBellyCyan.y, 2);
         }
 	}	
-	//MainFrame:: myMsgOutput("ptAbdoBo y %d\n", ptAbdoBo.y);
+	//MainFrame:: myMsgOutput("ptBellyBo y %d\n", ptBellyBo.y);
 }
 
 

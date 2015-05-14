@@ -53,13 +53,13 @@ public:
 	long 	m_frameStep;	
 	double m_threshold;
 	bool 	m_bLED;
-    bool   m_bRefLine;
+    bool   m_bBigHead;
 	bool 	m_bPinna;
 	bool 	m_bVerLine;
 
 	bool 	m_bEyeMove;
     bool   m_bEar;
-	bool 	m_bAbdo;	
+	bool 	m_bBelly;	
     bool 	m_bGrayDiff;
 	bool 	m_bOpticalPDF;
 	bool	m_bOpFlowV1;
@@ -95,10 +95,10 @@ public:
 	Point	aspectRatio(vector<cv::Point> &con, double &ratio, double &angle );
 	void	cropImage(bool& bCutTop);
 	void 	DC_removal(int nFirstLED, vector <float>& vecSignal);
-    float   Notch_removal(vector <float>& vecSignal, int refFrame);
+	float  Notch_removal(vector <float>& vecSignal, int refFrame);
         
 	void	getLightRange(int& from, int& to) { from = m_nLED1; to = m_nLED_End; }
-
+	void 	computeEyeMaskCenter(Point& ptNewMaskCenter, bool bBigHead);
     bool	process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, Point& ptRed, Point& ptCyan);
 
 	void 	drawOnDestImage(bool bSaveFile);
@@ -111,7 +111,7 @@ public:
 	int 	findMaxMotionPoint(vector<float>& inData);
 //	void	graylevelDiff_Eye(int refer, Point ptEar, Point offset, vector <Point>& vecEye, vector <float>& vecEarGrayDiff);
 	void 	graylevelDiff(int refer, Point& ptEarL, Point& ptEarR, Point offset, vector <float>& vLEarGray,  vector <float>& vREarGray);
-	void	pointGraylevel(Point ptAbdoRed, Point ptAbdoCyan, vector <float>& vecRedPoint, vector <float>& vecCyanPoint);
+	void	pointGraylevel(Point ptBellyRed, Point ptBellyCyan, vector <float>& vecRedPoint, vector <float>& vecCyanPoint);
 	int     isRedRignificant(vector<float>& vecRed, vector<float>& vecCyan);
     
 	void 	imageDiff(vector<Mat>& vecDiff, vector <float>& vecAdjDiff, int nFrameSteps);
@@ -185,18 +185,19 @@ public:
 
 	Point 	m_ptEyeL;
 	Point	m_ptEyeR;
-    Point	m_ptEyeC;
+//	Point	m_ptEyeC;
 	Point	m_ptEarL;
 	Point	m_ptEarR;
 	Point 	m_ptRed;
 	Point	m_ptCyan;
+	Point	m_ptEyeMaskCenter;
 	
 //	vector <double>  m_vecLEyeGrayDiff;
 //	vector <double>  m_vecREyeGrayDiff;
 
     bool    m_bShowEye;
     bool    m_bShowEar;
-    bool    m_bShowAbdo;
+    bool    m_bShowBelly;
     
     vector <float>  m_vecEyeFlowPdf;
     

@@ -37,15 +37,15 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     
     staticBoxSizer165->Add(gridSizer167, 1, wxALL|wxEXPAND, 5);
     
-    m_checkBoxLED = new wxCheckBox(m_panel163, wxID_ANY, _("LED"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_checkBoxLED = new wxCheckBox(m_panel163, wxID_ANY, _("Ver Lines (LED+Ref.)"), wxDefaultPosition, wxSize(-1,-1), 0);
     m_checkBoxLED->SetValue(false);
     
     gridSizer167->Add(m_checkBoxLED, 0, wxALL, 5);
     
-    m_checkBoxRef = new wxCheckBox(m_panel163, wxID_ANY, _("Ref. Frame"), wxDefaultPosition, wxSize(-1,-1), 0);
-    m_checkBoxRef->SetValue(false);
+    m_checkBoxBigHead = new wxCheckBox(m_panel163, wxID_ANY, _("Use Big Head"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_checkBoxBigHead->SetValue(false);
     
-    gridSizer167->Add(m_checkBoxRef, 0, wxALL, 5);
+    gridSizer167->Add(m_checkBoxBigHead, 0, wxALL, 5);
     
     m_checkBoxPinna = new wxCheckBox(m_panel163, wxID_ANY, _("Pinna detection"), wxDefaultPosition, wxSize(-1,-1), 0);
     m_checkBoxPinna->SetValue(false);
@@ -62,10 +62,10 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     
     gridSizer167->Add(m_checkBoxEar, 0, wxALL, 5);
     
-    m_checkBoxAbdo = new wxCheckBox(m_panel163, wxID_ANY, _("Abdomen"), wxDefaultPosition, wxSize(-1,-1), 0);
-    m_checkBoxAbdo->SetValue(false);
+    m_checkBoxBelly = new wxCheckBox(m_panel163, wxID_ANY, _("Belly"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_checkBoxBelly->SetValue(false);
     
-    gridSizer167->Add(m_checkBoxAbdo, 0, wxALL, 5);
+    gridSizer167->Add(m_checkBoxBelly, 0, wxALL, 5);
     
     m_checkBoxVerLine = new wxCheckBox(m_panel163, wxID_ANY, _("Ver. Line (0-based)"), wxDefaultPosition, wxSize(-1,-1), 0);
     m_checkBoxVerLine->SetValue(false);

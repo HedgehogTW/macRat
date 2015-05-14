@@ -351,7 +351,7 @@
               }, {
                "type": "string",
                "m_label": "Label:",
-               "m_value": "LED"
+               "m_value": "Ver Lines (LED+Ref.)"
               }, {
                "type": "bool",
                "m_label": "Value:",
@@ -382,7 +382,7 @@
               }, {
                "type": "string",
                "m_label": "Name:",
-               "m_value": "m_checkBoxRef"
+               "m_value": "m_checkBoxBigHead"
               }, {
                "type": "multi-string",
                "m_label": "Tooltip:",
@@ -426,7 +426,7 @@
               }, {
                "type": "string",
                "m_label": "Label:",
-               "m_value": "Ref. Frame"
+               "m_value": "Use Big Head"
               }, {
                "type": "bool",
                "m_label": "Value:",
@@ -682,7 +682,7 @@
               }, {
                "type": "string",
                "m_label": "Name:",
-               "m_value": "m_checkBoxAbdo"
+               "m_value": "m_checkBoxBelly"
               }, {
                "type": "multi-string",
                "m_label": "Tooltip:",
@@ -726,7 +726,7 @@
               }, {
                "type": "string",
                "m_label": "Label:",
-               "m_value": "Abdomen"
+               "m_value": "Belly"
               }, {
                "type": "bool",
                "m_label": "Value:",

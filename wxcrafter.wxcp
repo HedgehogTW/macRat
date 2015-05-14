@@ -72,6 +72,10 @@
      "m_label": "Style:",
      "m_value": ""
     }, {
+     "type": "bool",
+     "m_label": "Enable Window Persistency:",
+     "m_value": true
+    }, {
      "type": "string",
      "m_label": "Title:",
      "m_value": "My Frame"
@@ -1357,6 +1361,10 @@
          "m_sizerFlags": ["wxALL", "wxLEFT", "wxRIGHT", "wxTOP", "wxBOTTOM", "wxEXPAND"],
          "m_properties": [{
            "type": "string",
+           "m_label": "Minimum Size:",
+           "m_value": "-1,-1"
+          }, {
+           "type": "string",
            "m_label": "Name:",
            "m_value": "boxSizer25"
           }, {
@@ -1923,7 +1931,7 @@
          "m_properties": [{
            "type": "winid",
            "m_label": "ID:",
-           "m_winid": "wxID_RAT_MARK_ABDO"
+           "m_winid": "wxID_RAT_MARK_BELLY"
           }, {
            "type": "string",
            "m_label": "Size:",
@@ -1935,11 +1943,11 @@
           }, {
            "type": "string",
            "m_label": "Name:",
-           "m_value": "m_bmpToggleBtnMarkAbdo"
+           "m_value": "m_bmpToggleBtnMarkBelly"
           }, {
            "type": "multi-string",
            "m_label": "Tooltip:",
-           "m_value": "Mark Abdomen"
+           "m_value": "Mark Belly"
           }, {
            "type": "colour",
            "m_label": "Bg Colour:",
@@ -1989,7 +1997,7 @@
            "m_eventName": "wxEVT_COMMAND_TOGGLEBUTTON_CLICKED",
            "m_eventClass": "wxCommandEvent",
            "m_eventHandler": "wxCommandEventHandler",
-           "m_functionNameAndSignature": "OnMarkAbdomen(wxCommandEvent& event)",
+           "m_functionNameAndSignature": "OnMarkBelly(wxCommandEvent& event)",
            "m_description": "Handles a toggle button click event.",
            "m_noBody": false
           }],

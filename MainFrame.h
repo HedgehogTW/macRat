@@ -44,7 +44,7 @@ public:
 	
 	void 	getEyePts(Point& eyeL, Point& eyeR) { eyeL = m_ptEyeL; eyeR = m_ptEyeR; }
 	void 	getEarPts(Point& earL, Point& earR) { earL = m_ptEarL; earR = m_ptEarR;}
-	int 	getAbdoPts(Point& abRed, Point& abCyan) { abRed = m_ptAbdoRed; abCyan = m_ptAbdoCyan; return m_Rat.m_BigRedPdf; }
+	int 	getBellyPts(Point& abRed, Point& abCyan) { abRed = m_ptBellyRed; abCyan = m_ptBellyCyan; return m_Rat.m_BigRedPdf; }
 	
 	int		getCageline() { return m_nCageLine; }
 	bool	getCroppedStatus()  { return m_bCutTop; }
@@ -71,13 +71,14 @@ public:
 	
 	
 protected:
+    virtual void OnRatAbdomen(wxCommandEvent& event);
     virtual void OnToolsCleanOutput(wxCommandEvent& event);
     virtual void OnMouseLButtonDown(wxMouseEvent& event);
     virtual void OnMouseRButtonDown(wxMouseEvent& event);
     virtual void OnRatProcessEar(wxCommandEvent& event);
     virtual void OnMarkCageline(wxCommandEvent& event);
-    virtual void OnRatAbdomen(wxCommandEvent& event);
-    virtual void OnMarkAbdomen(wxCommandEvent& event);
+    virtual void OnRatBelly(wxCommandEvent& event);
+    virtual void OnMarkBelly(wxCommandEvent& event);
     virtual void OnViewFolderImage(wxCommandEvent& event);
     virtual void OnView2DData(wxCommandEvent& event);
     virtual void OnView3DData(wxCommandEvent& event);
@@ -124,14 +125,14 @@ protected:
 ////////////////////////////////mark eyes and ears
 	bool    m_bMarkEye;
 	bool    m_bMarkEar;
-	bool    m_bMarkAbdomen;
+	bool    m_bMarkBelly;
 	bool    m_bMarkCageline;
 	
 	deque<Point>  m_dqEyePts;
 	deque<Point>  m_dqEarPts;
-	deque<Point>  m_dqAbdoPts;
+	deque<Point>  m_dqBellyPts;
 	Point 	m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR;
-	Point 	m_ptAbdoRed, m_ptAbdoCyan;
+	Point 	m_ptBellyRed, m_ptBellyCyan;
 
 
 };

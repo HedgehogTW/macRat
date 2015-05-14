@@ -56,14 +56,14 @@ MainFrame::MainFrame(wxWindow* parent)
 	m_configData.m_frameStep = pConfig->ReadLong("/optical/frameStep", 0);
 	m_configData.m_threshold = pConfig->ReadDouble("/optical/threshold", 0.001);
 	m_configData.m_bLED = pConfig->ReadBool("/optical/bLED", true);    
-    m_configData.m_bRefLine = pConfig->ReadBool("/optical/bRefLine", true);
+    m_configData.m_bBigHead = pConfig->ReadBool("/optical/bBigHead", false);
 	m_configData.m_bPinna = pConfig->ReadBool("/optical/bPinna", false);
 	m_configData.m_bVerLine = pConfig->ReadBool("/optical/bVerLine", false);
 	
 	m_configData.m_bEyeMove = pConfig->ReadBool("/optical/bEyeMove", true);
 	m_configData.m_bGrayDiff = pConfig->ReadBool("/optical/bGrayDiff", false);
     m_configData.m_bEar = pConfig->ReadBool("/optical/bEar", true);
-	m_configData.m_bAbdo = pConfig->ReadBool("/optical/bAbdo", true);
+	m_configData.m_bBelly = pConfig->ReadBool("/optical/bBelly", true);
 	m_configData.m_bOpticalPDF = pConfig->ReadBool("/optical/bOpticalPDF", true);
 	m_configData.m_bOpFlowV1 = pConfig->ReadBool("/optical/bOpFlowV1", true);
 	m_configData.m_bAccumulate = pConfig->ReadBool("/optical/bAccumulate", true);
@@ -120,13 +120,13 @@ void MainFrame::DeleteContents()
 	pConfig->Write("/optical/frameStep", m_configData.m_frameStep);
 	pConfig->Write("/optical/threshold", m_configData.m_threshold);
 	pConfig->Write("/optical/bLED", m_configData.m_bLED);
-    pConfig->Write("/optical/bRefLine", m_configData.m_bRefLine);
+    pConfig->Write("/optical/bBigHead", m_configData.m_bBigHead);
 	pConfig->Write("/optical/bPinna", m_configData.m_bPinna);
 	pConfig->Write("/optical/bVerLine", m_configData.m_bVerLine);
 	
 	pConfig->Write("/optical/bEyeMove", m_configData.m_bEyeMove);
     pConfig->Write("/optical/bEar", m_configData.m_bEar);
-	pConfig->Write("/optical/bAbdo", m_configData.m_bAbdo);
+	pConfig->Write("/optical/bBelly", m_configData.m_bBelly);
    	pConfig->Write("/optical/bGrayDiff", m_configData.m_bGrayDiff); 
 	pConfig->Write("/optical/bOpticalPDF", m_configData.m_bOpticalPDF);
 	pConfig->Write("/optical/bOpFlowV1", m_configData.m_bOpFlowV1);
@@ -150,18 +150,18 @@ void MainFrame::DeleteContents()
 	
 	m_bMarkEye = false;
 	m_bMarkEar = false;
-	m_bMarkAbdomen = false;
+	m_bMarkBelly = false;
 	m_bMarkCageline = false;
 	
 	m_dqEyePts.clear();
 	m_dqEarPts.clear();
-	m_dqAbdoPts.clear();
+	m_dqBellyPts.clear();
 	
-	m_ptAbdoRed = m_ptAbdoCyan = m_ptEyeL = m_ptEyeR = m_ptEarL = m_ptEarR = Point(0,0);
+	m_ptBellyRed = m_ptBellyCyan = m_ptEyeL = m_ptEyeR = m_ptEarL = m_ptEarR = Point(0,0);
 	
 	m_bmpToggleBtnMarkEyes->SetValue(false);
 	m_bmpToggleBtnMarkEars->SetValue(false);	
-	m_bmpToggleBtnMarkAbdo->SetValue(false);
+	m_bmpToggleBtnMarkBelly->SetValue(false);
 }
 void MainFrame::OnMRUFile(wxCommandEvent& event)
 {
@@ -207,7 +207,7 @@ void MainFrame::readMarks(wxString &dirName)
 	
 			
 	Point ptEyeL, ptEyeR, ptEarL, ptEarR;
-	Point ptAbdoRed, ptAbdoCyan;
+	Point ptBellyRed, ptBellyCyan;
 	int n, line;
 	char  type;
 	FILE* fp = fopen(dataName.GetFullPath(), "r");
@@ -235,14 +235,14 @@ void MainFrame::readMarks(wxString &dirName)
 				myMsgOutput("Y %d %d %d %d\n", ptEyeL.x, ptEyeL.y, ptEyeR.x, ptEyeR.y );
 				break;
 			case 'A':
-				n = fscanf(fp, "%d %d %d %d\n", &ptAbdoRed.x, &ptAbdoRed.y, &ptAbdoCyan.x, &ptAbdoCyan.y );
+				n = fscanf(fp, "%d %d %d %d\n", &ptBellyRed.x, &ptBellyRed.y, &ptBellyCyan.x, &ptBellyCyan.y );
 				if(n==4) {
-					m_dqAbdoPts.push_back(ptAbdoRed);
-					m_dqAbdoPts.push_back(ptAbdoCyan);
-					m_ptAbdoRed = m_dqAbdoPts[0];
-					m_ptAbdoCyan = m_dqAbdoPts[1];
+					m_dqBellyPts.push_back(ptBellyRed);
+					m_dqBellyPts.push_back(ptBellyCyan);
+					m_ptBellyRed = m_dqBellyPts[0];
+					m_ptBellyCyan = m_dqBellyPts[1];
 				}		
-				myMsgOutput("A Red[%d %d], Cyan[%d %d]\n", ptAbdoRed.x, ptAbdoRed.y, ptAbdoCyan.x, ptAbdoCyan.y );
+				myMsgOutput("A Red[%d %d], Cyan[%d %d]\n", ptBellyRed.x, ptBellyRed.y, ptBellyCyan.x, ptBellyCyan.y );
 				break;	
 			case 'C':
 				n = fscanf(fp, "%d\n", &line);
@@ -380,14 +380,14 @@ void MainFrame::OnEditClearMarks(wxCommandEvent& event)
 {
 	m_bMarkEar = false;
 	m_bMarkEye = false;
-	m_bMarkAbdomen = false;
+	m_bMarkBelly = false;
 	m_bmpToggleBtnMarkEars->SetValue(false);
 	m_bmpToggleBtnMarkEyes->SetValue(false);
-	m_bmpToggleBtnMarkAbdo->SetValue(false);
+	m_bmpToggleBtnMarkBelly->SetValue(false);
 	
 	m_dqEyePts.clear();
 	m_dqEarPts.clear();
-	m_dqAbdoPts.clear();
+	m_dqBellyPts.clear();
 	Refresh();
 }
 void MainFrame::OnMarkEyes(wxCommandEvent& event)
@@ -397,9 +397,9 @@ void MainFrame::OnMarkEyes(wxCommandEvent& event)
 			m_bmpToggleBtnMarkEars->SetValue(false);
 			m_bMarkEar = false;
 		}
-		if(m_bMarkAbdomen)  {
-			m_bmpToggleBtnMarkAbdo->SetValue(false);
-			m_bMarkAbdomen = false;
+		if(m_bMarkBelly)  {
+			m_bmpToggleBtnMarkBelly->SetValue(false);
+			m_bMarkBelly = false;
 		}	
 		if(m_bMarkCageline)  {
 			m_bmpToggleBtnMarkCageLine->SetValue(false);
@@ -419,9 +419,9 @@ void MainFrame::OnMarkEars(wxCommandEvent& event)
 			m_bmpToggleBtnMarkEyes->SetValue(false);
 			m_bMarkEye = false;
 		}
-		if(m_bMarkAbdomen)  {
-			m_bmpToggleBtnMarkAbdo->SetValue(false);
-			m_bMarkAbdomen = false;
+		if(m_bMarkBelly)  {
+			m_bmpToggleBtnMarkBelly->SetValue(false);
+			m_bMarkBelly = false;
 		}	
 		if(m_bMarkCageline)  {
 			m_bmpToggleBtnMarkCageLine->SetValue(false);
@@ -434,7 +434,7 @@ void MainFrame::OnMarkEars(wxCommandEvent& event)
 		m_scrollWin->SetCursor(wxCursor(wxCURSOR_ARROW ));
 	}		
 }
-void MainFrame::OnMarkAbdomen(wxCommandEvent& event)
+void MainFrame::OnMarkBelly(wxCommandEvent& event)
 {
 	if(event.IsChecked()) {
 		if(m_bMarkEye) { 
@@ -449,10 +449,10 @@ void MainFrame::OnMarkAbdomen(wxCommandEvent& event)
 			m_bmpToggleBtnMarkCageLine->SetValue(false);
 			m_bMarkCageline = false;
 		}
-		m_bMarkAbdomen = true;
+		m_bMarkBelly = true;
 		m_scrollWin->SetCursor(wxCursor(wxCURSOR_CROSS ));
 	}else {
-		m_bMarkAbdomen = false;
+		m_bMarkBelly = false;
 		m_scrollWin->SetCursor(wxCursor(wxCURSOR_ARROW ));
 	}	
 }
@@ -467,9 +467,9 @@ void MainFrame::OnMarkCageline(wxCommandEvent& event)
 			m_bmpToggleBtnMarkEars->SetValue(false);
 			m_bMarkEar = false;
 		}	
-		if(m_bMarkAbdomen)  {
-			m_bmpToggleBtnMarkAbdo->SetValue(false);
-			m_bMarkAbdomen = false;
+		if(m_bMarkBelly)  {
+			m_bmpToggleBtnMarkBelly->SetValue(false);
+			m_bMarkBelly = false;
 		}	
 		m_bMarkCageline = true;
 		m_scrollWin->SetCursor(wxCursor(wxCURSOR_CROSS ));
@@ -527,9 +527,9 @@ bool MainFrame::preprocessing()
 			fprintf(fp, "E%d %d %d %d\n", m_dqEarPts[0].x, m_dqEarPts[0].y, m_dqEarPts[1].x, m_dqEarPts[1].y );
 			myMsgOutput("Left Ear: [%d, %d], Right Ear: [%d, %d]\n", m_dqEarPts[0].x, m_dqEarPts[0].y, m_dqEarPts[1].x, m_dqEarPts[1].y);
 		}
-		if(m_dqAbdoPts.size()>=2) {
-			fprintf(fp, "A%d %d %d %d\n", m_dqAbdoPts[0].x, m_dqAbdoPts[0].y, m_dqAbdoPts[1].x, m_dqAbdoPts[1].y );
-			myMsgOutput("Abdomen [%d, %d], [%d, %d]\n",m_dqAbdoPts[0].x, m_dqAbdoPts[0].y, m_dqAbdoPts[1].x, m_dqAbdoPts[1].y );
+		if(m_dqBellyPts.size()>=2) {
+			fprintf(fp, "A%d %d %d %d\n", m_dqBellyPts[0].x, m_dqBellyPts[0].y, m_dqBellyPts[1].x, m_dqBellyPts[1].y );
+			myMsgOutput("Belly [%d, %d], [%d, %d]\n",m_dqBellyPts[0].x, m_dqBellyPts[0].y, m_dqBellyPts[1].x, m_dqBellyPts[1].y );
 		}
 		if(m_nCageLine >0)
 			fprintf(fp, "C%d\n", m_nCageLine );
@@ -565,7 +565,7 @@ void MainFrame::OnRatProcessEar(wxCommandEvent& event)
 		wxMessageBox("Select ear points", "error");
 		return;
 	}
-	if(m_dqAbdoPts.size()!=2) {
+	if(m_dqBellyPts.size()!=2) {
 		wxMessageBox("Select abdomen points", "error");
 		return;
 	}	
@@ -573,8 +573,8 @@ void MainFrame::OnRatProcessEar(wxCommandEvent& event)
 	m_ptEyeR = m_dqEyePts[1];
 	m_ptEarL = m_dqEarPts[0];
 	m_ptEarR = m_dqEarPts[1];
-	m_ptAbdoRed = m_dqAbdoPts[0];
-	m_ptAbdoCyan = m_dqAbdoPts[1];
+	m_ptBellyRed = m_dqBellyPts[0];
+	m_ptBellyCyan = m_dqBellyPts[1];
 	
 	recognizeLeftRight(m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR);	
 	
@@ -587,26 +587,26 @@ void MainFrame::OnRatProcessEar(wxCommandEvent& event)
 		m_ptEyeR.y -= m_nCageLine;
 		m_ptEarL.y -= m_nCageLine;
 		m_ptEarR.y -= m_nCageLine;	 
-        m_ptAbdoRed.y -= m_nCageLine;
-		m_ptAbdoCyan.y -= m_nCageLine;	      
+        m_ptBellyRed.y -= m_nCageLine;
+		m_ptBellyCyan.y -= m_nCageLine;	      
     }
 	//bool bRet = m_Rat.processEar(m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR);
-	bool bRet = m_Rat.process(m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR, m_ptAbdoRed, m_ptAbdoCyan);
+	bool bRet = m_Rat.process(m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR, m_ptBellyRed, m_ptBellyCyan);
 	if(bRet ==false) return;
 	
 	updateOutData(m_Rat.getResultImg(0));
 	wxBell();	
 }
 
-void MainFrame::OnRatAbdomen(wxCommandEvent& event)
+void MainFrame::OnRatBelly(wxCommandEvent& event)
 {
-	if(m_dqAbdoPts.size()!=2) {
+	if(m_dqBellyPts.size()!=2) {
 		wxMessageBox("Select abdomen points", "error");
 		return;
 	}	
    
-	m_ptAbdoRed = m_dqAbdoPts[0];
-	m_ptAbdoCyan = m_dqAbdoPts[1];
+	m_ptBellyRed = m_dqBellyPts[0];
+	m_ptBellyCyan = m_dqBellyPts[1];
 
 	
 	if(m_dqEyePts.size()>0 && m_dqEarPts.size()>0) {          
@@ -622,8 +622,8 @@ void MainFrame::OnRatAbdomen(wxCommandEvent& event)
 		return;
 	}
 	if(m_bCutTop) {
-        m_ptAbdoRed.y -= m_nCageLine;
-		m_ptAbdoCyan.y -= m_nCageLine;	
+        m_ptBellyRed.y -= m_nCageLine;
+		m_ptBellyCyan.y -= m_nCageLine;	
 	    if(m_dqEyePts.size()>0 && m_dqEarPts.size()>0) {
    			m_ptEyeL.y -= m_nCageLine;
 			m_ptEyeR.y -= m_nCageLine;
@@ -725,7 +725,7 @@ void VolumeSlice(int pos, void *param)
 	cvtColor(mSrc, mShow, CV_GRAY2BGR);
 	
 	Point 	ptEyeL, ptEyeR, ptEarL, ptEarR;
-	Point 	ptAbdoBo, ptAbdoIn;
+	Point 	ptBellyBo, ptBellyIn;
 	
 	pMainFrame->getEyePts(ptEyeL, ptEyeR);
 	if(ptEyeL.x > 0) {
@@ -904,7 +904,7 @@ void MainFrame::OnView3DData(wxCommandEvent& event)
 }
 void MainFrame::OnMouseLButtonDown(wxMouseEvent& event)
 {
-	if(m_bMarkEye==false && m_bMarkEar == false && m_bMarkAbdomen == false && m_bMarkCageline == false)  return;
+	if(m_bMarkEye==false && m_bMarkEar == false && m_bMarkBelly == false && m_bMarkCageline == false)  return;
 	if (getNumSlices() <= 0)  return;
 	
 	wxClientDC *pDC = new wxClientDC(this);
@@ -958,22 +958,22 @@ void MainFrame::OnMouseLButtonDown(wxMouseEvent& event)
                 if(m_bCutTop)  m_ptEarR.y -= m_nCageLine;
             }
 		}	
-	}else if(m_bMarkAbdomen) {
+	}else if(m_bMarkBelly) {
 		Point ptEar = Point(pt.x, pt.y);
-		m_dqAbdoPts.push_back(ptEar);
-		int sz = m_dqAbdoPts.size();
+		m_dqBellyPts.push_back(ptEar);
+		int sz = m_dqBellyPts.size();
         if(sz>2)  {	
-            m_dqAbdoPts.pop_front();
+            m_dqBellyPts.pop_front();
             sz--;
         }
         for(int i=0; i<sz; i++) {
             if(i==0)	{
-                m_ptAbdoRed = m_dqAbdoPts[0];
-                if(m_bCutTop)  m_ptAbdoRed.y -= m_nCageLine;
+                m_ptBellyRed = m_dqBellyPts[0];
+                if(m_bCutTop)  m_ptBellyRed.y -= m_nCageLine;
             }
             if(i==1)	{
-                m_ptAbdoCyan = m_dqAbdoPts[1];
-                if(m_bCutTop)  m_ptAbdoCyan.y -= m_nCageLine;
+                m_ptBellyCyan = m_dqBellyPts[1];
+                if(m_bCutTop)  m_ptBellyCyan.y -= m_nCageLine;
             }
         }
 	}else if(m_bMarkCageline) {
@@ -1055,4 +1055,7 @@ void MainFrame::OnToolsCleanOutput(wxCommandEvent& event)
             bCont = subdir.GetNext(&subName);
         }  
     }
+}
+void MainFrame::OnRatAbdomen(wxCommandEvent& event)
+{
 }

@@ -140,11 +140,11 @@ MainFrameBaseClass::MainFrameBaseClass(wxWindow* parent, wxWindowID id, const wx
     m_bmpToggleBtnMarkEars->SetValue(false);
     m_auibar31->AddControl(m_bmpToggleBtnMarkEars);
     
-    m_bmpToggleBtnMarkAbdo = new wxBitmapToggleButton(m_auibar31, wxID_RAT_MARK_ABDO, wxXmlResource::Get()->LoadBitmap(wxT("mark_APB")), wxDefaultPosition, wxSize(-1,-1), wxBU_EXACTFIT);
-    m_bmpToggleBtnMarkAbdo->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT));
-    m_bmpToggleBtnMarkAbdo->SetToolTip(_("Mark Abdomen"));
-    m_bmpToggleBtnMarkAbdo->SetValue(false);
-    m_auibar31->AddControl(m_bmpToggleBtnMarkAbdo);
+    m_bmpToggleBtnMarkBelly = new wxBitmapToggleButton(m_auibar31, wxID_RAT_MARK_BELLY, wxXmlResource::Get()->LoadBitmap(wxT("mark_APB")), wxDefaultPosition, wxSize(-1,-1), wxBU_EXACTFIT);
+    m_bmpToggleBtnMarkBelly->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT));
+    m_bmpToggleBtnMarkBelly->SetToolTip(_("Mark Belly"));
+    m_bmpToggleBtnMarkBelly->SetValue(false);
+    m_auibar31->AddControl(m_bmpToggleBtnMarkBelly);
     
     m_auibar31->AddSeparator();
     
@@ -161,11 +161,12 @@ MainFrameBaseClass::MainFrameBaseClass(wxWindow* parent, wxWindowID id, const wx
     m_statusBar->SetFieldsCount(1);
     this->SetStatusBar(m_statusBar);
     
+    SetName(wxT("MainFrameBaseClass"));
     SetSizeHints(700,500);
     if ( GetSizer() ) {
          GetSizer()->Fit(this);
     }
-    Centre(wxBOTH);
+    CentreOnParent(wxBOTH);
     // Connect events
     this->Connect(m_menuItemOpen->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnFileOpen), NULL, this);
     this->Connect(m_menuItem7->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnExit), NULL, this);
@@ -192,7 +193,7 @@ MainFrameBaseClass::MainFrameBaseClass(wxWindow* parent, wxWindowID id, const wx
     m_bmpToggleBtnMarkCageLine->Connect(wxEVT_COMMAND_TOGGLEBUTTON_CLICKED, wxCommandEventHandler(MainFrameBaseClass::OnMarkCageline), NULL, this);
     m_bmpToggleBtnMarkEyes->Connect(wxEVT_COMMAND_TOGGLEBUTTON_CLICKED, wxCommandEventHandler(MainFrameBaseClass::OnMarkEyes), NULL, this);
     m_bmpToggleBtnMarkEars->Connect(wxEVT_COMMAND_TOGGLEBUTTON_CLICKED, wxCommandEventHandler(MainFrameBaseClass::OnMarkEars), NULL, this);
-    m_bmpToggleBtnMarkAbdo->Connect(wxEVT_COMMAND_TOGGLEBUTTON_CLICKED, wxCommandEventHandler(MainFrameBaseClass::OnMarkAbdomen), NULL, this);
+    m_bmpToggleBtnMarkBelly->Connect(wxEVT_COMMAND_TOGGLEBUTTON_CLICKED, wxCommandEventHandler(MainFrameBaseClass::OnMarkBelly), NULL, this);
     
 }
 
@@ -223,7 +224,7 @@ MainFrameBaseClass::~MainFrameBaseClass()
     m_bmpToggleBtnMarkCageLine->Disconnect(wxEVT_COMMAND_TOGGLEBUTTON_CLICKED, wxCommandEventHandler(MainFrameBaseClass::OnMarkCageline), NULL, this);
     m_bmpToggleBtnMarkEyes->Disconnect(wxEVT_COMMAND_TOGGLEBUTTON_CLICKED, wxCommandEventHandler(MainFrameBaseClass::OnMarkEyes), NULL, this);
     m_bmpToggleBtnMarkEars->Disconnect(wxEVT_COMMAND_TOGGLEBUTTON_CLICKED, wxCommandEventHandler(MainFrameBaseClass::OnMarkEars), NULL, this);
-    m_bmpToggleBtnMarkAbdo->Disconnect(wxEVT_COMMAND_TOGGLEBUTTON_CLICKED, wxCommandEventHandler(MainFrameBaseClass::OnMarkAbdomen), NULL, this);
+    m_bmpToggleBtnMarkBelly->Disconnect(wxEVT_COMMAND_TOGGLEBUTTON_CLICKED, wxCommandEventHandler(MainFrameBaseClass::OnMarkBelly), NULL, this);
     
     m_auimgr11->UnInit();
     delete m_auimgr11;

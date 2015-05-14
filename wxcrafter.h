@@ -36,7 +36,7 @@ public:
         wxID_EDIT_CLEAR_MARKS = 1001,
         wxID_LOAD_RESULT = 1002,
         wxID_RAT_ABDOMEN = 1003,
-        wxID_RAT_MARK_ABDO = 1004,
+        wxID_RAT_MARK_BELLY = 1004,
         wxID_RAT_MARK_EAR = 1005,
         wxID_RAT_MARK_EYE = 1006,
         wxID_RAT_PROCESS = 1007,
@@ -75,7 +75,7 @@ protected:
     wxBitmapToggleButton* m_bmpToggleBtnMarkCageLine;
     wxBitmapToggleButton* m_bmpToggleBtnMarkEyes;
     wxBitmapToggleButton* m_bmpToggleBtnMarkEars;
-    wxBitmapToggleButton* m_bmpToggleBtnMarkAbdo;
+    wxBitmapToggleButton* m_bmpToggleBtnMarkBelly;
     wxStatusBar* m_statusBar;
 
 protected:
@@ -102,7 +102,7 @@ protected:
     virtual void OnMarkCageline(wxCommandEvent& event) { event.Skip(); }
     virtual void OnMarkEyes(wxCommandEvent& event) { event.Skip(); }
     virtual void OnMarkEars(wxCommandEvent& event) { event.Skip(); }
-    virtual void OnMarkAbdomen(wxCommandEvent& event) { event.Skip(); }
+    virtual void OnMarkBelly(wxCommandEvent& event) { event.Skip(); }
 
 public:
     MainFrameBaseClass(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("My Frame"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(700,500), long style = wxCAPTION|wxRESIZE_BORDER|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxSYSTEM_MENU|wxCLOSE_BOX);
