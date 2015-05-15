@@ -201,16 +201,42 @@ void MainFrame::OnFileOpen(wxCommandEvent& event)
 
 void MainFrame::readMarks(wxString &dirName)
 {
-	wxFileName fileName = dirName;
-	wxFileName dataName(dirName, "_Marks.txt");
-	if(dataName.IsFileReadable() ==false) return;
+    wxFileName fileName = dirName;
+    wxUniChar sep = fileName.GetPathSeparator();
+    wxString 	strParentPath =  dirName.BeforeLast(sep);
+    wxString  newMarkerName = "_"+fileName.GetName()+"_Marks.txt";
+    wxFileName newFullMarkerName(strParentPath, newMarkerName);
+    wxFileName oldMarkerName(dirName, "_Marks.txt");
+    bool bNewMarker = true;
+    if(newFullMarkerName.IsFileReadable() ==false) {
+        bNewMarker = false;
+        if(oldMarkerName.IsFileReadable() ==false) 
+            return;
+    }
 	
+//    myMsgOutput("dirname " + newFullMarkerName.GetFullPath() +"\n");
+//    myMsgOutput("oldname " + oldMarkerName.GetFullPath() +"\n");
+    
 			
 	Point ptEyeL, ptEyeR, ptEarL, ptEarR;
 	Point ptBellyRed, ptBellyCyan;
 	int n, line;
 	char  type;
-	FILE* fp = fopen(dataName.GetFullPath(), "r");
+	FILE* fp;
+    if(bNewMarker) {
+        fp = fopen(newFullMarkerName.GetFullPath(), "r");
+        if(fp==NULL) {
+            myMsgOutput("cannot open marker file: " + newFullMarkerName.GetName() + "\n");
+            return;
+        }
+    }else {
+        fp = fopen(oldMarkerName.GetFullPath(), "r");
+        if(fp==NULL) {
+            myMsgOutput("cannot open marker file: " + oldMarkerName.GetName() + "\n");
+            return;
+        }        
+    }
+
 	do{
 		fscanf(fp, "%c", &type);
 		switch(type) {
@@ -515,9 +541,15 @@ bool MainFrame::preprocessing()
 		return false;
 	}	
     myMsgOutput("-------------------------------------------------\n");	
-    
-	wxFileName dataName(m_strSourcePath, "_Marks.txt");
-	FILE* fp = fopen(dataName.GetFullPath(), "w");
+
+    wxFileName fileName = m_strSourcePath;
+    wxUniChar sep = fileName.GetPathSeparator();
+    wxString 	strParentPath =  m_strSourcePath.BeforeLast(sep);
+    wxString  newMarkerName = "_"+fileName.GetName()+"_Marks.txt";
+    wxFileName newFullMarkerName(strParentPath, newMarkerName);
+
+	//wxFileName dataName(m_strSourcePath, "_Marks.txt");
+	FILE* fp = fopen(newFullMarkerName.GetFullPath(), "w");
 	if(fp!=NULL) {
 		if(m_dqEyePts.size()>=2) {
 			fprintf(fp, "Y%d %d %d %d\n", m_dqEyePts[0].x, m_dqEyePts[0].y, m_dqEyePts[1].x, m_dqEyePts[1].y );
@@ -1047,7 +1079,7 @@ void MainFrame::OnToolsCleanOutput(wxCommandEvent& event)
         wxString subName;
         bool bCont = subdir.GetFirst(&subName, "_*", wxDIR_FILES );
         while ( bCont ) {
-            if(subName.CmpNoCase("_Marks.txt")!=0) {
+            if(subName.Find("_Marks.txt")==wxNOT_FOUND) {
                 wxString deleteDirName = topDirs[i]+ "\\" + subName;
                 wxRemoveFile(deleteDirName);
                 MainFrame::myMsgOutput("   -->remove "+subName+ "\n");
