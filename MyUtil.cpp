@@ -41,7 +41,7 @@ void _gnuplotVerticalLine(Gnuplot& gnuPlot, int x, const char* dataName)
 		vecx.push_back(x);
 		vecy.push_back(ymax);
 		vecx.push_back(x);	
-		gnuPlot.set_style("lines").plot_xy(vecx, vecy, dataName);
+		gnuPlot.set_style("lines").plot_xy(vecx, vecy, 1, dataName);
 	}	
 }
 

@@ -41,16 +41,26 @@ void _gnuplotLine(Gnuplot& gnuPlot, const char* titleName, X& data, const char* 
 }
 
 template<typename X, typename Y>
-void _gnuplotPoint(Gnuplot& gnuPlot, const char* dataName, const X& dataX, const Y& dataY)
+void _gnuplotPoint(Gnuplot& gnuPlot, const char* titleName, const X& dataX, const Y& dataY)
 {
 //	Gnuplot gnuPlot("lines");
 	if (dataX.size() <= 0) {
 		wxMessageBox("gnuplotShow:: no data", "Error");
 		return;
 	}	
-	gnuPlot.set_style("points").plot_xy(dataX, dataY, dataName);
+	gnuPlot.set_style("points").plot_xy(dataX, dataY, titleName);
 }
 
+template<typename X, typename Y>
+void _gnuplotSteps(Gnuplot& gnuPlot, const char* titleName, const X& dataX, const Y& dataY, int width, const char* color="")
+{
+//	Gnuplot gnuPlot("lines");
+	if (dataX.size() <= 0) {
+		wxMessageBox("gnuplotShow:: no data", "Error");
+		return;
+	}	
+	gnuPlot.set_style("steps").plot_xy(dataX, dataY, width, color, titleName);
+}
 
 void	_scalingTraining(Mat& mTrainData);
 void	_scalingData(Mat& mData, vector<Vec2d>& scalePara);

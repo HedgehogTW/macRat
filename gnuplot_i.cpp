@@ -73,7 +73,7 @@ Gnuplot::Gnuplot(const std::vector<double> &x,
     set_xlabel(labelx);
     set_ylabel(labely);
 
-    plot_xy(x,y,title);
+    plot_xy(x,y, 1, title);
 }
 
 
@@ -102,46 +102,6 @@ Gnuplot::Gnuplot(const std::vector<double> &x,
 }
 
 
-  
-//------------------------------------------------------------------------------
-//
-/// Plots a 2d graph from a list of doubles: x y
-//
-template<typename X, typename Y>
-Gnuplot& Gnuplot::plot_xy(const X& x, const Y& y, const std::string &title)
-{
-    if (x.size() == 0 || y.size() == 0)
-    {
-        throw GnuplotException("std::vectors too small");
-        return *this;
-    }
-
-    if (x.size() != y.size())
-    {
-        throw GnuplotException("Length of the std::vectors differs");
-        return *this;
-    }
-
-
-    std::ofstream tmp;
-    std::string name = create_tmpfile(tmp);
-    if (name == "")
-        return *this;
-
-    //
-    // write the data to file
-    //
-    for (unsigned int i = 0; i < x.size(); i++)
-        tmp << x[i] << " " << y[i] << std::endl;
-
-    tmp.flush();
-    tmp.close();
-
-
-    plotfile_xy(name, 1, 2, title);
-
-    return *this;
-}
 
 ///-----------------------------------------------------------------------------
 ///
@@ -851,6 +811,8 @@ Gnuplot& Gnuplot::plotfile_x(const std::string &filename,
 Gnuplot& Gnuplot::plotfile_xy(const std::string &filename,
                               const unsigned int column_x,
                               const unsigned int column_y,
+								 const unsigned int width,
+								 const std::string &color,
                               const std::string &title)
 {
     //
@@ -876,9 +838,12 @@ Gnuplot& Gnuplot::plotfile_xy(const std::string &filename,
         cmdstr << " title \"" << title << "\" ";
 
     if(smooth == "")
-        cmdstr << "with " << pstyle;
+        cmdstr << "with " << pstyle<< " linewidth " << width;
     else
         cmdstr << "smooth " << smooth;
+		
+    if(color != "")
+        cmdstr << " linecolor " << "\"" << color << "\"";
 
     //
     // Do the actual plot
