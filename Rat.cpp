@@ -924,16 +924,16 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	vector <float>  vStepY;
 	vStepX.push_back(m_nLED2);
 	vStepX.push_back(m_nLED2+6);
-	vStepY.push_back(-0.45);
-	vStepY.push_back(-0.45);	
-	_gnuplotSteps(gPlotR, "", vStepX, vStepY, 8, "#00888888");
+	vStepY.push_back(-0.46);
+	vStepY.push_back(-0.46);	
+	_gnuplotSteps(gPlotR, "", vStepX, vStepY, 8, "#00ff009F");
 	vStepX.clear();
 	vStepY.clear();
 	vStepX.push_back(0);
 	vStepX.push_back(m_nSlices);
 	vStepY.push_back(-0.5);
 	vStepY.push_back(-0.5);	
-	_gnuplotSteps(gPlotR, "", vStepX, vStepY, 1, "#00000000");	
+	_gnuplotSteps(gPlotR, "", vStepX, vStepY, 1, "#00ff009F");	
 	
 	if(bLED && m_nLED1>0 && m_nLED2 >0) {
 		_gnuplotLED(gPlotL, m_nLED1, m_nLED2);

@@ -59,7 +59,7 @@ void _gnuplotSteps(Gnuplot& gnuPlot, const char* titleName, const X& dataX, cons
 		wxMessageBox("gnuplotShow:: no data", "Error");
 		return;
 	}	
-	gnuPlot.set_style("steps").plot_xy(dataX, dataY, width, color, titleName);
+	gnuPlot.set_style("lines").plot_xy(dataX, dataY, width, color, titleName);
 }
 
 void	_scalingTraining(Mat& mTrainData);
