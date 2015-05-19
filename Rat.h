@@ -109,11 +109,11 @@ public:
 	void  	findNewEarCenter(vector <Point>& vecEye, Point ptEar0, vector <Point>& vecEar, int referFrame);
 	
 	void 	smoothData(vector<float>& inData, vector<float>& outData, int bw=5);
-	double 	errorSum(Mat &mDiff, Point ptEarL, Point offset);
-	int		findReferenceFrame(Point& pt, Point offset);
+	double errorSum(Mat &mDiff, Rect rectEar);
+	int		findReferenceFrame(Rect rect);
 	int 	findMaxMotionPoint(vector<float>& inData);
 //	void	graylevelDiff_Eye(int refer, Point ptEar, Point offset, vector <Point>& vecEye, vector <float>& vecEarGrayDiff);
-	void 	graylevelDiff(int refer, Point& ptEarL, Point& ptEarR, Point offset, vector <float>& vLEarGray,  vector <float>& vREarGray);
+	void 	graylevelDiff(int refer, Rect rectEarL, Rect rectEarR, vector <float>& vLEarGray,  vector <float>& vREarGray);
 	void	pointGraylevel(Point ptBellyRed, Point ptBellyCyan, vector <float>& vecRedPoint, vector <float>& vecCyanPoint);
 	int     isRedRignificant(vector<float>& vecRed, vector<float>& vecCyan);
     
@@ -123,7 +123,7 @@ public:
 	
 	void 	opticalFlow_v2(int referFrame);
 	void	opticalFlow_v1(int nFrameSteps, int referFrame);
-	void	opticalMovement(Point pt, Point	offset, vector<float>& vecPdfMove, vector <Mat>& vecmDist, float threshold, bool bOpFlowV1);
+	void	opticalMovement(Rect rect, vector<float>& vecPdfMove, vector <Mat>& vecmDist, float threshold, bool bOpFlowV1);
 	void 	opticalDrawFlowmap(Point pt1, Point pt2, Point offset, int nFrameSteps, char type);
     void 	opticalDrawFlowmapWithPDF(vector<Point>& vpDrawPtRect, vector<Point>& vpOffset, int nFrameSteps);
 
@@ -132,15 +132,15 @@ public:
     									
     bool    prepareGnuPlot(Gnuplot& plotSave, int numPlots, char* subpath);
     void    opticalSavePlot(char* subpath, char* type, float threshold);
-    void    plotOneSpot(char* type, Gnuplot& plotSave, int i, wxFileName& saveName, Point pt, Point offset, vector<Mat>& vmPDF,
+    void    plotOneSpot(char* type, Gnuplot& plotSave, int i, wxFileName& saveName, Rect rect, vector<Mat>& vmPDF,
 								char* extName1, char* title1, float threshold,
                                 float sizeX, float sizeY, float oriX, float oriY);
 								
-	float 	optical_compute_movement_v1(Mat& mFlow, Mat& mDistEar, Point pt, float threshold, Point	offset);
-	float 	optical_compute_movement_v2(Mat& mFlow, Mat& mDistEar, Point pt, float threshold, Point	offset);
+	float 	optical_compute_movement_v1(Mat& mFlow, Mat& mDistEar, float threshold, Rect rect);
+	float 	optical_compute_movement_v2(Mat& mFlow, Mat& mDistEar, float threshold, Rect rect);
 	void 	plotDistribution(Gnuplot& plot, Mat& mDist, wxString& strOutName);
-	void 	plotDotScatter(Gnuplot& plotSavePGN, Mat& mFlow, Point pt, Point offset, wxString& strOutName, Mat& mPdf, float threshold);	
-	void	opticalBuildPDF(Mat& mFlow, Mat& mGaus, Mat& mDist, Point pt, Point	offset);
+	void 	plotDotScatter(Gnuplot& plotSavePGN, Mat& mFlow, Rect rect, wxString& strOutName, Mat& mPdf, float threshold);	
+	void	opticalBuildPDF(Mat& mFlow, Mat& mGaus, Mat& mDist, Rect rect);
 
     void    opticalAssignThresholdMap(vector<Mat>& vmPDF, float th, Point pt, Point	offset);
 
