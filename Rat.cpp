@@ -2125,7 +2125,7 @@ void CRat::plotOneSpot(char* type, Gnuplot& plotSave, int i, wxFileName& saveNam
 void CRat::plotDistribution(Gnuplot& plot, Mat& mDist, wxString& strOutName)
 {
 	wxString fNameBin = strOutName + ".bin";
-	_OutputMatGnuplotBinData(mDist, fNameBin.ToAscii());
+	_OutputMatGnuplotBinData(mDist, fNameBin.ToAscii(), -PDF_SIZE/2, PDF_SIZE/2);
 	
 	std::ostringstream cmdstr;
     cmdstr << "splot '" << fNameBin.ToAscii() << "' binary matrix using 1:2:3";

@@ -96,7 +96,7 @@ void _OutputMat(cv::Mat m, const char *filename, bool bhasComma=true);
 void _OutputBinaryMat(cv::Mat m, char *filename);
 void _OutputMatPoint2f(cv::Mat m, const char *filename, bool bAppend=false);
 //void _OutputVecPoints(vector <Point> &vecPoints, const char *filename, bool bhasComma=true);
-void _OutputMatGnuplotBinData(cv::Mat m, const char *filename);
+void _OutputMatGnuplotBinData(cv::Mat m, const char *filename, int low, int high);
 void _rgbMat2hsvMat(cv::Mat &mRGB, cv::Mat &mHSV, bool plus360);
 void rgb2hsv(uchar r, uchar g, uchar b, float &h, float &s, float &v, bool plus360);
 

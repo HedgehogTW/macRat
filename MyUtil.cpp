@@ -283,7 +283,7 @@ int fwrite_matrix( FILE *fout, cv::Mat &m, int xsize, int ysize, float *rt, floa
     return (1);
 }
 
-void _OutputMatGnuplotBinData(cv::Mat m, const char *filename)
+void _OutputMatGnuplotBinData(cv::Mat m, const char *filename, int low, int high)
 {
 	int channel, depth;
 
@@ -309,10 +309,10 @@ void _OutputMatGnuplotBinData(cv::Mat m, const char *filename)
 	float xmin, xmax;
 	float ymin, ymax;
 	
-	xmin = -20;
-	xmax = 20;
-	ymin = -20;
-	ymax = 20;	
+	xmin = low;
+	xmax = high;
+	ymin = low;
+	ymax = high;	
 	
    	xsize = (xmax - xmin) ;
 	ysize = (ymax - ymin) ;
