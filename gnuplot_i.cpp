@@ -936,8 +936,50 @@ Gnuplot& Gnuplot::plotfile_xyz(const std::string &filename,
     return *this;
 }
 
+Gnuplot& Gnuplot::plotfile_Boxxyerrorbars(const std::string &filename,
+                         const unsigned int column_x = 1,
+                         const unsigned int column_y = 2,
+                         const unsigned int column_xlow = 3,
+                         const unsigned int column_xhigh = 4,
+                         const unsigned int column_ylow = 5,
+                         const unsigned int column_yhigh = 6,						 
+							const std::string &color="",
+                         const std::string &title = "")
+{
+    //
+    // check if file exists
+    //
+    file_available(filename);
 
+	std::ostringstream cmdstr1;
+    cmdstr1 << "set style fill solid 1.0";
+    cmd(cmdstr1.str());
+	
+    std::ostringstream cmdstr;
+    //
+    // command to be sent to gnuplot
+    //
+    if (nplots > 0  &&  two_dim == false)
+        cmdstr << "replot ";
+    else
+        cmdstr << "plot ";
 
+    cmdstr << "\"" << filename << "\" using " << column_x << ":" << column_y 
+           << ":" << column_xlow  << ":" << column_xhigh << ":" << column_ylow  << ":" << column_yhigh;
+
+    if (title == "")
+        cmdstr << " notitle with boxxyerrorbars";
+    else
+        cmdstr << " title \"" << title << "\" with boxxyerrorbars";
+
+cmdstr << " linecolor " << "\"" << color << "\"";
+    //
+    // Do the actual plot
+    //
+    cmd(cmdstr.str());
+
+    return *this;
+}
 //------------------------------------------------------------------------------
 //
 /// *  note that this function is not valid for versions of GNUPlot below 4.2

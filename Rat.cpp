@@ -504,7 +504,7 @@ void CRat::computeEyeMaskCenter(Point& ptNewMaskCenter, bool bBigHead)
 	v = pt - ptEarCenter;
 	angle = asin(u.cross(v) / (norm(u)*norm(v)));
 	
-	MainFrame::myMsgOutput("angle %f\n", angle *180/M_PI);
+//	MainFrame::myMsgOutput("angle %f\n", angle *180/M_PI);
 
 	double dist = sqrt((ptEarCenter.x - ptEyeCenter.x)*(ptEarCenter.x - ptEyeCenter.x) + 
 				(ptEarCenter.y - ptEyeCenter.y)*(ptEarCenter.y - ptEyeCenter.y));
@@ -920,20 +920,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	gPlotL.cmd("set termoption noenhanced");
 	gPlotR.cmd("set termoption noenhanced");
 	
-	vector <float>  vStepX;
-	vector <float>  vStepY;
-	vStepX.push_back(m_nLED2);
-	vStepX.push_back(m_nLED2+6);
-	vStepY.push_back(-0.46);
-	vStepY.push_back(-0.46);	
-	_gnuplotSteps(gPlotR, "", vStepX, vStepY, 8, "#00ff009F");
-	vStepX.clear();
-	vStepY.clear();
-	vStepX.push_back(0);
-	vStepX.push_back(m_nSlices);
-	vStepY.push_back(-0.5);
-	vStepY.push_back(-0.5);	
-	_gnuplotSteps(gPlotR, "", vStepX, vStepY, 1, "#00ff009F");	
+	plotOnsetSound(-0.5, 0.1, 100);
 	
 	if(bLED && m_nLED1>0 && m_nLED2 >0) {
 		_gnuplotLED(gPlotL, m_nLED1, m_nLED2);
@@ -1044,6 +1031,36 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	
 	
 	return true;
+}
+void CRat::plotOnsetSound(float baseline, float deltaY, int msec)
+{
+	vector <float>  vX;
+	vector <float>  vY;
+	vector <float>  vXlow;
+	vector <float>  vYlow;
+	vector <float>  vXhigh;
+	vector <float>  vYhigh;
+	
+	float duration = msec * 60/1000.;
+	
+	vX.push_back(m_nLED2);
+	vYlow.push_back(baseline+deltaY);
+	vYhigh.push_back(baseline);	
+	
+	vXlow.push_back(m_nLED2);
+	vXhigh.push_back(m_nLED2+duration);
+	vY.push_back(baseline);	
+	gPlotR.plot_Boxxyerrorbars(vX, vY, vXlow, vXhigh, vYlow, vYhigh, "#00888888");
+	gPlotL.plot_Boxxyerrorbars(vX, vY, vXlow, vXhigh, vYlow, vYhigh, "#00888888");
+	
+	vX.clear();
+	vY.clear();
+	vX.push_back(0);
+	vX.push_back(m_nSlices);
+	vY.push_back(baseline);
+	vY.push_back(baseline);	
+	_gnuplotLineXY(gPlotL, vX, vY, "#00888888");	
+	_gnuplotLineXY(gPlotR, vX, vY, "#00888888");	
 }
 void CRat::drawOnDestImage(bool bSaveFile)
 {

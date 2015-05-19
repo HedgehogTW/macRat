@@ -524,6 +524,24 @@ private:
                       const std::string &title = "");
 
 
+    /// plot x,y pairs: x y
+    ///   from file
+    Gnuplot& plotfile_Boxxyerrorbars(const std::string &filename,
+                         const unsigned int column_x = 1,
+                         const unsigned int column_y = 2,
+                         const unsigned int column_xlow = 3,
+                         const unsigned int column_xhigh = 4,
+                         const unsigned int column_ylow = 5,
+                         const unsigned int column_yhigh = 6,						 
+							const std::string &color="",
+                         const std::string &title = "");
+    ///   from data
+    template<typename X>
+    Gnuplot& plot_Boxxyerrorbars(const X& x, const X& y, const X& xlow, const X& xhigh, const X& ylow, const X& yhigh, 
+				const std::string &color="",const std::string &title = "");
+
+
+
 
     /// plot an equation of the form: y = ax + b, you supply a and b
     Gnuplot& plot_slope(const double a,
@@ -665,4 +683,40 @@ Gnuplot& Gnuplot::plot_xy(const X& x, const Y& y, const unsigned int width, cons
     return *this;
 }
 
+template<typename X>
+Gnuplot& Gnuplot::plot_Boxxyerrorbars(const X& x, const X& y, const X& xlow, const X& xhigh, const X& ylow, const X& yhigh, 
+				const std::string &color="",const std::string &title = "")
+{
+    if (x.size() == 0 || y.size() == 0)
+    {
+        throw GnuplotException("std::vectors too small");
+        return *this;
+    }
+
+    if (x.size() != y.size())
+    {
+        throw GnuplotException("Length of the std::vectors differs");
+        return *this;
+    }
+
+
+    std::ofstream tmp;
+    std::string name = create_tmpfile(tmp);
+    if (name == "")
+        return *this;
+
+    //
+    // write the data to file
+    //
+    for (unsigned int i = 0; i < x.size(); i++)
+        tmp << x[i] << " " << y[i] << " " << xlow[i]<< " " << xhigh[i]<< " " << ylow[i]<< " " << yhigh[i]<< std::endl;
+
+    tmp.flush();
+    tmp.close();
+
+
+    plotfile_Boxxyerrorbars(name, 1, 2, 3, 4, 5, 6, color, title);
+
+    return *this;				
+}
 #endif

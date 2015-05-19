@@ -100,7 +100,8 @@ public:
 	void	getLightRange(int& from, int& to) { from = m_nLED1; to = m_nLED_End; }
 	void 	computeEyeMaskCenter(Point& ptNewMaskCenter, bool bBigHead);
     bool	process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, Point& ptRed, Point& ptCyan);
-
+	
+	void	plotOnsetSound(float baseline, float deltaY, int msec);
 	void 	drawOnDestImage(bool bSaveFile);
 	void 	findEyeCenter(Point& ptEye0, vector <Point>& vecEye, vector <float>&  vecEyeMove, int referFrame);
 	void  	findNewEarCenter(vector <Point>& vecEye, Point ptEar0, vector <Point>& vecEar, int referFrame);
