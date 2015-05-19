@@ -99,9 +99,11 @@ public:
         
 	void	getLightRange(int& from, int& to) { from = m_nLED1; to = m_nLED_End; }
 	void 	computeEyeMaskCenter(Point& ptNewMaskCenter, bool bBigHead);
+	void	computeROIRect();
+	void	recomputeHeadROI();
     bool	process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, Point& ptRed, Point& ptCyan);
 	
-	void	plotOnsetSound(float baseline, float deltaY, int msec);
+	void	plotSoundOnset(float baseline, float deltaY, int msec);
 	void 	drawOnDestImage(bool bSaveFile);
 	void 	findEyeCenter(Point& ptEye0, vector <Point>& vecEye, vector <float>&  vecEyeMove, int referFrame);
 	void  	findNewEarCenter(vector <Point>& vecEye, Point ptEar0, vector <Point>& vecEar, int referFrame);
@@ -191,7 +193,17 @@ public:
 	Point	m_ptEarR;
 	Point 	m_ptRed;
 	Point	m_ptCyan;
-	Point	m_ptEyeMaskCenter;
+	Point	m_ptHead;
+	
+	Point 	m_offsetEye;
+	Point 	m_offsetEar;
+	Point 	m_offsetAPB;	
+	
+	Rect	m_rectHead;
+	Rect  	m_rectEarL;
+	Rect  	m_rectEarR;	
+	Rect  	m_rectRed;
+	Rect  	m_rectCyan;	
 	
 //	vector <double>  m_vecLEyeGrayDiff;
 //	vector <double>  m_vecREyeGrayDiff;
@@ -204,10 +216,7 @@ public:
     
 	long	m_ROIEar;
 	long	m_ROIAPB;
-	
-	Point 	m_offsetEye;
-	Point 	m_offsetEar;
-	Point 	m_offsetAPB;
+
 	
 	int		m_nSlices ;
 	Size	m_szImg;

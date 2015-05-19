@@ -515,28 +515,184 @@ void CRat::computeEyeMaskCenter(Point& ptNewMaskCenter, bool bBigHead)
 	
 	if(ptEyeCenter.x < ptEarCenter.x) {
 		if(!bBigHead)
-			m_ptEyeMaskCenter.x = ptEyeCenter.x-x;
+			m_ptHead.x = ptEyeCenter.x-x;
 		else
-			m_ptEyeMaskCenter.x = ptEyeCenter.x+x;
+			m_ptHead.x = ptEyeCenter.x+x;
 	}else {
 		if(!bBigHead)
-			m_ptEyeMaskCenter.x = ptEyeCenter.x+x;
+			m_ptHead.x = ptEyeCenter.x+x;
 		else
-			m_ptEyeMaskCenter.x = ptEyeCenter.x-x;
+			m_ptHead.x = ptEyeCenter.x-x;
 	}
 	if(ptEyeCenter.y < ptEarCenter.y) {
 		if(!bBigHead)
-			m_ptEyeMaskCenter.y = ptEyeCenter.y-y;
+			m_ptHead.y = ptEyeCenter.y-y;
 		else
-			m_ptEyeMaskCenter.y = ptEyeCenter.y+y;
+			m_ptHead.y = ptEyeCenter.y+y;
 	}else {
 		if(!bBigHead)
-			m_ptEyeMaskCenter.y = ptEyeCenter.y+y;
+			m_ptHead.y = ptEyeCenter.y+y;
 		else
-			m_ptEyeMaskCenter.y = ptEyeCenter.y-y;
-	}
-
+			m_ptHead.y = ptEyeCenter.y-y;
+	}	
+}
+void CRat::recomputeHeadROI()
+{
+	int h = m_vecMat[0].rows;
+	int w = m_vecMat[0].cols;
 	
+	Point pt1, pt2;	
+	pt1 = Point(m_ptHead-m_offsetEye);
+	pt2 = Point(m_ptHead+m_offsetEye);
+	
+	if(pt1.x <0) pt1.x = 0;
+	if(pt1.y <0) pt1.y = 0;
+	if(pt2.x >= w) pt2.x = w-1;
+	if(pt2.y >= h) pt2.y = h-1;	
+	m_rectHead = Rect(pt1, pt2);	
+	
+	Mat mSrc = Mat::zeros(m_vecMat[0].size(), CV_8UC1);
+	Mat mROI(mSrc, m_rectHead);
+	mROI = 255;
+	
+	Mat mROIEarL(mSrc, m_rectEarL);
+	mROIEarL = Scalar(0);
+	Mat mROIEarR(mSrc, m_rectEarR);
+	mROIEarR = Scalar(0);	
+	
+	Mat mHori, mVert;
+	cv::reduce(mSrc, mHori, 0, CV_REDUCE_SUM, CV_32F);
+	cv::reduce(mSrc, mVert, 1, CV_REDUCE_SUM, CV_32F);
+	mHori /= 255;
+	mVert /= 255;
+	
+	double headW, minV, headH;
+	minMaxLoc(mVert, &minV, &headW);
+	minMaxLoc(mHori, &minV, &headH);
+	Rect rectHead1 = m_rectHead;
+	if(mHori.at<float>(0, m_rectHead.x) <m_rectHead.height && 
+		mHori.at<float>(0, m_rectHead.x+ m_rectHead.width-1) <m_rectHead.height) {
+			if(mVert.at<float>(m_rectHead.y, 0) < m_rectHead.width) {
+				int hL = m_rectHead.height - mHori.at<float>(0, m_rectHead.x);
+				int hR = m_rectHead.height - mHori.at<float>(0, m_rectHead.x+ m_rectHead.width-1);
+				if(hL < hR)  rectHead1 = Rect(Point(pt1.x, pt1.y+hR), pt2);
+				else rectHead1 = Rect(Point(pt1.x, pt1.y+hL), pt2);
+				MainFrame::myMsgOutput("cut top\n");
+			}else{
+				int hL = m_rectHead.height - mHori.at<float>(0, m_rectHead.x);
+				int hR = m_rectHead.height - mHori.at<float>(0, m_rectHead.x+ m_rectHead.width-1);
+				if(hL < hR)  rectHead1 = Rect(pt1, Point(pt2.x, pt2.y-hR));
+				else rectHead1 = Rect(pt1, Point(pt2.x, pt2.y-hL));				
+				MainFrame::myMsgOutput("cut bottom\n");		
+			}
+	}else if(mVert.at<float>(m_rectHead.y, 0) <m_rectHead.width && 
+		mVert.at<float>(m_rectHead.y+ m_rectHead.height-1, 0) <m_rectHead.width) {
+			if(mHori.at<float>(0, m_rectHead.x) < m_rectHead.height) {
+				int wT = m_rectHead.width - mVert.at<float>(m_rectHead.y, 0);
+				int wB = m_rectHead.width - mVert.at<float>(m_rectHead.y+ m_rectHead.height-1);
+				if(wT < wB)  rectHead1 = Rect(Point(pt1.x+wB, pt1.y), pt2);
+				else rectHead1 = Rect(Point(pt1.x+wT, pt1.y), pt2);
+				MainFrame::myMsgOutput("cut left\n");
+			}else{
+				int wT = m_rectHead.width - mVert.at<float>(m_rectHead.y, 0);
+				int wB = m_rectHead.width - mVert.at<float>(m_rectHead.y+ m_rectHead.height-1, 0);
+				if(wT < wB)  rectHead1 = Rect(pt1, Point(pt2.x-wB, pt2.y));
+				else rectHead1 = Rect(pt1, Point(pt2.x-wT, pt2.y));			
+				MainFrame::myMsgOutput("cut right\n");				
+			}
+	}else if(mHori.at<float>(0, m_rectHead.x) <m_rectHead.height &&
+			  mVert.at<float>(m_rectHead.y, 0) <m_rectHead.width) {
+			int w = m_rectHead.width - mVert.at<float>(m_rectHead.y, 0);
+			int h = m_rectHead.height - mHori.at<float>(0, m_rectHead.x);
+			if(w < h) rectHead1 = Rect(Point(pt1.x+w, pt1.y), pt2);	// cut left
+			else rectHead1 = Rect(Point(pt1.x, pt1.y+h), pt2);	// cut top
+			MainFrame::myMsgOutput("cut top-left\n");
+		
+	}else if(mHori.at<float>(0, m_rectHead.x+ m_rectHead.width-1) <m_rectHead.height &&
+			  mVert.at<float>(m_rectHead.y, 0) <m_rectHead.width) {
+			int w = m_rectHead.width - mVert.at<float>(m_rectHead.y, 0);
+			int h = m_rectHead.height - mHori.at<float>(0, m_rectHead.x+ m_rectHead.width-1);
+			if(w < h) rectHead1 = Rect(pt1, Point(pt2.x-w, pt2.y));	// cut right
+			else rectHead1 = Rect(Point(pt1.x, pt1.y+h), pt2);	// cut top				  
+			MainFrame::myMsgOutput("cut top-right\n");
+		
+	}else if(mHori.at<float>(0, m_rectHead.x) <m_rectHead.height &&
+			  mVert.at<float>(m_rectHead.y+ m_rectHead.height-1, 0) <m_rectHead.width) {
+			int w = m_rectHead.width - mVert.at<float>(m_rectHead.y+ m_rectHead.height-1, 0);
+			int h = m_rectHead.height - mHori.at<float>(0, m_rectHead.x);
+			if(w < h) rectHead1 = Rect(Point(pt1.x+w, pt1.y), pt2);	// cut left
+			else rectHead1 = Rect(pt1, Point(pt2.x, pt2.y-h));	// cut bottom				  
+			MainFrame::myMsgOutput("cut bottom-left\n");
+		
+	}else if(mHori.at<float>(0, m_rectHead.x+ m_rectHead.width-1) <m_rectHead.height &&
+			  mVert.at<float>(m_rectHead.y+ m_rectHead.height-1, 0) <m_rectHead.width) {
+			int w = m_rectHead.width - mVert.at<float>(m_rectHead.y+ m_rectHead.height-1, 0);
+			int h = m_rectHead.height - mHori.at<float>(0, m_rectHead.x+ m_rectHead.width-1);
+			if(w < h) rectHead1 = Rect(pt1, Point(pt2.x-w, pt2.y));	// cut right
+			else rectHead1 = Rect(pt1, Point(pt2.x, pt2.y-h));	// cut bottom						  
+			MainFrame::myMsgOutput("cut bottom-right\n");
+	}
+	m_rectHead = rectHead1;
+//	MainFrame::myMsgOutput("m_rectHead w %d, headW %f\n", m_rectHead.width, headW);
+//	MainFrame::myMsgOutput("m_rectHead h %d, headH %f\n", m_rectHead.height, headH);
+//	MainFrame::myMsgOutput("mVert %f, %f\n", mVert.at<float>(0, m_rectHead.y), mVert.at<float>(0, m_rectHead.y+ m_rectHead.height-1));
+//	MainFrame::myMsgOutput("mHori %f, %f\n", mHori.at<float>(0, m_rectHead.x), mHori.at<float>(0, m_rectHead.x+ m_rectHead.width-1));
+}
+void CRat::computeROIRect()
+{
+	int h = m_vecMat[0].rows;
+	int w = m_vecMat[0].cols;
+	
+	Point pt1, pt2;
+	pt1 = Point(m_ptEarL-m_offsetEar);
+	pt2 = Point(m_ptEarL+m_offsetEar);
+	
+	if(pt1.x <0) pt1.x = 0;
+	if(pt1.y <0) pt1.y = 0;
+	if(pt2.x >= w) pt2.x = w-1;
+	if(pt2.y >= h) pt2.y = h-1;	
+	m_rectEarL = Rect(pt1, pt2);
+	////////////////////////////////////////////////
+	
+	pt1 = Point(m_ptEarR-m_offsetEar);
+	pt2 = Point(m_ptEarR+m_offsetEar);
+	
+	if(pt1.x <0) pt1.x = 0;
+	if(pt1.y <0) pt1.y = 0;
+	if(pt2.x >= w) pt2.x = w-1;
+	if(pt2.y >= h) pt2.y = h-1;	
+	m_rectEarR = Rect(pt1, pt2);	
+	
+	////////////////////////////////////////////////
+	
+	pt1 = Point(m_ptRed-m_offsetAPB);
+	pt2 = Point(m_ptRed+m_offsetAPB);
+	
+	if(pt1.x <0) pt1.x = 0;
+	if(pt1.y <0) pt1.y = 0;
+	if(pt2.x >= w) pt2.x = w-1;
+	if(pt2.y >= h) pt2.y = h-1;	
+	m_rectRed = Rect(pt1, pt2);	
+	////////////////////////////////////////////////
+	
+	pt1 = Point(m_ptCyan-m_offsetAPB);
+	pt2 = Point(m_ptCyan+m_offsetAPB);
+	
+	if(pt1.x <0) pt1.x = 0;
+	if(pt1.y <0) pt1.y = 0;
+	if(pt2.x >= w) pt2.x = w-1;
+	if(pt2.y >= h) pt2.y = h-1;	
+	m_rectCyan = Rect(pt1, pt2);	
+	////////////////////////////////////////////////
+	
+	pt1 = Point(m_ptHead-m_offsetEye);
+	pt2 = Point(m_ptHead+m_offsetEye);
+	
+	if(pt1.x <0) pt1.x = 0;
+	if(pt1.y <0) pt1.y = 0;
+	if(pt2.x >= w) pt2.x = w-1;
+	if(pt2.y >= h) pt2.y = h-1;	
+	m_rectHead = Rect(pt1, pt2);	
 }
 bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, Point& ptRed, Point& ptCyan)
 {
@@ -644,7 +800,10 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	else
 		m_offsetEye =  Point(dist*EYE_OFFSET_RATIO, dist*EYE_OFFSET_RATIO);	
 		
-	computeEyeMaskCenter(m_ptEyeMaskCenter, bBigHead);
+	computeEyeMaskCenter(m_ptHead, bBigHead);
+	
+	computeROIRect();
+	if(!bBigHead) recomputeHeadROI();
 	
     if(referFrame<=0)
         newReferFrame = findReferenceFrame(ptEarL, m_offsetEar);
@@ -841,7 +1000,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 		if(m_bShowEye) {
 
     
-			opticalMovement(m_ptEyeMaskCenter, m_offsetEye, vecEyeFlowPdfL, m_vmDistEyeL, threshold, bOpFlowV1);
+			opticalMovement(m_ptHead, m_offsetEye, vecEyeFlowPdfL, m_vmDistEyeL, threshold, bOpFlowV1);
 			//opticalMovement(ptEyeR, vecEyeFlowPdfR, m_vmDistEyeR, threshold, bOpFlowV1);
 			float gainL, gainR;
 			if(gainEye<0) {
@@ -891,9 +1050,9 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			}
 			
             if(bSaveFile) {
-                opticalAssignThresholdMap(m_vmDistEyeL, threshold, m_ptEyeMaskCenter, m_offsetEye);
+                opticalAssignThresholdMap(m_vmDistEyeL, threshold, m_ptHead, m_offsetEye);
                 //opticalAssignThresholdMap(m_vmDistEyeR, threshold, ptEyeR);
-                vpDrawPtRect.push_back(m_ptEyeMaskCenter);
+                vpDrawPtRect.push_back(m_ptHead);
                 vpDrawPtOffset.push_back(m_offsetEye);    
                 //vpDrawPtRect.push_back(ptEyeR);                
             } 
@@ -920,7 +1079,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	gPlotL.cmd("set termoption noenhanced");
 	gPlotR.cmd("set termoption noenhanced");
 	
-	plotOnsetSound(-0.5, 0.1, 100);
+	plotSoundOnset(-0.5, 0.1, 100);
 	
 	if(bLED && m_nLED1>0 && m_nLED2 >0) {
 		_gnuplotLED(gPlotL, m_nLED1, m_nLED2);
@@ -1032,7 +1191,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	
 	return true;
 }
-void CRat::plotOnsetSound(float baseline, float deltaY, int msec)
+void CRat::plotSoundOnset(float baseline, float deltaY, int msec)
 {
 	vector <float>  vX;
 	vector <float>  vY;
@@ -1066,6 +1225,7 @@ void CRat::drawOnDestImage(bool bSaveFile)
 {
 	////////////////////// save result to dest
 	m_vecDest.resize(m_nSlices);
+/*	
 	Point ptL1 (m_ptEarL-m_offsetEar);
 	Point ptL2 (m_ptEarL+m_offsetEar);
 	Point ptR1 (m_ptEarR-m_offsetEar);
@@ -1076,9 +1236,9 @@ void CRat::drawOnDestImage(bool bSaveFile)
 	Point ptC1 (m_ptCyan-m_offsetAPB);
 	Point ptC2 (m_ptCyan+m_offsetAPB);
 	
-	Point ptEye1 (m_ptEyeMaskCenter-m_offsetEye);
-	Point ptEye2 (m_ptEyeMaskCenter+m_offsetEye);
-		
+	Point ptEye1 (m_ptHead-m_offsetEye);
+	Point ptEye2 (m_ptHead+m_offsetEye);
+*/		
 	for (int i = 0; i < m_nSlices; i++)
 		cvtColor(m_vecMat[i], m_vecDest[i], CV_GRAY2BGR);
 
@@ -1088,24 +1248,24 @@ void CRat::drawOnDestImage(bool bSaveFile)
 		mDestColor = m_vecDest[i];
 		// original ears
         if(m_bShowEar) {
-            rectangle(mDestColor, Rect(ptL1, ptL2), Scalar(255,0, 0));
-            rectangle(mDestColor, Rect(ptR1, ptR2), Scalar(255,0, 0));
+            rectangle(mDestColor, m_rectEarL, Scalar(255,0, 0));
+            rectangle(mDestColor, m_rectEarR, Scalar(255,0, 0));
         }
         if(m_bShowBelly) {
             if(m_BigRedPdf>0)
-                rectangle(mDestColor, Rect(ptD1, ptD2), Scalar(0,128,0));
+                rectangle(mDestColor, m_rectRed, Scalar(0,128,0));
             else
-                rectangle(mDestColor, Rect(ptC1, ptC2), Scalar(0,128,0));
+                rectangle(mDestColor, m_rectCyan, Scalar(0,128,0));
         }
 		if(m_bShowEye) {
-            rectangle(mDestColor, Rect(ptEye1, ptEye2), Scalar(0, 0,255));
-			//rectangle(mDestColor, Rect(ptEyeL1, ptEyeL2), Scalar(255, 0,255));
+            rectangle(mDestColor, m_rectHead, Scalar(0, 0,255));
+			//rectangle(mDestColor, m_rectHead1, Scalar(255, 0,255));
             //rectangle(mDestColor, Rect(ptEyeR1, ptEyeR2), Scalar(255, 0,255));
         }
 		// original eyes
 		circle(mDestColor, Point(m_ptEyeL.x, m_ptEyeL.y), 2, Scalar(0, 0, 255), -1);	
 		circle(mDestColor, Point(m_ptEyeR.x, m_ptEyeR.y), 2, Scalar(0, 0, 255), -1);	
-		circle(mDestColor, Point(m_ptEyeMaskCenter.x, m_ptEyeMaskCenter.y), 5, Scalar(255, 0, 255), -1);	
+//		circle(mDestColor, Point(m_ptHead.x, m_ptHead.y), 5, Scalar(255, 0, 255), -1);	
 	}
 
 	if(bSaveFile)
@@ -1893,7 +2053,7 @@ void CRat::opticalSavePlot(char* subpath, char* type, float threshold)
             }  
             if(m_bShowEye) {
                 oriX = 0; oriY = 0;
-                plotOneSpot(type, plotSave, i, saveName, m_ptEyeMaskCenter, m_offsetEye, m_vmDistEyeL,
+                plotOneSpot(type, plotSave, i, saveName, m_ptHead, m_offsetEye, m_vmDistEyeL,
                         "_Head", "Head", threshold, szX, szY, oriX, oriY); 
                 //oriX = 0.5; oriY = 0;
                 //plotOneSpot(type, plotSave, i, saveName, m_ptEyeR, offset, m_vmDistEyeR,
@@ -1919,7 +2079,7 @@ void CRat::opticalSavePlot(char* subpath, char* type, float threshold)
                         "_Cyan", "Cyan", threshold, szX, szY, oriX, oriY); 
          
                 oriX = 0.5; oriY = 0;
-                plotOneSpot(type, plotSave, i, saveName, m_ptEyeMaskCenter, m_offsetEye, m_vmDistEyeL,
+                plotOneSpot(type, plotSave, i, saveName, m_ptHead, m_offsetEye, m_vmDistEyeL,
                         "_Head", "Head", threshold, szX, szY, oriX, oriY); 
                 //oriX = 0.5; oriY = 0;
                 //plotOneSpot(type, plotSave, i, saveName, m_ptEyeR, offset, m_vmDistEyeR,
@@ -1945,7 +2105,7 @@ void CRat::opticalSavePlot(char* subpath, char* type, float threshold)
                     "_Cyan", "Cyan", threshold, szX, szY, oriX, oriY); 
                     
             oriX = 0.5; oriY = 0;           
-            plotOneSpot(type, plotSave, i, saveName, m_ptEyeMaskCenter, m_offsetEye, m_vmDistEyeL,
+            plotOneSpot(type, plotSave, i, saveName, m_ptHead, m_offsetEye, m_vmDistEyeL,
                     "_Head", "Head", threshold, szX, szY, oriX, oriY); 
                         
         }
