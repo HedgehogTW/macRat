@@ -125,15 +125,15 @@ public:
 	void	opticalFlow_v1(int nFrameSteps, int referFrame);
 	void	opticalMovement(Rect rect, vector<float>& vecPdfMove, vector <Mat>& vecmDist, float threshold, bool bOpFlowV1);
 	void 	opticalDrawFlowmap(Point pt1, Point pt2, Point offset, int nFrameSteps, char type);
-    void 	opticalDrawFlowmapWithPDF(vector<Point>& vpDrawPtRect, vector<Point>& vpOffset, int nFrameSteps);
+    void 	opticalDrawFlowmapWithPDF(vector<Rect>& vDrawRect, vector<Point>& vPt, int nFrameSteps);
 
 	void	drawOptFlowMap(Mat& cflowmap, const Mat& flow, int step, const Scalar& color);
-    void    drawOptFlowMapWithPDF(Mat& cflowmap, const Mat& flow,  int step, Mat &mPdf);    
+    void	drawOptFlowMapWithPDF(Mat& cflowmap, const Mat& flow,  int step, Mat &mPdf);    
     									
     bool    prepareGnuPlot(Gnuplot& plotSave, int numPlots, char* subpath);
     void    opticalSavePlot(char* subpath, char* type, float threshold);
     void    plotOneSpot(char* type, Gnuplot& plotSave, int i, wxFileName& saveName, Rect rect, vector<Mat>& vmPDF,
-								char* extName1, char* title1, float threshold,
+								const char* extName1, const char* title1, float threshold,
                                 float sizeX, float sizeY, float oriX, float oriY);
 								
 	float 	optical_compute_movement_v1(Mat& mFlow, Mat& mDistEar, float threshold, Rect rect);
@@ -142,7 +142,7 @@ public:
 	void 	plotDotScatter(Gnuplot& plotSavePGN, Mat& mFlow, Rect rect, wxString& strOutName, Mat& mPdf, float threshold);	
 	void	opticalBuildPDF(Mat& mFlow, Mat& mGaus, Mat& mDist, Rect rect);
 
-    void    opticalAssignThresholdMap(vector<Mat>& vmPDF, float th, Point pt, Point	offset);
+    void    opticalAssignThresholdMap(vector<Mat>& vmPDF, float th, Rect rect);
 
     bool    opticalLoadPDFfile(const char* filename, Mat &mPdf);
 	void    saveDistributionAsCSVandPNG();
