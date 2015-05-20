@@ -762,7 +762,10 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	dlg.getGain(gainEye, gainPDF);
 	dlg.Destroy();
 	
-	if(bUserLED2 && nLED2 > 0) m_nLED2 = nLED2-1;
+	if(bUserLED2 && nLED2 > 0) {
+		m_nLED2 = nLED2-1;
+		MainFrame::myMsgOutput("User-specified LED2 %d (0-based)\n", m_nLED2);
+	}
 
 	configData.m_frameStep = newFrameSteps;	
 	configData.m_threshold = threshold;
