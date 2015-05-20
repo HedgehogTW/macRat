@@ -699,8 +699,6 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	m_ptEyeL = ptEyeL;
 	m_ptEyeR = ptEyeR;
 	
-//	m_ptEyeC = (m_ptEyeL + m_ptEyeR)*0.5;
-	
 	m_ptEarL = ptEarL;
 	m_ptEarR = ptEarR;
     
