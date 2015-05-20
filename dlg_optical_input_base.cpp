@@ -42,17 +42,19 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     
     gridSizer167->Add(m_checkBoxLED, 0, wxALL, 5);
     
-    m_checkBoxBigHead = new wxCheckBox(m_panel163, wxID_ANY, _("Use Big Head"), wxDefaultPosition, wxSize(-1,-1), 0);
-    m_checkBoxBigHead->SetValue(false);
+    m_checkBoxVerLine = new wxCheckBox(m_panel163, wxID_ANY, _("Ver. Line (0-based)"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_checkBoxVerLine->SetValue(false);
     
-    gridSizer167->Add(m_checkBoxBigHead, 0, wxALL, 5);
+    gridSizer167->Add(m_checkBoxVerLine, 0, wxLEFT|wxRIGHT|wxTOP, 5);
     
-    m_checkBoxPinna = new wxCheckBox(m_panel163, wxID_ANY, _("Pinna detection"), wxDefaultPosition, wxSize(-1,-1), 0);
-    m_checkBoxPinna->SetValue(false);
+    m_textCtrlVerLine = new wxTextCtrl(m_panel163, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(50,-1), 0);
+    #if wxVERSION_NUMBER >= 3000
+    m_textCtrlVerLine->SetHint(wxT(""));
+    #endif
     
-    gridSizer167->Add(m_checkBoxPinna, 0, wxALL, 5);
+    gridSizer167->Add(m_textCtrlVerLine, 0, wxLEFT|wxRIGHT|wxTOP, 5);
     
-    m_checkBoxEyeMove = new wxCheckBox(m_panel163, wxID_ANY, _("Eye"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_checkBoxEyeMove = new wxCheckBox(m_panel163, wxID_ANY, _("Head"), wxDefaultPosition, wxSize(-1,-1), 0);
     m_checkBoxEyeMove->SetValue(false);
     
     gridSizer167->Add(m_checkBoxEyeMove, 0, wxALL, 5);
@@ -67,17 +69,22 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     
     gridSizer167->Add(m_checkBoxBelly, 0, wxALL, 5);
     
-    m_checkBoxVerLine = new wxCheckBox(m_panel163, wxID_ANY, _("Ver. Line (0-based)"), wxDefaultPosition, wxSize(-1,-1), 0);
-    m_checkBoxVerLine->SetValue(false);
+    m_checkBoxBigHead = new wxCheckBox(m_panel163, wxID_ANY, _("Use Big Head"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_checkBoxBigHead->SetValue(false);
     
-    gridSizer167->Add(m_checkBoxVerLine, 0, wxLEFT|wxRIGHT|wxTOP, 5);
+    gridSizer167->Add(m_checkBoxBigHead, 0, wxALL, 5);
     
-    m_textCtrlVerLine = new wxTextCtrl(m_panel163, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(50,-1), 0);
+    m_checkBoxLED2 = new wxCheckBox(m_panel163, wxID_ANY, _("LED2 (1-based)"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_checkBoxLED2->SetValue(false);
+    
+    gridSizer167->Add(m_checkBoxLED2, 0, wxALL, 5);
+    
+    m_textCtrlLED2 = new wxTextCtrl(m_panel163, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(50,-1), 0);
     #if wxVERSION_NUMBER >= 3000
-    m_textCtrlVerLine->SetHint(wxT(""));
+    m_textCtrlLED2->SetHint(wxT(""));
     #endif
     
-    gridSizer167->Add(m_textCtrlVerLine, 0, wxLEFT|wxRIGHT|wxTOP, 5);
+    gridSizer167->Add(m_textCtrlLED2, 0, wxALL, 5);
     
     m_panel171 = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxTAB_TRAVERSAL);
     

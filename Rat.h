@@ -53,14 +53,13 @@ public:
 	long 	m_frameStep;	
 	double m_threshold;
 	bool 	m_bLED;
-    bool   m_bBigHead;
-	bool 	m_bPinna;
+	bool   m_bBigHead;
 	bool 	m_bVerLine;
 
 	bool 	m_bEyeMove;
-    bool   m_bEar;
+	bool   m_bEar;
 	bool 	m_bBelly;	
-    bool 	m_bGrayDiff;
+	bool 	m_bGrayDiff;
 	bool 	m_bOpticalPDF;
 	bool	m_bOpFlowV1;
 	bool 	m_bAccumulate;
@@ -68,10 +67,10 @@ public:
 	double m_verLine;
 	double m_ymin;
 	double	m_ymax;	
-    long	m_szROIEar;
-    long	m_szROIAPB;
-    long   m_referFrame;
-	
+	long	m_szROIEar;
+	long	m_szROIAPB;
+	long   m_referFrame;
+
 	double	m_gainEye;
 	double	m_gainPDF;
 };
@@ -101,7 +100,7 @@ public:
 	void 	computeEyeMaskCenter(Point& ptNewMaskCenter, bool bBigHead);
 	void	computeROIRect();
 	void	recomputeHeadROI();
-    bool	process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, Point& ptRed, Point& ptCyan);
+    bool	process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, Point& ptRed, Point& ptCyan, int& nLED2);
 	
 	void	plotSoundOnset(float baseline, float deltaY, int msec);
 	void 	drawOnDestImage(bool bSaveFile);

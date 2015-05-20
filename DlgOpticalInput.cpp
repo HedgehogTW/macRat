@@ -19,16 +19,19 @@ DlgOpticalInput::~DlgOpticalInput()
 {
 }
 
-void DlgOpticalInput::setVerticalLine(bool bLED, bool bBigHead, bool bPinna, bool bVerLine, double x)
+void DlgOpticalInput::setVerticalLine(bool bLED, bool bBigHead, bool bUserLED2, int nLED2, bool bVerLine, double x)
 {
 	m_checkBoxLED->SetValue(bLED);
 	m_checkBoxBigHead->SetValue(bBigHead);
-	m_checkBoxPinna->SetValue(bPinna);
+	m_checkBoxLED2->SetValue(bUserLED2);
 	m_checkBoxVerLine->SetValue(bVerLine);
 	
-	wxString  str1;
+	wxString  str1, str2;
 	str1 << x;
 	*m_textCtrlVerLine << str1;
+	
+	str2 << nLED2;
+	*m_textCtrlLED2 << str2;	
 }
 
 void DlgOpticalInput::setSeriesLine(bool bEyeMove, bool bEar, bool bGrayDiff, bool bBelly)
@@ -76,17 +79,24 @@ void DlgOpticalInput::setGain(double gainEye, double gainPDF)
 	*m_textCtrlPDFGain << str2;
 }
 
-void DlgOpticalInput::getVerticalLine(bool& bLED, bool& bBigHead, bool& bPinna, bool& bVerLine, double& x)
+void DlgOpticalInput::getVerticalLine(bool& bLED, bool& bBigHead, bool& bUserLED2, int& nLED2, bool& bVerLine, double& x)
 {
 	bLED = m_checkBoxLED->GetValue();
 	bBigHead = m_checkBoxBigHead->GetValue();
-	bPinna = m_checkBoxPinna->GetValue();
+	bUserLED2 = m_checkBoxLED2->GetValue();
 	bVerLine = m_checkBoxVerLine->GetValue();
 	
 	wxString  str = m_textCtrlVerLine->GetValue();
 	double  value;
 	str.ToDouble(&value);
 	x = value;
+	
+	if(bUserLED2) {
+		long a;
+		str = m_textCtrlLED2->GetValue();
+		str.ToLong(&a);
+		nLED2 = a;
+	}
 }
 
 void DlgOpticalInput::getSeriesLine(bool& bEyeMove, bool& bEar, bool& bGrayDiff, bool& bBelly)

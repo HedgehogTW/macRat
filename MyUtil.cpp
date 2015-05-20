@@ -11,6 +11,7 @@
 void _gnuplotInit(Gnuplot& gnuPlot, const char* title, double ymin, double ymax)
 {
 	gnuPlot.reset_all();
+//	gnuPlot.cmd("set termoption noenhanced");
 	gnuPlot.set_title(title);
 	gnuPlot.set_grid();	
 	
@@ -19,13 +20,10 @@ void _gnuplotInit(Gnuplot& gnuPlot, const char* title, double ymin, double ymax)
 	}else gnuPlot.set_yrange(_MIN_Y, _MAX_Y);
 
 }
-void _gnuplotLED(Gnuplot& gnuPlot, int nBeginLight, int nTwoLight)
+void _gnuplotLED(Gnuplot& gnuPlot, int LED1, int LED2)
 {
-	if (nBeginLight > 0 && nTwoLight>0) {
-		_gnuplotVerticalLine(gnuPlot, nBeginLight);
-		_gnuplotVerticalLine(gnuPlot, nTwoLight);
-	}	
-
+	if (LED1 > 0) _gnuplotVerticalLine(gnuPlot, LED1);
+	if (LED2 > 0)	_gnuplotVerticalLine(gnuPlot, LED2);
 }
 
 

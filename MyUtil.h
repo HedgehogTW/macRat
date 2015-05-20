@@ -26,7 +26,7 @@ using namespace std;
 						 
 void _gnuplotInit(Gnuplot& gnuPlot, const char* title, double ymin=0, double ymax=0);
 void _gnuplotVerticalLine(Gnuplot& gnuPlot, int x, const char* dataName="");
-void _gnuplotLED(Gnuplot& gnuPlot, int nBeginLight, int nTwoLight);
+void _gnuplotLED(Gnuplot& gnuPlot, int LED1, int LED2);
 
 template<typename X>
 void _gnuplotLine(Gnuplot& gnuPlot, const char* titleName, X& data, const char* color="", const char* dashtype="")

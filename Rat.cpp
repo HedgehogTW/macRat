@@ -694,7 +694,7 @@ void CRat::computeROIRect()
 	if(pt2.y >= h) pt2.y = h-1;	
 	m_rectHead = Rect(pt1, pt2);	
 }
-bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, Point& ptRed, Point& ptCyan)
+bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, Point& ptRed, Point& ptCyan, int& nLED2)
 {
 	m_ptEyeL = ptEyeL;
 	m_ptEyeR = ptEyeR;
@@ -719,75 +719,79 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	int  newFrameSteps;
 	int frameStep = configData.m_frameStep;	
 	double threshold = configData.m_threshold;
-	bool bLED = configData.m_bLED;
-    bool bBigHead = configData.m_bBigHead;
-	bool bPinna = configData.m_bPinna;
+	bool bLEDLine = configData.m_bLED;
+	bool bBigHead = configData.m_bBigHead;
 	bool bVerLine = configData.m_bVerLine;
-	
+
 	bool bEyeMove = configData.m_bEyeMove;
 	bool bGrayDiff = configData.m_bGrayDiff;
 	bool bBelly = configData.m_bBelly;
-    bool bEar = configData.m_bEar;
+	bool bEar = configData.m_bEar;
 	bool bOpticalPDF = configData.m_bOpticalPDF;
 	bool bOpFlowV1 = configData.m_bOpFlowV1;
 	bool bAccumulate = configData.m_bAccumulate;
 	bool bSaveFile = configData.m_bSaveFile;
-	
+
 	double verLine = configData.m_verLine;
 	double ymin = configData.m_ymin;
 	double ymax = configData.m_ymax;
 	m_ROIEar = configData.m_szROIEar;
-    m_ROIAPB = configData.m_szROIAPB;
-    long referFrame = configData.m_referFrame;
+	m_ROIAPB = configData.m_szROIAPB;
+	long referFrame = configData.m_referFrame;
 	double gainEye = configData.m_gainEye;
 	double gainPDF = configData.m_gainPDF;
+
+	bool bUserLED2;
+	if(nLED2 >0)  bUserLED2 = true;
+	else bUserLED2 = false;
 	
 	DlgOpticalInput dlg(frameStep, threshold, MainFrame::m_pThis);
-	dlg.setVerticalLine(bLED, bBigHead, bPinna, bVerLine, verLine);
+	dlg.setVerticalLine(bLEDLine, bBigHead, bUserLED2, nLED2, bVerLine, verLine);
 	dlg.setSeriesLine(bEyeMove, bEar, bGrayDiff, bBelly);
 	dlg.setOptions(bOpticalPDF, bOpFlowV1, bAccumulate, bSaveFile);
 	dlg.setYRange(ymin, ymax, m_ROIEar, m_ROIAPB, referFrame);
 	dlg.setGain(gainEye, gainPDF);
-	
+
 	if(dlg.ShowModal() !=  wxID_OK) return false;
 	newFrameSteps = dlg.getFrameSteps();
 	threshold = dlg.getThreshold();
-	dlg.getVerticalLine(bLED, bBigHead, bPinna, bVerLine, verLine);
+	dlg.getVerticalLine(bLEDLine, bBigHead, bUserLED2, nLED2, bVerLine, verLine);
 	dlg.getSeriesLine(bEyeMove, bEar, bGrayDiff, bBelly);
 	dlg.getOptions(bOpticalPDF, bNewOpFlowV1, bAccumulate, bSaveFile);
 	dlg.getYRange(ymin, ymax, m_ROIEar, m_ROIAPB, referFrame);
 	dlg.getGain(gainEye, gainPDF);
 	dlg.Destroy();
 	
+	if(bUserLED2 && nLED2 > 0) m_nLED2 = nLED2-1;
+
 	configData.m_frameStep = newFrameSteps;	
 	configData.m_threshold = threshold;
-	configData.m_bLED = bLED;
-    configData.m_bBigHead = bBigHead;
-	configData.m_bPinna = bPinna;
+	configData.m_bLED = bLEDLine;
+	configData.m_bBigHead = bBigHead;
 	configData.m_bVerLine = bVerLine;
-	
+
 	configData.m_bEyeMove = bEyeMove;
 	configData.m_bGrayDiff = bGrayDiff;
-    configData.m_bEar = bEar;
+	configData.m_bEar = bEar;
 	configData.m_bBelly = bBelly;
 	configData.m_bOpticalPDF = bOpticalPDF;
 	configData.m_bOpFlowV1 = bNewOpFlowV1;
 	configData.m_bAccumulate = bAccumulate;
 	configData.m_bSaveFile = bSaveFile;
-	
+
 	configData.m_verLine = verLine;
 	configData.m_ymin = ymin;
 	configData.m_ymax = ymax;
 	configData.m_szROIEar = m_ROIEar;
-    configData.m_szROIAPB = m_ROIAPB;
-    configData.m_referFrame = referFrame;
+	configData.m_szROIAPB = m_ROIAPB;
+	configData.m_referFrame = referFrame;
 	configData.m_gainEye = gainEye;
 	configData.m_gainPDF = gainPDF;
 	MainFrame::m_pThis->setConfigData(configData);	
-	
-    m_bShowEye = bEyeMove;
-    m_bShowEar = bEar;
-    m_bShowBelly = bBelly;
+
+	m_bShowEye = bEyeMove;
+	m_bShowEar = bEar;
+	m_bShowBelly = bBelly;
 
 	/////////////////////////// for computing ROI rect
 	m_offsetEar = Point(m_ROIEar/2, m_ROIEar/2);
@@ -838,12 +842,8 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	wxBeginBusyCursor();
 	
 	vector <float>  vecEyeFlowPdfL;
-	//vector <float>  vecEyeFlowPdfR;
 	vector <float>  vecEyeFlowPdfRegresL;
-	//vector <float>  vecEyeFlowPdfRegresR;
 	vector <float>  vecEyeFlowPdfSubRegresL;
-	//vector <float>  vecEyeFlowPdfSubRegresR;
-	
 	
 	vector <float>  vecLEarFlowPdf;
 	vector <float>  vecREarFlowPdf;
@@ -872,7 +872,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	frameStep = newFrameSteps;
 	m_referFrame = newReferFrame;
     
-	MainFrame:: myMsgOutput("y range [%d, %d], Ear ROI %d, APB ROI %d, bSave %d\n", ymin, ymax, m_ROIEar, m_ROIAPB, bSaveFile);	
+	MainFrame:: myMsgOutput("y range [%.2f, %.2f], Ear ROI %d, APB ROI %d, bSave %d\n", ymin, ymax, m_ROIEar, m_ROIAPB, bSaveFile);	
 	MainFrame:: myMsgOutput("PDF threshold %f, frame steps %d, bOpFlowV1 %d, eyeGain %.2f, bAccumulate %d\n", 
 			threshold, frameStep, bOpFlowV1, gainEye, bAccumulate);
 	
@@ -886,7 +886,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
         
 	int maxPointL, maxPointR;
 	maxPointL = maxPointR = -1;
-	if(bGrayDiff || bPinna) {
+	if(bGrayDiff ) {
 		if(m_bShowEar) {
 			graylevelDiff(m_referFrame, m_rectEarL, m_rectEarR, vecLEarGrayDiff, vecREarGrayDiff);
 			smoothData(vecLEarGrayDiff, smoothL, 2);	
@@ -895,16 +895,16 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			maxPointL = findMaxMotionPoint(smoothL);
 			maxPointR = findMaxMotionPoint(smoothR);	
 
-			DC_removal(m_nLED1, vecLEarGrayDiff);
-			DC_removal(m_nLED1, vecREarGrayDiff);
+			DC_removal(m_nLED2, vecLEarGrayDiff);
+			DC_removal(m_nLED2, vecREarGrayDiff);
 			
 			Notch_removal(vecLEarGrayDiff, m_referFrame);
 			Notch_removal(vecREarGrayDiff, m_referFrame);
 		}
 		if(m_bShowBelly) {
 			graylevelDiff(m_referFrame, m_rectRed, m_rectCyan, vecRedGrayDiff, vecCyanGrayDiff);
-			DC_removal(m_nLED1, vecRedGrayDiff);
-			DC_removal(m_nLED1, vecCyanGrayDiff);
+			DC_removal(m_nLED2, vecRedGrayDiff);
+			DC_removal(m_nLED2, vecCyanGrayDiff);
 			Notch_removal(vecCyanGrayDiff, m_referFrame);
 			Notch_removal(vecRedGrayDiff, m_referFrame);	
 
@@ -933,8 +933,8 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 					vecREarFlowPdf[i] += vecREarFlowPdf[i-1];
 				}
 			}
-			DC_removal(m_nLED1, vecLEarFlowPdf);
-			DC_removal(m_nLED1, vecREarFlowPdf);
+			DC_removal(m_nLED2, vecLEarFlowPdf);
+			DC_removal(m_nLED2, vecREarFlowPdf);
 			
 			Notch_removal(vecLEarFlowPdf, m_referFrame);
 			Notch_removal(vecREarFlowPdf, m_referFrame);
@@ -964,8 +964,8 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 					vecCyanFlowPdf[i] += vecCyanFlowPdf[i-1];
 				}
 			}
-			DC_removal(m_nLED1, vecRedFlowPdf);
-			DC_removal(m_nLED1, vecCyanFlowPdf);
+			DC_removal(m_nLED2, vecRedFlowPdf);
+			DC_removal(m_nLED2, vecCyanFlowPdf);
 			
 			Notch_removal(vecRedFlowPdf, m_referFrame);
 			Notch_removal(vecCyanFlowPdf, m_referFrame);
@@ -1000,18 +1000,12 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 		}
 		
 		if(m_bShowEye) {
-
-    
 			opticalMovement(m_rectHead, vecEyeFlowPdfL, m_vmDistEyeL, threshold, bOpFlowV1);
-			//opticalMovement(ptEyeR, vecEyeFlowPdfR, m_vmDistEyeR, threshold, bOpFlowV1);
 			float gainL, gainR;
 			if(gainEye<0) {
 				Scalar muEyeL1 = mean(m_vecEyeLMove);
-				//Scalar muEyeR1 = mean(m_vecEyeRMove);
 				Scalar muEyeL2 = mean(vecEyeFlowPdfL);
-				//Scalar muEyeR2 = mean(vecEyeFlowPdfR);	
 				gainL = muEyeL1[0] / muEyeL2[0];
-				//gainR = muEyeR1[0] / muEyeR2[0];
 			}else if(gainEye>1) {
 				gainL = gainR = gainEye;
 			}
@@ -1019,44 +1013,36 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			if(gainEye!=1) {
 				for(int i=0; i<sz; i++) {
 					vecEyeFlowPdfL[i] = vecEyeFlowPdfL[i]*gainL;
-					//vecEyeFlowPdfR[i] = vecEyeFlowPdfR[i]*gainR;
 				}
 			} 
 			if(frameStep > 0 && bAccumulate) {			
 				for(int i=1; i<sz; i++) {
 					vecEyeFlowPdfL[i] += vecEyeFlowPdfL[i-1];
-					//vecEyeFlowPdfR[i] += vecEyeFlowPdfR[i-1];
 				}
 				for(int i=1; i<sz; i++) {
 					vecEyeFlowPdfL[i] /= frameStep;
-					//vecEyeFlowPdfR[i] /= frameStep;
 				}				
 			}
 			
+			DC_removal(m_nLED2, vecEyeFlowPdfL);
+			
 			float baselineL = Notch_removal(vecEyeFlowPdfL, m_referFrame);
-            //float baselineR = Notch_removal(vecEyeFlowPdfR, m_referFrame);
 			for(int i=0; i<sz; i++) {
 				vecEyeFlowPdfL[i] -= baselineL;
-				//vecEyeFlowPdfR[i] -= baselineR;
 			}		
 			
 			if(frameStep > 0 && bAccumulate) {
-				linearRegression(vecEyeFlowPdfL, vecEyeFlowPdfRegresL, vecEyeFlowPdfSubRegresL);
-				//linearRegression(vecEyeFlowPdfR, vecEyeFlowPdfRegresR, vecEyeFlowPdfSubRegresR);
-				
+				linearRegression(vecEyeFlowPdfL, vecEyeFlowPdfRegresL, vecEyeFlowPdfSubRegresL);				
 				int sz1 = vecEyeFlowPdfSubRegresL.size();
 				for(int i=0; i<sz1; i++) {
 					vecEyeFlowPdfSubRegresL[i] = vecEyeFlowPdfSubRegresL[i] /gainEye;
-					//vecEyeFlowPdfSubRegresR[i] = vecEyeFlowPdfSubRegresR[i]/gainEye;
 				}		
 			}
 			
             if(bSaveFile) {
                 opticalAssignThresholdMap(m_vmDistEyeL, threshold, m_rectHead);
-                //opticalAssignThresholdMap(m_vmDistEyeR, threshold, ptEyeR);
                 vDrawRect.push_back(m_rectHead);
-                vDrawPt.push_back(m_ptHead);    
-                //vpDrawPtRect.push_back(ptEyeR);                
+                vDrawPt.push_back(m_ptHead);                   
             } 
 		}
         //////////////////////////////////////save file
@@ -1073,25 +1059,37 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	
 ///////////G N U P L O T//////////////////////////////////////////////////////////////////////////////
 	wxFileName fileName = m_strSrcPath;
-	const char* title =fileName.GetName();
-	_gnuplotInit(gPlotL, title, ymin, ymax);
-	_gnuplotInit(gPlotR, title, ymin, ymax);
+	wxString title =fileName.GetName();
+	int lenTitle = strlen(title);
+	if(lenTitle <=3) {
+		wxUniChar sep = fileName.GetPathSeparator();
+		int len = m_strSrcPath.Len();
+		int p1 = m_strSrcPath.find_last_of(sep, len -lenTitle-1);
+		int p2 = m_strSrcPath.find_last_of(sep, p1-1);
+		int p3 = m_strSrcPath.find_last_of(sep, p2-1);
+		title = m_strSrcPath.Right(len-p3);
+		title.Replace("\\", "/");
+//		MainFrame:: myMsgOutput("strUpperPath "+ m_strSrcPath.Right(len-p3)+ "\n" );
+	}
+	
+	_gnuplotInit(gPlotL, title.ToAscii(), ymin, ymax);
+	_gnuplotInit(gPlotR, title.ToAscii(), ymin, ymax);
 	gPlotL.set_legend("left");
 	gPlotR.set_legend("left");	
 	gPlotL.cmd("set termoption noenhanced");
 	gPlotR.cmd("set termoption noenhanced");
 	
-	plotSoundOnset(-0.5, 0.1, 100);
+	plotSoundOnset(-0.5, 0.06, 100);
 	
-	if(bLED && m_nLED1>0 && m_nLED2 >0) {
+	if(bLEDLine && (m_nLED1>0 || m_nLED2 >0)) {
 		_gnuplotLED(gPlotL, m_nLED1, m_nLED2);
 		_gnuplotLED(gPlotR, m_nLED1, m_nLED2);
 	}
-	if(bLED) {
+	if(bLEDLine) {
 		_gnuplotVerticalLine(gPlotL, m_referFrame);
 		_gnuplotVerticalLine(gPlotR, m_referFrame);        
     }
-	if(bPinna && maxPointL>=0 && maxPointR>=0) {
+	if(maxPointL>=0 && maxPointR>=0) {
 		if(vecLEarGrayDiff[maxPointL]> vecREarGrayDiff[maxPointR]) {
 			MainFrame:: myMsgOutput("max motion: left ear %d\n", maxPointL);
 			_gnuplotVerticalLine(gPlotL, maxPointL);
@@ -1206,7 +1204,7 @@ void CRat::plotSoundOnset(float baseline, float deltaY, int msec)
 	
 	vX.push_back(m_nLED2);
 	vYlow.push_back(baseline+deltaY);
-	vYhigh.push_back(baseline);	
+	vYhigh.push_back(baseline-deltaY);	
 	
 	vXlow.push_back(m_nLED2);
 	vXhigh.push_back(m_nLED2+duration);
@@ -1535,7 +1533,7 @@ int CRat::findReferenceFrame(Rect rect)
 	int start, end, lenSeg;
 	start = 0;
     if(m_nLED2>0)
-        end = m_nLED1;// + 10;
+        end = m_nLED2;// + 10;
     else
         end = m_nSlices/2;
         

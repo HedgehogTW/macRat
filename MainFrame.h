@@ -120,6 +120,7 @@ protected:
 	CRat	m_Rat;
 	int		m_nSlices ;
 	int		m_nCageLine;
+	int		m_nLED2;
 	bool	m_bCutTop;
 	bool	m_bHasCrop;
 ////////////////////////////////mark eyes and ears

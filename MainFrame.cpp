@@ -57,7 +57,6 @@ MainFrame::MainFrame(wxWindow* parent)
 	m_configData.m_threshold = pConfig->ReadDouble("/optical/threshold", 0.001);
 	m_configData.m_bLED = pConfig->ReadBool("/optical/bLED", true);    
     m_configData.m_bBigHead = pConfig->ReadBool("/optical/bBigHead", false);
-	m_configData.m_bPinna = pConfig->ReadBool("/optical/bPinna", false);
 	m_configData.m_bVerLine = pConfig->ReadBool("/optical/bVerLine", false);
 	
 	m_configData.m_bEyeMove = pConfig->ReadBool("/optical/bEyeMove", true);
@@ -120,31 +119,31 @@ void MainFrame::DeleteContents()
 	pConfig->Write("/optical/frameStep", m_configData.m_frameStep);
 	pConfig->Write("/optical/threshold", m_configData.m_threshold);
 	pConfig->Write("/optical/bLED", m_configData.m_bLED);
-    pConfig->Write("/optical/bBigHead", m_configData.m_bBigHead);
-	pConfig->Write("/optical/bPinna", m_configData.m_bPinna);
+	pConfig->Write("/optical/bBigHead", m_configData.m_bBigHead);
 	pConfig->Write("/optical/bVerLine", m_configData.m_bVerLine);
-	
+
 	pConfig->Write("/optical/bEyeMove", m_configData.m_bEyeMove);
-    pConfig->Write("/optical/bEar", m_configData.m_bEar);
+	pConfig->Write("/optical/bEar", m_configData.m_bEar);
 	pConfig->Write("/optical/bBelly", m_configData.m_bBelly);
-   	pConfig->Write("/optical/bGrayDiff", m_configData.m_bGrayDiff); 
+	pConfig->Write("/optical/bGrayDiff", m_configData.m_bGrayDiff); 
 	pConfig->Write("/optical/bOpticalPDF", m_configData.m_bOpticalPDF);
 	pConfig->Write("/optical/bOpFlowV1", m_configData.m_bOpFlowV1);
 	pConfig->Write("/optical/bAccumulate", m_configData.m_bAccumulate);
 	pConfig->Write("/optical/bSaveFile", m_configData.m_bSaveFile);
-	
+
 	pConfig->Write("/optical/verLine", m_configData.m_verLine);
 	pConfig->Write("/optical/ymin", m_configData.m_ymin);
 	pConfig->Write("/optical/ymax", m_configData.m_ymax);
 	pConfig->Write("/optical/ROIEar", m_configData.m_szROIEar);
-    pConfig->Write("/optical/ROIAPB", m_configData.m_szROIAPB);
-    pConfig->Write("/optical/referFrame", m_configData.m_referFrame);
-	
+	pConfig->Write("/optical/ROIAPB", m_configData.m_szROIAPB);
+	pConfig->Write("/optical/referFrame", m_configData.m_referFrame);
+
 	pConfig->Write("/optical/gainEye", m_configData.m_gainEye);
-    pConfig->Write("/optical/gainPDF", m_configData.m_gainPDF);	
+	pConfig->Write("/optical/gainPDF", m_configData.m_gainPDF);	
 	
 	m_nSlices = 0;
 	m_nCageLine = -1;
+	m_nLED2 = -1;
 	m_bCutTop = false;
 	m_bHasCrop = false;
 	
@@ -220,7 +219,7 @@ void MainFrame::readMarks(wxString &dirName)
 			
 	Point ptEyeL, ptEyeR, ptEarL, ptEarR;
 	Point ptBellyRed, ptBellyCyan;
-	int n, line;
+	int n, line, led2;
 	char  type;
 	FILE* fp;
     if(bNewMarker) {
@@ -276,6 +275,12 @@ void MainFrame::readMarks(wxString &dirName)
 				else m_nCageLine = -1;
 				myMsgOutput("C %d\n", line);
 				break;
+			case 'L':
+				n = fscanf(fp, "%d\n", &led2);
+				if(n==1)  m_nLED2 = led2;
+				else m_nLED2 = -1;
+				myMsgOutput("L %d\n", led2);
+				break;				
 		}
 		
 	}while(!feof(fp));
@@ -540,42 +545,18 @@ bool MainFrame::preprocessing()
 		wxMessageBox("set cage horizontal line", "error");
 		return false;
 	}	
-    myMsgOutput("-------------------------------------------------\n");	
+ 
 
-    wxFileName fileName = m_strSourcePath;
-    wxUniChar sep = fileName.GetPathSeparator();
-    wxString 	strParentPath =  m_strSourcePath.BeforeLast(sep);
-    wxString  newMarkerName = "_"+fileName.GetName()+"_Marks.txt";
-    wxFileName newFullMarkerName(strParentPath, newMarkerName);
-
-	//wxFileName dataName(m_strSourcePath, "_Marks.txt");
-	FILE* fp = fopen(newFullMarkerName.GetFullPath(), "w");
-	if(fp!=NULL) {
-		if(m_dqEyePts.size()>=2) {
-			fprintf(fp, "Y%d %d %d %d\n", m_dqEyePts[0].x, m_dqEyePts[0].y, m_dqEyePts[1].x, m_dqEyePts[1].y );
-			myMsgOutput("Left Eye: [%d, %d], Right Eye: [%d, %d]\n", m_dqEyePts[0].x, m_dqEyePts[0].y, m_dqEyePts[1].x, m_dqEyePts[1].y );
+	if(m_bHasCrop ==false) {
+		if(m_nLED2 <0) {
+			if(m_Rat.detectLED(m_nCageLine)==false) {
+				wxString str;
+				str.Printf("detectLED error, LED1 %d, LED2 %d, LED end %d", m_Rat.m_nLED1, m_Rat.m_nLED2, m_Rat.m_nLED_End);
+				wxLogMessage(str);
+				//return false;
+			}
 		}
-		if(m_dqEarPts.size()>=2) {
-			fprintf(fp, "E%d %d %d %d\n", m_dqEarPts[0].x, m_dqEarPts[0].y, m_dqEarPts[1].x, m_dqEarPts[1].y );
-			myMsgOutput("Left Ear: [%d, %d], Right Ear: [%d, %d]\n", m_dqEarPts[0].x, m_dqEarPts[0].y, m_dqEarPts[1].x, m_dqEarPts[1].y);
-		}
-		if(m_dqBellyPts.size()>=2) {
-			fprintf(fp, "A%d %d %d %d\n", m_dqBellyPts[0].x, m_dqBellyPts[0].y, m_dqBellyPts[1].x, m_dqBellyPts[1].y );
-			myMsgOutput("Belly [%d, %d], [%d, %d]\n",m_dqBellyPts[0].x, m_dqBellyPts[0].y, m_dqBellyPts[1].x, m_dqBellyPts[1].y );
-		}
-		if(m_nCageLine >0)
-			fprintf(fp, "C%d\n", m_nCageLine );
-		fclose(fp);
 	}
-
-    if(m_bHasCrop ==false) {
-        if(m_Rat.detectLED(m_nCageLine)==false) {
-            wxString str;
-            str.Printf("detectLED error, LED1 %d, LED2 %d, LED end %d", m_Rat.m_nLED1, m_Rat.m_nLED2, m_Rat.m_nLED_End);
-            wxLogMessage(str);
-            //return false;
-        }
-    }
 	if(!m_bHasCrop ) {
 		m_Rat.cropImage(m_bCutTop);
 		updateOutData(m_Rat.getSrcImg(0));	
@@ -623,11 +604,40 @@ void MainFrame::OnRatProcessEar(wxCommandEvent& event)
 		m_ptBellyCyan.y -= m_nCageLine;	      
     }
 	//bool bRet = m_Rat.processEar(m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR);
-	bool bRet = m_Rat.process(m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR, m_ptBellyRed, m_ptBellyCyan);
-	if(bRet ==false) return;
-	
+	bool bRet = m_Rat.process(m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR, m_ptBellyRed, m_ptBellyCyan, m_nLED2);
+	if(bRet ==false) return;		
 	updateOutData(m_Rat.getResultImg(0));
 	wxBell();	
+	
+   myMsgOutput("-------------------------------------------------\n");	
+
+    wxFileName fileName = m_strSourcePath;
+    wxUniChar sep = fileName.GetPathSeparator();
+    wxString 	strParentPath =  m_strSourcePath.BeforeLast(sep);
+    wxString  newMarkerName = "_"+fileName.GetName()+"_Marks.txt";
+    wxFileName newFullMarkerName(strParentPath, newMarkerName);
+
+	//wxFileName dataName(m_strSourcePath, "_Marks.txt");
+	FILE* fp = fopen(newFullMarkerName.GetFullPath(), "w");
+	if(fp!=NULL) {
+		if(m_dqEyePts.size()>=2) {
+			fprintf(fp, "Y%d %d %d %d\n", m_dqEyePts[0].x, m_dqEyePts[0].y, m_dqEyePts[1].x, m_dqEyePts[1].y );
+//			myMsgOutput("Left Eye: [%d, %d], Right Eye: [%d, %d]\n", m_dqEyePts[0].x, m_dqEyePts[0].y, m_dqEyePts[1].x, m_dqEyePts[1].y );
+		}
+		if(m_dqEarPts.size()>=2) {
+			fprintf(fp, "E%d %d %d %d\n", m_dqEarPts[0].x, m_dqEarPts[0].y, m_dqEarPts[1].x, m_dqEarPts[1].y );
+//			myMsgOutput("Left Ear: [%d, %d], Right Ear: [%d, %d]\n", m_dqEarPts[0].x, m_dqEarPts[0].y, m_dqEarPts[1].x, m_dqEarPts[1].y);
+		}
+		if(m_dqBellyPts.size()>=2) {
+			fprintf(fp, "A%d %d %d %d\n", m_dqBellyPts[0].x, m_dqBellyPts[0].y, m_dqBellyPts[1].x, m_dqBellyPts[1].y );
+//			myMsgOutput("Belly [%d, %d], [%d, %d]\n",m_dqBellyPts[0].x, m_dqBellyPts[0].y, m_dqBellyPts[1].x, m_dqBellyPts[1].y );
+		}
+		if(m_nCageLine >0)
+			fprintf(fp, "C%d\n", m_nCageLine );
+		if(m_nLED2 >0)
+			fprintf(fp, "L%d\n", m_nLED2 );			
+		fclose(fp);
+	}	
 }
 
 void MainFrame::OnRatBelly(wxCommandEvent& event)

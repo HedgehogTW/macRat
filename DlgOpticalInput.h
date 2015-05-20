@@ -8,13 +8,13 @@ public:
     DlgOpticalInput(long nFrameSteps, double threshold, wxWindow* parent);
     virtual ~DlgOpticalInput();
 	
-	void setVerticalLine(bool bLED, bool bBigHead, bool bPinna, bool bVerLine, double x=0);
+	void setVerticalLine(bool bLED, bool bBigHead, bool bUserLED2, int nLED2, bool bVerLine, double x=0);
 	void setSeriesLine(bool bEyeMove, bool bEar, bool bGrayDiff, bool bBelly);
 	void setOptions(bool bOpticalPDF, bool bOpFlowV1, bool bAccumulate, bool bSave);
 	void setYRange(double min, double max, long szROIEar, long szROIAPB, long referFrame);
 	void setGain(double gainEye, double gainPDF);
 	
-	void getVerticalLine(bool& bLED, bool& bBigHead, bool& bPinna, bool& bVerLine, double& x);
+	void getVerticalLine(bool& bLED, bool& bBigHead, bool& bUserLED2, int& nLED2, bool& bVerLine, double& x);
 	void getSeriesLine(bool& bEyeMove, bool& bEar, bool& bGrayDiff, bool& bBelly);
 	void getOptions(bool& bOpticalPDF, bool& bOpFlowV1, bool& bAccumulate, bool& bSave);
 	void getYRange(double& min, double& max, long& szROIEar, long& szROIAPB, long& referFrame);
