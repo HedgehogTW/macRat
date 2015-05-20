@@ -44,8 +44,6 @@ protected:
     wxStaticText* m_staticText181;
     wxRadioButton* m_radioOpV1;
     wxRadioButton* m_radioOpV2;
-    wxRadioButton* m_radioButtonInstan;
-    wxRadioButton* m_radioButtonAccumu;
     wxStaticLine* m_staticLine781;
     wxPanel* m_panel38;
     wxStaticText* m_staticText718;

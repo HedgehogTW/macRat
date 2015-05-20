@@ -729,7 +729,6 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	bool bEar = configData.m_bEar;
 	bool bOpticalPDF = configData.m_bOpticalPDF;
 	bool bOpFlowV1 = configData.m_bOpFlowV1;
-	bool bAccumulate = configData.m_bAccumulate;
 	bool bSaveFile = configData.m_bSaveFile;
 
 	double verLine = configData.m_verLine;
@@ -748,7 +747,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	DlgOpticalInput dlg(frameStep, threshold, MainFrame::m_pThis);
 	dlg.setVerticalLine(bLEDLine, bBigHead, bUserLED2, nLED2, bVerLine, verLine);
 	dlg.setSeriesLine(bEyeMove, bEar, bGrayDiff, bBelly);
-	dlg.setOptions(bOpticalPDF, bOpFlowV1, bAccumulate, bSaveFile);
+	dlg.setOptions(bOpticalPDF, bOpFlowV1, bSaveFile);
 	dlg.setYRange(ymin, ymax, m_ROIEar, m_ROIAPB, referFrame);
 	dlg.setGain(gainEye, gainPDF);
 
@@ -757,7 +756,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	threshold = dlg.getThreshold();
 	dlg.getVerticalLine(bLEDLine, bBigHead, bUserLED2, nLED2, bVerLine, verLine);
 	dlg.getSeriesLine(bEyeMove, bEar, bGrayDiff, bBelly);
-	dlg.getOptions(bOpticalPDF, bNewOpFlowV1, bAccumulate, bSaveFile);
+	dlg.getOptions(bOpticalPDF, bNewOpFlowV1, bSaveFile);
 	dlg.getYRange(ymin, ymax, m_ROIEar, m_ROIAPB, referFrame);
 	dlg.getGain(gainEye, gainPDF);
 	dlg.Destroy();
@@ -779,7 +778,6 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	configData.m_bBelly = bBelly;
 	configData.m_bOpticalPDF = bOpticalPDF;
 	configData.m_bOpFlowV1 = bNewOpFlowV1;
-	configData.m_bAccumulate = bAccumulate;
 	configData.m_bSaveFile = bSaveFile;
 
 	configData.m_verLine = verLine;
@@ -844,23 +842,11 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	
 	wxBeginBusyCursor();
 	
-	vector <float>  vecEyeFlowPdfL;
-	vector <float>  vecEyeFlowPdfRegresL;
-	vector <float>  vecEyeFlowPdfSubRegresL;
-	
+	vector <float>  vecEyeFlowPdfL;	
 	vector <float>  vecLEarFlowPdf;
 	vector <float>  vecREarFlowPdf;
-	vector <float>  vecLEarFlowPdfRegres;
-	vector <float>  vecREarFlowPdfRegres;
-	vector <float>  vecLEarFlowPdfSubRegres;
-	vector <float>  vecREarFlowPdfSubRegres;
-	
 	vector <float>  vecRedFlowPdf;
 	vector <float>  vecCyanFlowPdf;
-	vector <float>  vecRedFlowPdfRegres;
-	vector <float>  vecCyanFlowPdfRegres;
-	vector <float>  vecRedFlowPdfSubRegres;
-	vector <float>  vecCyanFlowPdfSubRegres;
 	
 	int szVecFlow = m_vecFlow.size();
     if(bOpticalPDF ) {
@@ -876,8 +862,8 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	m_referFrame = newReferFrame;
     
 	MainFrame:: myMsgOutput("y range [%.2f, %.2f], Ear ROI %d, APB ROI %d, bSave %d\n", ymin, ymax, m_ROIEar, m_ROIAPB, bSaveFile);	
-	MainFrame:: myMsgOutput("PDF threshold %f, frame steps %d, bOpFlowV1 %d, eyeGain %.2f, bAccumulate %d\n", 
-			threshold, frameStep, bOpFlowV1, gainEye, bAccumulate);
+	MainFrame:: myMsgOutput("PDF threshold %f, frame steps %d, bOpFlowV1 %d, eyeGain %.2f\n", 
+			threshold, frameStep, bOpFlowV1, gainEye);
 	
 	vector <float>  vecRedGrayDiff;
 	vector <float>  vecCyanGrayDiff;	
@@ -911,7 +897,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			Notch_removal(vecCyanGrayDiff, m_referFrame);
 			Notch_removal(vecRedGrayDiff, m_referFrame);	
 
-            m_BigRedGray = isRedRignificant(vecRedGrayDiff, vecCyanGrayDiff);
+			m_BigRedGray = isRedRignificant(vecRedGrayDiff, vecCyanGrayDiff);
 		}
 	}
 	
@@ -930,23 +916,13 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 		if(m_bShowEar) {
 			opticalMovement(m_rectEarL, vecLEarFlowPdf, m_vmDistEarL, threshold, bOpFlowV1);
 			opticalMovement(m_rectEarR, vecREarFlowPdf, m_vmDistEarR, threshold, bOpFlowV1);
-			if(frameStep > 0 && bAccumulate) {			
-				for(int i=1; i<sz; i++) {
-					vecLEarFlowPdf[i] += vecLEarFlowPdf[i-1];
-					vecREarFlowPdf[i] += vecREarFlowPdf[i-1];
-				}
-			}
+			
 			DC_removal(m_nLED2, vecLEarFlowPdf);
 			DC_removal(m_nLED2, vecREarFlowPdf);
 			
 			Notch_removal(vecLEarFlowPdf, m_referFrame);
 			Notch_removal(vecREarFlowPdf, m_referFrame);
-			
-			if(frameStep > 0 && bAccumulate) {
-				linearRegression(vecLEarFlowPdf, vecLEarFlowPdfRegres, vecLEarFlowPdfSubRegres);
-				linearRegression(vecREarFlowPdf, vecREarFlowPdfRegres, vecREarFlowPdfSubRegres);
-			}
-			
+		
 			if(bSaveFile) {
                 opticalAssignThresholdMap(m_vmDistEarL, threshold, m_rectEarL);
                 opticalAssignThresholdMap(m_vmDistEarR, threshold, m_rectEarR);
@@ -961,34 +937,14 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			opticalMovement(m_rectRed, vecRedFlowPdf, m_vmDistRed, threshold, bOpFlowV1);
 			opticalMovement(m_rectCyan, vecCyanFlowPdf, m_vmDistCyan, threshold, bOpFlowV1);      
             
-			if(frameStep > 0 && bAccumulate) {			
-				for(int i=1; i<sz; i++) {
-					vecRedFlowPdf[i] += vecRedFlowPdf[i-1];
-					vecCyanFlowPdf[i] += vecCyanFlowPdf[i-1];
-				}
-			}
 			DC_removal(m_nLED2, vecRedFlowPdf);
 			DC_removal(m_nLED2, vecCyanFlowPdf);
 			
 			Notch_removal(vecRedFlowPdf, m_referFrame);
 			Notch_removal(vecCyanFlowPdf, m_referFrame);
 			
-            m_BigRedPdf = isRedRignificant(vecRedFlowPdf, vecCyanFlowPdf);
+			m_BigRedPdf = isRedRignificant(vecRedFlowPdf, vecCyanFlowPdf);
             
-			if(frameStep > 0 && bAccumulate) {
-                if(m_BigRedPdf>0)
-                    linearRegression(vecRedFlowPdf, vecRedFlowPdfRegres, vecRedFlowPdfSubRegres);
-                else
-                    linearRegression(vecCyanFlowPdf, vecCyanFlowPdfRegres, vecCyanFlowPdfSubRegres);
-				
-				int sz1 = vecRedFlowPdf.size();
-				for(int i=0; i<sz1; i++) {
-                    if(m_BigRedPdf>0)
-                        vecRedFlowPdfSubRegres[i] = vecRedFlowPdfSubRegres[i] /gainPDF;
-                    else
-                        vecCyanFlowPdfSubRegres[i] = vecCyanFlowPdfSubRegres[i]/gainPDF;
-				}		
-			}
 			if(bSaveFile) {
                 if(m_BigRedPdf>0) {
                     opticalAssignThresholdMap(m_vmDistRed, threshold, m_rectRed);
@@ -1018,14 +974,6 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 					vecEyeFlowPdfL[i] = vecEyeFlowPdfL[i]*gainL;
 				}
 			} 
-			if(frameStep > 0 && bAccumulate) {			
-				for(int i=1; i<sz; i++) {
-					vecEyeFlowPdfL[i] += vecEyeFlowPdfL[i-1];
-				}
-				for(int i=1; i<sz; i++) {
-					vecEyeFlowPdfL[i] /= frameStep;
-				}				
-			}
 			
 			DC_removal(m_nLED2, vecEyeFlowPdfL);
 			
@@ -1034,14 +982,6 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 				vecEyeFlowPdfL[i] -= baselineL;
 			}		
 			
-			if(frameStep > 0 && bAccumulate) {
-				linearRegression(vecEyeFlowPdfL, vecEyeFlowPdfRegresL, vecEyeFlowPdfSubRegresL);				
-				int sz1 = vecEyeFlowPdfSubRegresL.size();
-				for(int i=0; i<sz1; i++) {
-					vecEyeFlowPdfSubRegresL[i] = vecEyeFlowPdfSubRegresL[i] /gainEye;
-				}		
-			}
-			
             if(bSaveFile) {
                 opticalAssignThresholdMap(m_vmDistEyeL, threshold, m_rectHead);
                 vDrawRect.push_back(m_rectHead);
@@ -1049,8 +989,6 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
             } 
 		}
         //////////////////////////////////////save file
-
-        
         if(bSaveFile) {
 			opticalDrawFlowmapWithPDF(vDrawRect, vDrawPt, frameStep);
 			opticalSavePlot("scatter", "dots", threshold);
@@ -1136,13 +1074,6 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			_gnuplotLine(gPlotL, "LEar", vecLEarFlowPdf, "#000000ff");
 			_gnuplotLine(gPlotR, "REar", vecREarFlowPdf, "#000000ff");
 			
-			if(frameStep > 0 && bAccumulate ) {
-				_gnuplotLine(gPlotL, "LEarPDFRegress", vecLEarFlowPdfRegres, "#000080FF", "-");
-				_gnuplotLine(gPlotR, "REarPDFRegress", vecREarFlowPdfRegres, "#000080FF", "-");
-				
-				_gnuplotLine(gPlotL, "LEarPDF-Regress", vecLEarFlowPdfSubRegres, "#00FF0000");
-				_gnuplotLine(gPlotR, "REarPDF-Regress", vecREarFlowPdfSubRegres, "#00FF0000");
-			}
 		}
 		if(m_bShowBelly) {
             //_OutputVec(vecRedFlowPdf, "_redw.csv");
@@ -1153,33 +1084,11 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
                  _gnuplotLine(gPlotL, "Belly", vecCyanFlowPdf, "#00008000");
                 _gnuplotLine(gPlotR, "Belly", vecCyanFlowPdf, "#00008000");               
             }
-			
-			if(frameStep > 0 && bAccumulate ) {
-                if(m_BigRedPdf>0) {
-                    _gnuplotLine(gPlotL, "APB-Red PDFRegress", vecRedFlowPdfRegres, "#00F000FF", "-");
-                    _gnuplotLine(gPlotR, "APB-Red PDFRegress", vecRedFlowPdfRegres, "#00F000FF", "-");
 				
-                    _gnuplotLine(gPlotL, "APB-Red PDF-Regress", vecRedFlowPdfSubRegres, "#00FF8000");
-                    _gnuplotLine(gPlotR, "APB-Red PDF-Regress", vecRedFlowPdfSubRegres, "#00FF8000");
-                }else {
-                     _gnuplotLine(gPlotL, "APB-Cyan PDFRegress", vecCyanFlowPdfRegres, "#00F000FF", "-");
-                    _gnuplotLine(gPlotR, "APB-Cyan PDFRegress", vecCyanFlowPdfRegres, "#00F000FF", "-");
-				
-                    _gnuplotLine(gPlotL, "APB-Cyan PDF-Regress", vecCyanFlowPdfSubRegres, "#00FF8000");
-                    _gnuplotLine(gPlotR, "APB-Cyan PDF-Regress", vecCyanFlowPdfSubRegres, "#00FF8000");                   
-                }
-			}	
 		}
 		if(m_bShowEye) {
 			_gnuplotLine(gPlotL, "Head", vecEyeFlowPdfL, "#008B0000");
-			_gnuplotLine(gPlotR, "Head", vecEyeFlowPdfL, "#008B0000");				
-			if(frameStep > 0 && bAccumulate ) {
-				_gnuplotLine(gPlotL, "EyeL PDFRegress", vecEyeFlowPdfRegresL, "#00B8860B", "-");
-				_gnuplotLine(gPlotR, "EyeR PDFRegress", vecEyeFlowPdfRegresL, "#00B8860B", "-");
-				
-				_gnuplotLine(gPlotL, "EyeL PDF-Regress", vecEyeFlowPdfSubRegresL, "#00FF00FF");
-				_gnuplotLine(gPlotR, "EyeR PDF-Regress", vecEyeFlowPdfSubRegresL, "#00FF00FF");
-			}	
+			_gnuplotLine(gPlotR, "Head", vecEyeFlowPdfL, "#008B0000");	
 		}		
 	}
 	

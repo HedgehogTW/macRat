@@ -126,16 +126,6 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     
     gridSizer175->Add(m_radioOpV2, 0, wxALL, 5);
     
-    m_radioButtonInstan = new wxRadioButton(m_panel171, wxID_ANY, _("Instantaneous"), wxDefaultPosition, wxSize(-1,-1), wxRB_GROUP);
-    m_radioButtonInstan->SetValue(1);
-    
-    gridSizer175->Add(m_radioButtonInstan, 0, wxALL, 5);
-    
-    m_radioButtonAccumu = new wxRadioButton(m_panel171, wxID_ANY, _("Accumulation"), wxDefaultPosition, wxSize(-1,-1), 0);
-    m_radioButtonAccumu->SetValue(1);
-    
-    gridSizer175->Add(m_radioButtonAccumu, 0, wxALL, 5);
-    
     m_staticLine781 = new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxLI_HORIZONTAL);
     
     boxSizer315->Add(m_staticLine781, 0, wxALL|wxEXPAND, 5);
