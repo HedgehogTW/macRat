@@ -450,19 +450,19 @@ void CRat::cropImage(bool& bCutTop)
 	
 	return;
 }
-void CRat::DC_removal(int nFirstLED, vector <float>& vecSignal)
+void CRat::DC_removal(int nLED, vector <float>& vecSignal)
 {
 	int n = vecSignal.size();
 	
-	if(n<=nFirstLED )  {
-		wxLogMessage("n <= nFirstLED");
+	if(n<=nLED )  {
+		wxLogMessage("n <= nLED");
 		return;
 	}
 	
 	float mean = 0;
 	
-	for(int i=0; i<nFirstLED; i++) 	mean += vecSignal[i];
-	mean /= nFirstLED;
+	for(int i=0; i<nLED; i++) 	mean += vecSignal[i];
+	mean /= nLED;
 	for(int i=0; i<n; i++)  vecSignal[i] -= mean;	
 }
 float CRat::Notch_removal(vector <float>& vecSignal, int refFrame)
@@ -901,8 +901,8 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	
 
 	vector <Rect> vDrawRect;
-    vector <Point> vDrawPt;
-    
+	vector <Point> vDrawPt;
+
 	if(bOpticalPDF) {
 		int sz = m_vecFlow.size();
 
@@ -976,9 +976,9 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			DC_removal(m_nLED2, vecEyeFlowPdfL);
 			
 			float baselineL = Notch_removal(vecEyeFlowPdfL, m_referFrame);
-			for(int i=0; i<sz; i++) {
-				vecEyeFlowPdfL[i] -= baselineL;
-			}		
+//			for(int i=0; i<sz; i++) {
+//				vecEyeFlowPdfL[i] -= baselineL;
+//			}		
 			
             if(bSaveFile) {
                 opticalAssignThresholdMap(m_vmDistEyeL, threshold, m_rectHead);
