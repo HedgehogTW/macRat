@@ -166,27 +166,27 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     
     gridBagSizer40->Add(m_textCtrlThreshold, wxGBPosition(1,1), wxGBSpan(1,1), wxALL, 5);
     
-    m_staticText132 = new wxStaticText(m_panel38, wxID_ANY, _("eye gain *"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_staticText132 = new wxStaticText(m_panel38, wxID_ANY, _("head gain *"), wxDefaultPosition, wxSize(-1,-1), 0);
     
     gridBagSizer40->Add(m_staticText132, wxGBPosition(2,0), wxGBSpan(1,1), wxALL, 5);
     
-    m_textCtrlEyeGain = new wxTextCtrl(m_panel38, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(50,-1), 0);
+    m_textCtrlHeadGain = new wxTextCtrl(m_panel38, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(50,-1), 0);
     #if wxVERSION_NUMBER >= 3000
-    m_textCtrlEyeGain->SetHint(wxT(""));
+    m_textCtrlHeadGain->SetHint(wxT(""));
     #endif
     
-    gridBagSizer40->Add(m_textCtrlEyeGain, wxGBPosition(2,1), wxGBSpan(1,1), wxALL, 5);
+    gridBagSizer40->Add(m_textCtrlHeadGain, wxGBPosition(2,1), wxGBSpan(1,1), wxALL, 5);
     
-    m_staticText136 = new wxStaticText(m_panel38, wxID_ANY, _("optical PDF gain /"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_staticText136 = new wxStaticText(m_panel38, wxID_ANY, _("Belly gain *"), wxDefaultPosition, wxSize(-1,-1), 0);
     
     gridBagSizer40->Add(m_staticText136, wxGBPosition(2,2), wxGBSpan(1,1), wxALL, 5);
     
-    m_textCtrlPDFGain = new wxTextCtrl(m_panel38, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(50,-1), 0);
+    m_textCtrlBellyGain = new wxTextCtrl(m_panel38, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(50,-1), 0);
     #if wxVERSION_NUMBER >= 3000
-    m_textCtrlPDFGain->SetHint(wxT(""));
+    m_textCtrlBellyGain->SetHint(wxT(""));
     #endif
     
-    gridBagSizer40->Add(m_textCtrlPDFGain, wxGBPosition(2,3), wxGBSpan(1,1), wxALL, 5);
+    gridBagSizer40->Add(m_textCtrlBellyGain, wxGBPosition(2,3), wxGBSpan(1,1), wxALL, 5);
     
     m_staticLine78 = new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxLI_HORIZONTAL);
     

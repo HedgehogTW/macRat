@@ -68,11 +68,19 @@ public:
 	double m_ymin;
 	double	m_ymax;	
 	long	m_szROIEar;
-	long	m_szROIAPB;
+	long	m_szROIBelly;
 	long   m_referFrame;
 
-	double	m_gainEye;
-	double	m_gainPDF;
+	double	m_gainHead;
+	double	m_gainBelly;
+	
+	
+	void Init() {
+		m_gainHead = 1;
+		m_gainBelly = 1;
+		m_szROIEar = 80;
+		m_szROIBelly = 80;
+	}
 };
 
 
@@ -214,7 +222,7 @@ public:
     vector <float>  m_vecEyeFlowPdf;
     
 	long	m_ROIEar;
-	long	m_ROIAPB;
+	long	m_ROIBelly;
 
 	
 	int		m_nSlices ;

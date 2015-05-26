@@ -12,14 +12,14 @@ public:
 	void setSeriesLine(bool bEyeMove, bool bEar, bool bGrayDiff, bool bBelly);
 	void setOptions(bool bOpticalPDF, bool bOpFlowV1, bool bSave);
 	void setYRange(double min, double max, long szROIEar, long szROIAPB, long referFrame);
-	void setGain(double gainEye, double gainPDF);
+	void setGain(double gainHead, double gainBelly);
 	
 	void getVerticalLine(bool& bLED, bool& bBigHead, bool& bUserLED2, int& nLED2, bool& bVerLine, double& x);
 	void getSeriesLine(bool& bEyeMove, bool& bEar, bool& bGrayDiff, bool& bBelly);
 	void getOptions(bool& bOpticalPDF, bool& bOpFlowV1, bool& bSave);
 	void getYRange(double& min, double& max, long& szROIEar, long& szROIAPB, long& referFrame);
 	
-	void getGain(double& gainEye, double &gainPDF);
+	void getGain(double& gainHead, double &gainBelly);
 	
 	double getThreshold() { 
 		wxString  str = m_textCtrlThreshold->GetValue();

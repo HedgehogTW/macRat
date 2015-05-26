@@ -67,14 +67,14 @@ void DlgOpticalInput::setYRange(double min, double max, long szROIEar, long szRO
 	*m_textCtrlReferFrame << str5;   
 }
 
-void DlgOpticalInput::setGain(double gainEye, double gainPDF)
+void DlgOpticalInput::setGain(double gainHead, double gainBelly)
 {
 	wxString  str1, str2;
-	str1 << gainEye;
-	*m_textCtrlEyeGain << str1;
+	str1 << gainHead;
+	*m_textCtrlHeadGain << str1;
 	
-	str2 << gainPDF;
-	*m_textCtrlPDFGain << str2;
+	str2 << gainBelly;
+	*m_textCtrlBellyGain << str2;
 }
 
 void DlgOpticalInput::getVerticalLine(bool& bLED, bool& bBigHead, bool& bUserLED2, int& nLED2, bool& bVerLine, double& x)
@@ -136,15 +136,15 @@ void DlgOpticalInput::getYRange(double& min, double& max, long& szROIEar, long& 
 	referFrame = a;	 
 }
 
-void DlgOpticalInput::getGain(double& gainEye, double &gainPDF)
+void DlgOpticalInput::getGain(double& gainHead, double &gainBelly)
 {
-	wxString  str = m_textCtrlEyeGain->GetValue();
+	wxString  str = m_textCtrlHeadGain->GetValue();
 	double  value;
 	str.ToDouble(&value);	
-	gainEye = value;	
+	gainHead = value;	
 
-	str = m_textCtrlPDFGain->GetValue();
+	str = m_textCtrlBellyGain->GetValue();
 	str.ToDouble(&value);	
-	gainPDF = value;	
+	gainBelly = value;	
 
 }

@@ -733,10 +733,10 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	double ymin = configData.m_ymin;
 	double ymax = configData.m_ymax;
 	m_ROIEar = configData.m_szROIEar;
-	m_ROIAPB = configData.m_szROIAPB;
+	m_ROIBelly = configData.m_szROIBelly;
 	long referFrame = configData.m_referFrame;
-	double gainEye = configData.m_gainEye;
-	double gainPDF = configData.m_gainPDF;
+	double gainHead = configData.m_gainHead;
+	double gainBelly = configData.m_gainBelly;
 
 	bool bUserLED2;
 	if(nLED2 >0)  bUserLED2 = true;
@@ -746,8 +746,8 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	dlg.setVerticalLine(bLEDLine, bBigHead, bUserLED2, nLED2, bVerLine, verLine);
 	dlg.setSeriesLine(bEyeMove, bEar, bGrayDiff, bBelly);
 	dlg.setOptions(bOpticalPDF, bOpFlowV1, bSaveFile);
-	dlg.setYRange(ymin, ymax, m_ROIEar, m_ROIAPB, referFrame);
-	dlg.setGain(gainEye, gainPDF);
+	dlg.setYRange(ymin, ymax, m_ROIEar, m_ROIBelly, referFrame);
+	dlg.setGain(gainHead, gainBelly);
 
 	if(dlg.ShowModal() !=  wxID_OK) return false;
 	newFrameSteps = dlg.getFrameSteps();
@@ -755,8 +755,8 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	dlg.getVerticalLine(bLEDLine, bBigHead, bUserLED2, nLED2, bVerLine, verLine);
 	dlg.getSeriesLine(bEyeMove, bEar, bGrayDiff, bBelly);
 	dlg.getOptions(bOpticalPDF, bNewOpFlowV1, bSaveFile);
-	dlg.getYRange(ymin, ymax, m_ROIEar, m_ROIAPB, referFrame);
-	dlg.getGain(gainEye, gainPDF);
+	dlg.getYRange(ymin, ymax, m_ROIEar, m_ROIBelly, referFrame);
+	dlg.getGain(gainHead, gainBelly);
 	dlg.Destroy();
 	
 	if(bUserLED2 && nLED2 > 0) {
@@ -782,10 +782,10 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	configData.m_ymin = ymin;
 	configData.m_ymax = ymax;
 	configData.m_szROIEar = m_ROIEar;
-	configData.m_szROIAPB = m_ROIAPB;
+	configData.m_szROIBelly = m_ROIBelly;
 	configData.m_referFrame = referFrame;
-	configData.m_gainEye = gainEye;
-	configData.m_gainPDF = gainPDF;
+	configData.m_gainHead = gainHead;
+	configData.m_gainBelly = gainBelly;
 	MainFrame::m_pThis->setConfigData(configData);	
 
 	m_bShowEye = bEyeMove;
@@ -794,7 +794,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 
 	/////////////////////////// for computing ROI rect
 	m_offsetEar = Point(m_ROIEar/2, m_ROIEar/2);
-	m_offsetAPB = Point(m_ROIAPB/2, m_ROIAPB/2);
+	m_offsetAPB = Point(m_ROIBelly/2, m_ROIBelly/2);
 	
 	double dist = sqrt((m_ptEyeL.x - m_ptEyeR.x)*(m_ptEyeL.x - m_ptEyeR.x) + 
 				(m_ptEyeL.y - m_ptEyeR.y)*(m_ptEyeL.y - m_ptEyeR.y));	
@@ -859,9 +859,9 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	frameStep = newFrameSteps;
 	m_referFrame = newReferFrame;
     
-	MainFrame:: myMsgOutput("y range [%.2f, %.2f], Ear ROI %d, APB ROI %d, bSave %d\n", ymin, ymax, m_ROIEar, m_ROIAPB, bSaveFile);	
-	MainFrame:: myMsgOutput("PDF threshold %f, frame steps %d, bOpFlowV1 %d, eyeGain %.2f\n", 
-			threshold, frameStep, bOpFlowV1, gainEye);
+	MainFrame:: myMsgOutput("y range [%.2f, %.2f], Ear ROI %d, APB ROI %d, bSave %d\n", ymin, ymax, m_ROIEar, m_ROIBelly, bSaveFile);	
+	MainFrame:: myMsgOutput("PDF threshold %f, frame steps %d, bOpFlowV1 %d, headGain %.2f, bellyGain %.2f\n", 
+			threshold, frameStep, bOpFlowV1, gainHead, gainBelly);
 	
 	vector <float>  vecRedGrayDiff;
 	vector <float>  vecCyanGrayDiff;	
@@ -934,7 +934,13 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 		if(m_bShowBelly) {
 			opticalMovement(m_rectRed, vecRedFlowPdf, m_vmDistRed, threshold, bOpFlowV1);
 			opticalMovement(m_rectCyan, vecCyanFlowPdf, m_vmDistCyan, threshold, bOpFlowV1);      
-            
+		
+			if(gainBelly!=1) {
+				for(int i=0; i<sz; i++) {
+					vecRedFlowPdf[i] = vecRedFlowPdf[i]*gainBelly;
+					vecCyanFlowPdf[i] = vecCyanFlowPdf[i]*gainBelly;
+				}
+			}
 			DC_removal(m_nLED2, vecRedFlowPdf);
 			DC_removal(m_nLED2, vecCyanFlowPdf);
 			
@@ -957,19 +963,10 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 		}
 		
 		if(m_bShowEye) {
-			opticalMovement(m_rectHead, vecEyeFlowPdfL, m_vmDistEyeL, threshold, bOpFlowV1);
-			float gainL, gainR;
-			if(gainEye<0) {
-				Scalar muEyeL1 = mean(m_vecEyeLMove);
-				Scalar muEyeL2 = mean(vecEyeFlowPdfL);
-				gainL = muEyeL1[0] / muEyeL2[0];
-			}else if(gainEye>1) {
-				gainL = gainR = gainEye;
-			}
-			
-			if(gainEye!=1) {
+			opticalMovement(m_rectHead, vecEyeFlowPdfL, m_vmDistEyeL, threshold, bOpFlowV1);			
+			if(gainHead!=1) {
 				for(int i=0; i<sz; i++) {
-					vecEyeFlowPdfL[i] = vecEyeFlowPdfL[i]*gainL;
+					vecEyeFlowPdfL[i] = vecEyeFlowPdfL[i]*gainHead;
 				}
 			} 
 			

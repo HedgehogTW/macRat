@@ -129,6 +129,9 @@ protected:
 	bool    m_bMarkBelly;
 	bool    m_bMarkCageline;
 	
+//	double	m_gainHead;
+//	double	m_gainBelly;
+	
 	deque<Point>  m_dqEyePts;
 	deque<Point>  m_dqEarPts;
 	deque<Point>  m_dqBellyPts;

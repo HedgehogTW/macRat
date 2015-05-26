@@ -2211,7 +2211,7 @@
             }, {
              "type": "multi-string",
              "m_label": "Label:",
-             "m_value": "eye gain *"
+             "m_value": "head gain *"
             }, {
              "type": "string",
              "m_label": "Wrap:",
@@ -2242,7 +2242,7 @@
             }, {
              "type": "string",
              "m_label": "Name:",
-             "m_value": "m_textCtrlEyeGain"
+             "m_value": "m_textCtrlHeadGain"
             }, {
              "type": "multi-string",
              "m_label": "Tooltip:",
@@ -2373,7 +2373,7 @@
             }, {
              "type": "multi-string",
              "m_label": "Label:",
-             "m_value": "optical PDF gain /"
+             "m_value": "Belly gain *"
             }, {
              "type": "string",
              "m_label": "Wrap:",
@@ -2404,7 +2404,7 @@
             }, {
              "type": "string",
              "m_label": "Name:",
-             "m_value": "m_textCtrlPDFGain"
+             "m_value": "m_textCtrlBellyGain"
             }, {
              "type": "multi-string",
              "m_label": "Tooltip:",

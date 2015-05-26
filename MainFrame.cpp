@@ -71,11 +71,11 @@ MainFrame::MainFrame(wxWindow* parent)
 	m_configData.m_verLine = pConfig->ReadDouble("/optical/verLine", 190);
 	m_configData.m_ymin = pConfig->ReadDouble("/optical/ymin", -1);
 	m_configData.m_ymax = pConfig->ReadDouble("/optical/ymax", 3);
-	m_configData.m_szROIEar = pConfig->ReadLong("/optical/ROIEar", 80);
-    m_configData.m_szROIAPB = pConfig->ReadLong("/optical/ROIAPB", 80);
+//	m_configData.m_szROIEar = pConfig->ReadLong("/optical/ROIEar", 80);
+//  m_configData.m_szROIAPB = pConfig->ReadLong("/optical/ROIAPB", 80);
     m_configData.m_referFrame = pConfig->ReadLong("/optical/referFrame", 0);
-	m_configData.m_gainEye = pConfig->ReadDouble("/optical/gainEye", 3);
-	m_configData.m_gainPDF = pConfig->ReadDouble("/optical/gainPDF", 4);
+//	m_configData.m_gainHead = pConfig->ReadDouble("/optical/gainHead", 1);
+//	m_configData.m_gainBelly = pConfig->ReadDouble("/optical/gainBelly", 1);
 	
 
 	this->Connect(wxID_FILE1, wxID_FILE9, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrame::OnMRUFile), NULL, this);
@@ -134,12 +134,12 @@ void MainFrame::DeleteContents()
 	pConfig->Write("/optical/verLine", m_configData.m_verLine);
 	pConfig->Write("/optical/ymin", m_configData.m_ymin);
 	pConfig->Write("/optical/ymax", m_configData.m_ymax);
-	pConfig->Write("/optical/ROIEar", m_configData.m_szROIEar);
-	pConfig->Write("/optical/ROIAPB", m_configData.m_szROIAPB);
+//	pConfig->Write("/optical/ROIEar", m_configData.m_szROIEar);
+//	pConfig->Write("/optical/ROIAPB", m_configData.m_szROIAPB);
 	pConfig->Write("/optical/referFrame", m_configData.m_referFrame);
 
-	pConfig->Write("/optical/gainEye", m_configData.m_gainEye);
-	pConfig->Write("/optical/gainPDF", m_configData.m_gainPDF);	
+//	pConfig->Write("/optical/gainHead", m_configData.m_gainHead);
+//	pConfig->Write("/optical/gainBelly", m_configData.m_gainBelly);	
 	
 	m_nSlices = 0;
 	m_nCageLine = -1;
@@ -235,6 +235,7 @@ void MainFrame::readMarks(wxString &dirName)
             return;
         }        
     }
+	m_configData.Init();
 
 	do{
 		fscanf(fp, "%c", &type);
@@ -280,7 +281,27 @@ void MainFrame::readMarks(wxString &dirName)
 				if(n==1)  m_nLED2 = led2;
 				else m_nLED2 = -1;
 				myMsgOutput("L %d\n", led2);
-				break;				
+				break;	
+			case 'G': // head, belly gain
+				float gainHead, gainBelly;
+				n = fscanf(fp, "%f %f\n", &gainHead, &gainBelly);
+				if(n==2) {
+					m_configData.m_gainHead = gainHead;
+					m_configData.m_gainBelly = gainBelly;
+					myMsgOutput("head, belly gain %.2f %.2f\n", gainHead, gainBelly);
+				}else
+					myMsgOutput("head, belly gain load error\n");
+				break;		
+			case 'S': // ear, belly size
+				int szEar, szBelly;
+				n = fscanf(fp, "%d %d\n", &szEar, &szBelly);
+				if(n==2) {
+					m_configData.m_szROIEar = szEar;
+					m_configData.m_szROIBelly = szBelly;
+					myMsgOutput("ear, belly size %d %d\n", szEar, szBelly);
+				}else
+					myMsgOutput("ear, belly size load error\n");
+				break;			
 		}
 		
 	}while(!feof(fp));
@@ -635,7 +656,10 @@ void MainFrame::OnRatProcessEar(wxCommandEvent& event)
 		if(m_nCageLine >0)
 			fprintf(fp, "C%d\n", m_nCageLine );
 		if(m_nLED2 >0)
-			fprintf(fp, "L%d\n", m_nLED2 );			
+			fprintf(fp, "L%d\n", m_nLED2 );	
+
+		fprintf(fp, "G%f %f\n", m_configData.m_gainHead, m_configData.m_gainBelly);	
+		fprintf(fp, "S%d %d\n", m_configData.m_szROIEar, m_configData.m_szROIBelly);
 		fclose(fp);
 	}	
 }
