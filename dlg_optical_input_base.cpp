@@ -196,7 +196,7 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     
     boxSizer315->Add(m_panel187, 0, wxALL, 5);
     
-    wxGridSizer* gridSizer189 = new wxGridSizer(2, 4, 0, 0);
+    wxGridSizer* gridSizer189 = new wxGridSizer(3, 4, 0, 0);
     m_panel187->SetSizer(gridSizer189);
     
     m_staticText100 = new wxStaticText(m_panel187, wxID_ANY, _("Y range, min"), wxDefaultPosition, wxSize(-1,-1), 0);
@@ -242,6 +242,25 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     #endif
     
     gridSizer189->Add(m_textCtrlROIAPB, 0, wxALL, 5);
+    
+    m_staticText203 = new wxStaticText(m_panel187, wxID_ANY, _("Refer. signal"), wxDefaultPosition, wxSize(-1,-1), 0);
+    
+    gridSizer189->Add(m_staticText203, 0, wxALL, 5);
+    
+    m_radioButtonRefBelly = new wxRadioButton(m_panel187, wxID_ANY, _("Belly"), wxDefaultPosition, wxSize(-1,-1), wxRB_GROUP);
+    m_radioButtonRefBelly->SetValue(1);
+    
+    gridSizer189->Add(m_radioButtonRefBelly, 0, wxALL, 5);
+    
+    m_radioButtonRefHead = new wxRadioButton(m_panel187, wxID_ANY, _("Head"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_radioButtonRefHead->SetValue(1);
+    
+    gridSizer189->Add(m_radioButtonRefHead, 0, wxALL, 5);
+    
+    m_radioButtonRefEar = new wxRadioButton(m_panel187, wxID_ANY, _("Ear"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_radioButtonRefEar->SetValue(1);
+    
+    gridSizer189->Add(m_radioButtonRefEar, 0, wxALL, 5);
     
     m_panel116 = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxTAB_TRAVERSAL);
     

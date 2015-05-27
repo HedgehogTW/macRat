@@ -41,12 +41,29 @@ void DlgOpticalInput::setSeriesLine(bool bEyeMove, bool bEar, bool bGrayDiff, bo
     m_checkBoxEar->SetValue(bEar);
 	m_checkBoxBelly->SetValue(bBelly);
 }
-void DlgOpticalInput::setOptions(bool bOpticalPDF, bool bOpFlowV1, bool bSave)
+void DlgOpticalInput::setOptions(bool bOpticalPDF, bool bOpFlowV1, bool bSave, int refSignal)
 {
 	m_checkBoxOpticalPDF->SetValue(bOpticalPDF);	
 	m_radioOpV1->SetValue(bOpFlowV1);	
 	m_radioOpV2->SetValue(! bOpFlowV1);
 	m_checkBoxSaveFlow->SetValue(bSave);
+	switch(refSignal) {
+		case 0:
+			m_radioButtonRefBelly->SetValue(true);
+			m_radioButtonRefHead->SetValue(false);
+			m_radioButtonRefEar->SetValue(false);
+			break;
+		case 1:
+			m_radioButtonRefBelly->SetValue(false);
+			m_radioButtonRefHead->SetValue(true);
+			m_radioButtonRefEar->SetValue(false);
+			break;		
+		case 2:
+			m_radioButtonRefBelly->SetValue(false);
+			m_radioButtonRefHead->SetValue(false);
+			m_radioButtonRefEar->SetValue(true);
+			break;		
+	}
 }
 void DlgOpticalInput::setYRange(double min, double max, long szROIEar, long szROIAPB, long referFrame)
 {
@@ -104,11 +121,18 @@ void DlgOpticalInput::getSeriesLine(bool& bEyeMove, bool& bEar, bool& bGrayDiff,
     bEar = m_checkBoxEar->GetValue();
 	bBelly = m_checkBoxBelly->GetValue();
 }	
-void DlgOpticalInput::getOptions(bool& bOpticalPDF, bool& bOpFlowV1, bool& bSave)
+void DlgOpticalInput::getOptions(bool& bOpticalPDF, bool& bOpFlowV1, bool& bSave, int& refSignal)
 {
 	bOpticalPDF = m_checkBoxOpticalPDF->GetValue();
 	bOpFlowV1 = m_radioOpV1->GetValue();
 	bSave = m_checkBoxSaveFlow->GetValue();
+	
+	bool b1 =  m_radioButtonRefBelly->GetValue();
+	bool b2 =  m_radioButtonRefHead->GetValue();
+	bool b3 =  m_radioButtonRefEar->GetValue();
+	if(b1) refSignal = 0;
+	else if(b2) refSignal = 1;
+	else if(b3) refSignal = 2;
 }	
 
 void DlgOpticalInput::getYRange(double& min, double& max, long& szROIEar, long& szROIAPB, long& referFrame)

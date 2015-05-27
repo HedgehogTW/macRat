@@ -737,7 +737,8 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	long referFrame = configData.m_referFrame;
 	double gainHead = configData.m_gainHead;
 	double gainBelly = configData.m_gainBelly;
-
+	int	refSignal = configData.m_refSignal;
+	
 	bool bUserLED2;
 	if(nLED2 >0)  bUserLED2 = true;
 	else bUserLED2 = false;
@@ -745,7 +746,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	DlgOpticalInput dlg(frameStep, threshold, MainFrame::m_pThis);
 	dlg.setVerticalLine(bLEDLine, bBigHead, bUserLED2, nLED2, bVerLine, verLine);
 	dlg.setSeriesLine(bEyeMove, bEar, bGrayDiff, bBelly);
-	dlg.setOptions(bOpticalPDF, bOpFlowV1, bSaveFile);
+	dlg.setOptions(bOpticalPDF, bOpFlowV1, bSaveFile, refSignal);
 	dlg.setYRange(ymin, ymax, m_ROIEar, m_ROIBelly, referFrame);
 	dlg.setGain(gainHead, gainBelly);
 
@@ -754,7 +755,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	threshold = dlg.getThreshold();
 	dlg.getVerticalLine(bLEDLine, bBigHead, bUserLED2, nLED2, bVerLine, verLine);
 	dlg.getSeriesLine(bEyeMove, bEar, bGrayDiff, bBelly);
-	dlg.getOptions(bOpticalPDF, bNewOpFlowV1, bSaveFile);
+	dlg.getOptions(bOpticalPDF, bNewOpFlowV1, bSaveFile, refSignal);
 	dlg.getYRange(ymin, ymax, m_ROIEar, m_ROIBelly, referFrame);
 	dlg.getGain(gainHead, gainBelly);
 	dlg.Destroy();
@@ -786,6 +787,8 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	configData.m_referFrame = referFrame;
 	configData.m_gainHead = gainHead;
 	configData.m_gainBelly = gainBelly;
+	configData.m_refSignal = refSignal;
+	
 	MainFrame::m_pThis->setConfigData(configData);	
 
 	m_bShowEye = bEyeMove;
@@ -808,30 +811,46 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	computeROIRect();
 	if(!bBigHead) recomputeHeadROI();
 	
-	//////////////////////////////////////
+	/////////////////////////////////// just for findReferenceFrame
+	vector <float>  vecRedGrayDiff;
+	vector <float>  vecCyanGrayDiff;	
 	
-    if(referFrame<=0)
-        newReferFrame = findReferenceFrame(m_rectEarL);
-    else
+	int ref = 50;
+	graylevelDiff(ref, m_rectRed, m_rectCyan, vecRedGrayDiff, vecCyanGrayDiff);
+	Notch_removal(vecCyanGrayDiff, ref);
+	Notch_removal(vecRedGrayDiff, ref);	
+	bool bBigRedGray = isRedRignificant(vecRedGrayDiff, vecCyanGrayDiff);
+			
+    if(referFrame<=0) {
+		if(refSignal==0) {
+			if(bBigRedGray) 
+				newReferFrame = findReferenceFrame(m_rectRed);
+			else
+				newReferFrame = findReferenceFrame(m_rectCyan);
+		}else if (refSignal==1)
+			newReferFrame = findReferenceFrame(m_rectHead);
+		else if(refSignal==2)
+			newReferFrame = findReferenceFrame(m_rectEarL);
+    }else
         newReferFrame = referFrame;
         
-	MainFrame::myMsgOutput("Reference frame %d\n", newReferFrame);
+	MainFrame::myMsgOutput("Reference frame %d, based on signal %d\n", newReferFrame, refSignal);
 	if(newReferFrame <0) {
 		wxLogMessage("cannot find reference frame");
 		return false;
 	}
 	
-	if(m_bShowEye) {
-		findEyeCenter(ptEyeL, m_vecEyeL, m_vecEyeLMove, newReferFrame);
-		findEyeCenter(ptEyeR, m_vecEyeR, m_vecEyeRMove, newReferFrame);
-	}else {
+//	if(m_bShowEye) {
+//		findEyeCenter(ptEyeL, m_vecEyeL, m_vecEyeLMove, newReferFrame);
+//		findEyeCenter(ptEyeR, m_vecEyeR, m_vecEyeRMove, newReferFrame);
+//	}else {
 		m_vecEyeR.resize(m_nSlices);
 		m_vecEyeL.resize(m_nSlices);
 		for(int i=0; i<m_nSlices;i++) {
 			m_vecEyeR[i] = ptEyeR;
 			m_vecEyeL[i] = ptEyeL;
 		}
-	}
+//	}
       
 //////////////////////////////////////////////////////////////////////	
 	clock_t start, finish;
@@ -863,8 +882,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	MainFrame:: myMsgOutput("PDF threshold %f, frame steps %d, bOpFlowV1 %d, headGain %.2f, bellyGain %.2f\n", 
 			threshold, frameStep, bOpFlowV1, gainHead, gainBelly);
 	
-	vector <float>  vecRedGrayDiff;
-	vector <float>  vecCyanGrayDiff;	
+
 	
 	vector <float>  vecLEarGrayDiff;
 	vector <float>  vecREarGrayDiff;

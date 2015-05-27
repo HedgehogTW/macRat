@@ -165,7 +165,10 @@ void MainFrame::DeleteContents()
 void MainFrame::OnMRUFile(wxCommandEvent& event)
 {
 	wxString f(m_FileHistory->GetHistoryFile(event.GetId() - wxID_FILE1));
-	if (!f.empty())  openFile(f);
+	if (f.empty())  return;
+	
+	openFile(f);
+	m_FileHistory->AddFileToHistory(f);	
 }
 
 void MainFrame::OnExit(wxCommandEvent& event)
@@ -301,7 +304,15 @@ void MainFrame::readMarks(wxString &dirName)
 					myMsgOutput("ear, belly size %d %d\n", szEar, szBelly);
 				}else
 					myMsgOutput("ear, belly size load error\n");
-				break;			
+				break;	
+			case 'R': // m_refSignal
+				int refSignal;
+				n = fscanf(fp, "%d\n", &refSignal);
+				if(n==1) {
+					m_configData.m_refSignal = refSignal;
+				}else
+					myMsgOutput("m_refSignal load error\n");
+				break;	
 		}
 		
 	}while(!feof(fp));
@@ -660,6 +671,7 @@ void MainFrame::OnRatProcessEar(wxCommandEvent& event)
 
 		fprintf(fp, "G%f %f\n", m_configData.m_gainHead, m_configData.m_gainBelly);	
 		fprintf(fp, "S%d %d\n", m_configData.m_szROIEar, m_configData.m_szROIBelly);
+		fprintf(fp, "R%d\n", m_configData.m_refSignal);
 		fclose(fp);
 	}	
 }

@@ -65,6 +65,10 @@ protected:
     wxTextCtrl* m_textCtrlROIEar;
     wxStaticText* m_staticText1241;
     wxTextCtrl* m_textCtrlROIAPB;
+    wxStaticText* m_staticText203;
+    wxRadioButton* m_radioButtonRefBelly;
+    wxRadioButton* m_radioButtonRefHead;
+    wxRadioButton* m_radioButtonRefEar;
     wxPanel* m_panel116;
     wxStaticText* m_staticText126;
     wxTextCtrl* m_textCtrlReferFrame;

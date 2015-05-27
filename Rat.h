@@ -67,19 +67,22 @@ public:
 	double m_verLine;
 	double m_ymin;
 	double	m_ymax;	
+	
+	
 	long	m_szROIEar;
 	long	m_szROIBelly;
 	long   m_referFrame;
 
 	double	m_gainHead;
 	double	m_gainBelly;
-	
+	int		m_refSignal;
 	
 	void Init() {
 		m_gainHead = 1;
 		m_gainBelly = 1;
 		m_szROIEar = 80;
 		m_szROIBelly = 80;
+		m_refSignal = 0;
 	}
 };
 
