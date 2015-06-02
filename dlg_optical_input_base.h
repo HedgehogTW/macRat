@@ -64,7 +64,7 @@ protected:
     wxStaticText* m_staticText124;
     wxTextCtrl* m_textCtrlROIEar;
     wxStaticText* m_staticText1241;
-    wxTextCtrl* m_textCtrlROIAPB;
+    wxTextCtrl* m_textCtrlROIBelly;
     wxStaticText* m_staticText203;
     wxRadioButton* m_radioButtonRefBelly;
     wxRadioButton* m_radioButtonRefHead;

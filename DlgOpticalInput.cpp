@@ -65,7 +65,7 @@ void DlgOpticalInput::setOptions(bool bOpticalPDF, bool bOpFlowV1, bool bSave, i
 			break;		
 	}
 }
-void DlgOpticalInput::setYRange(double min, double max, long szROIEar, long szROIAPB, long referFrame)
+void DlgOpticalInput::setYRange(double min, double max, long szROIEar, long szROIBelly, long referFrame)
 {
 	wxString  str1, str2, str3, str4, str5;
 	str1 << min;
@@ -77,8 +77,8 @@ void DlgOpticalInput::setYRange(double min, double max, long szROIEar, long szRO
 	str3 << szROIEar;
 	*m_textCtrlROIEar << str3;
  
-	str4 << szROIAPB;
-	*m_textCtrlROIAPB << str4;
+	str4 << szROIBelly;
+	*m_textCtrlROIBelly << str4;
    
  	str5 << referFrame;
 	*m_textCtrlReferFrame << str5;   
@@ -135,7 +135,7 @@ void DlgOpticalInput::getOptions(bool& bOpticalPDF, bool& bOpFlowV1, bool& bSave
 	else if(b3) refSignal = 2;
 }	
 
-void DlgOpticalInput::getYRange(double& min, double& max, long& szROIEar, long& szROIAPB, long& referFrame)
+void DlgOpticalInput::getYRange(double& min, double& max, long& szROIEar, long& szROIBelly, long& referFrame)
 {
 	wxString  str = m_textCtrlYmin->GetValue();
 	double  value;
@@ -151,9 +151,9 @@ void DlgOpticalInput::getYRange(double& min, double& max, long& szROIEar, long& 
 	str.ToLong(&a);	
 	szROIEar = a;	
     
-	str = m_textCtrlROIAPB->GetValue();
+	str = m_textCtrlROIBelly->GetValue();
 	str.ToLong(&a);	
-	szROIAPB = a;	
+	szROIBelly = a;	
     
    	str = m_textCtrlReferFrame->GetValue();
 	str.ToLong(&a);	

@@ -3194,7 +3194,7 @@
             }, {
              "type": "multi-string",
              "m_label": "Label:",
-             "m_value": "APB"
+             "m_value": "Belly"
             }, {
              "type": "string",
              "m_label": "Wrap:",
@@ -3225,7 +3225,7 @@
             }, {
              "type": "string",
              "m_label": "Name:",
-             "m_value": "m_textCtrlROIAPB"
+             "m_value": "m_textCtrlROIBelly"
             }, {
              "type": "multi-string",
              "m_label": "Tooltip:",

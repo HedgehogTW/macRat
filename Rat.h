@@ -80,7 +80,7 @@ public:
 	void Init() {
 		m_gainHead = 1;
 		m_gainBelly = 1;
-		m_szROIEar = 80;
+		m_szROIEar = 60;
 		m_szROIBelly = 80;
 		m_refSignal = 0;
 	}

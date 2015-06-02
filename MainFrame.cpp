@@ -238,7 +238,7 @@ void MainFrame::readMarks(wxString &dirName)
             return;
         }        
     }
-	m_configData.Init();
+
 
 	do{
 		fscanf(fp, "%c", &type);
@@ -332,7 +332,8 @@ void MainFrame::openFile(wxString &dirName)
 	bool  bRet = false;
 	if(m_Rat.readData(dirName) <=0) 
 		return;
-		
+	
+	m_configData.Init();
 	readMarks(dirName);
 	
 	m_nSlices = m_Rat.getNumFrames();

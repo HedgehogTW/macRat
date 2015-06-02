@@ -1479,9 +1479,9 @@ int CRat::findReferenceFrame(Rect rect)
     }
     
   	int  idxMin= -1;  
-    double min = vSeries[0];
+    double min = vSeries[end/2];
     for(int i=0; i<end; i++) {
-        if(vSeries[i] < min) {
+        if(vSeries[i] <= min) {
             min = vSeries[i];
             idxMin = i;
         }
@@ -1741,13 +1741,13 @@ void CRat::opticalAssignThresholdMap(vector<Mat>& vmPDF, float th, Rect rect)
                 Point2f fxy = mROI.at<Point2f>(y, x);
                 Point2f fxy1 = fxy + Point2f(PDF_SIZE/2, PDF_SIZE/2);
                 
-                if(fxy1.x >= PDF_SIZE || fxy1.x <0)  {
+                if(fxy1.x+0.5 >= PDF_SIZE || fxy1.x <0)  {
 //                    wxString str;
 //                    str.Printf("[%f, %f]", fxy1.x, fxy1.y);
 //                    wxLogMessage(str);
                     continue;
                 }
-                if(fxy1.y >= PDF_SIZE || fxy1.y <0)  continue;
+                if(fxy1.y+0.5 >= PDF_SIZE || fxy1.y <0)  continue;
                 
                 float probability = mPdf.at<float>(fxy1.y+0.5, fxy1.x+0.5);
                 if(probability >= th) 	{
@@ -2068,11 +2068,11 @@ void CRat::plotDotScatter(Gnuplot& plotSavePGN, Mat& mFlow, Rect rect, wxString&
 			Point2f fxy = mROI.at<Point2f>(y, x);
 			Point2f fxy1 = fxy + Point2f(PDF_SIZE/2, PDF_SIZE/2);
 			
-			if(fxy1.x >= PDF_SIZE || fxy1.x <0) {
+			if(fxy1.x+0.5 >= PDF_SIZE || fxy1.x <0) {
 				vDataBelow.push_back(fxy);
 				continue;
 			}
-			if(fxy1.y >= PDF_SIZE || fxy1.y <0) {
+			if(fxy1.y+0.5 >= PDF_SIZE || fxy1.y <0) {
 				vDataBelow.push_back(fxy);
 				continue;
 			}
@@ -2119,8 +2119,8 @@ float CRat::optical_compute_movement_v1(Mat& mFlow, Mat& mDistEar, float thresho
 			
 			fxy += Point2f(PDF_SIZE/2, PDF_SIZE/2);
 			
-			if(fxy.x >= PDF_SIZE || fxy.x <0) continue;
-			if(fxy.y >= PDF_SIZE || fxy.y <0) continue;
+			if(fxy.x+0.5 >= PDF_SIZE || fxy.x <0) continue;
+			if(fxy.y+0.5 >= PDF_SIZE || fxy.y <0) continue;
 			
 			float Pr = mDistEar.at<float>(fxy.y+0.5, fxy.x+0.5);
 
@@ -2150,8 +2150,8 @@ float CRat::optical_compute_movement_v2(Mat& mFlow, Mat& mDistEar, float thresho
 		
 			fxy += Point2f(PDF_SIZE/2, PDF_SIZE/2);
 			
-			if(fxy.x >= PDF_SIZE || fxy.x <0) continue;
-			if(fxy.y >= PDF_SIZE || fxy.y <0) continue;
+			if(fxy.x+0.5 >= PDF_SIZE || fxy.x <0) continue;
+			if(fxy.y+0.5 >= PDF_SIZE || fxy.y <0) continue;
 			
 			float Pr = mDistEar.at<float>(fxy.y+0.5, fxy.x+0.5);
 

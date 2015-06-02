@@ -232,16 +232,16 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     
     gridSizer189->Add(m_textCtrlROIEar, 0, wxALL, 5);
     
-    m_staticText1241 = new wxStaticText(m_panel187, wxID_ANY, _("APB"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_staticText1241 = new wxStaticText(m_panel187, wxID_ANY, _("Belly"), wxDefaultPosition, wxSize(-1,-1), 0);
     
     gridSizer189->Add(m_staticText1241, 0, wxALL|wxALIGN_RIGHT, 5);
     
-    m_textCtrlROIAPB = new wxTextCtrl(m_panel187, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(50,-1), 0);
+    m_textCtrlROIBelly = new wxTextCtrl(m_panel187, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(50,-1), 0);
     #if wxVERSION_NUMBER >= 3000
-    m_textCtrlROIAPB->SetHint(wxT(""));
+    m_textCtrlROIBelly->SetHint(wxT(""));
     #endif
     
-    gridSizer189->Add(m_textCtrlROIAPB, 0, wxALL, 5);
+    gridSizer189->Add(m_textCtrlROIBelly, 0, wxALL, 5);
     
     m_staticText203 = new wxStaticText(m_panel187, wxID_ANY, _("Refer. signal"), wxDefaultPosition, wxSize(-1,-1), 0);
     
