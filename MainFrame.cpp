@@ -313,6 +313,16 @@ void MainFrame::readMarks(wxString &dirName)
 				}else
 					myMsgOutput("m_refSignal load error\n");
 				break;	
+			case 'y': // m_ymin, m_ymax
+				float ymin, ymax;
+				n = fscanf(fp, "%f %f\n", &ymin, &ymax);
+				if(n==2) {
+					m_configData.m_ymin = ymin;
+					m_configData.m_ymax = ymax;
+					//myMsgOutput("head, belly gain %.2f %.2f\n", gainHead, gainBelly);
+				}else
+					myMsgOutput("m_ymin, m_ymax load error\n");
+				break;					
 		}
 		
 	}while(!feof(fp));
@@ -673,6 +683,7 @@ void MainFrame::OnRatProcessEar(wxCommandEvent& event)
 		fprintf(fp, "G%f %f\n", m_configData.m_gainHead, m_configData.m_gainBelly);	
 		fprintf(fp, "S%d %d\n", m_configData.m_szROIEar, m_configData.m_szROIBelly);
 		fprintf(fp, "R%d\n", m_configData.m_refSignal);
+		fprintf(fp, "y%f %f\n", m_configData.m_ymin, m_configData.m_ymax);	
 		fclose(fp);
 	}	
 }

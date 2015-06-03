@@ -83,6 +83,8 @@ public:
 		m_szROIEar = 60;
 		m_szROIBelly = 80;
 		m_refSignal = 0;
+		m_ymin = -1;
+		m_ymax = 3;
 	}
 };
 
