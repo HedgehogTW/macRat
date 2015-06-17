@@ -113,6 +113,7 @@ public:
 	void 	computeEyeMaskCenter(Point& ptNewMaskCenter, bool bBigHead);
 	void	computeROIRect();
 	void	recomputeHeadROI();
+	float	computeSD(vector<float>& vSignal, int nLED2);
     bool	process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, Point& ptRed, Point& ptCyan, int& nLED2);
 	
 	void	plotSoundOnset(float baseline, float deltaY, int msec);
@@ -127,7 +128,7 @@ public:
 //	void	graylevelDiff_Eye(int refer, Point ptEar, Point offset, vector <Point>& vecEye, vector <float>& vecEarGrayDiff);
 	void 	graylevelDiff(int refer, Rect rectEarL, Rect rectEarR, vector <float>& vLEarGray,  vector <float>& vREarGray);
 	void	pointGraylevel(Point ptBellyRed, Point ptBellyCyan, vector <float>& vecRedPoint, vector <float>& vecCyanPoint);
-	int     isRedRignificant(vector<float>& vecRed, vector<float>& vecCyan);
+	int    isRedSignificant(vector<float>& vecRed, vector<float>& vecCyan);
     
 	void 	imageDiff(vector<Mat>& vecDiff, vector <float>& vecAdjDiff, int nFrameSteps);
 	void 	saveEarROI(int stable, int motion, Point& pt, Point	offset);

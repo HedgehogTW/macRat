@@ -470,7 +470,7 @@ float CRat::Notch_removal(vector <float>& vecSignal, int refFrame)
     vecSignal[refFrame] = (vecSignal[refFrame-1] + vecSignal[refFrame+1]) /2.0;
 	return vecSignal[refFrame];
 }
-int CRat::isRedRignificant(vector<float>& vecRed, vector<float>& vecCyan)
+int CRat::isRedSignificant(vector<float>& vecRed, vector<float>& vecCyan)
 {
     auto minMaxRed = std::minmax_element (vecRed.begin(), vecRed.end());
     float distRed = *minMaxRed.second - *minMaxRed.first;
@@ -819,7 +819,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	graylevelDiff(ref, m_rectRed, m_rectCyan, vecRedGrayDiff, vecCyanGrayDiff);
 	Notch_removal(vecCyanGrayDiff, ref);
 	Notch_removal(vecRedGrayDiff, ref);	
-	bool bBigRedGray = isRedRignificant(vecRedGrayDiff, vecCyanGrayDiff);
+	bool bBigRedGray = isRedSignificant(vecRedGrayDiff, vecCyanGrayDiff);
 			
     if(referFrame<=0) {
 		if(refSignal==0) {
@@ -913,11 +913,11 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			Notch_removal(vecCyanGrayDiff, m_referFrame);
 			Notch_removal(vecRedGrayDiff, m_referFrame);	
 
-			m_BigRedGray = isRedRignificant(vecRedGrayDiff, vecCyanGrayDiff);
+			m_BigRedGray = isRedSignificant(vecRedGrayDiff, vecCyanGrayDiff);
 		}
 	}
 	
-
+	float sdHead, sdBelly;
 	vector <Rect> vDrawRect;
 	vector <Point> vDrawPt;
 
@@ -965,8 +965,12 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			Notch_removal(vecRedFlowPdf, m_referFrame);
 			Notch_removal(vecCyanFlowPdf, m_referFrame);
 			
-			m_BigRedPdf = isRedRignificant(vecRedFlowPdf, vecCyanFlowPdf);
-            
+			m_BigRedPdf = isRedSignificant(vecRedFlowPdf, vecCyanFlowPdf);
+           if(m_BigRedPdf>0) 
+				sdBelly = computeSD(vecRedFlowPdf, m_nLED2);
+			else
+				sdBelly = computeSD(vecCyanFlowPdf, m_nLED2);
+				
 			if(bSaveFile) {
                 if(m_BigRedPdf>0) {
                     opticalAssignThresholdMap(m_vmDistRed, threshold, m_rectRed);
@@ -993,7 +997,8 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			float baselineL = Notch_removal(vecEyeFlowPdfL, m_referFrame);
 //			for(int i=0; i<sz; i++) {
 //				vecEyeFlowPdfL[i] -= baselineL;
-//			}		
+//			}	
+			sdHead=computeSD(vecEyeFlowPdfL, m_nLED2);
 			
             if(bSaveFile) {
                 opticalAssignThresholdMap(m_vmDistEyeL, threshold, m_rectHead);
@@ -1083,6 +1088,9 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 		}		
 	}
 	if(bOpticalPDF) {
+		vector <float>  vX, vY;
+
+	
 		if(m_bShowEar) {
 			_gnuplotLine(gPlotL, "LEar", vecLEarFlowPdf, "#000000ff");
 			_gnuplotLine(gPlotR, "REar", vecREarFlowPdf, "#000000ff");
@@ -1090,9 +1098,20 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 		}
 		if(m_bShowBelly) {
             //_OutputVec(vecRedFlowPdf, "_redw.csv");
+			vX.clear();
+			vY.clear();
+			vX.push_back(0);
+			vX.push_back(m_nSlices);
+			vY.push_back(sdBelly);
+			vY.push_back(sdBelly);	
+			_gnuplotLineXY(gPlotL, vX, vY, "#00008800");	
+			_gnuplotLineXY(gPlotR, vX, vY, "#00008800");
+	
+			
             if(m_BigRedPdf>0) {
                 _gnuplotLine(gPlotL, "Belly", vecRedFlowPdf, "#00008000");
                 _gnuplotLine(gPlotR, "Belly", vecRedFlowPdf, "#00008000");
+				
             }else {
                  _gnuplotLine(gPlotL, "Belly", vecCyanFlowPdf, "#00008000");
                 _gnuplotLine(gPlotR, "Belly", vecCyanFlowPdf, "#00008000");               
@@ -1100,6 +1119,15 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 				
 		}
 		if(m_bShowEye) {
+			vX.clear();
+			vY.clear();
+			vX.push_back(0);
+			vX.push_back(m_nSlices);
+			vY.push_back(sdHead);
+			vY.push_back(sdHead);	
+			_gnuplotLineXY(gPlotL, vX, vY, "#008B8800");	
+			_gnuplotLineXY(gPlotR, vX, vY, "#008B8800");
+			
 			_gnuplotLine(gPlotL, "Head", vecEyeFlowPdfL, "#008B0000");
 			_gnuplotLine(gPlotR, "Head", vecEyeFlowPdfL, "#008B0000");	
 		}		
@@ -1115,6 +1143,16 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	
 	
 	return true;
+}
+float CRat::computeSD(vector<float>& vSignal, int nLED2)
+{
+	vector<float>  data(nLED2);
+	copy(vSignal.begin(), vSignal.begin()+nLED2, data.begin());
+
+	cv::Scalar mean, stddev;
+	cv::meanStdDev(data, mean, stddev);
+	float sd = stddev(0);
+	return sd;
 }
 void CRat::plotSoundOnset(float baseline, float deltaY, int msec)
 {
