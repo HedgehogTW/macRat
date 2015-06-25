@@ -864,6 +864,8 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	vector <float>  vecREarFlowPdf;
 	vector <float>  vecRedFlowPdf;
 	vector <float>  vecCyanFlowPdf;
+	vector <float>  vecBellyPdf;
+	vector <float>  vecBellySmooth;
 	
 	int szVecFlow = m_vecFlow.size();
     if(bOpticalPDF ) {
@@ -953,27 +955,29 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 		if(m_bShowBelly) {
 			opticalMovement(m_rectRed, vecRedFlowPdf, m_vmDistRed, threshold, bOpFlowV1);
 			opticalMovement(m_rectCyan, vecCyanFlowPdf, m_vmDistCyan, threshold, bOpFlowV1);      
-		
+			m_BigRedPdf = isRedSignificant(vecRedFlowPdf, vecCyanFlowPdf);
+			vecBellyPdf.resize(vecRedFlowPdf.size());
+			if(m_BigRedPdf>0) {
+				std::copy ( vecRedFlowPdf.begin(), vecRedFlowPdf.end(), vecBellyPdf.begin() );
+			}else {
+				std::copy ( vecCyanFlowPdf.begin(), vecCyanFlowPdf.end(), vecBellyPdf.begin() );
+			}
+			vecRedFlowPdf.clear();
+			vecCyanFlowPdf.clear();
+			
 			if(gainBelly!=1) {
 				for(int i=0; i<sz; i++) {
-					vecRedFlowPdf[i] = vecRedFlowPdf[i]*gainBelly;
-					vecCyanFlowPdf[i] = vecCyanFlowPdf[i]*gainBelly;
+					vecBellyPdf[i] = vecBellyPdf[i]*gainBelly;
 				}
 			}
-			DC_removal(m_nLED2, vecRedFlowPdf);
-			DC_removal(m_nLED2, vecCyanFlowPdf);
+			DC_removal(m_nLED2, vecBellyPdf);
 			
-			Notch_removal(vecRedFlowPdf, m_referFrame);
-			Notch_removal(vecCyanFlowPdf, m_referFrame);
+			Notch_removal(vecBellyPdf, m_referFrame);
+			sdBelly = computeSD(vecBellyPdf, m_nLED2);
 			
-			m_BigRedPdf = isRedSignificant(vecRedFlowPdf, vecCyanFlowPdf);
-           if(m_BigRedPdf>0) {
-				sdBelly = computeSD(vecRedFlowPdf, m_nLED2);
-				findPeaks(vecRedFlowPdf, peakBelly);
-		   }else{
-				sdBelly = computeSD(vecCyanFlowPdf, m_nLED2);
-				findPeaks(vecCyanFlowPdf, peakBelly);
-		   }
+			smoothData(vecBellyPdf, vecBellySmooth, 2);	
+			findPeaks(vecBellyPdf, peakBelly);
+
 			if(bSaveFile) {
                 if(m_BigRedPdf>0) {
                     opticalAssignThresholdMap(m_vmDistRed, threshold, m_rectRed);
@@ -1126,16 +1130,10 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			wxString  newMarkerName = title+"_"+"Belly.csv";
 			wxFileName newFullMarkerName(strParentPath, newMarkerName);			
 			
-			if(m_BigRedPdf>0) {
-				_gnuplotLine(gPlotL, "Belly", vecRedFlowPdf, "#00008000");
-				_gnuplotLine(gPlotR, "Belly", vecRedFlowPdf, "#00008000");
-				_OutputVec(vecRedFlowPdf, newFullMarkerName.GetFullPath());
-				
-			}else {
-				_gnuplotLine(gPlotL, "Belly", vecCyanFlowPdf, "#00008000");
-				_gnuplotLine(gPlotR, "Belly", vecCyanFlowPdf, "#00008000"); 
-				_OutputVec(vecCyanFlowPdf, newFullMarkerName.GetFullPath());              
-			}
+			_gnuplotLine(gPlotL, "Belly", vecBellyPdf, "#00008000");
+			_gnuplotLine(gPlotL, "Belly", vecBellySmooth, "#00ff0000");
+			_OutputVec(vecBellyPdf, newFullMarkerName.GetFullPath());
+
 			_gnuplotPoint(gPlotL, peakBelly );
 			_gnuplotPoint(gPlotR, peakBelly );
 				
@@ -1590,7 +1588,7 @@ void CRat::smoothData(vector<float>& inData, vector<float>& outData, int bw)
 	double* pData = new double[n];
 	double  *out = new double[n];
 
-	for(int i=0; i<n; i++)  pData[i] = inData[n];
+	for(int i=0; i<n; i++)  pData[i] = inData[i];
 	
 	CKDE::MSKernel kde_kernel = CKDE::Gaussian;
 	
@@ -1598,7 +1596,7 @@ void CRat::smoothData(vector<float>& inData, vector<float>& outData, int bw)
 	kde1x.KernelDensityEstimation(kde_kernel, bw);
 
 	outData.resize(n);
-	for(int i=0; i<n; i++)  outData[i] = out[n];
+	for(int i=0; i<n; i++)  outData[i] = out[i];
 	//outData.assign (out,out+n);	
 	
 	delete [] pData;
