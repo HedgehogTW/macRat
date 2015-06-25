@@ -51,6 +51,23 @@ void _gnuplotLineXY(Gnuplot& gnuPlot, const X& x, const Y& y, const char* color=
 	gnuPlot.set_style("lines").plot_xy(x, y, 1, color, titleName);
 }
 
+template<typename X>
+void _gnuplotPoint(Gnuplot& gnuPlot, const X& pts, const char* color="", const char* titleName="")
+{
+	if (pts.size() <= 0) {
+		wxMessageBox("gnuplotShow:: no data", "Error");
+		return;
+	}	
+	int sz = pts.size();
+	vector<float> x(sz);
+	vector<float> y(sz);
+	for(int i=0; i<pts.size(); i++) {
+		x[i] = pts[i].x;
+		y[i] = pts[i].y;
+	}
+	gnuPlot.set_style("points").plot_xy(x, y, 1, color, titleName);
+}
+
 void	_scalingTraining(Mat& mTrainData);
 void	_scalingData(Mat& mData, vector<Vec2d>& scalePara);
 void	_scalingLoadPara(vector<Vec2d>& scalePara);

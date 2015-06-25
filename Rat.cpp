@@ -920,7 +920,8 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	float sdHead, sdBelly;
 	vector <Rect> vDrawRect;
 	vector <Point> vDrawPt;
-
+	vector <Point2f> 	peakBelly;
+	
 	if(bOpticalPDF) {
 		int sz = m_vecFlow.size();
 
@@ -966,11 +967,13 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			Notch_removal(vecCyanFlowPdf, m_referFrame);
 			
 			m_BigRedPdf = isRedSignificant(vecRedFlowPdf, vecCyanFlowPdf);
-           if(m_BigRedPdf>0) 
+           if(m_BigRedPdf>0) {
 				sdBelly = computeSD(vecRedFlowPdf, m_nLED2);
-			else
+				findPeaks(vecRedFlowPdf, peakBelly);
+		   }else{
 				sdBelly = computeSD(vecCyanFlowPdf, m_nLED2);
-				
+				findPeaks(vecCyanFlowPdf, peakBelly);
+		   }
 			if(bSaveFile) {
                 if(m_BigRedPdf>0) {
                     opticalAssignThresholdMap(m_vmDistRed, threshold, m_rectRed);
@@ -1087,6 +1090,12 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 		
 		}		
 	}
+	
+	wxUniChar sep = fileName.GetPathSeparator();
+	wxString  strParentPath =  m_strSrcPath.BeforeLast(sep);	
+	int len = title.Len();
+	title = title.Right(len-1);
+	title.Replace("/", "_");
 	if(bOpticalPDF) {
 		vector <float>  vX, vY;
 
@@ -1094,7 +1103,14 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 		if(m_bShowEar) {
 			_gnuplotLine(gPlotL, "LEar", vecLEarFlowPdf, "#000000ff");
 			_gnuplotLine(gPlotR, "REar", vecREarFlowPdf, "#000000ff");
+
+			wxString  newMarkerName = title+"_"+"LEar.csv";
+			wxFileName newFullMarkerName(strParentPath, newMarkerName);
+			_OutputVec(vecLEarFlowPdf, newFullMarkerName.GetFullPath());
 			
+			newMarkerName =  title+"_"+"REar.csv";
+			wxFileName newFullMarkerName1(strParentPath, newMarkerName);
+			_OutputVec(vecREarFlowPdf, newFullMarkerName1.GetFullPath());			
 		}
 		if(m_bShowBelly) {
             //_OutputVec(vecRedFlowPdf, "_redw.csv");
@@ -1107,15 +1123,21 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			_gnuplotLineXY(gPlotL, vX, vY, "#00008800");	
 			_gnuplotLineXY(gPlotR, vX, vY, "#00008800");
 	
+			wxString  newMarkerName = title+"_"+"Belly.csv";
+			wxFileName newFullMarkerName(strParentPath, newMarkerName);			
 			
-            if(m_BigRedPdf>0) {
-                _gnuplotLine(gPlotL, "Belly", vecRedFlowPdf, "#00008000");
-                _gnuplotLine(gPlotR, "Belly", vecRedFlowPdf, "#00008000");
+			if(m_BigRedPdf>0) {
+				_gnuplotLine(gPlotL, "Belly", vecRedFlowPdf, "#00008000");
+				_gnuplotLine(gPlotR, "Belly", vecRedFlowPdf, "#00008000");
+				_OutputVec(vecRedFlowPdf, newFullMarkerName.GetFullPath());
 				
-            }else {
-                 _gnuplotLine(gPlotL, "Belly", vecCyanFlowPdf, "#00008000");
-                _gnuplotLine(gPlotR, "Belly", vecCyanFlowPdf, "#00008000");               
-            }
+			}else {
+				_gnuplotLine(gPlotL, "Belly", vecCyanFlowPdf, "#00008000");
+				_gnuplotLine(gPlotR, "Belly", vecCyanFlowPdf, "#00008000"); 
+				_OutputVec(vecCyanFlowPdf, newFullMarkerName.GetFullPath());              
+			}
+			_gnuplotPoint(gPlotL, peakBelly );
+			_gnuplotPoint(gPlotR, peakBelly );
 				
 		}
 		if(m_bShowEye) {
@@ -1130,6 +1152,10 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			
 			_gnuplotLine(gPlotL, "Head", vecEyeFlowPdfL, "#008B0000");
 			_gnuplotLine(gPlotR, "Head", vecEyeFlowPdfL, "#008B0000");	
+			
+			wxString  newMarkerName = title+"_"+"Head.csv";
+			wxFileName newFullMarkerName(strParentPath, newMarkerName);	
+			_OutputVec(vecEyeFlowPdfL, newFullMarkerName.GetFullPath()); 
 		}		
 	}
 	
@@ -1143,6 +1169,27 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	
 	
 	return true;
+}
+void CRat::findPeaks(vector<float>& inData, vector<Point2f>& peaks)
+{
+	peaks.clear();
+	int n = inData.size();
+	for(int i=3; i<7-3; i++) {
+		if(inData[i-3] < inData[i-1] && inData[i-1] < inData[i] &&
+			inData[i+3] < inData[i+1] && inData[i+1] < inData[i]) {
+				Point2f pt(i, inData[i]);
+				peaks.push_back(pt);
+				//MainFrame::myMsgOutput("%f ", inData[i]);
+		}
+	}
+	for(int i=7; i<n-7; i++) {
+		if(inData[i-7] < inData[i-5] && inData[i-5] < inData[i-3] && inData[i-3] < inData[i-2] && inData[i-2] < inData[i-1] && inData[i-1] < inData[i] &&
+			inData[i+7] < inData[i+5] && inData[i+5] < inData[i+3] && inData[i+3] < inData[i+2] && inData[i+2] < inData[i+1] && inData[i+1] < inData[i]) {
+				Point2f pt(i, inData[i]);
+				peaks.push_back(pt);
+				//MainFrame::myMsgOutput("%f ", inData[i]);
+		}
+	}
 }
 float CRat::computeSD(vector<float>& vSignal, int nLED2)
 {

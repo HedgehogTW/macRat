@@ -120,6 +120,7 @@ public:
 	void 	drawOnDestImage(bool bSaveFile);
 	void 	findEyeCenter(Point& ptEye0, vector <Point>& vecEye, vector <float>&  vecEyeMove, int referFrame);
 	void  	findNewEarCenter(vector <Point>& vecEye, Point ptEar0, vector <Point>& vecEar, int referFrame);
+	void	findPeaks(vector<float>& inData, vector<Point2f>& peaks);
 	
 	void 	smoothData(vector<float>& inData, vector<float>& outData, int bw=5);
 	double errorSum(Mat &mDiff, Rect rectEar);
@@ -155,7 +156,7 @@ public:
 	void 	plotDotScatter(Gnuplot& plotSavePGN, Mat& mFlow, Rect rect, wxString& strOutName, Mat& mPdf, float threshold);	
 	void	opticalBuildPDF(Mat& mFlow, Mat& mGaus, Mat& mDist, Rect rect);
 
-    void    opticalAssignThresholdMap(vector<Mat>& vmPDF, float th, Rect rect);
+	void    opticalAssignThresholdMap(vector<Mat>& vmPDF, float th, Rect rect);
 
     bool    opticalLoadPDFfile(const char* filename, Mat &mPdf);
 	void    saveDistributionAsCSVandPNG();
