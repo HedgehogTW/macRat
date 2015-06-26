@@ -17,7 +17,7 @@ void _gnuplotInit(Gnuplot& gnuPlot, const char* title, double ymin, double ymax)
 	
 	if(ymin!=0 || ymax!=0) {
 		gnuPlot.set_yrange(ymin, ymax);
-	}else gnuPlot.set_yrange(_MIN_Y, _MAX_Y);
+	}//else gnuPlot.set_yrange(_MIN_Y, _MAX_Y);
 
 }
 void _gnuplotLED(Gnuplot& gnuPlot, int LED1, int LED2)
@@ -27,7 +27,7 @@ void _gnuplotLED(Gnuplot& gnuPlot, int LED1, int LED2)
 }
 
 
-void _gnuplotVerticalLine(Gnuplot& gnuPlot, int x, const char* dataName)
+void _gnuplotVerticalLine(Gnuplot& gnuPlot, float x, const char* dataName)
 {
 	if (x > 0) {
 		double ymin, ymax;

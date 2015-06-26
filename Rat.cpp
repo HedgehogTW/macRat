@@ -26,6 +26,7 @@ using namespace cv;
 
 Gnuplot gPlotL("lines");
 Gnuplot gPlotR("lines");
+Gnuplot gPlotP("lines");
 
 CRat::CRat()
 {
@@ -813,7 +814,8 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	
 	/////////////////////////////////// just for findReferenceFrame
 	vector <float>  vecRedGrayDiff;
-	vector <float>  vecCyanGrayDiff;	
+	vector <float>  vecCyanGrayDiff;
+	vector <float>  vecBellyGray;	
 	
 	int ref = 50;
 	graylevelDiff(ref, m_rectRed, m_rectCyan, vecRedGrayDiff, vecCyanGrayDiff);
@@ -888,19 +890,19 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	
 	vector <float>  vecLEarGrayDiff;
 	vector <float>  vecREarGrayDiff;
-	vector<float> smoothL;	
-	vector<float> smoothR;
+//	vector<float> smoothL;	
+//	vector<float> smoothR;
         
-	int maxPointL, maxPointR;
-	maxPointL = maxPointR = -1;
+//	int maxPointL, maxPointR;
+//	maxPointL = maxPointR = -1;
 	if(bGrayDiff ) {
 		if(m_bShowEar) {
 			graylevelDiff(m_referFrame, m_rectEarL, m_rectEarR, vecLEarGrayDiff, vecREarGrayDiff);
-			smoothData(vecLEarGrayDiff, smoothL, 2);	
-			smoothData(vecREarGrayDiff, smoothR, 2);	
+//			smoothData(vecLEarGrayDiff, smoothL, 2);	
+//			smoothData(vecREarGrayDiff, smoothR, 2);	
 			
-			maxPointL = findMaxMotionPoint(smoothL);
-			maxPointR = findMaxMotionPoint(smoothR);	
+//			maxPointL = findMaxMotionPoint(smoothL);
+//			maxPointR = findMaxMotionPoint(smoothR);	
 
 			DC_removal(m_nLED2, vecLEarGrayDiff);
 			DC_removal(m_nLED2, vecREarGrayDiff);
@@ -910,20 +912,28 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 		}
 		if(m_bShowBelly) {
 			graylevelDiff(m_referFrame, m_rectRed, m_rectCyan, vecRedGrayDiff, vecCyanGrayDiff);
-			DC_removal(m_nLED2, vecRedGrayDiff);
-			DC_removal(m_nLED2, vecCyanGrayDiff);
-			Notch_removal(vecCyanGrayDiff, m_referFrame);
-			Notch_removal(vecRedGrayDiff, m_referFrame);	
-
 			m_BigRedGray = isRedSignificant(vecRedGrayDiff, vecCyanGrayDiff);
+			
+			vecBellyGray.resize(vecRedGrayDiff.size());
+			if(m_BigRedGray>0) {
+				std::copy ( vecRedGrayDiff.begin(), vecRedGrayDiff.end(), vecBellyGray.begin() );
+			}else {
+				std::copy ( vecCyanGrayDiff.begin(), vecCyanGrayDiff.end(), vecBellyGray.begin() );
+			}
+			vecRedGrayDiff.clear();
+			vecCyanGrayDiff.clear();
+			
+			DC_removal(m_nLED2, vecBellyGray);			
+			Notch_removal(vecBellyGray, m_referFrame);
 		}
 	}
 	
 	float sdHead, sdBelly;
-	vector <Rect> vDrawRect;
-	vector <Point> vDrawPt;
-	vector <Point2f> 	peakBelly;
-	
+	vector<Rect> 		vDrawRect;
+	vector<Point> 	vDrawPt;
+	vector<Point2f> 	peakBelly;
+	vector<float> 	vPeakDist;
+	float 				ledPeak;
 	if(bOpticalPDF) {
 		int sz = m_vecFlow.size();
 
@@ -976,8 +986,9 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			sdBelly = computeSD(vecBellyPdf, m_nLED2);
 			
 			smoothData(vecBellyPdf, vecBellySmooth, 2);	
-			findPeaks(vecBellyPdf, peakBelly);
-
+			findPeaks(vecBellyPdf, vecBellySmooth, peakBelly);
+			ledPeak = peakAnalysis(peakBelly, vPeakDist, m_nLED2);
+			
 			if(bSaveFile) {
                 if(m_BigRedPdf>0) {
                     opticalAssignThresholdMap(m_vmDistRed, threshold, m_rectRed);
@@ -1002,11 +1013,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			DC_removal(m_nLED2, vecEyeFlowPdfL);
 			
 			float baselineL = Notch_removal(vecEyeFlowPdfL, m_referFrame);
-//			for(int i=0; i<sz; i++) {
-//				vecEyeFlowPdfL[i] -= baselineL;
-//			}	
 			sdHead=computeSD(vecEyeFlowPdfL, m_nLED2);
-			
             if(bSaveFile) {
                 opticalAssignThresholdMap(m_vmDistEyeL, threshold, m_rectHead);
                 vDrawRect.push_back(m_rectHead);
@@ -1040,10 +1047,13 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	
 	_gnuplotInit(gPlotL, title.ToAscii(), ymin, ymax);
 	_gnuplotInit(gPlotR, title.ToAscii(), ymin, ymax);
+	_gnuplotInit(gPlotP, title.ToAscii(), 10, 80);
 	gPlotL.set_legend("left");
 	gPlotR.set_legend("left");	
+	gPlotP.set_legend("left");	
 	gPlotL.cmd("set termoption noenhanced");
 	gPlotR.cmd("set termoption noenhanced");
+	gPlotP.cmd("set termoption noenhanced");
 	
 	plotSoundOnset(-0.5, 0.06, 100);
 	
@@ -1055,19 +1065,6 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 		_gnuplotVerticalLine(gPlotL, m_referFrame);
 		_gnuplotVerticalLine(gPlotR, m_referFrame);        
     }
-	if(maxPointL>=0 && maxPointR>=0) {
-		if(vecLEarGrayDiff[maxPointL]> vecREarGrayDiff[maxPointR]) {
-			MainFrame:: myMsgOutput("max motion: left ear %d\n", maxPointL);
-			_gnuplotVerticalLine(gPlotL, maxPointL);
-			_gnuplotVerticalLine(gPlotR, maxPointL);
-			saveEarROI(m_referFrame, maxPointL, ptEarL, m_offsetEar);
-		}else {
-			MainFrame:: myMsgOutput("max motion: right ear %d\n", maxPointR);
-			_gnuplotVerticalLine(gPlotL, maxPointR);
-			_gnuplotVerticalLine(gPlotR, maxPointL);
-			saveEarROI(m_referFrame, maxPointR, ptEarR, m_offsetEar);
-		}	
-	}
 	
 	if(bVerLine && verLine >0) {
 		_gnuplotVerticalLine(gPlotL, verLine);
@@ -1080,13 +1077,9 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 		}
 		if(m_bShowBelly) {
             //_OutputVec(vecRedGrayDiff, "_redgray.csv");
-            if(m_BigRedGray>0) {
-                _gnuplotLine(gPlotL, "Belly GraylevelDiff", vecRedGrayDiff, "#00008000", ".");
-                _gnuplotLine(gPlotR, "Belly GraylevelDiff", vecRedGrayDiff, "#00008000", ".");
-            }else {
-                _gnuplotLine(gPlotL, "Belly GraylevelDiff", vecCyanGrayDiff, "#00008000", ".");
-                _gnuplotLine(gPlotR, "Belly GraylevelDiff", vecCyanGrayDiff, "#00008000", ".");               
-            }
+			_gnuplotLine(gPlotL, "Belly GraylevelDiff", vecBellyGray, "#00008000", ".");
+			_gnuplotLine(gPlotR, "Belly GraylevelDiff", vecBellyGray, "#00008000", ".");
+
 		}
 		if(bEyeMove) {
 			_gnuplotLine(gPlotL, "LEyePosMove", m_vecEyeLMove, "#008B0000", ".");
@@ -1102,8 +1095,6 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	title.Replace("/", "_");
 	if(bOpticalPDF) {
 		vector <float>  vX, vY;
-
-	
 		if(m_bShowEar) {
 			_gnuplotLine(gPlotL, "LEar", vecLEarFlowPdf, "#000000ff");
 			_gnuplotLine(gPlotR, "REar", vecREarFlowPdf, "#000000ff");
@@ -1131,12 +1122,14 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			wxFileName newFullMarkerName(strParentPath, newMarkerName);			
 			
 			_gnuplotLine(gPlotL, "Belly", vecBellyPdf, "#00008000");
-			_gnuplotLine(gPlotL, "Belly", vecBellySmooth, "#00ff0000");
-			_OutputVec(vecBellyPdf, newFullMarkerName.GetFullPath());
-
-			_gnuplotPoint(gPlotL, peakBelly );
-			_gnuplotPoint(gPlotR, peakBelly );
+			_gnuplotLine(gPlotR, "Belly", vecBellyPdf, "#00008000");
 				
+			_OutputVec(vecBellyPdf, newFullMarkerName.GetFullPath());
+			_gnuplotPoint(gPlotL, peakBelly, "#00008f00" );
+			_gnuplotPoint(gPlotR, peakBelly, "#00008f00" );
+			
+			_gnuplotLine(gPlotP, "BellyPeakDist", vPeakDist, "#00F08000");
+			_gnuplotVerticalLine(gPlotP, ledPeak);    				
 		}
 		if(m_bShowEye) {
 			vX.clear();
@@ -1168,24 +1161,35 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	
 	return true;
 }
-void CRat::findPeaks(vector<float>& inData, vector<Point2f>& peaks)
+float CRat::peakAnalysis(vector<Point2f>& peaks, vector<float>& vPeakDist, int nLED2)
+{
+	int n = peaks.size();
+	int led = -1;
+	float ledPos;
+	vPeakDist.resize(n-1);
+	for(int i=0; i<n-1; i++) {
+		vPeakDist[i] = peaks[i+1].x - peaks[i].x;
+		if(peaks[i+1].x > nLED2 && led<0) led = i;
+	}
+	ledPos = led + (float)(nLED2-peaks[led].x)/(peaks[led+1].x - peaks[led].x);
+	return ledPos;
+}
+void CRat::findPeaks(vector<float>& inDataOri, vector<float>& inData, vector<Point2f>& peaks)
 {
 	peaks.clear();
 	int n = inData.size();
 	for(int i=3; i<7-3; i++) {
 		if(inData[i-3] < inData[i-1] && inData[i-1] < inData[i] &&
 			inData[i+3] < inData[i+1] && inData[i+1] < inData[i]) {
-				Point2f pt(i, inData[i]);
+				Point2f pt(i, inDataOri[i]);
 				peaks.push_back(pt);
-				//MainFrame::myMsgOutput("%f ", inData[i]);
 		}
 	}
 	for(int i=7; i<n-7; i++) {
 		if(inData[i-7] < inData[i-5] && inData[i-5] < inData[i-3] && inData[i-3] < inData[i-2] && inData[i-2] < inData[i-1] && inData[i-1] < inData[i] &&
 			inData[i+7] < inData[i+5] && inData[i+5] < inData[i+3] && inData[i+3] < inData[i+2] && inData[i+2] < inData[i+1] && inData[i+1] < inData[i]) {
-				Point2f pt(i, inData[i]);
-				peaks.push_back(pt);
-				//MainFrame::myMsgOutput("%f ", inData[i]);
+				Point2f pt(i, inDataOri[i]);
+				peaks.push_back(pt);				
 		}
 	}
 }
