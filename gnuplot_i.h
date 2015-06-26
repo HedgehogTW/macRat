@@ -70,7 +70,9 @@ class Gnuplot
 private:
 
 		double 	m_yMin;
-		double  m_yMax;
+		double  	m_yMax;
+		double 	m_xMin;
+		double  	m_xMax;		
     //----------------------------------------------------------------------------------
     // member data
 	///\brief pointer to the stream that can be used to write to the pipe
@@ -149,6 +151,7 @@ private:
 
     public:
 		inline void getYRange(double &ymin, double &ymax) { ymin = m_yMin; ymax = m_yMax; }
+		inline void getXRange(double &xmin, double &xmax) { xmin = m_xMin; xmax = m_xMax; }
 		// ----------------------------------------------------------------------------
         /// \brief optional function: set Gnuplot path manual
         /// attention:  for windows: path with slash '/' not backslash '\'
@@ -621,7 +624,9 @@ Gnuplot& Gnuplot::plot_x(const X& x, const std::string &title, const std::string
         throw GnuplotException("std::vector too small");
         return *this;
     }
-
+	m_xMin = x[0];
+	m_xMax = x[x.size()-1];
+	
     std::ofstream tmp;
     std::string name = create_tmpfile(tmp);
     if (name == "")
@@ -661,7 +666,8 @@ Gnuplot& Gnuplot::plot_xy(const X& x, const Y& y, const unsigned int width, cons
         throw GnuplotException("Length of the std::vectors differs");
         return *this;
     }
-
+	m_xMin = x[0];
+	m_xMax = x[x.size()-1];
 
     std::ofstream tmp;
     std::string name = create_tmpfile(tmp);

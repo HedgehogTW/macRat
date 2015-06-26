@@ -596,6 +596,9 @@ Gnuplot& Gnuplot::set_zlabel(const std::string &label)
 Gnuplot& Gnuplot::set_xrange(const double iFrom,
                              const double iTo)
 {
+	m_xMin = iFrom;
+	m_xMax = iTo;
+	
     std::ostringstream cmdstr;
 
     cmdstr << "set xrange[" << iFrom << ":" << iTo << "]";

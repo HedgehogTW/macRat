@@ -121,7 +121,8 @@ public:
 	void 	findEyeCenter(Point& ptEye0, vector <Point>& vecEye, vector <float>&  vecEyeMove, int referFrame);
 	void  	findNewEarCenter(vector <Point>& vecEye, Point ptEar0, vector <Point>& vecEar, int referFrame);
 	void	findPeaks(vector<float>& inDataOri, vector<float>& inData, vector<Point2f>& peaks);
-	float	peakAnalysis(vector<Point2f>& peaks, vector<float>& vPeakDist, int nLED2);
+	void	peakAnalysis(vector<Point2f>& peaks, vector<float>& vPeakDistX, vector<float>& vPeakDistY, int nLED2, float& mean, float& sd);
+	float	findMode(vector<float>& inData, float sigma);
 	
 	void 	smoothData(vector<float>& inData, vector<float>& outData, int bw=5);
 	double errorSum(Mat &mDiff, Rect rectEar);

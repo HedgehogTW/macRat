@@ -932,8 +932,11 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	vector<Rect> 		vDrawRect;
 	vector<Point> 	vDrawPt;
 	vector<Point2f> 	peakBelly;
-	vector<float> 	vPeakDist;
-	float 				ledPeak;
+	vector<Point2f> 	vPeakDist;
+	vector<float> 	vPeakDistX;
+	vector<float> 	vPeakDistY;
+	float meanPeak, sdPeak;
+	
 	if(bOpticalPDF) {
 		int sz = m_vecFlow.size();
 
@@ -987,7 +990,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			
 			smoothData(vecBellyPdf, vecBellySmooth, 2);	
 			findPeaks(vecBellyPdf, vecBellySmooth, peakBelly);
-			ledPeak = peakAnalysis(peakBelly, vPeakDist, m_nLED2);
+			peakAnalysis(peakBelly, vPeakDistX, vPeakDistY, m_nLED2, meanPeak, sdPeak);
 			
 			if(bSaveFile) {
                 if(m_BigRedPdf>0) {
@@ -1109,14 +1112,16 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 		}
 		if(m_bShowBelly) {
             //_OutputVec(vecRedFlowPdf, "_redw.csv");
-			vX.clear();
-			vY.clear();
-			vX.push_back(0);
-			vX.push_back(m_nSlices);
-			vY.push_back(sdBelly);
-			vY.push_back(sdBelly);	
-			_gnuplotLineXY(gPlotL, vX, vY, "#00008800");	
-			_gnuplotLineXY(gPlotR, vX, vY, "#00008800");
+//			vX.clear();
+//			vY.clear();
+//			vX.push_back(0);
+//			vX.push_back(m_nSlices);
+//			vY.push_back(sdBelly);
+//			vY.push_back(sdBelly);	
+//			_gnuplotLineXY(gPlotL, vX, vY, "#00008800");	
+//			_gnuplotLineXY(gPlotR, vX, vY, "#00008800");
+			_gnuplotHoriLine(gPlotL, sdBelly, "#00008800");
+			_gnuplotHoriLine(gPlotR, sdBelly, "#00008800");
 	
 			wxString  newMarkerName = title+"_"+"Belly.csv";
 			wxFileName newFullMarkerName(strParentPath, newMarkerName);			
@@ -1128,8 +1133,11 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			_gnuplotPoint(gPlotL, peakBelly, "#00008f00" );
 			_gnuplotPoint(gPlotR, peakBelly, "#00008f00" );
 			
-			_gnuplotLine(gPlotP, "BellyPeakDist", vPeakDist, "#00F08000");
-			_gnuplotVerticalLine(gPlotP, ledPeak);    				
+			_gnuplotSteps(gPlotP, vPeakDistX, vPeakDistY, "#00F08000");
+			_gnuplotHoriLine(gPlotP, meanPeak+sdPeak, "#00F08800");
+			_gnuplotHoriLine(gPlotP, meanPeak, "#00FF8800");
+			_gnuplotVerticalLine(gPlotP, m_nLED2);
+ 				
 		}
 		if(m_bShowEye) {
 			vX.clear();
@@ -1161,17 +1169,69 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	
 	return true;
 }
-float CRat::peakAnalysis(vector<Point2f>& peaks, vector<float>& vPeakDist, int nLED2)
+
+float CRat::findMode(vector<float>& inData, float sigma)
+{
+	float scale = 2;
+	auto minMax = std::minmax_element (inData.begin(), inData.end());
+	float maxValue = (*minMax.second) * scale;
+	float minValue = (*minMax.first) * scale;
+	int range = maxValue - minValue +1;
+	int n = inData.size();	
+	double* pData = new double[range];
+	double  *out = new double[range];
+
+	for(int i=0; i<n; i++)  {
+		pData[(int)(inData[i]*scale-minValue)]++;
+		MainFrame::myMsgOutput("%.2f  ", inData[i]);
+	}
+	MainFrame::myMsgOutput("\n");
+	CKDE::MSKernel kde_kernel = CKDE::Gaussian;
+	
+	CKDE kde1x(pData, out, range);
+	kde1x.KernelDensityEstimation(kde_kernel, sigma);
+
+	int maxIdx;
+	double max = -1000;
+	for(int i=0; i<range; i++)  {
+		MainFrame::myMsgOutput("%.2f  ", out[i]);
+		if(out[i] > max) {
+			max = out[i];
+			maxIdx = i;
+		}
+	}
+	
+	float mode = (maxIdx+minValue)/scale;
+	return mode;	
+}
+
+void CRat::peakAnalysis(vector<Point2f>& peaks, vector<float>& vPeakDistX, vector<float>& vPeakDistY, int nLED2, float& mean, float& sd)
 {
 	int n = peaks.size();
 	int led = -1;
 	float ledPos;
-	vPeakDist.resize(n-1);
+	vPeakDistX.resize(n-1);
+	vPeakDistY.resize(n-1);
 	for(int i=0; i<n-1; i++) {
-		vPeakDist[i] = peaks[i+1].x - peaks[i].x;
+		vPeakDistY[i] = peaks[i+1].x - peaks[i].x;
+		vPeakDistX[i] = peaks[i].x;
 		if(peaks[i+1].x > nLED2 && led<0) led = i;
 	}
 	ledPos = led + (float)(nLED2-peaks[led].x)/(peaks[led+1].x - peaks[led].x);
+	
+	vector<float> vPeakBefore;
+	vPeakBefore.resize(led);
+	std::copy ( vPeakDistY.begin(), vPeakDistY.begin()+led, vPeakBefore.begin() );
+	
+	cv::Scalar meanS, stddev;
+	cv::meanStdDev(vPeakBefore, meanS, stddev);
+	sd = stddev(0);
+	mean = meanS(0);
+	
+	for(int i=0; i<n-1; i++)  
+		MainFrame::myMsgOutput("%.2f  ", vPeakDistY[i]);
+
+	MainFrame::myMsgOutput("Before LED mean = %.3f, sd = %.3f\n", mean, sd);
 	return ledPos;
 }
 void CRat::findPeaks(vector<float>& inDataOri, vector<float>& inData, vector<Point2f>& peaks)

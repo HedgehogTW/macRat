@@ -25,7 +25,8 @@ using namespace std;
                          ((x) >= (z) ? (x) : (z)))
 						 
 void _gnuplotInit(Gnuplot& gnuPlot, const char* title, double ymin=0, double ymax=0);
-void _gnuplotVerticalLine(Gnuplot& gnuPlot, float x, const char* dataName="");
+void _gnuplotVerticalLine(Gnuplot& gnuPlot, float x, const char* color="", const char* dataName="");
+void _gnuplotHoriLine(Gnuplot& gnuPlot, float y, const char* color="", const char* dataName="");
 void _gnuplotLED(Gnuplot& gnuPlot, int LED1, int LED2);
 
 template<typename X>
@@ -50,7 +51,16 @@ void _gnuplotLineXY(Gnuplot& gnuPlot, const X& x, const Y& y, const char* color=
 
 	gnuPlot.set_style("lines").plot_xy(x, y, 1, color, titleName);
 }
+template<typename X, typename Y>
+void _gnuplotSteps(Gnuplot& gnuPlot, const X& x, const Y& y, const char* color="", const char* titleName="")
+{
+	if (x.size() <= 0) {
+		wxMessageBox("gnuplotShow:: no data", "Error");
+		return;
+	}	
 
+	gnuPlot.set_style("steps").plot_xy(x, y, 1, color, titleName);
+}
 template<typename X>
 void _gnuplotPoint(Gnuplot& gnuPlot, const X& pts, const char* color="", const char* titleName="")
 {

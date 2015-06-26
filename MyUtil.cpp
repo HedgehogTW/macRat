@@ -27,7 +27,7 @@ void _gnuplotLED(Gnuplot& gnuPlot, int LED1, int LED2)
 }
 
 
-void _gnuplotVerticalLine(Gnuplot& gnuPlot, float x, const char* dataName)
+void _gnuplotVerticalLine(Gnuplot& gnuPlot, float x, const char* color, const char* dataName)
 {
 	if (x > 0) {
 		double ymin, ymax;
@@ -39,8 +39,24 @@ void _gnuplotVerticalLine(Gnuplot& gnuPlot, float x, const char* dataName)
 		vecx.push_back(x);
 		vecy.push_back(ymax);
 		vecx.push_back(x);	
-		gnuPlot.set_style("lines").plot_xy(vecx, vecy, 1, dataName);
+		gnuPlot.set_style("lines").plot_xy(vecx, vecy, 1, color, dataName);
 	}	
+}
+
+void _gnuplotHoriLine(Gnuplot& gnuPlot, float y, const char* color, const char* dataName)
+{
+
+//	double xmin, xmax;
+//	gnuPlot.getXRange(xmin, xmax);
+	
+	std::vector<double> vecx;
+	std::vector<double> vecy;
+	vecy.push_back(y);
+	vecx.push_back(0);
+	vecy.push_back(y);
+	vecx.push_back(500);	
+	gnuPlot.set_style("lines").plot_xy(vecx, vecy, 1, color, dataName);
+	
 }
 
 
