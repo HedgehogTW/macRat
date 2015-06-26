@@ -43,7 +43,7 @@ void _gnuplotVerticalLine(Gnuplot& gnuPlot, float x, const char* color, const ch
 	}	
 }
 
-void _gnuplotHoriLine(Gnuplot& gnuPlot, float y, const char* color, const char* dataName)
+void _gnuplotHoriLine(Gnuplot& gnuPlot, float y, const char* color, const char* dataName, const char* dashtype)
 {
 
 //	double xmin, xmax;
@@ -55,7 +55,7 @@ void _gnuplotHoriLine(Gnuplot& gnuPlot, float y, const char* color, const char* 
 	vecx.push_back(0);
 	vecy.push_back(y);
 	vecx.push_back(500);	
-	gnuPlot.set_style("lines").plot_xy(vecx, vecy, 1, color, dataName);
+	gnuPlot.set_style("lines").plot_xy(vecx, vecy, 1, color, dataName, dashtype);
 	
 }
 

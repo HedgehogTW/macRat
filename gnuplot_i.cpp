@@ -816,7 +816,8 @@ Gnuplot& Gnuplot::plotfile_xy(const std::string &filename,
                               const unsigned int column_y,
 								 const unsigned int width,
 								 const std::string &color,
-                              const std::string &title)
+                              const std::string &title,
+							 const std::string &dashtype)
 {
     //
     // check if file exists
@@ -847,7 +848,9 @@ Gnuplot& Gnuplot::plotfile_xy(const std::string &filename,
 		
     if(color != "")
         cmdstr << " linecolor " << "\"" << color << "\"";
-
+		
+	if(dashtype != "")
+        cmdstr << " dt " << "\"" << dashtype << "\"";	
     //
     // Do the actual plot
     //

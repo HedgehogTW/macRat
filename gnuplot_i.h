@@ -493,10 +493,14 @@ private:
                          const unsigned int column_y = 2,
 							const unsigned int width = 1,
 							const std::string &color="",
-                         const std::string &title = "");
+                         const std::string &title = "",
+						    const std::string &dashtype="");
     ///   from data
     template<typename X, typename Y>
-    Gnuplot& plot_xy(const X& x, const Y& y, const unsigned int width=1, const std::string &color="",const std::string &title = "");
+    Gnuplot& plot_xy(const X& x, const Y& y, const unsigned int width=1, 
+								const std::string &color="",
+								const std::string &title = "",
+								const std::string &dashtype="");
 
 
     /// plot x,y pairs with dy errorbars: x y dy
@@ -653,7 +657,8 @@ Gnuplot& Gnuplot::plot_x(const X& x, const std::string &title, const std::string
 /// Plots a 2d graph from a list of doubles: x y
 //
 template<typename X, typename Y>
-Gnuplot& Gnuplot::plot_xy(const X& x, const Y& y, const unsigned int width, const std::string &color, const std::string &title)
+Gnuplot& Gnuplot::plot_xy(const X& x, const Y& y, const unsigned int width, const std::string &color, 
+		const std::string &title, const std::string &dashtype)
 {
     if (x.size() == 0 || y.size() == 0)
     {
@@ -684,7 +689,7 @@ Gnuplot& Gnuplot::plot_xy(const X& x, const Y& y, const unsigned int width, cons
     tmp.close();
 
 
-    plotfile_xy(name, 1, 2, width, color, title);
+    plotfile_xy(name, 1, 2, width, color, title, dashtype);
 
     return *this;
 }

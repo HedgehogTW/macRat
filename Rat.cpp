@@ -1050,7 +1050,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	
 	_gnuplotInit(gPlotL, title.ToAscii(), ymin, ymax);
 	_gnuplotInit(gPlotR, title.ToAscii(), ymin, ymax);
-	_gnuplotInit(gPlotP, title.ToAscii(), 10, 80);
+	_gnuplotInit(gPlotP, title.ToAscii(), 20, 80);
 	gPlotL.set_legend("left");
 	gPlotR.set_legend("left");	
 	gPlotP.set_legend("left");	
@@ -1134,9 +1134,10 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			_gnuplotPoint(gPlotR, peakBelly, "#00008f00" );
 			
 			_gnuplotSteps(gPlotP, vPeakDistX, vPeakDistY, "#00F08000");
-			_gnuplotHoriLine(gPlotP, meanPeak+sdPeak, "#00F08800");
-			_gnuplotHoriLine(gPlotP, meanPeak, "#00FF8800");
-			_gnuplotVerticalLine(gPlotP, m_nLED2);
+			_gnuplotHoriLine(gPlotP, meanPeak, "#000088FF");			
+			_gnuplotHoriLine(gPlotP, meanPeak+2*sdPeak, "#000088F0", "", "..-");
+			_gnuplotHoriLine(gPlotP, meanPeak+3*sdPeak, "#000008F0", "", "..-");
+			_gnuplotVerticalLine(gPlotP, m_nLED2, "#00FF0000");
  				
 		}
 		if(m_bShowEye) {
@@ -1209,7 +1210,7 @@ void CRat::peakAnalysis(vector<Point2f>& peaks, vector<float>& vPeakDistX, vecto
 {
 	int n = peaks.size();
 	int led = -1;
-	float ledPos;
+//	float ledPos;
 	vPeakDistX.resize(n-1);
 	vPeakDistY.resize(n-1);
 	for(int i=0; i<n-1; i++) {
@@ -1217,7 +1218,7 @@ void CRat::peakAnalysis(vector<Point2f>& peaks, vector<float>& vPeakDistX, vecto
 		vPeakDistX[i] = peaks[i].x;
 		if(peaks[i+1].x > nLED2 && led<0) led = i;
 	}
-	ledPos = led + (float)(nLED2-peaks[led].x)/(peaks[led+1].x - peaks[led].x);
+//	ledPos = led + (float)(nLED2-peaks[led].x)/(peaks[led+1].x - peaks[led].x);
 	
 	vector<float> vPeakBefore;
 	vPeakBefore.resize(led);
@@ -1228,11 +1229,13 @@ void CRat::peakAnalysis(vector<Point2f>& peaks, vector<float>& vPeakDistX, vecto
 	sd = stddev(0);
 	mean = meanS(0);
 	
-	for(int i=0; i<n-1; i++)  
+	for(int i=0; i<n-1; i++)  {
 		MainFrame::myMsgOutput("%.2f  ", vPeakDistY[i]);
+		if(i==led-1)  MainFrame::myMsgOutput(" | ");
+	}
 
 	MainFrame::myMsgOutput("Before LED mean = %.3f, sd = %.3f\n", mean, sd);
-	return ledPos;
+//	return ledPos;
 }
 void CRat::findPeaks(vector<float>& inDataOri, vector<float>& inData, vector<Point2f>& peaks)
 {

@@ -26,7 +26,7 @@ using namespace std;
 						 
 void _gnuplotInit(Gnuplot& gnuPlot, const char* title, double ymin=0, double ymax=0);
 void _gnuplotVerticalLine(Gnuplot& gnuPlot, float x, const char* color="", const char* dataName="");
-void _gnuplotHoriLine(Gnuplot& gnuPlot, float y, const char* color="", const char* dataName="");
+void _gnuplotHoriLine(Gnuplot& gnuPlot, float y, const char* color="", const char* dataName="", const char* dashtype="");
 void _gnuplotLED(Gnuplot& gnuPlot, int LED1, int LED2);
 
 template<typename X>
