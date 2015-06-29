@@ -1135,8 +1135,11 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			
 			_gnuplotSteps(gPlotP, vPeakDistX, vPeakDistY, "#00F08000");
 			_gnuplotHoriLine(gPlotP, meanPeak, "#000088FF");			
-			_gnuplotHoriLine(gPlotP, meanPeak+2*sdPeak, "#000088F0", "", "..-");
-			_gnuplotHoriLine(gPlotP, meanPeak+3*sdPeak, "#000008F0", "", "..-");
+			//_gnuplotHoriLine(gPlotP, meanPeak+2*sdPeak, "#000088F0", "", "..-");
+			_gnuplotHoriLine(gPlotP, meanPeak+3*sdPeak, "#00100800", "", "..-");
+			
+			//_gnuplotHoriLine(gPlotP, meanPeak-2*sdPeak, "#000088F0", "", "..-");
+			_gnuplotHoriLine(gPlotP, meanPeak-3*sdPeak, "#00100800", "", "..-");			
 			_gnuplotVerticalLine(gPlotP, m_nLED2, "#00FF0000");
  				
 		}

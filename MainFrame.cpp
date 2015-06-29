@@ -251,7 +251,7 @@ void MainFrame::readMarks(wxString &dirName)
 					m_ptEarL = m_dqEarPts[0];
 					m_ptEarR = m_dqEarPts[1];
 				}	
-				myMsgOutput("E %d %d %d\n", ptEarL.x, ptEarL.y, ptEarR.x, ptEarR.y);
+				//myMsgOutput("E %d %d %d\n", ptEarL.x, ptEarL.y, ptEarR.x, ptEarR.y);
 				break;	
 			case 'Y':
 				n = fscanf(fp, "%d %d %d %d\n", &ptEyeL.x, &ptEyeL.y, &ptEyeR.x, &ptEyeR.y );
@@ -261,7 +261,7 @@ void MainFrame::readMarks(wxString &dirName)
 					m_ptEyeL = m_dqEyePts[0];
 					m_ptEyeR = m_dqEyePts[1];
 				}
-				myMsgOutput("Y %d %d %d %d\n", ptEyeL.x, ptEyeL.y, ptEyeR.x, ptEyeR.y );
+				//myMsgOutput("Y %d %d %d %d\n", ptEyeL.x, ptEyeL.y, ptEyeR.x, ptEyeR.y );
 				break;
 			case 'A':
 				n = fscanf(fp, "%d %d %d %d\n", &ptBellyRed.x, &ptBellyRed.y, &ptBellyCyan.x, &ptBellyCyan.y );
@@ -271,19 +271,19 @@ void MainFrame::readMarks(wxString &dirName)
 					m_ptBellyRed = m_dqBellyPts[0];
 					m_ptBellyCyan = m_dqBellyPts[1];
 				}		
-				myMsgOutput("A Red[%d %d], Cyan[%d %d]\n", ptBellyRed.x, ptBellyRed.y, ptBellyCyan.x, ptBellyCyan.y );
+				//myMsgOutput("A Red[%d %d], Cyan[%d %d]\n", ptBellyRed.x, ptBellyRed.y, ptBellyCyan.x, ptBellyCyan.y );
 				break;	
 			case 'C':
 				n = fscanf(fp, "%d\n", &line);
 				if(n==1)  m_nCageLine = line;
 				else m_nCageLine = -1;
-				myMsgOutput("C %d\n", line);
+				//myMsgOutput("C %d\n", line);
 				break;
 			case 'L':
 				n = fscanf(fp, "%d\n", &led2);
 				if(n==1)  m_nLED2 = led2;
 				else m_nLED2 = -1;
-				myMsgOutput("L %d\n", led2);
+				//myMsgOutput("L %d\n", led2);
 				break;	
 			case 'G': // head, belly gain
 				float gainHead, gainBelly;
