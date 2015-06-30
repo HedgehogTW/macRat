@@ -80,7 +80,7 @@ MainFrame::MainFrame(wxWindow* parent)
 
 	this->Connect(wxID_FILE1, wxID_FILE9, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrame::OnMRUFile), NULL, this);
 	
-	SetSize(800, 650);
+	SetSize(550, 650);
 	Center();
 /*	
 	m_fpLog = fopen("_log.txt", "w+");
@@ -285,13 +285,14 @@ void MainFrame::readMarks(wxString &dirName)
 				else m_nLED2 = -1;
 				//myMsgOutput("L %d\n", led2);
 				break;	
-			case 'G': // head, belly gain
-				float gainHead, gainBelly;
-				n = fscanf(fp, "%f %f\n", &gainHead, &gainBelly);
-				if(n==2) {
+			case 'G': // head, belly gain, m_xSD
+				float gainHead, gainBelly, xSD;
+				n = fscanf(fp, "%f %f %f\n", &gainHead, &gainBelly, &xSD);
+				if(n==3) {
 					m_configData.m_gainHead = gainHead;
 					m_configData.m_gainBelly = gainBelly;
-					myMsgOutput("head, belly gain %.2f %.2f\n", gainHead, gainBelly);
+					m_configData.m_xSD = xSD;
+					myMsgOutput("head, belly gain %.2f %.2f, xSD %.2f\n", gainHead, gainBelly, xSD);
 				}else
 					myMsgOutput("head, belly gain load error\n");
 				break;		
@@ -683,7 +684,7 @@ void MainFrame::OnRatProcessEar(wxCommandEvent& event)
 		fprintf(fp, "G%f %f\n", m_configData.m_gainHead, m_configData.m_gainBelly);	
 		fprintf(fp, "S%d %d\n", m_configData.m_szROIEar, m_configData.m_szROIBelly);
 		fprintf(fp, "R%d\n", m_configData.m_refSignal);
-		fprintf(fp, "y%f %f\n", m_configData.m_ymin, m_configData.m_ymax);	
+		fprintf(fp, "y%f %f %f\n", m_configData.m_ymin, m_configData.m_ymax, m_configData.m_xSD);	
 		fclose(fp);
 	}	
 }

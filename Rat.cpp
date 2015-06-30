@@ -738,6 +738,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	long referFrame = configData.m_referFrame;
 	double gainHead = configData.m_gainHead;
 	double gainBelly = configData.m_gainBelly;
+	double xSD = configData.m_xSD;
 	int	refSignal = configData.m_refSignal;
 	
 	bool bUserLED2;
@@ -749,7 +750,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	dlg.setSeriesLine(bEyeMove, bEar, bGrayDiff, bBelly);
 	dlg.setOptions(bOpticalPDF, bOpFlowV1, bSaveFile, refSignal);
 	dlg.setYRange(ymin, ymax, m_ROIEar, m_ROIBelly, referFrame);
-	dlg.setGain(gainHead, gainBelly);
+	dlg.setGain(gainHead, gainBelly, xSD);
 
 	if(dlg.ShowModal() !=  wxID_OK) return false;
 	newFrameSteps = dlg.getFrameSteps();
@@ -758,7 +759,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	dlg.getSeriesLine(bEyeMove, bEar, bGrayDiff, bBelly);
 	dlg.getOptions(bOpticalPDF, bNewOpFlowV1, bSaveFile, refSignal);
 	dlg.getYRange(ymin, ymax, m_ROIEar, m_ROIBelly, referFrame);
-	dlg.getGain(gainHead, gainBelly);
+	dlg.getGain(gainHead, gainBelly, xSD);
 	dlg.Destroy();
 	
 	if(bUserLED2 && nLED2 > 0) {
@@ -788,6 +789,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	configData.m_referFrame = referFrame;
 	configData.m_gainHead = gainHead;
 	configData.m_gainBelly = gainBelly;
+	configData.m_xSD = xSD;
 	configData.m_refSignal = refSignal;
 	
 	MainFrame::m_pThis->setConfigData(configData);	
@@ -1050,7 +1052,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	
 	_gnuplotInit(gPlotL, title.ToAscii(), ymin, ymax);
 	_gnuplotInit(gPlotR, title.ToAscii(), ymin, ymax);
-	_gnuplotInit(gPlotP, title.ToAscii(), 20, 80);
+	_gnuplotInit(gPlotP, title.ToAscii(), 10, 70);
 	gPlotL.set_legend("left");
 	gPlotR.set_legend("left");	
 	gPlotP.set_legend("left");	
@@ -1058,7 +1060,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	gPlotR.cmd("set termoption noenhanced");
 	gPlotP.cmd("set termoption noenhanced");
 	
-	plotSoundOnset(-0.5, 0.06, 100);
+	plotSoundOnset(-0.4, 0.06, 100);
 	
 	if(bLEDLine && (m_nLED1>0 || m_nLED2 >0)) {
 		_gnuplotLED(gPlotL, m_nLED1, m_nLED2);
@@ -1112,16 +1114,12 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 		}
 		if(m_bShowBelly) {
             //_OutputVec(vecRedFlowPdf, "_redw.csv");
-//			vX.clear();
-//			vY.clear();
-//			vX.push_back(0);
-//			vX.push_back(m_nSlices);
-//			vY.push_back(sdBelly);
-//			vY.push_back(sdBelly);	
-//			_gnuplotLineXY(gPlotL, vX, vY, "#00008800");	
-//			_gnuplotLineXY(gPlotR, vX, vY, "#00008800");
-			_gnuplotHoriLine(gPlotL, sdBelly, "#00008800");
-			_gnuplotHoriLine(gPlotR, sdBelly, "#00008800");
+			wxString strLine;
+			strLine.Printf("%.1fxSD", xSD);
+			_gnuplotHoriLine(gPlotL, m_nSlices, sdBelly*xSD, "#00008800", "..-", strLine);
+			_gnuplotHoriLine(gPlotR, m_nSlices, sdBelly*xSD, "#00008800", "..-", strLine);
+			_gnuplotHoriLine(gPlotL, m_nSlices, -sdBelly*xSD, "#00008800",  "..-");
+			_gnuplotHoriLine(gPlotR, m_nSlices, -sdBelly*xSD, "#00008800",  "..-");
 	
 			wxString  newMarkerName = title+"_"+"Belly.csv";
 			wxFileName newFullMarkerName(strParentPath, newMarkerName);			
@@ -1133,13 +1131,10 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			_gnuplotPoint(gPlotL, peakBelly, "#00008f00" );
 			_gnuplotPoint(gPlotR, peakBelly, "#00008f00" );
 			
-			_gnuplotSteps(gPlotP, vPeakDistX, vPeakDistY, "#00F08000");
-			_gnuplotHoriLine(gPlotP, meanPeak, "#000088FF");			
-			//_gnuplotHoriLine(gPlotP, meanPeak+2*sdPeak, "#000088F0", "", "..-");
-			_gnuplotHoriLine(gPlotP, meanPeak+3*sdPeak, "#00100800", "", "..-");
-			
-			//_gnuplotHoriLine(gPlotP, meanPeak-2*sdPeak, "#000088F0", "", "..-");
-			_gnuplotHoriLine(gPlotP, meanPeak-3*sdPeak, "#00100800", "", "..-");			
+			_gnuplotSteps(gPlotP, vPeakDistX, vPeakDistY, "#00F08000", "Cycle time");
+			_gnuplotHoriLine(gPlotP, m_nSlices, meanPeak, "#000088FF");						
+			_gnuplotHoriLine(gPlotP, m_nSlices, meanPeak+xSD*sdPeak, "#00100800", "..-", strLine);			
+			_gnuplotHoriLine(gPlotP, m_nSlices, meanPeak-xSD*sdPeak, "#00100800", "..-");			
 			_gnuplotVerticalLine(gPlotP, m_nLED2, "#00FF0000");
  				
 		}

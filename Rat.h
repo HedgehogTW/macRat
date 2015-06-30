@@ -67,7 +67,7 @@ public:
 	double m_verLine;
 	double m_ymin;
 	double	m_ymax;	
-	
+	double m_xSD;
 	
 	long	m_szROIEar;
 	long	m_szROIBelly;
@@ -85,6 +85,7 @@ public:
 		m_refSignal = 0;
 		m_ymin = -1;
 		m_ymax = 3;
+		m_xSD = 3;
 	}
 };
 

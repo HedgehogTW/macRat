@@ -160,7 +160,7 @@ MainFrameBaseClass::MainFrameBaseClass(wxWindow* parent, wxWindowID id, const wx
     this->SetStatusBar(m_statusBar);
     
     SetName(wxT("MainFrameBaseClass"));
-    SetSizeHints(700,500);
+    SetSizeHints(550,500);
     if ( GetSizer() ) {
          GetSizer()->Fit(this);
     }

@@ -73,6 +73,7 @@ protected:
     wxStaticText* m_staticText126;
     wxTextCtrl* m_textCtrlReferFrame;
     wxStaticText* m_staticText130;
+    wxTextCtrl* m_textCtrlXSD;
     wxStaticLine* m_staticLine108;
     wxStdDialogButtonSizer* m_stdBtnSizer52;
     wxButton* m_button56;

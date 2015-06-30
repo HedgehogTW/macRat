@@ -319,7 +319,7 @@ Gnuplot& Gnuplot::reset_plot()
 //
 Gnuplot& Gnuplot::reset_all()
 {
-  remove_tmpfiles();
+	remove_tmpfiles();
 
     nplots = 0;
     cmd("reset");
