@@ -1988,7 +1988,7 @@ void CRat::opticalDrawFlowmap(Point pt1, Point pt2, Point offset, int nFrameStep
 	saveResult("flow", vecFlowmap);	
 }
 
-bool CRat::prepareGnuPlot(Gnuplot& plotSave, int numPlots, char* subpath)
+bool CRat::prepareGnuPlot(Gnuplot& plotSave, int numPlots, char* subpath, int range)
 {
     wxString str;
     
@@ -2030,8 +2030,7 @@ bool CRat::prepareGnuPlot(Gnuplot& plotSave, int numPlots, char* subpath)
     else if(numPlots==1) 
         plotSave.cmd("set terminal pngcairo size 400, 400");
 #endif	
-
-    int range = PDF_SIZE/2;
+    
 	plotSave.cmd("set grid");
 	plotSave.cmd("unset key");	
 	plotSave.set_xrange(-range, range);
@@ -2062,7 +2061,8 @@ void CRat::opticalSavePlot(char* subpath, char* type, float threshold)
     if(m_bShowEar)  numScatterPlot+=2;
     if(m_bShowBelly)  numScatterPlot+=1;
     if(m_bShowEye)  numScatterPlot+=1;
-    bool bRet = prepareGnuPlot(plotSave, numScatterPlot, subpath);   
+	int range = 10; //PDF_SIZE/2;
+    bool bRet = prepareGnuPlot(plotSave, numScatterPlot, subpath, range);   
     
     if(bRet ==false) return;
     
@@ -2092,15 +2092,15 @@ void CRat::opticalSavePlot(char* subpath, char* type, float threshold)
         
         if(numScatterPlot ==1) {
 			szX = 1;
-            szY = 1;
+            szY = 0.97;
             if(m_bShowBelly) {
                 oriX = 0; oriY = 0;
                 if(m_BigRedPdf >0 )
                     plotOneSpot(type, plotSave, i, saveName, m_rectRed, m_vmDistRed,
-                        "_Red", "Red", threshold, szX, szY, oriX, oriY); 
+                        "_Belly", "Belly", threshold, szX, szY, oriX, oriY); 
                 else 
                     plotOneSpot(type, plotSave, i, saveName, m_rectCyan, m_vmDistCyan,
-                        "_Cyan", "Cyan", threshold, szX, szY, oriX, oriY); 
+                        "_Belly", "Belly", threshold, szX, szY, oriX, oriY); 
             }  
             if(m_bShowEye) {
                 oriX = 0; oriY = 0;
@@ -2112,7 +2112,7 @@ void CRat::opticalSavePlot(char* subpath, char* type, float threshold)
             }                   
         }else if(numScatterPlot ==2) {
 			szX = 0.5;
-            szY = 1;
+            szY = 0.97;
             if(m_bShowEar) {
                 oriX = 0; oriY = 0;
                 plotOneSpot(type, plotSave, i, saveName, m_rectEarL, m_vmDistEarL,
@@ -2125,10 +2125,10 @@ void CRat::opticalSavePlot(char* subpath, char* type, float threshold)
                 oriX = 0; oriY = 0;
                 if(m_BigRedPdf >0 ) 
                     plotOneSpot(type, plotSave, i, saveName, m_rectRed, m_vmDistRed,
-                        "_Red", "Red", threshold, szX, szY, oriX, oriY); 
+                        "_Belly", "Belly", threshold, szX, szY, oriX, oriY); 
                 else
                     plotOneSpot(type, plotSave, i, saveName, m_rectCyan, m_vmDistCyan,
-                        "_Cyan", "Cyan", threshold, szX, szY, oriX, oriY); 
+                        "_Belly", "Belly", threshold, szX, szY, oriX, oriY); 
          
                 oriX = 0.5; oriY = 0;
                 plotOneSpot(type, plotSave, i, saveName, m_rectHead, m_vmDistEyeL,
@@ -2152,10 +2152,10 @@ void CRat::opticalSavePlot(char* subpath, char* type, float threshold)
             oriX = 0; oriY = 0;                
             if(m_BigRedPdf >0 )         
                 plotOneSpot(type, plotSave, i, saveName, m_rectRed, m_vmDistRed,
-                    "_Red", "Red", threshold, szX, szY, oriX, oriY); 
+                    "_Belly", "Belly", threshold, szX, szY, oriX, oriY); 
             else
                 plotOneSpot(type, plotSave, i, saveName, m_rectCyan, m_vmDistCyan,
-                    "_Cyan", "Cyan", threshold, szX, szY, oriX, oriY); 
+                    "_Belly", "Belly", threshold, szX, szY, oriX, oriY); 
                     
             oriX = 0.5; oriY = 0;           
             plotOneSpot(type, plotSave, i, saveName, m_rectHead, m_vmDistEyeL,

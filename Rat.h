@@ -147,7 +147,7 @@ public:
 	void	drawOptFlowMap(Mat& cflowmap, const Mat& flow, int step, const Scalar& color);
     void	drawOptFlowMapWithPDF(Mat& cflowmap, const Mat& flow,  int step, Mat &mPdf);    
     									
-    bool    prepareGnuPlot(Gnuplot& plotSave, int numPlots, char* subpath);
+    bool    prepareGnuPlot(Gnuplot& plotSave, int numPlots, char* subpath, int range);
     void    opticalSavePlot(char* subpath, char* type, float threshold);
     void    plotOneSpot(char* type, Gnuplot& plotSave, int i, wxFileName& saveName, Rect rect, vector<Mat>& vmPDF,
 								const char* extName1, const char* title1, float threshold,
