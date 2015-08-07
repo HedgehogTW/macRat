@@ -1060,7 +1060,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	gPlotR.cmd("set termoption noenhanced");
 	gPlotP.cmd("set termoption noenhanced");
 	
-	plotSoundOnset(-0.4, 0.06, 100);
+	plotSoundOnset(-0.65, 0.06, 100);
 	
 	if(bLEDLine && (m_nLED1>0 || m_nLED2 >0)) {
 		_gnuplotLED(gPlotL, m_nLED1, m_nLED2);
@@ -2061,7 +2061,7 @@ void CRat::opticalSavePlot(char* subpath, char* type, float threshold)
     if(m_bShowEar)  numScatterPlot+=2;
     if(m_bShowBelly)  numScatterPlot+=1;
     if(m_bShowEye)  numScatterPlot+=1;
-	int range = 10; //PDF_SIZE/2;
+	int range = 5; //PDF_SIZE/2;
     bool bRet = prepareGnuPlot(plotSave, numScatterPlot, subpath, range);   
     
     if(bRet ==false) return;
@@ -2246,7 +2246,7 @@ void CRat::plotDotScatter(Gnuplot& plotSavePGN, Mat& mFlow, Rect rect, wxString&
 	//_OutputMatPoint2f(mROI, fName.ToAscii());
 
 	std::ostringstream cmdstr1;
-    cmdstr1 << "plot '" << fName.ToAscii() << "' with dots linecolor '#FF0022'";
+    cmdstr1 << "plot '" << fName.ToAscii() << "'  with points pointtype 1 linecolor '#FF0022'";
     plotSavePGN.cmd(cmdstr1.str());	
 }
 
