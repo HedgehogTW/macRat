@@ -24,6 +24,8 @@ typedef itk::Image< charPixelType, 2 > charImageType;
 typedef float floatPixelType;
 typedef itk::Image< floatPixelType, 2 > floatImageType;
 
+typedef itk::ImportImageFilter< charPixelType, 2 > ImportFilterType;
+
 typedef Vec<float, NUM_FEATURE+1> TrainPattern;
 
 class CEarCandidate{

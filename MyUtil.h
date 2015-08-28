@@ -11,6 +11,8 @@
 #include "gnuplot_i.h"
 #include "Rat.h"
 
+#include "itkImportImageFilter.h"
+
 using namespace cv;
 using namespace std;
 
@@ -126,6 +128,9 @@ void _OutputMatPoint2f(cv::Mat m, const char *filename, bool bAppend=false);
 void _OutputMatGnuplotBinData(cv::Mat m, const char *filename, int low, int high);
 void _rgbMat2hsvMat(cv::Mat &mRGB, cv::Mat &mHSV, bool plus360);
 void rgb2hsv(uchar r, uchar g, uchar b, float &h, float &s, float &v, bool plus360);
+
+void itkImportBuffer(cv::Mat& mSrc, ImportFilterType::Pointer importer);
+void itkExport32FC1Buffer(floatImageType* image, cv::Mat& mDest);
 
 /// TYPE CASTING
 template<class T1, class T2>

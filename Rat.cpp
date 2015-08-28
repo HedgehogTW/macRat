@@ -6,7 +6,7 @@
 #include "Rat.h"
 #include "KDE.h"
 
-#include "itkOpenCVImageBridge.h"
+//#include "itkOpenCVImageBridge.h"
 #include "itkCastImageFilter.h"
 #include "itkRescaleIntensityImageFilter.h"
 #include "itkLaplacianRecursiveGaussianImageFilter.h"
@@ -2499,14 +2499,14 @@ double CRat::lineSquareError(vector<cv::Point>& contour, cv::Point& pt)
 }
 void CRat::itkLaplacianOfGaussian(Mat& mSrc, Mat& mDest, double sigma)
 {
-
-	typedef itk::OpenCVImageBridge BridgeType;
-	charImageType::Pointer itkImage = BridgeType::CVMatToITKImage<charImageType>(mSrc);
+	ImportFilterType::Pointer importer = ImportFilterType::New();;
+	itkImportBuffer(mSrc, importer);
+	
 	// cast to float
 	typedef itk::CastImageFilter<charImageType, floatImageType > CastFilterType;
 
 	CastFilterType::Pointer castFilter = CastFilterType::New();
-	castFilter->SetInput(itkImage );
+	castFilter->SetInput(importer->GetOutput() );
 
 	typedef itk::LaplacianRecursiveGaussianImageFilter<
                         floatImageType, floatImageType >  FilterType;
@@ -2516,8 +2516,8 @@ void CRat::itkLaplacianOfGaussian(Mat& mSrc, Mat& mDest, double sigma)
 	laplacian->SetInput( castFilter->GetOutput() );
 	laplacian->Update();
 
-	cv::Mat resultImage =BridgeType::ITKImageToCVMat< floatImageType >(laplacian->GetOutput());
-//	resultImage.copyTo(mDest);
+	cv::Mat resultImage;
+	itkExport32FC1Buffer(laplacian->GetOutput(), resultImage);
 
 	//double  min, max;
 	//cv::minMaxLoc(mDest, &min, &max);
