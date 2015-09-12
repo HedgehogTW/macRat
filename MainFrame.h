@@ -45,7 +45,8 @@ public:
 	void 	getEyePts(Point& eyeL, Point& eyeR) { eyeL = m_ptEyeL; eyeR = m_ptEyeR; }
 	void 	getEarPts(Point& earL, Point& earR) { earL = m_ptEarL; earR = m_ptEarR;}
 	int 	getBellyPts(Point& abRed, Point& abCyan) { abRed = m_ptBellyRed; abCyan = m_ptBellyCyan; return m_Rat.m_BigRedPdf; }
-	
+	bool    isViewMarks() { return m_bViewMarks; };
+    
 	int		getCageline() { return m_nCageLine; }
 	bool	getCroppedStatus()  { return m_bCutTop; }
 	bool	preprocessing();
@@ -71,6 +72,8 @@ public:
 	
 	
 protected:
+    virtual void OnUpdateViewMarks(wxUpdateUIEvent& event);
+    virtual void OnViewMarks(wxCommandEvent& event);
     virtual void OnRatAbdomen(wxCommandEvent& event);
     virtual void OnToolsCleanOutput(wxCommandEvent& event);
     virtual void OnMouseLButtonDown(wxMouseEvent& event);
@@ -128,6 +131,7 @@ protected:
 	bool    m_bMarkEar;
 	bool    m_bMarkBelly;
 	bool    m_bMarkCageline;
+    bool    m_bViewMarks;
 	
 //	double	m_gainHead;
 //	double	m_gainBelly;

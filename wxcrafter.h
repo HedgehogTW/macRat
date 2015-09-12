@@ -4,8 +4,8 @@
 // Do not modify this file by hand!
 //////////////////////////////////////////////////////////////////////
 
-#ifndef MACRAT_WXCRAFTER_BASE_CLASSES_H
-#define MACRAT_WXCRAFTER_BASE_CLASSES_H
+#ifndef PROJECT_MACRAT_WXCRAFTER_BASE_CLASSES_H
+#define PROJECT_MACRAT_WXCRAFTER_BASE_CLASSES_H
 
 #include <wx/settings.h>
 #include <wx/xrc/xmlres.h>
@@ -45,8 +45,9 @@ public:
         wxID_RAT_MARK_EAR = 1004,
         wxID_RAT_MARK_EYE = 1005,
         wxID_RAT_PROCESS = 1006,
-        wxID_VIEW_RESULT_SERIES = 1007,
-        wxID_VIEW_SERIES = 1008,
+        wxID_VIEW_MARK = 1007,
+        wxID_VIEW_RESULT_SERIES = 1008,
+        wxID_VIEW_SERIES = 1009,
     };
 protected:
     wxMenuBar* m_menuBar;
@@ -62,6 +63,7 @@ protected:
     wxMenuItem* m_menuItemViewFolderImage;
     wxMenuItem* m_menuItemView2D;
     wxMenuItem* m_menuItemView3D;
+    wxMenuItem* m_menuItemViewMarks;
     wxMenu* m_menuRat;
     wxMenuItem* m_menuItemProcess;
     wxMenuItem* m_menuItemAbdomen;
@@ -74,6 +76,7 @@ protected:
     wxPanel* m_panel15;
     wxRichTextCtrl* m_richTextMsg;
     wxAuiToolBar* m_auibar31;
+    wxBitmapToggleButton* m_bmpToggleBtnViewMark;
     wxBitmapToggleButton* m_bmpToggleBtnMarkCageLine;
     wxBitmapToggleButton* m_bmpToggleBtnMarkEyes;
     wxBitmapToggleButton* m_bmpToggleBtnMarkEars;
@@ -92,6 +95,8 @@ protected:
     virtual void OnViewFolderImage(wxCommandEvent& event) { event.Skip(); }
     virtual void OnView2DData(wxCommandEvent& event) { event.Skip(); }
     virtual void OnView3DData(wxCommandEvent& event) { event.Skip(); }
+    virtual void OnViewMarks(wxCommandEvent& event) { event.Skip(); }
+    virtual void OnUpdateViewMarks(wxUpdateUIEvent& event) { event.Skip(); }
     virtual void OnRatProcessEar(wxCommandEvent& event) { event.Skip(); }
     virtual void OnRatAbdomen(wxCommandEvent& event) { event.Skip(); }
     virtual void OnToolsCleanOutput(wxCommandEvent& event) { event.Skip(); }
@@ -109,6 +114,7 @@ public:
     ScrolledImageComponent* GetScrollWin() { return m_scrollWin; }
     wxRichTextCtrl* GetRichTextMsg() { return m_richTextMsg; }
     wxPanel* GetPanel15() { return m_panel15; }
+    wxBitmapToggleButton* GetBmpToggleBtnViewMark() { return m_bmpToggleBtnViewMark; }
     wxBitmapToggleButton* GetBmpToggleBtnMarkCageLine() { return m_bmpToggleBtnMarkCageLine; }
     wxBitmapToggleButton* GetBmpToggleBtnMarkEyes() { return m_bmpToggleBtnMarkEyes; }
     wxBitmapToggleButton* GetBmpToggleBtnMarkEars() { return m_bmpToggleBtnMarkEars; }

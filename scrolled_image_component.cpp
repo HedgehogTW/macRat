@@ -75,6 +75,10 @@ void ScrolledImageComponent::OnDraw(wxDC& dc)
 		dc.SetPen(*wxYELLOW_PEN);
 		dc.DrawLine(wxPoint(0, nCageline), wxPoint(m_nWidth, nCageline));
 	}
+    
+    bool bViewMarks = MainFrame::m_pThis->isViewMarks();
+    if(! bViewMarks)  return;
+    
 	Point 	ptEyeL, ptEyeR, ptEarL, ptEarR;
 	
 	MainFrame::m_pThis->getEyePts(ptEyeL, ptEyeR);

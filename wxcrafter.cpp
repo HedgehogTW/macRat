@@ -63,6 +63,10 @@ MainFrameBaseClass::MainFrameBaseClass(wxWindow* parent, wxWindowID id, const wx
     m_menuItemView3D = new wxMenuItem(m_menuView, wxID_ANY, _("Show 3D data"), wxT(""), wxITEM_NORMAL);
     m_menuView->Append(m_menuItemView3D);
     
+    m_menuItemViewMarks = new wxMenuItem(m_menuView, wxID_VIEW_MARK, _("View Marks"), wxT(""), wxITEM_CHECK);
+    m_menuView->Append(m_menuItemViewMarks);
+    m_menuItemViewMarks->Check();
+    
     m_menuRat = new wxMenu();
     m_menuBar->Append(m_menuRat, _("Rat"));
     
@@ -118,6 +122,13 @@ MainFrameBaseClass::MainFrameBaseClass(wxWindow* parent, wxWindowID id, const wx
     m_auibar31->AddSeparator();
     
     m_auibar31->AddTool(wxID_EDIT_CLEAR_MARKS, _("Clear Marks"), wxXmlResource::Get()->LoadBitmap(wxT("ERASE01")), wxNullBitmap, wxITEM_NORMAL, _("Clear Marks"), wxT(""), NULL);
+    
+    m_bmpToggleBtnViewMark = new wxBitmapToggleButton(m_auibar31, wxID_VIEW_MARK, wxXmlResource::Get()->LoadBitmap(wxT("mark")), wxDefaultPosition, wxSize(40,-1), 0);
+    m_bmpToggleBtnViewMark->SetToolTip(_("View Marks"));
+    m_bmpToggleBtnViewMark->SetValue(true);
+    m_auibar31->AddControl(m_bmpToggleBtnViewMark);
+    
+    m_auibar31->AddSeparator();
     
     m_bmpToggleBtnMarkCageLine = new wxBitmapToggleButton(m_auibar31, wxID_ANY, wxXmlResource::Get()->LoadBitmap(wxT("cage")), wxDefaultPosition, wxSize(-1,-1), wxBU_EXACTFIT);
     m_bmpToggleBtnMarkCageLine->SetToolTip(_("Mark cage line"));
@@ -175,6 +186,8 @@ MainFrameBaseClass::MainFrameBaseClass(wxWindow* parent, wxWindowID id, const wx
     this->Connect(m_menuItemViewFolderImage->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnViewFolderImage), NULL, this);
     this->Connect(m_menuItemView2D->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnView2DData), NULL, this);
     this->Connect(m_menuItemView3D->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnView3DData), NULL, this);
+    this->Connect(m_menuItemViewMarks->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnViewMarks), NULL, this);
+    this->Connect(m_menuItemViewMarks->GetId(), wxEVT_UPDATE_UI, wxUpdateUIEventHandler(MainFrameBaseClass::OnUpdateViewMarks), NULL, this);
     this->Connect(m_menuItemProcess->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnRatProcessEar), NULL, this);
     this->Connect(m_menuItemAbdomen->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnRatAbdomen), NULL, this);
     this->Connect(m_menuItemCleanOutput->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnToolsCleanOutput), NULL, this);
@@ -183,6 +196,8 @@ MainFrameBaseClass::MainFrameBaseClass(wxWindow* parent, wxWindowID id, const wx
     m_scrollWin->Connect(wxEVT_LEFT_DOWN, wxMouseEventHandler(MainFrameBaseClass::OnMouseLButtonDown), NULL, this);
     m_scrollWin->Connect(wxEVT_RIGHT_DOWN, wxMouseEventHandler(MainFrameBaseClass::OnMouseRButtonDown), NULL, this);
     this->Connect(wxID_OPEN, wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(MainFrameBaseClass::OnFileOpen), NULL, this);
+    m_bmpToggleBtnViewMark->Connect(wxEVT_COMMAND_TOGGLEBUTTON_CLICKED, wxCommandEventHandler(MainFrameBaseClass::OnViewMarks), NULL, this);
+    m_bmpToggleBtnViewMark->Connect(wxEVT_UPDATE_UI, wxUpdateUIEventHandler(MainFrameBaseClass::OnUpdateViewMarks), NULL, this);
     m_bmpToggleBtnMarkCageLine->Connect(wxEVT_COMMAND_TOGGLEBUTTON_CLICKED, wxCommandEventHandler(MainFrameBaseClass::OnMarkCageline), NULL, this);
     m_bmpToggleBtnMarkEyes->Connect(wxEVT_COMMAND_TOGGLEBUTTON_CLICKED, wxCommandEventHandler(MainFrameBaseClass::OnMarkEyes), NULL, this);
     m_bmpToggleBtnMarkEars->Connect(wxEVT_COMMAND_TOGGLEBUTTON_CLICKED, wxCommandEventHandler(MainFrameBaseClass::OnMarkEars), NULL, this);
@@ -204,6 +219,8 @@ MainFrameBaseClass::~MainFrameBaseClass()
     this->Disconnect(m_menuItemViewFolderImage->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnViewFolderImage), NULL, this);
     this->Disconnect(m_menuItemView2D->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnView2DData), NULL, this);
     this->Disconnect(m_menuItemView3D->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnView3DData), NULL, this);
+    this->Disconnect(m_menuItemViewMarks->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnViewMarks), NULL, this);
+    this->Disconnect(m_menuItemViewMarks->GetId(), wxEVT_UPDATE_UI, wxUpdateUIEventHandler(MainFrameBaseClass::OnUpdateViewMarks), NULL, this);
     this->Disconnect(m_menuItemProcess->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnRatProcessEar), NULL, this);
     this->Disconnect(m_menuItemAbdomen->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnRatAbdomen), NULL, this);
     this->Disconnect(m_menuItemCleanOutput->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnToolsCleanOutput), NULL, this);
@@ -212,6 +229,8 @@ MainFrameBaseClass::~MainFrameBaseClass()
     m_scrollWin->Disconnect(wxEVT_LEFT_DOWN, wxMouseEventHandler(MainFrameBaseClass::OnMouseLButtonDown), NULL, this);
     m_scrollWin->Disconnect(wxEVT_RIGHT_DOWN, wxMouseEventHandler(MainFrameBaseClass::OnMouseRButtonDown), NULL, this);
     this->Disconnect(wxID_OPEN, wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(MainFrameBaseClass::OnFileOpen), NULL, this);
+    m_bmpToggleBtnViewMark->Disconnect(wxEVT_COMMAND_TOGGLEBUTTON_CLICKED, wxCommandEventHandler(MainFrameBaseClass::OnViewMarks), NULL, this);
+    m_bmpToggleBtnViewMark->Disconnect(wxEVT_UPDATE_UI, wxUpdateUIEventHandler(MainFrameBaseClass::OnUpdateViewMarks), NULL, this);
     m_bmpToggleBtnMarkCageLine->Disconnect(wxEVT_COMMAND_TOGGLEBUTTON_CLICKED, wxCommandEventHandler(MainFrameBaseClass::OnMarkCageline), NULL, this);
     m_bmpToggleBtnMarkEyes->Disconnect(wxEVT_COMMAND_TOGGLEBUTTON_CLICKED, wxCommandEventHandler(MainFrameBaseClass::OnMarkEyes), NULL, this);
     m_bmpToggleBtnMarkEars->Disconnect(wxEVT_COMMAND_TOGGLEBUTTON_CLICKED, wxCommandEventHandler(MainFrameBaseClass::OnMarkEars), NULL, this);

@@ -696,7 +696,7 @@ Gnuplot& Gnuplot::plot_xy(const X& x, const Y& y, const unsigned int width, cons
 
 template<typename X>
 Gnuplot& Gnuplot::plot_Boxxyerrorbars(const X& x, const X& y, const X& xlow, const X& xhigh, const X& ylow, const X& yhigh, 
-				const std::string &color="",const std::string &title = "")
+				const std::string &color,const std::string &title)
 {
     if (x.size() == 0 || y.size() == 0)
     {

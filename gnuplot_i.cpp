@@ -943,14 +943,14 @@ Gnuplot& Gnuplot::plotfile_xyz(const std::string &filename,
 }
 
 Gnuplot& Gnuplot::plotfile_Boxxyerrorbars(const std::string &filename,
-                         const unsigned int column_x = 1,
-                         const unsigned int column_y = 2,
-                         const unsigned int column_xlow = 3,
-                         const unsigned int column_xhigh = 4,
-                         const unsigned int column_ylow = 5,
-                         const unsigned int column_yhigh = 6,						 
-							const std::string &color="",
-                         const std::string &title = "")
+                         const unsigned int column_x ,
+                         const unsigned int column_y ,
+                         const unsigned int column_xlow ,
+                         const unsigned int column_xhigh,
+                         const unsigned int column_ylow,
+                         const unsigned int column_yhigh,						 
+							const std::string &color,
+                         const std::string &title)
 {
     //
     // check if file exists

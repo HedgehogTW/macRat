@@ -151,6 +151,7 @@ void MainFrame::DeleteContents()
 	m_bMarkEar = false;
 	m_bMarkBelly = false;
 	m_bMarkCageline = false;
+    m_bViewMarks = true;
 	
 	m_dqEyePts.clear();
 	m_dqEarPts.clear();
@@ -1149,4 +1150,22 @@ void MainFrame::OnToolsCleanOutput(wxCommandEvent& event)
 }
 void MainFrame::OnRatAbdomen(wxCommandEvent& event)
 {
+}
+void MainFrame::OnViewMarks(wxCommandEvent& event)
+{
+	if(event.IsChecked()) {
+ //       m_bmpToggleBtnViewMark->SetValue(false);
+        m_bViewMarks = false;
+        //MainFrame::myMsgOutput("is checked\n");
+    }else{
+ //       m_bmpToggleBtnViewMark->SetValue(true);
+        m_bViewMarks = true;   
+        //MainFrame::myMsgOutput("no checked\n");
+    }
+    Refresh();
+}
+void MainFrame::OnUpdateViewMarks(wxUpdateUIEvent& event)
+{
+    m_bmpToggleBtnViewMark->SetValue(!m_bViewMarks);
+    m_menuItemViewMarks->Check(!m_bViewMarks);
 }
