@@ -1,7 +1,7 @@
 #Project Setting
 #*.project
 #*.workspace
-*.mk
+#*.mk
 .codelite
 .DS_Store
 Debug
