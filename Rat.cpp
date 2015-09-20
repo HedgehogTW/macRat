@@ -2098,10 +2098,10 @@ void CRat::opticalSavePlot(char* subpath, char* type, float threshold)
                 oriX = 0; oriY = 0;
                 if(m_BigRedPdf >0 )
                     plotOneSpot(type, plotSave, i, saveName, m_rectRed, m_vmDistRed,
-                        "_Belly", "Belly", threshold, szX, szY, oriX, oriY); 
+                        "_Belly", "Abdomen", threshold, szX, szY, oriX, oriY); 
                 else 
                     plotOneSpot(type, plotSave, i, saveName, m_rectCyan, m_vmDistCyan,
-                        "_Belly", "Belly", threshold, szX, szY, oriX, oriY); 
+                        "_Belly", "Abdomen", threshold, szX, szY, oriX, oriY); 
             }  
             if(m_bShowEye) {
                 oriX = 0; oriY = 0;
@@ -2126,10 +2126,10 @@ void CRat::opticalSavePlot(char* subpath, char* type, float threshold)
                 oriX = 0; oriY = 0;
                 if(m_BigRedPdf >0 ) 
                     plotOneSpot(type, plotSave, i, saveName, m_rectRed, m_vmDistRed,
-                        "_Belly", "Belly", threshold, szX, szY, oriX, oriY); 
+                        "_Belly", "Abdomen", threshold, szX, szY, oriX, oriY); 
                 else
                     plotOneSpot(type, plotSave, i, saveName, m_rectCyan, m_vmDistCyan,
-                        "_Belly", "Belly", threshold, szX, szY, oriX, oriY); 
+                        "_Belly", "Abdomen", threshold, szX, szY, oriX, oriY); 
          
                 oriX = 0.5; oriY = 0;
                 plotOneSpot(type, plotSave, i, saveName, m_rectHead, m_vmDistEyeL,
@@ -2153,10 +2153,10 @@ void CRat::opticalSavePlot(char* subpath, char* type, float threshold)
             oriX = 0; oriY = 0;                
             if(m_BigRedPdf >0 )         
                 plotOneSpot(type, plotSave, i, saveName, m_rectRed, m_vmDistRed,
-                    "_Belly", "Belly", threshold, szX, szY, oriX, oriY); 
+                    "_Belly", "Abdomen", threshold, szX, szY, oriX, oriY); 
             else
                 plotOneSpot(type, plotSave, i, saveName, m_rectCyan, m_vmDistCyan,
-                    "_Belly", "Belly", threshold, szX, szY, oriX, oriY); 
+                    "_Belly", "Abdomen", threshold, szX, szY, oriX, oriY); 
                     
             oriX = 0.5; oriY = 0;           
             plotOneSpot(type, plotSave, i, saveName, m_rectHead, m_vmDistEyeL,
@@ -2191,10 +2191,10 @@ void CRat::plotOneSpot(char* type, Gnuplot& plotSave, int i, wxFileName& saveNam
 	if(strcmp(type, "dots")==0)
 		plotDotScatter(plotSave, mFlow, rect, strOutName, mPdf, threshold);
 	else
-		plotDistribution(plotSave, mPdf, strOutName);
+		plotDistribution(plotSave, mPdf, strOutName, threshold);
 }
 
-void CRat::plotDistribution(Gnuplot& plot, Mat& mDist, wxString& strOutName)
+void CRat::plotDistribution(Gnuplot& plot, Mat& mDist, wxString& strOutName, float threshold)
 {
 	double maxVal=0;
 	minMaxLoc(mDist, 0, &maxVal, 0, 0);
@@ -2202,6 +2202,11 @@ void CRat::plotDistribution(Gnuplot& plot, Mat& mDist, wxString& strOutName)
 	
 	wxString fNameBin = strOutName + ".bin";
 	_OutputMatGnuplotBinData(mDist, fNameBin.ToAscii(), -PDF_SIZE/2, PDF_SIZE/2);
+	
+	std::ostringstream cmdstr1;
+	cmdstr1 << "z=" << threshold;
+	plot.cmd(cmdstr1.str());
+	plot.cmd("splot z");	
 	
 	std::ostringstream cmdstr;
     cmdstr << "splot '" << fNameBin.ToAscii() << "' binary matrix using 1:2:3";

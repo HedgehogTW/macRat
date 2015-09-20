@@ -178,3 +178,6 @@ void DlgOpticalInput::getGain(double& gainHead, double &gainBelly, double &xSD)
 	str.ToDouble(&value);	
 	xSD = value;	
 }
+void DlgOpticalInput::OnGenRefFrame(wxCommandEvent& event)
+{
+}

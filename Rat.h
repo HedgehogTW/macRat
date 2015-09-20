@@ -157,7 +157,7 @@ public:
 								
 	float 	optical_compute_movement_v1(Mat& mFlow, Mat& mDistEar, float threshold, Rect rect);
 	float 	optical_compute_movement_v2(Mat& mFlow, Mat& mDistEar, float threshold, Rect rect);
-	void 	plotDistribution(Gnuplot& plot, Mat& mDist, wxString& strOutName);
+	void 	plotDistribution(Gnuplot& plot, Mat& mDist, wxString& strOutName, float threshold);
 	void 	plotDotScatter(Gnuplot& plotSavePGN, Mat& mFlow, Rect rect, wxString& strOutName, Mat& mPdf, float threshold);	
 	void	opticalBuildPDF(Mat& mFlow, Mat& mGaus, Mat& mDist, Rect rect);
 

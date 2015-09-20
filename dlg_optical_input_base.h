@@ -4,8 +4,8 @@
 // Do not modify this file by hand!
 //////////////////////////////////////////////////////////////////////
 
-#ifndef DLG_OPTICAL_INPUT_BASE_BASE_CLASSES_H
-#define DLG_OPTICAL_INPUT_BASE_BASE_CLASSES_H
+#ifndef MACRAT_DLG_OPTICAL_INPUT_BASE_BASE_CLASSES_H
+#define MACRAT_DLG_OPTICAL_INPUT_BASE_BASE_CLASSES_H
 
 #include <wx/settings.h>
 #include <wx/xrc/xmlres.h>
@@ -23,6 +23,12 @@
 #include <wx/statline.h>
 #include <wx/gbsizer.h>
 #include <wx/button.h>
+#if wxVERSION_NUMBER >= 2900
+#include <wx/persist.h>
+#include <wx/persist/toplevel.h>
+#include <wx/persist/bookctrl.h>
+#include <wx/persist/treebook.h>
+#endif
 
 class DlgOpticalInputBase : public wxDialog
 {
@@ -78,10 +84,59 @@ protected:
     wxStdDialogButtonSizer* m_stdBtnSizer52;
     wxButton* m_button56;
     wxButton* m_button58;
+    wxButton* m_buttonRefFrame;
 
 protected:
 
 public:
+    wxCheckBox* GetCheckBoxLED() { return m_checkBoxLED; }
+    wxCheckBox* GetCheckBoxVerLine() { return m_checkBoxVerLine; }
+    wxTextCtrl* GetTextCtrlVerLine() { return m_textCtrlVerLine; }
+    wxCheckBox* GetCheckBoxEyeMove() { return m_checkBoxEyeMove; }
+    wxCheckBox* GetCheckBoxEar() { return m_checkBoxEar; }
+    wxCheckBox* GetCheckBoxBelly() { return m_checkBoxBelly; }
+    wxCheckBox* GetCheckBoxBigHead() { return m_checkBoxBigHead; }
+    wxCheckBox* GetCheckBoxLED2() { return m_checkBoxLED2; }
+    wxTextCtrl* GetTextCtrlLED2() { return m_textCtrlLED2; }
+    wxPanel* GetPanel163() { return m_panel163; }
+    wxCheckBox* GetCheckBoxOpticalPDF() { return m_checkBoxOpticalPDF; }
+    wxCheckBox* GetCheckBoxGrayDiff() { return m_checkBoxGrayDiff; }
+    wxCheckBox* GetCheckBoxSaveFlow() { return m_checkBoxSaveFlow; }
+    wxStaticText* GetStaticText181() { return m_staticText181; }
+    wxRadioButton* GetRadioOpV1() { return m_radioOpV1; }
+    wxRadioButton* GetRadioOpV2() { return m_radioOpV2; }
+    wxPanel* GetPanel171() { return m_panel171; }
+    wxStaticLine* GetStaticLine781() { return m_staticLine781; }
+    wxStaticText* GetStaticText718() { return m_staticText718; }
+    wxTextCtrl* GetTextCtrlFrameSteps() { return m_textCtrlFrameSteps; }
+    wxStaticText* GetStaticText1320() { return m_staticText1320; }
+    wxStaticText* GetStaticText1923() { return m_staticText1923; }
+    wxTextCtrl* GetTextCtrlThreshold() { return m_textCtrlThreshold; }
+    wxStaticText* GetStaticText132() { return m_staticText132; }
+    wxTextCtrl* GetTextCtrlHeadGain() { return m_textCtrlHeadGain; }
+    wxStaticText* GetStaticText136() { return m_staticText136; }
+    wxTextCtrl* GetTextCtrlBellyGain() { return m_textCtrlBellyGain; }
+    wxPanel* GetPanel38() { return m_panel38; }
+    wxStaticLine* GetStaticLine78() { return m_staticLine78; }
+    wxStaticText* GetStaticText100() { return m_staticText100; }
+    wxTextCtrl* GetTextCtrlYmin() { return m_textCtrlYmin; }
+    wxStaticText* GetStaticText104() { return m_staticText104; }
+    wxTextCtrl* GetTextCtrlYmax() { return m_textCtrlYmax; }
+    wxStaticText* GetStaticText124() { return m_staticText124; }
+    wxTextCtrl* GetTextCtrlROIEar() { return m_textCtrlROIEar; }
+    wxStaticText* GetStaticText1241() { return m_staticText1241; }
+    wxTextCtrl* GetTextCtrlROIBelly() { return m_textCtrlROIBelly; }
+    wxStaticText* GetStaticText203() { return m_staticText203; }
+    wxRadioButton* GetRadioButtonRefBelly() { return m_radioButtonRefBelly; }
+    wxRadioButton* GetRadioButtonRefHead() { return m_radioButtonRefHead; }
+    wxRadioButton* GetRadioButtonRefEar() { return m_radioButtonRefEar; }
+    wxPanel* GetPanel187() { return m_panel187; }
+    wxStaticText* GetStaticText126() { return m_staticText126; }
+    wxTextCtrl* GetTextCtrlReferFrame() { return m_textCtrlReferFrame; }
+    wxStaticText* GetStaticText130() { return m_staticText130; }
+    wxTextCtrl* GetTextCtrlXSD() { return m_textCtrlXSD; }
+    wxPanel* GetPanel116() { return m_panel116; }
+    wxStaticLine* GetStaticLine108() { return m_staticLine108; }
     DlgOpticalInputBase(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Optical Input Dialog"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(-1,-1), long style = wxDEFAULT_DIALOG_STYLE);
     virtual ~DlgOpticalInputBase();
 };

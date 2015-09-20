@@ -1,7 +1,7 @@
 {
  "metadata": {
   "m_generatedFilesDir": ".",
-  "m_objCounter": 215,
+  "m_objCounter": 221,
   "m_includeFiles": [],
   "m_bitmapFunction": "wxC3A76InitBitmapResources",
   "m_bitmapsFile": "dlg_optical_input_base_macrat_bitmaps.cpp",
@@ -4188,6 +4188,34 @@
            "type": "string",
            "m_label": "Name:",
            "m_value": "m_button58"
+          }, {
+           "type": "multi-string",
+           "m_label": "Tooltip:",
+           "m_value": ""
+          }, {
+           "type": "bool",
+           "m_label": "Default Button",
+           "m_value": false
+          }],
+         "m_events": [],
+         "m_children": []
+        }, {
+         "m_type": 4468,
+         "proportion": 0,
+         "border": 5,
+         "gbSpan": "1,1",
+         "gbPosition": "0,0",
+         "m_styles": [],
+         "m_sizerFlags": ["wxALL", "wxLEFT", "wxRIGHT", "wxTOP", "wxBOTTOM"],
+         "m_properties": [{
+           "type": "choice",
+           "m_label": "ID:",
+           "m_selection": 1,
+           "m_options": ["wxID_OK", "wxID_YES", "wxID_SAVE", "wxID_APPLY", "wxID_CLOSE", "wxID_NO", "wxID_CANCEL", "wxID_HELP", "wxID_CONTEXT_HELP"]
+          }, {
+           "type": "string",
+           "m_label": "Name:",
+           "m_value": "m_buttonRefFrame"
           }, {
            "type": "multi-string",
            "m_label": "Tooltip:",

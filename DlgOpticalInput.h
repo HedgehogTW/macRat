@@ -34,5 +34,7 @@ public:
 		str.ToLong(&value);
 		return value;
 	}	
+protected:
+    virtual void OnGenRefFrame(wxCommandEvent& event);
 };
 #endif // DLGOPTICALINPUT_H

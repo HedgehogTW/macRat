@@ -305,6 +305,9 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     
     m_button58 = new wxButton(this, wxID_CANCEL, wxT(""), wxDefaultPosition, wxSize(-1, -1), 0);
     m_stdBtnSizer52->AddButton(m_button58);
+    
+    m_buttonRefFrame = new wxButton(this, wxID_YES, wxT(""), wxDefaultPosition, wxSize(-1, -1), 0);
+    m_stdBtnSizer52->AddButton(m_buttonRefFrame);
     m_stdBtnSizer52->Realize();
     
     SetName(wxT("DlgOpticalInputBase"));
@@ -313,6 +316,13 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
          GetSizer()->Fit(this);
     }
     CentreOnParent(wxBOTH);
+#if wxVERSION_NUMBER >= 2900
+    if(!wxPersistenceManager::Get().Find(this)) {
+        wxPersistenceManager::Get().RegisterAndRestore(this);
+    } else {
+        wxPersistenceManager::Get().Restore(this);
+    }
+#endif
 }
 
 DlgOpticalInputBase::~DlgOpticalInputBase()
