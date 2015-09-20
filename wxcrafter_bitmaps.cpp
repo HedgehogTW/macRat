@@ -664,6 +664,6 @@ void wxC9ED9InitBitmapResources()
     XRC_ADD_FILE(wxT("XRC_resource/wxcrafter_bitmaps.cpp$000-mark_APB.png"), xml_res_file_5, xml_res_size_5, wxT("image/png"));
     XRC_ADD_FILE(wxT("XRC_resource/wxcrafter_bitmaps.cpp$000-mark_ear.png"), xml_res_file_6, xml_res_size_6, wxT("image/png"));
     XRC_ADD_FILE(wxT("XRC_resource/wxcrafter_bitmaps.cpp$000-mark_eye.png"), xml_res_file_7, xml_res_size_7, wxT("image/png"));
-    XRC_ADD_FILE(wxT("XRC_resource/wxcrafter_bitmaps.cpp$_Users_CCLee_Project_macRat_wxcrafter_bitmaps.xrc"), xml_res_file_8, xml_res_size_8, wxT("text/xml"));
-    wxXmlResource::Get()->Load(wxT("memory:XRC_resource/wxcrafter_bitmaps.cpp$_Users_CCLee_Project_macRat_wxcrafter_bitmaps.xrc"));
+    XRC_ADD_FILE(wxT("XRC_resource/wxcrafter_bitmaps.cpp$000-D__Project_macRat_wxcrafter_bitmaps.xrc"), xml_res_file_8, xml_res_size_8, wxT("text/xml"));
+    wxXmlResource::Get()->Load(wxT("memory:XRC_resource/wxcrafter_bitmaps.cpp$000-D__Project_macRat_wxcrafter_bitmaps.xrc"));
 }

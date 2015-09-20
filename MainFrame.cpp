@@ -1162,10 +1162,11 @@ void MainFrame::OnViewMarks(wxCommandEvent& event)
         m_bViewMarks = true;   
         //MainFrame::myMsgOutput("no checked\n");
     }
+	m_bmpToggleBtnViewMark->SetValue(!m_bViewMarks);
     Refresh();
 }
 void MainFrame::OnUpdateViewMarks(wxUpdateUIEvent& event)
 {
-    m_bmpToggleBtnViewMark->SetValue(!m_bViewMarks);
+    
     m_menuItemViewMarks->Check(!m_bViewMarks);
 }

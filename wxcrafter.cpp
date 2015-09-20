@@ -153,7 +153,7 @@ MainFrameBaseClass::MainFrameBaseClass(wxWindow* parent, wxWindowID id, const wx
     
     m_auibar31->AddSeparator();
     
-    m_auibar31->AddTool(wxID_RAT_PROCESS, _("Ear Process"), wxXmlResource::Get()->LoadBitmap(wxT("Mouse")), wxNullBitmap, wxITEM_NORMAL, _("Ear Process"), wxT(""), NULL);
+    m_auibar31->AddTool(wxID_RAT_PROCESS, _("Process"), wxXmlResource::Get()->LoadBitmap(wxT("Mouse")), wxNullBitmap, wxITEM_NORMAL, _("Process"), wxT(""), NULL);
     m_auibar31->Realize();
     
     m_statusBar = new wxStatusBar(this, wxID_ANY, wxSTB_DEFAULT_STYLE);

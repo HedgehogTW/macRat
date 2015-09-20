@@ -2042,6 +2042,7 @@ bool CRat::prepareGnuPlot(Gnuplot& plotSave, int numPlots, char* subpath, int ra
 	if(strcmp("pdf", subpath)==0 ){
 		plotSave.set_zrange(0,0.15);	
 		plotSave.cmd("set vi 60,30");
+		plotSave.cmd("set ticslevel 0");
 		plotSave.set_hidden3d();
 		plotSave.cmd("set style data lines");
 	}
@@ -2195,6 +2196,10 @@ void CRat::plotOneSpot(char* type, Gnuplot& plotSave, int i, wxFileName& saveNam
 
 void CRat::plotDistribution(Gnuplot& plot, Mat& mDist, wxString& strOutName)
 {
+	double maxVal=0;
+	minMaxLoc(mDist, 0, &maxVal, 0, 0);
+	plot.set_zrange(0,maxVal+0.01);
+	
 	wxString fNameBin = strOutName + ".bin";
 	_OutputMatGnuplotBinData(mDist, fNameBin.ToAscii(), -PDF_SIZE/2, PDF_SIZE/2);
 	
