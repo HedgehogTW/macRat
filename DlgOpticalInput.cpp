@@ -124,15 +124,17 @@ void DlgOpticalInput::getSeriesLine(bool& bEyeMove, bool& bEar, bool& bGrayDiff,
     bEar = m_checkBoxEar->GetValue();
 	bBelly = m_checkBoxBelly->GetValue();
 }	
-void DlgOpticalInput::getOptions(bool& bOpticalPDF, bool& bOpFlowV1, bool& bSave, int& refSignal)
+void DlgOpticalInput::getOptions(bool& bOpticalPDF, bool& bOpFlowV1, bool& bSave, int& refSignal, bool& bDiffSignal)
 {
 	bOpticalPDF = m_checkBoxOpticalPDF->GetValue();
 	bOpFlowV1 = m_radioOpV1->GetValue();
 	bSave = m_checkBoxSaveFlow->GetValue();
+    bDiffSignal = m_checkBoxRefSignal->GetValue();
 	
 	bool b1 =  m_radioButtonRefBelly->GetValue();
 	bool b2 =  m_radioButtonRefHead->GetValue();
 	bool b3 =  m_radioButtonRefEar->GetValue();
+    
 	if(b1) refSignal = 0;
 	else if(b2) refSignal = 1;
 	else if(b3) refSignal = 2;

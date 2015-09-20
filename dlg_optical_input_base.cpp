@@ -291,6 +291,11 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     
     boxSizer118->Add(m_textCtrlXSD, 0, wxALL, 5);
     
+    m_checkBoxRefSignal = new wxCheckBox(m_panel116, wxID_ANY, _("Diff. Signal"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_checkBoxRefSignal->SetValue(false);
+    
+    boxSizer118->Add(m_checkBoxRefSignal, 0, wxALL, 5);
+    
     m_staticLine108 = new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxLI_HORIZONTAL);
     
     boxSizer315->Add(m_staticLine108, 0, wxALL|wxEXPAND, 5);
@@ -305,9 +310,6 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     
     m_button58 = new wxButton(this, wxID_CANCEL, wxT(""), wxDefaultPosition, wxSize(-1, -1), 0);
     m_stdBtnSizer52->AddButton(m_button58);
-    
-    m_buttonRefFrame = new wxButton(this, wxID_YES, wxT(""), wxDefaultPosition, wxSize(-1, -1), 0);
-    m_stdBtnSizer52->AddButton(m_buttonRefFrame);
     m_stdBtnSizer52->Realize();
     
     SetName(wxT("DlgOpticalInputBase"));

@@ -4,8 +4,8 @@
 // Do not modify this file by hand!
 //////////////////////////////////////////////////////////////////////
 
-#ifndef MACRAT_DLG_OPTICAL_INPUT_BASE_BASE_CLASSES_H
-#define MACRAT_DLG_OPTICAL_INPUT_BASE_BASE_CLASSES_H
+#ifndef PROJECT_MACRAT_DLG_OPTICAL_INPUT_BASE_BASE_CLASSES_H
+#define PROJECT_MACRAT_DLG_OPTICAL_INPUT_BASE_BASE_CLASSES_H
 
 #include <wx/settings.h>
 #include <wx/xrc/xmlres.h>
@@ -80,11 +80,11 @@ protected:
     wxTextCtrl* m_textCtrlReferFrame;
     wxStaticText* m_staticText130;
     wxTextCtrl* m_textCtrlXSD;
+    wxCheckBox* m_checkBoxRefSignal;
     wxStaticLine* m_staticLine108;
     wxStdDialogButtonSizer* m_stdBtnSizer52;
     wxButton* m_button56;
     wxButton* m_button58;
-    wxButton* m_buttonRefFrame;
 
 protected:
 
@@ -135,6 +135,7 @@ public:
     wxTextCtrl* GetTextCtrlReferFrame() { return m_textCtrlReferFrame; }
     wxStaticText* GetStaticText130() { return m_staticText130; }
     wxTextCtrl* GetTextCtrlXSD() { return m_textCtrlXSD; }
+    wxCheckBox* GetCheckBoxRefSignal() { return m_checkBoxRefSignal; }
     wxPanel* GetPanel116() { return m_panel116; }
     wxStaticLine* GetStaticLine108() { return m_staticLine108; }
     DlgOpticalInputBase(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Optical Input Dialog"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(-1,-1), long style = wxDEFAULT_DIALOG_STYLE);

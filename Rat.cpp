@@ -740,6 +740,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	double gainBelly = configData.m_gainBelly;
 	double xSD = configData.m_xSD;
 	int	refSignal = configData.m_refSignal;
+    bool bSaveDiffSignal;
 	
 	bool bUserLED2;
 	if(nLED2 >0)  bUserLED2 = true;
@@ -757,7 +758,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	threshold = dlg.getThreshold();
 	dlg.getVerticalLine(bLEDLine, bBigHead, bUserLED2, nLED2, bVerLine, verLine);
 	dlg.getSeriesLine(bEyeMove, bEar, bGrayDiff, bBelly);
-	dlg.getOptions(bOpticalPDF, bNewOpFlowV1, bSaveFile, refSignal);
+	dlg.getOptions(bOpticalPDF, bNewOpFlowV1, bSaveFile, refSignal, bSaveDiffSignal);
 	dlg.getYRange(ymin, ymax, m_ROIEar, m_ROIBelly, referFrame);
 	dlg.getGain(gainHead, gainBelly, xSD);
 	dlg.Destroy();
@@ -821,6 +822,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	
 	int ref = 50;
 	graylevelDiff(ref, m_rectRed, m_rectCyan, vecRedGrayDiff, vecCyanGrayDiff);
+    
 	Notch_removal(vecCyanGrayDiff, ref);
 	Notch_removal(vecRedGrayDiff, ref);	
 	bool bBigRedGray = isRedSignificant(vecRedGrayDiff, vecCyanGrayDiff);
@@ -857,6 +859,20 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 //	}
       
 //////////////////////////////////////////////////////////////////////	
+	wxFileName fileName = m_strSrcPath;
+	wxString title =fileName.GetName();
+	int lenTitle = strlen(title);
+	if(lenTitle <=3) {
+		wxUniChar sep = fileName.GetPathSeparator();
+		int len = m_strSrcPath.Len();
+		int p1 = m_strSrcPath.find_last_of(sep, len -lenTitle-1);
+		int p2 = m_strSrcPath.find_last_of(sep, p1-1);
+		int p3 = m_strSrcPath.find_last_of(sep, p2-1);
+		title = m_strSrcPath.Right(len-p3);
+		title.Replace("\\", "/");
+//		MainFrame:: myMsgOutput("strUpperPath "+ m_strSrcPath.Right(len-p3)+ "\n" );
+	}
+    
 	clock_t start, finish;
 	double  duration;
 	start = clock();
@@ -913,7 +929,9 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			Notch_removal(vecREarGrayDiff, m_referFrame);
 		}
 		if(m_bShowBelly) {
-			graylevelDiff(m_referFrame, m_rectRed, m_rectCyan, vecRedGrayDiff, vecCyanGrayDiff);
+            //if(bSaveDiffSignal)  ref = referFrame;
+            //else ref = m_referFrame;
+			graylevelDiff(newReferFrame, m_rectRed, m_rectCyan, vecRedGrayDiff, vecCyanGrayDiff);
 			m_BigRedGray = isRedSignificant(vecRedGrayDiff, vecCyanGrayDiff);
 			
 			vecBellyGray.resize(vecRedGrayDiff.size());
@@ -926,7 +944,23 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			vecCyanGrayDiff.clear();
 			
 			DC_removal(m_nLED2, vecBellyGray);			
-			Notch_removal(vecBellyGray, m_referFrame);
+			Notch_removal(vecBellyGray, newReferFrame);
+            
+            if(bSaveDiffSignal)  {
+                wxUniChar sep = fileName.GetPathSeparator();
+                wxString  strParentPath =  m_strSrcPath.BeforeLast(sep);	
+                int len = title.Len();
+                title = title.Right(len-1);
+                title.Replace("/", "_");
+
+                wxString  diffSignalName;
+                diffSignalName << title << "_Diff_Ref_" << newReferFrame << ".csv";
+                wxFileName newFullMarkerName(strParentPath, diffSignalName);
+                _OutputVec(vecBellyGray, newFullMarkerName.GetFullPath());   
+                MainFrame::myMsgOutput("save: "+diffSignalName+"\n");
+                //wxEndBusyCursor(); 
+                //return true;
+            }
 		}
 	}
 	
@@ -1036,19 +1070,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	wxEndBusyCursor(); 
 	
 ///////////G N U P L O T//////////////////////////////////////////////////////////////////////////////
-	wxFileName fileName = m_strSrcPath;
-	wxString title =fileName.GetName();
-	int lenTitle = strlen(title);
-	if(lenTitle <=3) {
-		wxUniChar sep = fileName.GetPathSeparator();
-		int len = m_strSrcPath.Len();
-		int p1 = m_strSrcPath.find_last_of(sep, len -lenTitle-1);
-		int p2 = m_strSrcPath.find_last_of(sep, p1-1);
-		int p3 = m_strSrcPath.find_last_of(sep, p2-1);
-		title = m_strSrcPath.Right(len-p3);
-		title.Replace("\\", "/");
-//		MainFrame:: myMsgOutput("strUpperPath "+ m_strSrcPath.Right(len-p3)+ "\n" );
-	}
+
 	
 	_gnuplotInit(gPlotL, title.ToAscii(), ymin, ymax);
 	_gnuplotInit(gPlotR, title.ToAscii(), ymin, ymax);
