@@ -1358,8 +1358,8 @@ void CRat::drawOnDestImage(bool bSaveFile)
             //rectangle(mDestColor, Rect(ptEyeR1, ptEyeR2), Scalar(255, 0,255));
         }
 		// original eyes
-		circle(mDestColor, Point(m_ptEyeL.x, m_ptEyeL.y), 2, Scalar(0, 0, 255), -1);	
-		circle(mDestColor, Point(m_ptEyeR.x, m_ptEyeR.y), 2, Scalar(0, 0, 255), -1);	
+//		circle(mDestColor, Point(m_ptEyeL.x, m_ptEyeL.y), 2, Scalar(0, 0, 255), -1);	
+//		circle(mDestColor, Point(m_ptEyeR.x, m_ptEyeR.y), 2, Scalar(0, 0, 255), -1);	
 //		circle(mDestColor, Point(m_ptHead.x, m_ptHead.y), 5, Scalar(255, 0, 255), -1);	
 	}
 
@@ -1949,7 +1949,7 @@ void CRat::opticalDrawFlowmapWithPDF(vector<Rect>& vDrawRect, vector<Point>& vPt
             Rect rect = vDrawRect[k];
             Point pt = vPt[k];
             cv::rectangle(mFlowmapColor,rect, cv::Scalar(0, 255, 255)); 
-            cv::circle(mFlowmapColor, pt, 2, Scalar(255, 255, 0), -1);	       
+ //           cv::circle(mFlowmapColor, pt, 2, Scalar(255, 255, 0), -1);	       
         }
 	}
 
