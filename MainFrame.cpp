@@ -613,7 +613,7 @@ bool MainFrame::preprocessing()
 	
 	return true;
 }
-void MainFrame::OnRatProcessEar(wxCommandEvent& event)
+void MainFrame::OnRatProcess(wxCommandEvent& event)
 {
 	if(m_dqEyePts.size()!=2) {
 		wxMessageBox("Select eye points", "error");
@@ -1150,6 +1150,31 @@ void MainFrame::OnToolsCleanOutput(wxCommandEvent& event)
 }
 void MainFrame::OnRatAbdomen(wxCommandEvent& event)
 {
+
+	if(m_dqBellyPts.size()!=2) {
+		wxMessageBox("Select abdomen points", "error");
+		return;
+	}	
+
+	m_ptBellyRed = m_dqBellyPts[0];
+	m_ptBellyCyan = m_dqBellyPts[1];
+	
+	
+	if(preprocessing()==false)  {
+		//wxLogMessage("preprocessing error");
+		return;
+	}
+	if(m_bCutTop) {
+
+        m_ptBellyRed.y -= m_nCageLine;
+		m_ptBellyCyan.y -= m_nCageLine;	      
+    }
+	bool bRet = m_Rat.genReferenceFrameSignal(m_ptBellyRed, m_ptBellyCyan, m_nLED2);
+		
+	wxBell();	
+	
+   myMsgOutput("-------------------------------------------------\n");	
+
 }
 void MainFrame::OnViewMarks(wxCommandEvent& event)
 {

@@ -118,6 +118,7 @@ public:
 	void	recomputeHeadROI();
 	float	computeSD(vector<float>& vSignal, int nLED2);
     bool	process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, Point& ptRed, Point& ptCyan, int& nLED2);
+	bool	genReferenceFrameSignal(Point& ptRed, Point& ptCyan, int& nLED2);
 	
 	void	plotSoundOnset(float baseline, float deltaY, int msec);
 	void 	drawOnDestImage(bool bSaveFile);

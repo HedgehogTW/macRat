@@ -97,7 +97,7 @@ protected:
     virtual void OnView3DData(wxCommandEvent& event) { event.Skip(); }
     virtual void OnViewMarks(wxCommandEvent& event) { event.Skip(); }
     virtual void OnUpdateViewMarks(wxUpdateUIEvent& event) { event.Skip(); }
-    virtual void OnRatProcessEar(wxCommandEvent& event) { event.Skip(); }
+    virtual void OnRatProcess(wxCommandEvent& event) { event.Skip(); }
     virtual void OnRatAbdomen(wxCommandEvent& event) { event.Skip(); }
     virtual void OnToolsCleanOutput(wxCommandEvent& event) { event.Skip(); }
     virtual void OnAbout(wxCommandEvent& event) { event.Skip(); }

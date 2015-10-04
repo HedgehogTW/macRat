@@ -825,7 +825,7 @@
           }, {
            "type": "string",
            "m_label": "Label:",
-           "m_value": "Ear Process"
+           "m_value": "Process"
           }, {
            "type": "string",
            "m_label": "Shortcut:",
@@ -852,7 +852,7 @@
            "m_eventName": "wxEVT_COMMAND_MENU_SELECTED",
            "m_eventClass": "wxCommandEvent",
            "m_eventHandler": "wxCommandEventHandler",
-           "m_functionNameAndSignature": "OnRatProcessEar(wxCommandEvent& event)",
+           "m_functionNameAndSignature": "OnRatProcess(wxCommandEvent& event)",
            "m_description": "Menu item has been clicked",
            "m_noBody": false
           }],

@@ -695,6 +695,159 @@ void CRat::computeROIRect()
 	if(pt2.y >= h) pt2.y = h-1;	
 	m_rectHead = Rect(pt1, pt2);	
 }
+
+bool CRat::genReferenceFrameSignal(Point& ptRed, Point& ptCyan, int& nLED2)
+{
+	m_ptRed = ptRed;
+	m_ptCyan = ptCyan;
+
+	/////////////////////////////////////////////////////////////optical flow
+	MyConfigData  configData;
+	MainFrame::m_pThis->getConfigData(configData);
+	
+	bool bNewOpFlowV1;
+	int  newReferFrame;
+	int  newFrameSteps;
+	int frameStep = configData.m_frameStep;	
+	double threshold = configData.m_threshold;
+	bool bLEDLine = configData.m_bLED;
+	bool bBigHead = configData.m_bBigHead;
+	bool bVerLine = configData.m_bVerLine;
+
+	bool bEyeMove = configData.m_bEyeMove;
+	bool bGrayDiff = configData.m_bGrayDiff;
+	bool bBelly = configData.m_bBelly;
+	bool bEar = configData.m_bEar;
+	bool bOpticalPDF = configData.m_bOpticalPDF;
+	bool bOpFlowV1 = configData.m_bOpFlowV1;
+	bool bSaveFile = configData.m_bSaveFile;
+
+	double verLine = configData.m_verLine;
+	double ymin = configData.m_ymin;
+	double ymax = configData.m_ymax;
+	m_ROIEar = configData.m_szROIEar;
+	m_ROIBelly = configData.m_szROIBelly;
+	long referFrame = configData.m_referFrame;
+	double gainHead = configData.m_gainHead;
+	double gainBelly = configData.m_gainBelly;
+	double xSD = configData.m_xSD;
+	int	refSignal = configData.m_refSignal;
+    bool bSaveDiffSignal;
+	
+	bool bUserLED2;
+	if(nLED2 >0)  bUserLED2 = true;
+	else bUserLED2 = false;
+	
+	if(bUserLED2 && nLED2 > 0) {
+		m_nLED2 = nLED2-1;
+		MainFrame::myMsgOutput("User-specified LED2 %d (0-based)\n", m_nLED2);
+	}
+
+	/////////////////////////// for computing ROI rect
+
+	m_offsetAPB = Point(m_ROIBelly/2, m_ROIBelly/2);
+	
+	//computeROIRect();
+	int h = m_vecMat[0].rows;
+	int w = m_vecMat[0].cols;
+	
+	Point pt1 = Point(m_ptRed-m_offsetAPB);
+	Point pt2 = Point(m_ptRed+m_offsetAPB);
+	
+	if(pt1.x <0) pt1.x = 0;
+	if(pt1.y <0) pt1.y = 0;
+	if(pt2.x >= w) pt2.x = w-1;
+	if(pt2.y >= h) pt2.y = h-1;	
+	m_rectRed = Rect(pt1, pt2);	
+	////////////////////////////////////////////////
+	
+	pt1 = Point(m_ptCyan-m_offsetAPB);
+	pt2 = Point(m_ptCyan+m_offsetAPB);
+	
+	if(pt1.x <0) pt1.x = 0;
+	if(pt1.y <0) pt1.y = 0;
+	if(pt2.x >= w) pt2.x = w-1;
+	if(pt2.y >= h) pt2.y = h-1;	
+	m_rectCyan = Rect(pt1, pt2);	
+	////////////////////////////////////////////////
+	
+	/////////////////////////////////// just for findReferenceFrame
+	vector <float>  vecRedGrayDiff;
+	vector <float>  vecCyanGrayDiff;
+	vector <float>  vecBellyGray;	
+	
+	int ref = 50;
+	graylevelDiff(ref, m_rectRed, m_rectCyan, vecRedGrayDiff, vecCyanGrayDiff);
+    
+	Notch_removal(vecCyanGrayDiff, ref);
+	Notch_removal(vecRedGrayDiff, ref);	
+	bool bBigRedGray = isRedSignificant(vecRedGrayDiff, vecCyanGrayDiff);
+			
+	if(bBigRedGray) 
+		newReferFrame = findReferenceFrame(m_rectRed);
+	else
+		newReferFrame = findReferenceFrame(m_rectCyan);
+        
+	MainFrame::myMsgOutput("Reference frame %d\n", newReferFrame);
+	if(newReferFrame <0) {
+		wxLogMessage("cannot find reference frame");
+		return false;
+	}
+      
+//////////////////////////////////////////////////////////////////////	
+	wxFileName fileName = m_strSrcPath;
+	wxString title =fileName.GetName();
+	int lenTitle = strlen(title);
+	if(lenTitle <=3) {
+		wxUniChar sep = fileName.GetPathSeparator();
+		int len = m_strSrcPath.Len();
+		int p1 = m_strSrcPath.find_last_of(sep, len -lenTitle-1);
+		int p2 = m_strSrcPath.find_last_of(sep, p1-1);
+		int p3 = m_strSrcPath.find_last_of(sep, p2-1);
+		title = m_strSrcPath.Right(len-p3);
+		title.Replace("\\", "/");
+//		MainFrame:: myMsgOutput("strUpperPath "+ m_strSrcPath.Right(len-p3)+ "\n" );
+	}
+	
+	wxUniChar sep = fileName.GetPathSeparator();
+	wxString  strParentPath =  m_strSrcPath.BeforeLast(sep);	
+	int len = title.Len();
+	title = title.Right(len-1);
+	title.Replace("/", "_");
+	
+	int szSeries = vecRedGrayDiff.size();
+	vecBellyGray.resize(szSeries);
+	
+	Mat  mRef(m_nLED2+1, 25, CV_32F);
+	
+	for(int i=-12; i<=12; i++) {
+		int ref = newReferFrame + i*2;
+		graylevelDiff(ref, m_rectRed, m_rectCyan, vecRedGrayDiff, vecCyanGrayDiff);
+	
+		if(bBigRedGray>0) {
+			std::copy ( vecRedGrayDiff.begin(), vecRedGrayDiff.end(), vecBellyGray.begin() );
+		}else {
+			std::copy ( vecCyanGrayDiff.begin(), vecCyanGrayDiff.end(), vecBellyGray.begin() );
+		}
+		
+		DC_removal(m_nLED2, vecBellyGray);			
+		Notch_removal(vecBellyGray, ref);
+	
+		mRef.at<float>(0, i+12) = ref;
+		for(int k=1; k<m_nLED2+1; k++) {
+			mRef.at<float>(k, i+12) = vecBellyGray[k-1];
+		}
+
+	}
+	wxString  diffSignalName;
+	diffSignalName << title << "_Diff_Ref_" << ".csv";
+	wxFileName newFullMarkerName(strParentPath, diffSignalName);
+	//_OutputVec(vecBellyGray, newFullMarkerName.GetFullPath());   
+	_OutputMat(mRef, newFullMarkerName.GetFullPath());
+	MainFrame::myMsgOutput("save: "+diffSignalName+"\n");	
+	return true;
+}
+
 bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, Point& ptRed, Point& ptCyan, int& nLED2)
 {
 	m_ptEyeL = ptEyeL;
@@ -968,6 +1121,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	vector<Rect> 		vDrawRect;
 	vector<Point> 	vDrawPt;
 	vector<Point2f> 	peakBelly;
+	vector<Point2f> 	peakMinMax;
 	vector<Point2f> 	vPeakDist;
 	vector<float> 	vPeakDistX;
 	vector<float> 	vPeakDistY;
@@ -1027,6 +1181,11 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			smoothData(vecBellyPdf, vecBellySmooth, 2);	
 			findPeaks(vecBellyPdf, vecBellySmooth, peakBelly);
 			peakAnalysis(peakBelly, vPeakDistX, vPeakDistY, m_nLED2, meanPeak, sdPeak);
+			
+			Point2f pt(314, vecBellyPdf[314]);
+			peakMinMax.push_back(pt);
+			Point2f pt2(336, vecBellyPdf[336]);
+			peakMinMax.push_back(pt2);
 			
 			if(bSaveFile) {
                 if(m_BigRedPdf>0) {
@@ -1150,8 +1309,8 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			_gnuplotLine(gPlotR, "Belly", vecBellyPdf, "#00008000");
 				
 			_OutputVec(vecBellyPdf, newFullMarkerName.GetFullPath());
-			_gnuplotPoint(gPlotL, peakBelly, "#00008f00" );
-			_gnuplotPoint(gPlotR, peakBelly, "#00008f00" );
+			_gnuplotPoint(gPlotL, peakMinMax, "#00008f00" );
+			_gnuplotPoint(gPlotR, peakMinMax /*peakBelly*/, "#00008f00" );
 			
 			_gnuplotSteps(gPlotP, vPeakDistX, vPeakDistY, "#00F08000", "Cycle time");
 			_gnuplotHoriLine(gPlotP, m_nSlices, meanPeak, "#000088FF");						
