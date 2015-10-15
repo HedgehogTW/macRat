@@ -1803,7 +1803,7 @@ int CRat::findReferenceFrame(Rect rect)
 	for(int i=0; i<end; i++) {
 		m_vecMat[i].convertTo(mSrc1, CV_16S);        
         mDiff = mSrc1 - mSrc2;
-        mu = errorSum(mDiff, rect);
+        mu = avgROI(mDiff, rect);
         vSeries[i] = mu;
     }
     
@@ -1818,7 +1818,7 @@ int CRat::findReferenceFrame(Rect rect)
 	return idxMin;
 }
 
-double CRat::errorSum(Mat &mDiff, Rect rectEar)
+double CRat::avgROI(Mat &mDiff, Rect rectEar)
 {
 	Mat mROI(mDiff, rectEar);
 	
@@ -1848,59 +1848,7 @@ void CRat::smoothData(vector<float>& inData, vector<float>& outData, int bw)
 	delete [] pData;
 	delete [] out;
 }
-/*
-void CRat::graylevelDiff_Eye(int refer, Point ptEar, Point offset, vector <Point>& vecEye, vector <float>& vecEarGrayDiff)
-{
-	int wImg = m_vecMat[0].cols;
-	int hImg = m_vecMat[0].rows;
-	
-	Point pt1 (ptEar-offset);
-	Point pt2 (ptEar+offset);
-	
-	if(pt1.x <0) pt1.x = 0;
-	if(pt1.y <0) pt1.y = 0;
-	if(pt2.x <0) pt2.x = 0;
-	if(pt2.y <0) pt2.y = 0;
-	
-	if(pt1.x >= wImg) pt1.x = wImg-1;
-	if(pt1.y >= hImg) pt1.y = hImg-1;	
-	if(pt2.x >= wImg) pt2.x = wImg-1;
-	if(pt2.y >= hImg) pt2.y = hImg-1;
-	
-	
-	if(pt1.x <0 || pt1.y <0 || pt2.x >= wImg || pt2.y >= hImg) {
-		wxLogMessage("ear region outside");
-		return;
-	}
-    
-	Mat mSrc1;
-    m_vecMat[refer].convertTo(mSrc1, CV_16S);		
-	Mat mROIRefer(mSrc1, Rect(pt1, pt2));
 
-	Point ptReferEye = vecEye[refer];
-	
-	vecEarGrayDiff.resize(m_nSlices);	
-	for(int i=0; i<m_nSlices; i++) {
-		Mat mSrc2, mDiff;
-		m_vecMat[i].convertTo(mSrc2, CV_16S);;
-		
-		Point ptOffset = vecEye[i] - ptReferEye;
-		Point ptNewEar = ptEar + ptOffset;
-		
-		Point pt1 (ptNewEar-m_offsetEar);
-		Point pt2 (ptNewEar+m_offsetEar);
-	
-		if(pt1.x <0 || pt1.y <0 || pt2.x >= wImg || pt2.y >= hImg) {
-			wxLogMessage("ear region outside");
-			return;
-		}
-		Mat mROI(mSrc2, Rect(pt1, pt2));
-		cv::absdiff(mROIRefer, mROI, mDiff);
-		Scalar sSum = cv::mean(mDiff);		
-		vecEarGrayDiff[i] = sSum[0];
-	}
-}
-*/
 void CRat::imageDiff(vector<Mat>& vecMatDiff, vector <float>& vecAdjDiff, int nFrameSteps)
 {
 	vecMatDiff.resize(m_nSlices - nFrameSteps);
@@ -1950,8 +1898,8 @@ void CRat::graylevelDiff(int refer, Rect rectEarL, Rect rectEarR, vector <float>
 		m_vecMat[i].convertTo(mSrc2, CV_16S);
 		cv::absdiff(mSrc1, mSrc2, mDiff);
 		
-		errSumL = errorSum(mDiff, rectEarL);
-		errSumR = errorSum(mDiff, rectEarR);
+		errSumL = avgROI(mDiff, rectEarL);
+		errSumR = avgROI(mDiff, rectEarR);
 		vLEarGray[i] = errSumL;
 		vREarGray[i] = errSumR;
 	}

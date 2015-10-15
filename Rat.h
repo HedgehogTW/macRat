@@ -110,7 +110,7 @@ public:
 	Point	aspectRatio(vector<cv::Point> &con, double &ratio, double &angle );
 	void	cropImage(bool& bCutTop);
 	void 	DC_removal(int nFirstLED, vector <float>& vecSignal);
-	float  Notch_removal(vector <float>& vecSignal, int refFrame);
+	float   Notch_removal(vector <float>& vecSignal, int refFrame);
         
 	void	getLightRange(int& from, int& to) { from = m_nLED1; to = m_nLED_End; }
 	void 	computeEyeMaskCenter(Point& ptNewMaskCenter, bool bBigHead);
@@ -129,7 +129,7 @@ public:
 	float	findMode(vector<float>& inData, float sigma);
 	
 	void 	smoothData(vector<float>& inData, vector<float>& outData, int bw=5);
-	double errorSum(Mat &mDiff, Rect rectEar);
+	double  avgROI(Mat &mDiff, Rect rectEar);
 	int		findReferenceFrame(Rect rect);
 	int 	findMaxMotionPoint(vector<float>& inData);
 //	void	graylevelDiff_Eye(int refer, Point ptEar, Point offset, vector <Point>& vecEye, vector <float>& vecEarGrayDiff);
