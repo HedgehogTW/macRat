@@ -72,6 +72,7 @@ public:
 	
 	
 protected:
+    virtual void OnBatchProcess(wxCommandEvent& event);
     virtual void OnRatProcess(wxCommandEvent& event);
     virtual void OnUpdateViewMarks(wxUpdateUIEvent& event);
     virtual void OnViewMarks(wxCommandEvent& event);

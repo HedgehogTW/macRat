@@ -16,7 +16,7 @@ public:
 	
 	void getVerticalLine(bool& bLED, bool& bBigHead, bool& bUserLED2, int& nLED2, bool& bVerLine, double& x);
 	void getSeriesLine(bool& bEyeMove, bool& bEar, bool& bGrayDiff, bool& bBelly);
-	void getOptions(bool& bOpticalPDF, bool& bOpFlowV1, bool& bSave, int& refSignal, bool& bDiffSignal);
+	void getOptions(bool& bOpticalPDF, bool& bOpFlowV1, bool& bSave, int& refSignal);
 	void getYRange(double& min, double& max, long& szROIEar, long& szROIBelly, long& referFrame);
 	
 	void getGain(double& gainHead, double &gainBelly, double &xSD);

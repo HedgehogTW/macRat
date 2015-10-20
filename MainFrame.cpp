@@ -682,7 +682,7 @@ void MainFrame::OnRatProcess(wxCommandEvent& event)
 		if(m_nLED2 >0)
 			fprintf(fp, "L%d\n", m_nLED2 );	
 
-		fprintf(fp, "G%f %f\n", m_configData.m_gainHead, m_configData.m_gainBelly);	
+		fprintf(fp, "G%f %f %f\n", m_configData.m_gainHead, m_configData.m_gainBelly, m_configData.m_xSD);	
 		fprintf(fp, "S%d %d\n", m_configData.m_szROIEar, m_configData.m_szROIBelly);
 		fprintf(fp, "R%d\n", m_configData.m_refSignal);
 		fprintf(fp, "y%f %f %f\n", m_configData.m_ymin, m_configData.m_ymax, m_configData.m_xSD);	
@@ -1194,4 +1194,7 @@ void MainFrame::OnUpdateViewMarks(wxUpdateUIEvent& event)
 {
     
     m_menuItemViewMarks->Check(!m_bViewMarks);
+}
+void MainFrame::OnBatchProcess(wxCommandEvent& event)
+{
 }

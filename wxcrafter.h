@@ -67,6 +67,7 @@ protected:
     wxMenu* m_menuRat;
     wxMenuItem* m_menuItemProcess;
     wxMenuItem* m_menuItemAbdomen;
+    wxMenuItem* m_menuItemBatch;
     wxMenu* m_menuTools;
     wxMenuItem* m_menuItemCleanOutput;
     wxMenu* m_nameHelp;
@@ -99,6 +100,7 @@ protected:
     virtual void OnUpdateViewMarks(wxUpdateUIEvent& event) { event.Skip(); }
     virtual void OnRatProcess(wxCommandEvent& event) { event.Skip(); }
     virtual void OnRatAbdomen(wxCommandEvent& event) { event.Skip(); }
+    virtual void OnBatchProcess(wxCommandEvent& event) { event.Skip(); }
     virtual void OnToolsCleanOutput(wxCommandEvent& event) { event.Skip(); }
     virtual void OnAbout(wxCommandEvent& event) { event.Skip(); }
     virtual void OnMouseMotion(wxMouseEvent& event) { event.Skip(); }

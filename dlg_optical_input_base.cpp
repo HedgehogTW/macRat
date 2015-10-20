@@ -291,11 +291,6 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     
     boxSizer118->Add(m_textCtrlXSD, 0, wxALL, 5);
     
-    m_checkBoxRefSignal = new wxCheckBox(m_panel116, wxID_ANY, _("Diff. Signal"), wxDefaultPosition, wxSize(-1,-1), 0);
-    m_checkBoxRefSignal->SetValue(false);
-    
-    boxSizer118->Add(m_checkBoxRefSignal, 0, wxALL, 5);
-    
     m_staticLine108 = new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxLI_HORIZONTAL);
     
     boxSizer315->Add(m_staticLine108, 0, wxALL|wxEXPAND, 5);
@@ -314,10 +309,14 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     
     SetName(wxT("DlgOpticalInputBase"));
     SetSizeHints(-1,-1);
-    if ( GetSizer() ) {
+    if (GetSizer()) {
          GetSizer()->Fit(this);
     }
-    CentreOnParent(wxBOTH);
+    if(GetParent()) {
+        CentreOnParent(wxBOTH);
+    } else {
+        CentreOnScreen(wxBOTH);
+    }
 #if wxVERSION_NUMBER >= 2900
     if(!wxPersistenceManager::Get().Find(this)) {
         wxPersistenceManager::Get().RegisterAndRestore(this);
