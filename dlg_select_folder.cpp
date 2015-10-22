@@ -23,32 +23,45 @@ DlgSelectFolderBase::DlgSelectFolderBase(wxWindow* parent, wxWindowID id, const 
         bBitmapLoaded = true;
     }
     
-    wxBoxSizer* boxSizer2 = new wxBoxSizer(wxVERTICAL);
-    this->SetSizer(boxSizer2);
+    wxBoxSizer* boxSizer19 = new wxBoxSizer(wxVERTICAL);
+    this->SetSizer(boxSizer19);
     
-    m_panel4 = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxTAB_TRAVERSAL);
+    m_panel29 = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxTAB_TRAVERSAL);
     
-    boxSizer2->Add(m_panel4, 0, wxALL, 5);
+    boxSizer19->Add(m_panel29, 0, wxALL, 5);
     
-    wxBoxSizer* boxSizer15 = new wxBoxSizer(wxVERTICAL);
-    m_panel4->SetSizer(boxSizer15);
+    wxBoxSizer* boxSizer31 = new wxBoxSizer(wxHORIZONTAL);
+    m_panel29->SetSizer(boxSizer31);
     
-    wxFlexGridSizer* flexGridSizer17 = new wxFlexGridSizer(0, 2, 0, 0);
-    flexGridSizer17->SetFlexibleDirection( wxBOTH );
-    flexGridSizer17->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
+    m_staticText33 = new wxStaticText(m_panel29, wxID_ANY, _("Folder"), wxDefaultPosition, wxSize(-1,-1), 0);
     
-    boxSizer15->Add(flexGridSizer17, 1, wxALL|wxEXPAND, 5);
+    boxSizer31->Add(m_staticText33, 0, wxALL, 5);
     
-    m_stdBtnSizer6 = new wxStdDialogButtonSizer();
+    m_textCtrlFolder = new wxTextCtrl(m_panel29, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(300,-1), wxTE_RIGHT|wxTE_READONLY);
+    #if wxVERSION_NUMBER >= 3000
+    m_textCtrlFolder->SetHint(wxT(""));
+    #endif
     
-    boxSizer2->Add(m_stdBtnSizer6, 0, wxALL|wxALIGN_RIGHT, 5);
+    boxSizer31->Add(m_textCtrlFolder, 0, wxALL, 5);
     
-    m_button10 = new wxButton(this, wxID_OK, wxT(""), wxDefaultPosition, wxSize(-1, -1), 0);
-    m_stdBtnSizer6->AddButton(m_button10);
+    m_buttonSelFolder = new wxButton(m_panel29, wxID_ANY, _("Select Folder"), wxDefaultPosition, wxSize(-1,-1), 0);
     
-    m_button12 = new wxButton(this, wxID_CANCEL, wxT(""), wxDefaultPosition, wxSize(-1, -1), 0);
-    m_stdBtnSizer6->AddButton(m_button12);
-    m_stdBtnSizer6->Realize();
+    boxSizer31->Add(m_buttonSelFolder, 0, wxALL, 5);
+    
+    m_staticLine27 = new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxLI_HORIZONTAL);
+    
+    boxSizer19->Add(m_staticLine27, 0, wxALL|wxEXPAND, 5);
+    
+    m_stdBtnSizer21 = new wxStdDialogButtonSizer();
+    
+    boxSizer19->Add(m_stdBtnSizer21, 0, wxALL|wxALIGN_RIGHT, 5);
+    
+    m_button23 = new wxButton(this, wxID_OK, wxT(""), wxDefaultPosition, wxSize(-1, -1), 0);
+    m_stdBtnSizer21->AddButton(m_button23);
+    
+    m_button25 = new wxButton(this, wxID_CANCEL, wxT(""), wxDefaultPosition, wxSize(-1, -1), 0);
+    m_stdBtnSizer21->AddButton(m_button25);
+    m_stdBtnSizer21->Realize();
     
     SetName(wxT("DlgSelectFolderBase"));
     SetSizeHints(500,300);
@@ -67,8 +80,13 @@ DlgSelectFolderBase::DlgSelectFolderBase(wxWindow* parent, wxWindowID id, const 
         wxPersistenceManager::Get().Restore(this);
     }
 #endif
+    // Connect events
+    m_buttonSelFolder->Connect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(DlgSelectFolderBase::OnButtonSelectFolder), NULL, this);
+    
 }
 
 DlgSelectFolderBase::~DlgSelectFolderBase()
 {
+    m_buttonSelFolder->Disconnect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(DlgSelectFolderBase::OnButtonSelectFolder), NULL, this);
+    
 }

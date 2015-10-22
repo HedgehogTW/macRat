@@ -17,7 +17,7 @@
 #include "KDE.h"
 #include "MyUtil.h"
 #include "gnuplot_i.h"
-
+#include "DlgSelectFolder.h"
 
 using namespace std;
 using namespace cv;
@@ -1197,4 +1197,12 @@ void MainFrame::OnUpdateViewMarks(wxUpdateUIEvent& event)
 }
 void MainFrame::OnBatchProcess(wxCommandEvent& event)
 {
+	DlgSelectFolder dlg(this);
+	int ret = dlg.ShowModal();
+	if(ret == wxID_OK) {
+		m_strBatchDir = dlg.m_strDir;
+		myMsgOutput("Batch process dir: " + m_strBatchDir +"\n") ;
+	}else return;
+	
+	
 }

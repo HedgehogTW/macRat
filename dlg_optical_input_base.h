@@ -18,10 +18,10 @@
 #include <wx/statbox.h>
 #include <wx/checkbox.h>
 #include <wx/textctrl.h>
+#include <wx/gbsizer.h>
 #include <wx/stattext.h>
 #include <wx/radiobut.h>
 #include <wx/statline.h>
-#include <wx/gbsizer.h>
 #include <wx/button.h>
 #if wxVERSION_NUMBER >= 2900
 #include <wx/persist.h>
@@ -46,10 +46,11 @@ protected:
     wxPanel* m_panel171;
     wxCheckBox* m_checkBoxOpticalPDF;
     wxCheckBox* m_checkBoxGrayDiff;
-    wxCheckBox* m_checkBoxSaveFlow;
     wxStaticText* m_staticText181;
     wxRadioButton* m_radioOpV1;
     wxRadioButton* m_radioOpV2;
+    wxCheckBox* m_checkBoxSaveFlow;
+    wxCheckBox* m_checkBoxSaveSignalPlot;
     wxStaticLine* m_staticLine781;
     wxPanel* m_panel38;
     wxStaticText* m_staticText718;
@@ -75,15 +76,14 @@ protected:
     wxRadioButton* m_radioButtonRefBelly;
     wxRadioButton* m_radioButtonRefHead;
     wxRadioButton* m_radioButtonRefEar;
-    wxPanel* m_panel116;
     wxStaticText* m_staticText126;
     wxTextCtrl* m_textCtrlReferFrame;
     wxStaticText* m_staticText130;
     wxTextCtrl* m_textCtrlXSD;
     wxStaticLine* m_staticLine108;
-    wxStdDialogButtonSizer* m_stdBtnSizer52;
-    wxButton* m_button56;
-    wxButton* m_button58;
+    wxStdDialogButtonSizer* m_stdBtnSizer243;
+    wxButton* m_button245;
+    wxButton* m_button247;
 
 protected:
 
@@ -100,10 +100,11 @@ public:
     wxPanel* GetPanel163() { return m_panel163; }
     wxCheckBox* GetCheckBoxOpticalPDF() { return m_checkBoxOpticalPDF; }
     wxCheckBox* GetCheckBoxGrayDiff() { return m_checkBoxGrayDiff; }
-    wxCheckBox* GetCheckBoxSaveFlow() { return m_checkBoxSaveFlow; }
     wxStaticText* GetStaticText181() { return m_staticText181; }
     wxRadioButton* GetRadioOpV1() { return m_radioOpV1; }
     wxRadioButton* GetRadioOpV2() { return m_radioOpV2; }
+    wxCheckBox* GetCheckBoxSaveFlow() { return m_checkBoxSaveFlow; }
+    wxCheckBox* GetCheckBoxSaveSignalPlot() { return m_checkBoxSaveSignalPlot; }
     wxPanel* GetPanel171() { return m_panel171; }
     wxStaticLine* GetStaticLine781() { return m_staticLine781; }
     wxStaticText* GetStaticText718() { return m_staticText718; }
@@ -129,12 +130,11 @@ public:
     wxRadioButton* GetRadioButtonRefBelly() { return m_radioButtonRefBelly; }
     wxRadioButton* GetRadioButtonRefHead() { return m_radioButtonRefHead; }
     wxRadioButton* GetRadioButtonRefEar() { return m_radioButtonRefEar; }
-    wxPanel* GetPanel187() { return m_panel187; }
     wxStaticText* GetStaticText126() { return m_staticText126; }
     wxTextCtrl* GetTextCtrlReferFrame() { return m_textCtrlReferFrame; }
     wxStaticText* GetStaticText130() { return m_staticText130; }
     wxTextCtrl* GetTextCtrlXSD() { return m_textCtrlXSD; }
-    wxPanel* GetPanel116() { return m_panel116; }
+    wxPanel* GetPanel187() { return m_panel187; }
     wxStaticLine* GetStaticLine108() { return m_staticLine108; }
     DlgOpticalInputBase(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Optical Input Dialog"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(-1,-1), long style = wxDEFAULT_DIALOG_STYLE);
     virtual ~DlgOpticalInputBase();

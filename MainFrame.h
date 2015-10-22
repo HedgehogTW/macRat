@@ -112,6 +112,7 @@ protected:
 	wxLog*			m_old_logger;
 	FILE* 			m_fpLog;
 
+	wxString		m_strBatchDir;
 //////////////// Rat
 //	RGBQUAD	m_Palette[PALETTE_SIZE];
 	wxString m_strSourcePath;

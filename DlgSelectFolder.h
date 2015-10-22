@@ -7,5 +7,9 @@ class DlgSelectFolder : public DlgSelectFolderBase
 public:
     DlgSelectFolder(wxWindow* parent);
     virtual ~DlgSelectFolder();
+	
+	wxString	m_strDir;
+protected:
+    virtual void OnButtonSelectFolder(wxCommandEvent& event);
 };
 #endif // DLGSELECTFOLDER_H

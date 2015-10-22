@@ -13,7 +13,7 @@ CurrentFileName        :=
 CurrentFilePath        :=
 CurrentFileFullPath    :=
 User                   :=cclee
-Date                   :=20/10/2015
+Date                   :=22/10/2015
 CodeLitePath           :="C:\Program Files\CodeLite"
 LinkerName             :=C:/mingw-w64/x86_64-4.9.3/mingw64/bin/g++.exe
 SharedObjectLinkerName :=C:/mingw-w64/x86_64-4.9.3/mingw64/bin/g++.exe -shared -fPIC
@@ -63,7 +63,7 @@ AS       := C:/mingw-w64/x86_64-4.9.3/mingw64/bin/as.exe
 ##
 CodeLiteDir:=C:\CodeLite
 Objects0=$(IntermediateDirectory)/main.cpp$(ObjectSuffix) $(IntermediateDirectory)/MainFrame.cpp$(ObjectSuffix) $(IntermediateDirectory)/wxcrafter.cpp$(ObjectSuffix) $(IntermediateDirectory)/wxcrafter_bitmaps.cpp$(ObjectSuffix) $(IntermediateDirectory)/scrolled_image_component.cpp$(ObjectSuffix) $(IntermediateDirectory)/KDE.cpp$(ObjectSuffix) $(IntermediateDirectory)/MyUtil.cpp$(ObjectSuffix) $(IntermediateDirectory)/Rat.cpp$(ObjectSuffix) $(IntermediateDirectory)/BendPoint.cpp$(ObjectSuffix) $(IntermediateDirectory)/gnuplot_i.cpp$(ObjectSuffix) \
-	$(IntermediateDirectory)/win_resources.rc$(ObjectSuffix) $(IntermediateDirectory)/DlgOpticalInput.cpp$(ObjectSuffix) $(IntermediateDirectory)/dlg_optical_macrat_bitmaps.cpp$(ObjectSuffix) $(IntermediateDirectory)/dlg_optical_input_base_macrat_bitmaps.cpp$(ObjectSuffix) $(IntermediateDirectory)/dlg_optical_input_base.cpp$(ObjectSuffix) 
+	$(IntermediateDirectory)/win_resources.rc$(ObjectSuffix) $(IntermediateDirectory)/DlgOpticalInput.cpp$(ObjectSuffix) $(IntermediateDirectory)/DlgSelectFolder.cpp$(ObjectSuffix) $(IntermediateDirectory)/dlg_optical_macrat_bitmaps.cpp$(ObjectSuffix) $(IntermediateDirectory)/dlg_optical_input_base_macrat_bitmaps.cpp$(ObjectSuffix) $(IntermediateDirectory)/dlg_select_folder_macrat_bitmaps.cpp$(ObjectSuffix) $(IntermediateDirectory)/dlg_optical_input_base.cpp$(ObjectSuffix) $(IntermediateDirectory)/dlg_select_folder.cpp$(ObjectSuffix) 
 
 
 
@@ -184,6 +184,14 @@ $(IntermediateDirectory)/DlgOpticalInput.cpp$(DependSuffix): DlgOpticalInput.cpp
 $(IntermediateDirectory)/DlgOpticalInput.cpp$(PreprocessSuffix): DlgOpticalInput.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/DlgOpticalInput.cpp$(PreprocessSuffix) "DlgOpticalInput.cpp"
 
+$(IntermediateDirectory)/DlgSelectFolder.cpp$(ObjectSuffix): DlgSelectFolder.cpp $(IntermediateDirectory)/DlgSelectFolder.cpp$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Project/macRat/DlgSelectFolder.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/DlgSelectFolder.cpp$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/DlgSelectFolder.cpp$(DependSuffix): DlgSelectFolder.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/DlgSelectFolder.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/DlgSelectFolder.cpp$(DependSuffix) -MM "DlgSelectFolder.cpp"
+
+$(IntermediateDirectory)/DlgSelectFolder.cpp$(PreprocessSuffix): DlgSelectFolder.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/DlgSelectFolder.cpp$(PreprocessSuffix) "DlgSelectFolder.cpp"
+
 $(IntermediateDirectory)/dlg_optical_macrat_bitmaps.cpp$(ObjectSuffix): dlg_optical_macrat_bitmaps.cpp $(IntermediateDirectory)/dlg_optical_macrat_bitmaps.cpp$(DependSuffix)
 	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Project/macRat/dlg_optical_macrat_bitmaps.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/dlg_optical_macrat_bitmaps.cpp$(ObjectSuffix) $(IncludePath)
 $(IntermediateDirectory)/dlg_optical_macrat_bitmaps.cpp$(DependSuffix): dlg_optical_macrat_bitmaps.cpp
@@ -200,6 +208,14 @@ $(IntermediateDirectory)/dlg_optical_input_base_macrat_bitmaps.cpp$(DependSuffix
 $(IntermediateDirectory)/dlg_optical_input_base_macrat_bitmaps.cpp$(PreprocessSuffix): dlg_optical_input_base_macrat_bitmaps.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/dlg_optical_input_base_macrat_bitmaps.cpp$(PreprocessSuffix) "dlg_optical_input_base_macrat_bitmaps.cpp"
 
+$(IntermediateDirectory)/dlg_select_folder_macrat_bitmaps.cpp$(ObjectSuffix): dlg_select_folder_macrat_bitmaps.cpp $(IntermediateDirectory)/dlg_select_folder_macrat_bitmaps.cpp$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Project/macRat/dlg_select_folder_macrat_bitmaps.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/dlg_select_folder_macrat_bitmaps.cpp$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/dlg_select_folder_macrat_bitmaps.cpp$(DependSuffix): dlg_select_folder_macrat_bitmaps.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/dlg_select_folder_macrat_bitmaps.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/dlg_select_folder_macrat_bitmaps.cpp$(DependSuffix) -MM "dlg_select_folder_macrat_bitmaps.cpp"
+
+$(IntermediateDirectory)/dlg_select_folder_macrat_bitmaps.cpp$(PreprocessSuffix): dlg_select_folder_macrat_bitmaps.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/dlg_select_folder_macrat_bitmaps.cpp$(PreprocessSuffix) "dlg_select_folder_macrat_bitmaps.cpp"
+
 $(IntermediateDirectory)/dlg_optical_input_base.cpp$(ObjectSuffix): dlg_optical_input_base.cpp $(IntermediateDirectory)/dlg_optical_input_base.cpp$(DependSuffix)
 	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Project/macRat/dlg_optical_input_base.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/dlg_optical_input_base.cpp$(ObjectSuffix) $(IncludePath)
 $(IntermediateDirectory)/dlg_optical_input_base.cpp$(DependSuffix): dlg_optical_input_base.cpp
@@ -207,6 +223,14 @@ $(IntermediateDirectory)/dlg_optical_input_base.cpp$(DependSuffix): dlg_optical_
 
 $(IntermediateDirectory)/dlg_optical_input_base.cpp$(PreprocessSuffix): dlg_optical_input_base.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/dlg_optical_input_base.cpp$(PreprocessSuffix) "dlg_optical_input_base.cpp"
+
+$(IntermediateDirectory)/dlg_select_folder.cpp$(ObjectSuffix): dlg_select_folder.cpp $(IntermediateDirectory)/dlg_select_folder.cpp$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Project/macRat/dlg_select_folder.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/dlg_select_folder.cpp$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/dlg_select_folder.cpp$(DependSuffix): dlg_select_folder.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/dlg_select_folder.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/dlg_select_folder.cpp$(DependSuffix) -MM "dlg_select_folder.cpp"
+
+$(IntermediateDirectory)/dlg_select_folder.cpp$(PreprocessSuffix): dlg_select_folder.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/dlg_select_folder.cpp$(PreprocessSuffix) "dlg_select_folder.cpp"
 
 
 -include $(IntermediateDirectory)/*$(DependSuffix)
