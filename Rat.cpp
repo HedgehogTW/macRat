@@ -15,7 +15,6 @@
 #include "MyUtil.h"
 #include <gsl/gsl_fit.h>
 #include "BendPoint.h"
-#include "DlgOpticalInput.h"
 
 #define PDF_SIZE    50
 #define EYE_OFFSET_RATIO  0.9
@@ -904,56 +903,6 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	if(nLED2 >0)  bUserLED2 = true;
 	else bUserLED2 = false;
 	
-	DlgOpticalInput dlg(frameStep, threshold, MainFrame::m_pThis);
-	dlg.setVerticalLine(bLEDLine, bBigHead, bUserLED2, nLED2, bVerLine, verLine);
-	dlg.setSeriesLine(bEyeMove, bEar, bGrayDiff, bBelly);
-	dlg.setOptions(bOpticalPDF, bOpFlowV1, bSaveFile, bSaveSignalPlot, refSignal);
-	dlg.setYRange(ymin, ymax, m_ROIEar, m_ROIBelly, referFrame);
-	dlg.setGain(gainHead, gainBelly, xSD);
-
-	if(dlg.ShowModal() !=  wxID_OK) return false;
-	newFrameSteps = dlg.getFrameSteps();
-	threshold = dlg.getThreshold();
-	dlg.getVerticalLine(bLEDLine, bBigHead, bUserLED2, nLED2, bVerLine, verLine);
-	dlg.getSeriesLine(bEyeMove, bEar, bGrayDiff, bBelly);
-	dlg.getOptions(bOpticalPDF, bNewOpFlowV1, bSaveFile, bSaveSignalPlot, refSignal);
-	dlg.getYRange(ymin, ymax, m_ROIEar, m_ROIBelly, referFrame);
-	dlg.getGain(gainHead, gainBelly, xSD);
-	dlg.Destroy();
-	
-	if(bUserLED2 && nLED2 > 0) {
-		m_nLED2 = nLED2-1;
-		MainFrame::myMsgOutput("User-specified LED2 %d (0-based)\n", m_nLED2);
-	}
-
-	configData.m_frameStep = newFrameSteps;	
-	configData.m_threshold = threshold;
-	configData.m_bLED = bLEDLine;
-	configData.m_bBigHead = bBigHead;
-	configData.m_bVerLine = bVerLine;
-
-	configData.m_bEyeMove = bEyeMove;
-	configData.m_bGrayDiff = bGrayDiff;
-	configData.m_bEar = bEar;
-	configData.m_bBelly = bBelly;
-	configData.m_bOpticalPDF = bOpticalPDF;
-	configData.m_bOpFlowV1 = bNewOpFlowV1;
-	configData.m_bSaveFile = bSaveFile;
-	configData.m_bSaveSignalPlot = bSaveSignalPlot;
-
-	configData.m_verLine = verLine;
-	configData.m_ymin = ymin;
-	configData.m_ymax = ymax;
-	configData.m_szROIEar = m_ROIEar;
-	configData.m_szROIBelly = m_ROIBelly;
-	configData.m_referFrame = referFrame;
-	configData.m_gainHead = gainHead;
-	configData.m_gainBelly = gainBelly;
-	configData.m_xSD = xSD;
-	configData.m_refSignal = refSignal;
-	
-	MainFrame::m_pThis->setConfigData(configData);	
-
 	m_bShowEye = bEyeMove;
 	m_bShowEar = bEar;
 	m_bShowBelly = bBelly;

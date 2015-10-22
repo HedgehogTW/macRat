@@ -18,6 +18,7 @@
 #include "MyUtil.h"
 #include "gnuplot_i.h"
 #include "DlgSelectFolder.h"
+#include "DlgOpticalInput.h"
 
 using namespace std;
 //using namespace cv;
@@ -613,6 +614,90 @@ bool MainFrame::preprocessing()
 	
 	return true;
 }
+
+void MainFrame::inputDialog()
+{
+	int frameStep = m_configData.m_frameStep;	
+	double threshold = m_configData.m_threshold;
+	bool bLEDLine = m_configData.m_bLED;
+	bool bBigHead = m_configData.m_bBigHead;
+	bool bVerLine = m_configData.m_bVerLine;
+
+	bool bEyeMove = m_configData.m_bEyeMove;
+	bool bGrayDiff = m_configData.m_bGrayDiff;
+	bool bBelly = m_configData.m_bBelly;
+	bool bEar = m_configData.m_bEar;
+	bool bOpticalPDF = m_configData.m_bOpticalPDF;
+	bool bOpFlowV1 = m_configData.m_bOpFlowV1;
+	bool bSaveFile = m_configData.m_bSaveFile;
+	bool bSaveSignalPlot = m_configData.m_bSaveSignalPlot;
+
+	double verLine = m_configData.m_verLine;
+	double ymin = m_configData.m_ymin;
+	double ymax = m_configData.m_ymax;
+	long ROIEar = m_configData.m_szROIEar;
+	long ROIBelly = m_configData.m_szROIBelly;
+	long referFrame = m_configData.m_referFrame;
+	double gainHead = m_configData.m_gainHead;
+	double gainBelly = m_configData.m_gainBelly;
+	double xSD = m_configData.m_xSD;
+	int	refSignal = m_configData.m_refSignal;
+	
+	bool bUserLED2;
+	if(m_nLED2 >0)  bUserLED2 = true;
+	else bUserLED2 = false;
+	
+	DlgOpticalInput dlg(frameStep, threshold, this);
+	
+	dlg.setVerticalLine(bLEDLine, bBigHead, bUserLED2, m_nLED2, bVerLine, verLine);
+	dlg.setSeriesLine(bEyeMove, bEar, bGrayDiff, bBelly);
+	dlg.setOptions(bOpticalPDF, bOpFlowV1, bSaveFile, bSaveSignalPlot, refSignal);
+	dlg.setYRange(ymin, ymax, ROIEar, ROIBelly, referFrame);
+	dlg.setGain(gainHead, gainBelly, xSD);
+
+	if(dlg.ShowModal() !=  wxID_OK) return false;
+	frameStep = dlg.getFrameSteps();
+	threshold = dlg.getThreshold();
+	dlg.getVerticalLine(bLEDLine, bBigHead, bUserLED2, m_nLED2, bVerLine, verLine);
+	dlg.getSeriesLine(bEyeMove, bEar, bGrayDiff, bBelly);
+	dlg.getOptions(bOpticalPDF, bOpFlowV1, bSaveFile, bSaveSignalPlot, refSignal);
+	dlg.getYRange(ymin, ymax, ROIEar, ROIBelly, referFrame);
+	dlg.getGain(gainHead, gainBelly, xSD);
+	dlg.Destroy();
+	
+	if(bUserLED2 && m_nLED2 > 0) {
+		//m_nLED2 = nLED2-1;
+		MainFrame::myMsgOutput("User-specified LED2 %d (0-based)\n", m_nLED2);
+	}
+
+	m_configData.m_frameStep = frameStep;	
+	m_configData.m_threshold = threshold;
+	m_configData.m_bLED = bLEDLine;
+	m_configData.m_bBigHead = bBigHead;
+	m_configData.m_bVerLine = bVerLine;
+
+	m_configData.m_bEyeMove = bEyeMove;
+	m_configData.m_bGrayDiff = bGrayDiff;
+	m_configData.m_bEar = bEar;
+	m_configData.m_bBelly = bBelly;
+	m_configData.m_bOpticalPDF = bOpticalPDF;
+	m_configData.m_bOpFlowV1 = bOpFlowV1;
+	m_configData.m_bSaveFile = bSaveFile;
+	m_configData.m_bSaveSignalPlot = bSaveSignalPlot;
+
+	m_configData.m_verLine = verLine;
+	m_configData.m_ymin = ymin;
+	m_configData.m_ymax = ymax;
+	m_configData.m_szROIEar = ROIEar;
+	m_configData.m_szROIBelly = ROIBelly;
+	m_configData.m_referFrame = referFrame;
+	m_configData.m_gainHead = gainHead;
+	m_configData.m_gainBelly = gainBelly;
+	m_configData.m_xSD = xSD;
+	m_configData.m_refSignal = refSignal;
+	
+	
+}
 void MainFrame::OnRatProcess(wxCommandEvent& event)
 {
 	if(m_dqEyePts.size()!=2) {
@@ -649,6 +734,7 @@ void MainFrame::OnRatProcess(wxCommandEvent& event)
 		m_ptBellyCyan.y -= m_nCageLine;	      
     }
 	//bool bRet = m_Rat.processEar(m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR);
+	inputDialog();
 	bool bRet = m_Rat.process(m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR, m_ptBellyRed, m_ptBellyCyan, m_nLED2);
 	if(bRet ==false) return;		
 	updateOutData(m_Rat.getResultImg(0));
