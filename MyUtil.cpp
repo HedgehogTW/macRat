@@ -59,53 +59,6 @@ void _gnuplotHoriLine(Gnuplot& gnuPlot, float x, float y, const char* color, con
 	
 }
 
-
-void itkImportBuffer(cv::Mat& mSrc, ImportFilterType::Pointer importer)
-{
-	ImportFilterType::SizeType size;
-	size[0] = mSrc.cols;
-	size[1] = mSrc.rows;
-
-	ImportFilterType::IndexType start;
-	start[0] = 0;
-	start[1] = 0;
-
-	ImportFilterType::RegionType region;
-	region.SetSize( size );
-	region.SetIndex( start );
-	importer->SetRegion( region);
-
-	double spacing[2];
-	spacing[0] = 1;
-	spacing[1] = 1;
-	importer->SetSpacing( spacing );
-
-	double origin[2];
-	origin[0] = 0;
-	origin[1] = 0;
-	importer->SetOrigin( origin );
-
-	const bool bDeleteTheInputBuffer= false;
-	charPixelType* pixelData= static_cast<charPixelType*>( mSrc.data );
-	const unsigned int totalNumberOfPixels = size[0] * size[1];
-	importer->SetImportPointer(pixelData, totalNumberOfPixels, bDeleteTheInputBuffer);
-	importer->Update();
-}
-
-
-void itkExport32FC1Buffer(floatImageType* image, cv::Mat& mDest)
-{
-	floatImageType::SizeType size = image->GetBufferedRegion().GetSize();
-	int h = size[1];
-	int w = size[0];
-
-	mDest.create(h, w, CV_32FC1);
-	unsigned char * pixelBuffer = (unsigned char *)image->GetBufferPointer();
-	uchar*   buf = mDest.data;
-
-	memcpy(buf, pixelBuffer, h * w*sizeof(float));
-}
-
 ///////////////////////////////
 SortByKey_STL SortByKey_STL::instance = SortByKey_STL();
 //////////////////////

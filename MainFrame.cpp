@@ -20,7 +20,7 @@
 #include "DlgSelectFolder.h"
 
 using namespace std;
-using namespace cv;
+//using namespace cv;
 
 vector <Mat> gvecMat;
 
@@ -1204,5 +1204,53 @@ void MainFrame::OnBatchProcess(wxCommandEvent& event)
 		myMsgOutput("Batch process dir: " + m_strBatchDir +"\n") ;
 	}else return;
 	
+
+	wxString fileSpec = _T("*");
+	wxArrayString  	topDirs;
+	wxArrayString  	secondDirs;
 	
+	wxDir dir(m_strBatchDir);
+    
+	// top level
+    wxString dirName;
+    bool cont = dir.GetFirst(&dirName, fileSpec, wxDIR_DIRS);
+    while ( cont )
+    {   
+        wxString subDirName = m_strBatchDir + "\\" + dirName;
+        topDirs.Add(subDirName);
+        cont = dir.GetNext(&dirName);
+    }
+	
+
+    // second level subdir
+    int count = topDirs.GetCount();
+    for(int i=0; i<count; i++) {
+//        MainFrame::myMsgOutput(topDirs[i]+ "\n");
+        wxDir subdir(topDirs[i]);
+        wxString subName;
+        bool bCont = subdir.GetFirst(&subName, fileSpec, wxDIR_DIRS);
+
+        while ( bCont ) {
+            wxString secondLevelName = topDirs[i]+ "\\" + subName;
+			secondDirs.Add(secondLevelName);
+            bCont = subdir.GetNext(&subName);
+        }  
+    }
+
+  
+	count = secondDirs.GetCount();
+    for(int i=0; i<count; i++) {
+        MainFrame::myMsgOutput(secondDirs[i]+ "\n");
+		wxFileName fileName = secondDirs[i];
+		wxUniChar sep = fileName.GetPathSeparator();
+		wxString  strParentPath =  secondDirs[i].BeforeLast(sep);
+		wxString  markName = "_"+fileName.GetName()+"_Marks.txt";
+		wxFileName fullMarkName(strParentPath, markName);
+		
+		bool bHasFile = wxFileName::Exists(fullMarkName.GetFullPath());
+		if(bHasFile)
+			MainFrame::myMsgOutput(fullMarkName.GetFullPath()+ "\n");
+		else
+			MainFrame::myMsgOutput("no file\n");
+	}
 }

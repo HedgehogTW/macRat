@@ -7,9 +7,9 @@
 #include "KDE.h"
 
 //#include "itkOpenCVImageBridge.h"
-#include "itkCastImageFilter.h"
-#include "itkRescaleIntensityImageFilter.h"
-#include "itkLaplacianRecursiveGaussianImageFilter.h"
+//#include "itkCastImageFilter.h"
+//#include "itkRescaleIntensityImageFilter.h"
+//#include "itkLaplacianRecursiveGaussianImageFilter.h"
 
 //#include "MyContour.h"
 #include "MyUtil.h"
@@ -887,6 +887,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	bool bOpticalPDF = configData.m_bOpticalPDF;
 	bool bOpFlowV1 = configData.m_bOpFlowV1;
 	bool bSaveFile = configData.m_bSaveFile;
+	bool bSaveSignalPlot = configData.m_bSaveSignalPlot;
 
 	double verLine = configData.m_verLine;
 	double ymin = configData.m_ymin;
@@ -906,7 +907,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	DlgOpticalInput dlg(frameStep, threshold, MainFrame::m_pThis);
 	dlg.setVerticalLine(bLEDLine, bBigHead, bUserLED2, nLED2, bVerLine, verLine);
 	dlg.setSeriesLine(bEyeMove, bEar, bGrayDiff, bBelly);
-	dlg.setOptions(bOpticalPDF, bOpFlowV1, bSaveFile, refSignal);
+	dlg.setOptions(bOpticalPDF, bOpFlowV1, bSaveFile, bSaveSignalPlot, refSignal);
 	dlg.setYRange(ymin, ymax, m_ROIEar, m_ROIBelly, referFrame);
 	dlg.setGain(gainHead, gainBelly, xSD);
 
@@ -915,7 +916,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	threshold = dlg.getThreshold();
 	dlg.getVerticalLine(bLEDLine, bBigHead, bUserLED2, nLED2, bVerLine, verLine);
 	dlg.getSeriesLine(bEyeMove, bEar, bGrayDiff, bBelly);
-	dlg.getOptions(bOpticalPDF, bNewOpFlowV1, bSaveFile, refSignal);
+	dlg.getOptions(bOpticalPDF, bNewOpFlowV1, bSaveFile, bSaveSignalPlot, refSignal);
 	dlg.getYRange(ymin, ymax, m_ROIEar, m_ROIBelly, referFrame);
 	dlg.getGain(gainHead, gainBelly, xSD);
 	dlg.Destroy();
@@ -938,6 +939,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	configData.m_bOpticalPDF = bOpticalPDF;
 	configData.m_bOpFlowV1 = bNewOpFlowV1;
 	configData.m_bSaveFile = bSaveFile;
+	configData.m_bSaveSignalPlot = bSaveSignalPlot;
 
 	configData.m_verLine = verLine;
 	configData.m_ymin = ymin;
@@ -1217,18 +1219,35 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	wxEndBusyCursor(); 
 	
 ///////////G N U P L O T//////////////////////////////////////////////////////////////////////////////
-
-	
 	_gnuplotInit(gPlotL, title.ToAscii(), ymin, ymax);
 	_gnuplotInit(gPlotR, title.ToAscii(), ymin, ymax);
 	_gnuplotInit(gPlotP, title.ToAscii(), 10, 70);
+	
+
 	gPlotL.set_legend("left");
 	gPlotR.set_legend("left");	
 	gPlotP.set_legend("left");	
 	gPlotL.cmd("set termoption noenhanced");
 	gPlotR.cmd("set termoption noenhanced");
 	gPlotP.cmd("set termoption noenhanced");
-	
+
+/*
+	if(bSaveSignalPlot) {
+		// assign save filename
+		wxFileName fileName = m_strSrcPath;
+		wxUniChar sep = fileName.GetPathSeparator();
+		wxString 	strParentPath =  m_strSrcPath.BeforeLast(sep);
+		wxString  plotName = "_"+fileName.GetName();
+		wxFileName fullPlotName(strParentPath, plotName);
+      
+        /////////////////////////////////////////////// plot command
+        std::ostringstream cmdstr0, cmdstr1;
+        cmdstr0 << "set output '" << fullPlotName.GetFullPath().ToAscii() << "_plotL.png'";
+		cmdstr1 << "set output '" << fullPlotName.GetFullPath().ToAscii() << "_plotP.png'";
+//        gPlotL.cmd(cmdstr0.str());
+		gPlotP.cmd(cmdstr1.str());
+	}	
+*/	
 	plotSoundOnset(-0.65, 0.06, 100);
 	
 	if(bLEDLine && (m_nLED1>0 || m_nLED2 >0)) {
@@ -1325,7 +1344,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			_OutputVec(vecEyeFlowPdfL, newFullMarkerName.GetFullPath()); 
 		}		
 	}
-	
+
 	drawOnDestImage(bSaveFile);
 	
 	finish = clock();
@@ -2623,34 +2642,6 @@ double CRat::lineSquareError(vector<cv::Point>& contour, cv::Point& pt)
 		return mseRight;
 	else 
 		return mseLeft;
-}
-void CRat::itkLaplacianOfGaussian(Mat& mSrc, Mat& mDest, double sigma)
-{
-	ImportFilterType::Pointer importer = ImportFilterType::New();;
-	itkImportBuffer(mSrc, importer);
-	
-	// cast to float
-	typedef itk::CastImageFilter<charImageType, floatImageType > CastFilterType;
-
-	CastFilterType::Pointer castFilter = CastFilterType::New();
-	castFilter->SetInput(importer->GetOutput() );
-
-	typedef itk::LaplacianRecursiveGaussianImageFilter<
-                        floatImageType, floatImageType >  FilterType;
-	FilterType::Pointer laplacian = FilterType::New();
-	laplacian->SetNormalizeAcrossScale( false );
-	laplacian->SetSigma( sigma );
-	laplacian->SetInput( castFilter->GetOutput() );
-	laplacian->Update();
-
-	cv::Mat resultImage;
-	itkExport32FC1Buffer(laplacian->GetOutput(), resultImage);
-
-	//double  min, max;
-	//cv::minMaxLoc(mDest, &min, &max);
-	//gpMsgbar->ShowMessage("LaplacianOfGaussian, [%f, %f]\n", min, max);
-	cv::threshold(resultImage, mDest, 0, 255, THRESH_TOZERO);
-
 }
 
 

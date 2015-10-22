@@ -11,7 +11,7 @@
 #include "gnuplot_i.h"
 #include "Rat.h"
 
-#include "itkImportImageFilter.h"
+//#include "itkImportImageFilter.h"
 
 using namespace cv;
 using namespace std;
@@ -80,9 +80,9 @@ void _gnuplotPoint(Gnuplot& gnuPlot, const X& pts, const char* color="", const c
 	gnuPlot.set_style("points").plot_xy(x, y, 1, color, titleName);
 }
 
-void	_scalingTraining(Mat& mTrainData);
-void	_scalingData(Mat& mData, vector<Vec2d>& scalePara);
-void	_scalingLoadPara(vector<Vec2d>& scalePara);
+void	_scalingTraining(cv::Mat& mTrainData);
+void	_scalingData(cv::Mat& mData, vector<cv::Vec2d>& scalePara);
+void	_scalingLoadPara(vector<cv::Vec2d>& scalePara);
 
 template<typename X>
 void _OutputVecPoints(X &vecPoints, const char *filename, bool bhasComma)
@@ -128,9 +128,6 @@ void _OutputMatPoint2f(cv::Mat m, const char *filename, bool bAppend=false);
 void _OutputMatGnuplotBinData(cv::Mat m, const char *filename, int low, int high);
 void _rgbMat2hsvMat(cv::Mat &mRGB, cv::Mat &mHSV, bool plus360);
 void rgb2hsv(uchar r, uchar g, uchar b, float &h, float &s, float &v, bool plus360);
-
-void itkImportBuffer(cv::Mat& mSrc, ImportFilterType::Pointer importer);
-void itkExport32FC1Buffer(floatImageType* image, cv::Mat& mDest);
 
 /// TYPE CASTING
 template<class T1, class T2>

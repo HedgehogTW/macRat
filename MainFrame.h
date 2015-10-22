@@ -5,8 +5,8 @@
 #include <wx/filehistory.h>
 
 #include <deque>
-#include "itkMetaImageIO.h"
-#include "itkImageFileReader.h"
+//#include "itkMetaImageIO.h"
+//#include "itkImageFileReader.h"
 
 #include <vector>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -14,7 +14,7 @@
 #include "Rat.h"
 
 using namespace std;
-using namespace cv;
+//using namespace cv;
 
 #define PALETTE_SIZE 256
  
@@ -26,7 +26,7 @@ public:
 	virtual ~MainFrame();
 
 	inline int		getNumSlices() { return m_nSlices; }
-	inline Size	    getImgSize()  { return m_szOutImg; }
+	inline cv::Size	    getImgSize()  { return m_szOutImg; }
 	inline int		getBpp() { return m_nBpp; }
 	inline uchar*	getPixelAddr() { return m_mOut.data; }
 	inline int		getStep() { return m_mOut.step[0]; }
@@ -34,17 +34,17 @@ public:
 	void	getConfigData(MyConfigData& data)  { data = m_configData; }
 	void	setConfigData(MyConfigData& data)  { m_configData = data; }
 	
-	void	updateOutData(Mat& mOut);
-	Mat &   getCurrentMat(int idx) { return m_Rat.getSrcImg(idx); }
-	Mat &   getResultMat(int idx) { return m_Rat.getResultImg(idx); }
+	void	updateOutData(cv::Mat& mOut);
+	cv::Mat &   getCurrentMat(int idx) { return m_Rat.getSrcImg(idx); }
+	cv::Mat &   getResultMat(int idx) { return m_Rat.getResultImg(idx); }
 //	Mat &   getFlowMat(int idx) { return m_Rat.getFlowImg(idx); }
 	int		getCageHeight() { return m_Rat.m_nCageLine; }
 
-	void	recognizeLeftRight(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR);
+	void	recognizeLeftRight(cv::Point& ptEyeL, cv::Point& ptEyeR, cv::Point& ptEarL, cv::Point& ptEarR);
 	
-	void 	getEyePts(Point& eyeL, Point& eyeR) { eyeL = m_ptEyeL; eyeR = m_ptEyeR; }
-	void 	getEarPts(Point& earL, Point& earR) { earL = m_ptEarL; earR = m_ptEarR;}
-	int 	getBellyPts(Point& abRed, Point& abCyan) { abRed = m_ptBellyRed; abCyan = m_ptBellyCyan; return m_Rat.m_BigRedPdf; }
+	void 	getEyePts(cv::Point& eyeL, cv::Point& eyeR) { eyeL = m_ptEyeL; eyeR = m_ptEyeR; }
+	void 	getEarPts(cv::Point& earL, cv::Point& earR) { earL = m_ptEarL; earR = m_ptEarR;}
+	int 	getBellyPts(cv::Point& abRed, cv::Point& abCyan) { abRed = m_ptBellyRed; abCyan = m_ptBellyCyan; return m_Rat.m_BigRedPdf; }
 	bool    isViewMarks() { return m_bViewMarks; };
     
 	int		getCageline() { return m_nCageLine; }
@@ -116,12 +116,12 @@ protected:
 //////////////// Rat
 //	RGBQUAD	m_Palette[PALETTE_SIZE];
 	wxString m_strSourcePath;
-	Mat		m_mOut;
+	cv::Mat		m_mOut;
 	int		m_nBpp;
 	int		m_nChannel;
 	int		m_nDepth;
-	Size	m_szOriSize;
-	Size	m_szOutImg;
+	cv::Size	m_szOriSize;
+	cv::Size	m_szOutImg;
 	CRat	m_Rat;
 	int		m_nSlices ;
 	int		m_nCageLine;
@@ -138,11 +138,11 @@ protected:
 //	double	m_gainHead;
 //	double	m_gainBelly;
 	
-	deque<Point>  m_dqEyePts;
-	deque<Point>  m_dqEarPts;
-	deque<Point>  m_dqBellyPts;
-	Point 	m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR;
-	Point 	m_ptBellyRed, m_ptBellyCyan;
+	deque<cv::Point>  m_dqEyePts;
+	deque<cv::Point>  m_dqEarPts;
+	deque<cv::Point>  m_dqBellyPts;
+	cv::Point 	m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR;
+	cv::Point 	m_ptBellyRed, m_ptBellyCyan;
 
 
 };
