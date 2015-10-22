@@ -76,7 +76,7 @@ public:
 		m_ymin = -1;
 		m_ymax = 3;
 		m_xSD = 3;
-		m_bSaveSignalPlot = true;
+		m_bSaveSignalPlot = false;
 	}
 };
 

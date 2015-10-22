@@ -615,7 +615,7 @@ bool MainFrame::preprocessing()
 	return true;
 }
 
-void MainFrame::inputDialog()
+bool MainFrame::inputDialog()
 {
 	int frameStep = m_configData.m_frameStep;	
 	double threshold = m_configData.m_threshold;
@@ -643,13 +643,17 @@ void MainFrame::inputDialog()
 	double xSD = m_configData.m_xSD;
 	int	refSignal = m_configData.m_refSignal;
 	
+	int nLED2 = -1;
 	bool bUserLED2;
-	if(m_nLED2 >0)  bUserLED2 = true;
+	if(m_nLED2 >0)  {
+		bUserLED2 = true;
+		nLED2 = m_nLED2+1; // 0-based -> 1-based
+	}
 	else bUserLED2 = false;
 	
 	DlgOpticalInput dlg(frameStep, threshold, this);
 	
-	dlg.setVerticalLine(bLEDLine, bBigHead, bUserLED2, m_nLED2, bVerLine, verLine);
+	dlg.setVerticalLine(bLEDLine, bBigHead, bUserLED2, nLED2, bVerLine, verLine);
 	dlg.setSeriesLine(bEyeMove, bEar, bGrayDiff, bBelly);
 	dlg.setOptions(bOpticalPDF, bOpFlowV1, bSaveFile, bSaveSignalPlot, refSignal);
 	dlg.setYRange(ymin, ymax, ROIEar, ROIBelly, referFrame);
@@ -658,15 +662,15 @@ void MainFrame::inputDialog()
 	if(dlg.ShowModal() !=  wxID_OK) return false;
 	frameStep = dlg.getFrameSteps();
 	threshold = dlg.getThreshold();
-	dlg.getVerticalLine(bLEDLine, bBigHead, bUserLED2, m_nLED2, bVerLine, verLine);
+	dlg.getVerticalLine(bLEDLine, bBigHead, bUserLED2, nLED2, bVerLine, verLine);
 	dlg.getSeriesLine(bEyeMove, bEar, bGrayDiff, bBelly);
 	dlg.getOptions(bOpticalPDF, bOpFlowV1, bSaveFile, bSaveSignalPlot, refSignal);
 	dlg.getYRange(ymin, ymax, ROIEar, ROIBelly, referFrame);
 	dlg.getGain(gainHead, gainBelly, xSD);
-	dlg.Destroy();
+//	dlg.Destroy();
 	
-	if(bUserLED2 && m_nLED2 > 0) {
-		//m_nLED2 = nLED2-1;
+	if(bUserLED2 && nLED2 > 0) {
+		m_nLED2 = nLED2-1;
 		MainFrame::myMsgOutput("User-specified LED2 %d (0-based)\n", m_nLED2);
 	}
 
@@ -696,7 +700,7 @@ void MainFrame::inputDialog()
 	m_configData.m_xSD = xSD;
 	m_configData.m_refSignal = refSignal;
 	
-	
+	return true;
 }
 void MainFrame::OnRatProcess(wxCommandEvent& event)
 {
@@ -734,13 +738,19 @@ void MainFrame::OnRatProcess(wxCommandEvent& event)
 		m_ptBellyCyan.y -= m_nCageLine;	      
     }
 	//bool bRet = m_Rat.processEar(m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR);
-	inputDialog();
+	if(inputDialog()==false)  return;
 	bool bRet = m_Rat.process(m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR, m_ptBellyRed, m_ptBellyCyan, m_nLED2);
 	if(bRet ==false) return;		
 	updateOutData(m_Rat.getResultImg(0));
 	wxBell();	
 	
-   myMsgOutput("-------------------------------------------------\n");	
+	writeMarks();
+	myMsgOutput("-------------------------------------------------\n");	
+
+}
+
+void MainFrame::writeMarks()
+{
 
     wxFileName fileName = m_strSourcePath;
     wxUniChar sep = fileName.GetPathSeparator();
@@ -773,9 +783,8 @@ void MainFrame::OnRatProcess(wxCommandEvent& event)
 		fprintf(fp, "R%d\n", m_configData.m_refSignal);
 		fprintf(fp, "y%f %f %f\n", m_configData.m_ymin, m_configData.m_ymax, m_configData.m_xSD);	
 		fclose(fp);
-	}	
+	}		
 }
-
 void MainFrame::OnRatBelly(wxCommandEvent& event)
 {
 	if(m_dqBellyPts.size()!=2) {

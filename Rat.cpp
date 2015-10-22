@@ -870,9 +870,8 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	MyConfigData  configData;
 	MainFrame::m_pThis->getConfigData(configData);
 	
-	bool bNewOpFlowV1;
 	int  newReferFrame;
-	int  newFrameSteps;
+//	int  newFrameSteps;
 	int frameStep = configData.m_frameStep;	
 	double threshold = configData.m_threshold;
 	bool bLEDLine = configData.m_bLED;
@@ -898,10 +897,15 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	double gainBelly = configData.m_gainBelly;
 	double xSD = configData.m_xSD;
 	int	refSignal = configData.m_refSignal;
-	
+/*	
 	bool bUserLED2;
-	if(nLED2 >0)  bUserLED2 = true;
+	if(nLED2 >0)  {
+		bUserLED2 = true;
+		m_nLED2 = nLED2;
+	}
 	else bUserLED2 = false;
+*/
+	m_nLED2 = nLED2;
 	
 	m_bShowEye = bEyeMove;
 	m_bShowEar = bEar;
@@ -997,15 +1001,15 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	
 	int szVecFlow = m_vecFlow.size();
     if(bOpticalPDF ) {
-        if(newFrameSteps != frameStep || szVecFlow ==0 || m_referFrame != newReferFrame || bNewOpFlowV1 != bOpFlowV1) {
+   //     if(newFrameSteps != frameStep || szVecFlow ==0 || m_referFrame != newReferFrame || bNewOpFlowV1 != bOpFlowV1) {
             if(bOpFlowV1)
-				opticalFlow_v1(newFrameSteps, newReferFrame);
+				opticalFlow_v1(frameStep, newReferFrame);
 			else
 				opticalFlow_v2(newReferFrame);
-        }
+ //       }
     }
-	bOpFlowV1 = bNewOpFlowV1;
-	frameStep = newFrameSteps;
+//	bOpFlowV1 = bNewOpFlowV1;
+//	frameStep = newFrameSteps;
 	m_referFrame = newReferFrame;
     
 	MainFrame:: myMsgOutput("y range [%.2f, %.2f], Ear ROI %d, APB ROI %d, bSave %d\n", ymin, ymax, m_ROIEar, m_ROIBelly, bSaveFile);	

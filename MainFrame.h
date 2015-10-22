@@ -31,7 +31,8 @@ public:
 	inline uchar*	getPixelAddr() { return m_mOut.data; }
 	inline int		getStep() { return m_mOut.step[0]; }
 
-	void	inputDialog();
+	bool	inputDialog();
+	void	writeMarks();
 	void	getConfigData(MyConfigData& data)  { data = m_configData; }
 	void	setConfigData(MyConfigData& data)  { m_configData = data; }
 	
