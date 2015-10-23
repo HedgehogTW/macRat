@@ -897,15 +897,15 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	double gainBelly = configData.m_gainBelly;
 	double xSD = configData.m_xSD;
 	int	refSignal = configData.m_refSignal;
-/*	
+	
 	bool bUserLED2;
 	if(nLED2 >0)  {
 		bUserLED2 = true;
 		m_nLED2 = nLED2;
 	}
 	else bUserLED2 = false;
-*/
-	m_nLED2 = nLED2;
+	MainFrame::myMsgOutput("CRat::process::m_nLED2 %d\n", m_nLED2);
+
 	
 	m_bShowEye = bEyeMove;
 	m_bShowEar = bEar;
@@ -1012,7 +1012,8 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 //	frameStep = newFrameSteps;
 	m_referFrame = newReferFrame;
     
-	MainFrame:: myMsgOutput("y range [%.2f, %.2f], Ear ROI %d, APB ROI %d, bSave %d\n", ymin, ymax, m_ROIEar, m_ROIBelly, bSaveFile);	
+	MainFrame:: myMsgOutput("y range [%.2f, %.2f], Ear ROI %d, APB ROI %d, m_nLED2 %d, bSave %d\n", 
+			ymin, ymax, m_ROIEar, m_ROIBelly, m_nLED2, bSaveFile);	
 	MainFrame:: myMsgOutput("PDF threshold %f, frame steps %d, bOpFlowV1 %d, headGain %.2f, bellyGain %.2f\n", 
 			threshold, frameStep, bOpFlowV1, gainHead, gainBelly);
 	
