@@ -600,7 +600,7 @@ bool MainFrame::preprocessing()
 				str.Printf("detectLED error, LED1 %d, LED2 %d, LED end %d", m_Rat.m_nLED1, m_Rat.m_nLED2, m_Rat.m_nLED_End);
 				wxLogMessage(str);
 				//return false;
-			}else m_nUserLED2= m_Rat.m_nLED2;
+			}else m_nUserLED2= m_Rat.m_nLED2+1;
 		}
 	}
 	if(!m_bHasCrop ) {
@@ -1416,7 +1416,9 @@ void MainFrame::OnBatchProcess(wxCommandEvent& event)
 		myMsgOutput("-------------------------------------------------\n");		
 		wxBell();
 	}
+	waitKey(100); 
 	wxBell();
+	waitKey(100); 
 	wxBell();
-	wxBell();
+
 }
