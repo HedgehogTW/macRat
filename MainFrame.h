@@ -26,7 +26,7 @@ public:
 	virtual ~MainFrame();
 
 	inline int		getNumSlices() { return m_nSlices; }
-	inline cv::Size	    getImgSize()  { return m_szOutImg; }
+	inline cv::Size	getImgSize()  { return m_szOutImg; }
 	inline int		getBpp() { return m_nBpp; }
 	inline uchar*	getPixelAddr() { return m_mOut.data; }
 	inline int		getStep() { return m_mOut.step[0]; }
@@ -53,6 +53,7 @@ public:
 	bool	getCroppedStatus()  { return m_bCutTop; }
 	bool	preprocessing();
 	void 	readMarks(wxString &dirName);
+	void	readDirList(wxArrayString& dataDirs);
 	
 	static void myMsgOutput(wxString szFormat,...) {
 		wxString strMsg;
@@ -127,7 +128,7 @@ protected:
 	CRat	m_Rat;
 	int		m_nSlices ;
 	int		m_nCageLine;
-	int		m_nLED2;
+	int		m_nUserLED2;
 	bool	m_bCutTop;
 	bool	m_bHasCrop;
 ////////////////////////////////mark eyes and ears

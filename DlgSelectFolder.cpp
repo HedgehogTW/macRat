@@ -1,9 +1,10 @@
 #include "DlgSelectFolder.h"
 #include <wx/dirdlg.h> 
 
-DlgSelectFolder::DlgSelectFolder(wxWindow* parent)
+DlgSelectFolder::DlgSelectFolder(wxWindow* parent, wxString& strIniDir)
     : DlgSelectFolderBase(parent)
 {
+	m_strDir = strIniDir;
 }
 
 DlgSelectFolder::~DlgSelectFolder()

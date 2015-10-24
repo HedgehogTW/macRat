@@ -904,7 +904,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 		m_nLED2 = nLED2;
 	}
 	else bUserLED2 = false;
-	MainFrame::myMsgOutput("CRat::process::m_nLED2 %d\n", m_nLED2);
+	MainFrame::myMsgOutput("CRat::process::m_nLED2 %d (0-based)\n", m_nLED2);
 
 	
 	m_bShowEye = bEyeMove;

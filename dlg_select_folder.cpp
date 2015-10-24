@@ -28,7 +28,7 @@ DlgSelectFolderBase::DlgSelectFolderBase(wxWindow* parent, wxWindowID id, const 
     
     m_panel29 = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxTAB_TRAVERSAL);
     
-    boxSizer19->Add(m_panel29, 0, wxALL, 5);
+    boxSizer19->Add(m_panel29, 0, wxALL|wxEXPAND, 5);
     
     wxBoxSizer* boxSizer31 = new wxBoxSizer(wxHORIZONTAL);
     m_panel29->SetSizer(boxSizer31);
@@ -37,16 +37,16 @@ DlgSelectFolderBase::DlgSelectFolderBase(wxWindow* parent, wxWindowID id, const 
     
     boxSizer31->Add(m_staticText33, 0, wxALL, 5);
     
-    m_textCtrlFolder = new wxTextCtrl(m_panel29, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(300,-1), wxTE_RIGHT|wxTE_READONLY);
+    m_textCtrlFolder = new wxTextCtrl(m_panel29, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(350,-1), wxTE_READONLY);
     #if wxVERSION_NUMBER >= 3000
     m_textCtrlFolder->SetHint(wxT(""));
     #endif
     
-    boxSizer31->Add(m_textCtrlFolder, 0, wxALL, 5);
+    boxSizer31->Add(m_textCtrlFolder, 1, wxALL, 5);
     
     m_buttonSelFolder = new wxButton(m_panel29, wxID_ANY, _("Select Folder"), wxDefaultPosition, wxSize(-1,-1), 0);
     
-    boxSizer31->Add(m_buttonSelFolder, 0, wxALL, 5);
+    boxSizer31->Add(m_buttonSelFolder, 0, wxALL|wxEXPAND|wxALIGN_RIGHT, 5);
     
     m_staticLine27 = new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxLI_HORIZONTAL);
     
@@ -64,7 +64,7 @@ DlgSelectFolderBase::DlgSelectFolderBase(wxWindow* parent, wxWindowID id, const 
     m_stdBtnSizer21->Realize();
     
     SetName(wxT("DlgSelectFolderBase"));
-    SetSizeHints(500,300);
+    SetSizeHints(570,300);
     if (GetSizer()) {
          GetSizer()->Fit(this);
     }

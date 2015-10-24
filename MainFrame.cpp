@@ -144,7 +144,7 @@ void MainFrame::DeleteContents()
 	
 	m_nSlices = 0;
 	m_nCageLine = -1;
-	m_nLED2 = -1;
+	m_nUserLED2 = -1;
 	m_bCutTop = false;
 	m_bHasCrop = false;
 	
@@ -283,8 +283,8 @@ void MainFrame::readMarks(wxString &dirName)
 				break;
 			case 'L':
 				n = fscanf(fp, "%d\n", &led2);
-				if(n==1)  m_nLED2 = led2;
-				else m_nLED2 = -1;
+				if(n==1)  m_nUserLED2 = led2;
+				else m_nUserLED2 = -1;
 				//myMsgOutput("L %d\n", led2);
 				break;	
 			case 'G': // head, belly gain, m_xSD
@@ -594,13 +594,13 @@ bool MainFrame::preprocessing()
  
 
 	if(m_bHasCrop ==false) {
-		if(m_nLED2 <0) {
+		if(m_nUserLED2 <0) {
 			if(m_Rat.detectLED(m_nCageLine)==false) {
 				wxString str;
 				str.Printf("detectLED error, LED1 %d, LED2 %d, LED end %d", m_Rat.m_nLED1, m_Rat.m_nLED2, m_Rat.m_nLED_End);
 				wxLogMessage(str);
 				//return false;
-			}
+			}else m_nUserLED2= m_Rat.m_nLED2;
 		}
 	}
 	if(!m_bHasCrop ) {
@@ -645,9 +645,9 @@ bool MainFrame::inputDialog()
 	
 	int nLED2 = -1;
 	bool bUserLED2;
-	if(m_nLED2 >0)  {
+	if(m_nUserLED2 >0)  {
 		bUserLED2 = true;
-		nLED2 = m_nLED2+1; // 0-based -> 1-based
+		nLED2 = m_nUserLED2; // 0-based -> 1-based
 	}
 	else bUserLED2 = false;
 	
@@ -670,8 +670,8 @@ bool MainFrame::inputDialog()
 //	dlg.Destroy();
 	
 	if(bUserLED2 && nLED2 > 0) {
-		m_nLED2 = nLED2-1;
-		MainFrame::myMsgOutput("User-specified LED2 %d (0-based)\n", m_nLED2);
+		m_nUserLED2 = nLED2;
+		MainFrame::myMsgOutput("User-specified LED2 %d (0-based)\n", m_nUserLED2-1);
 	}
 
 	m_configData.m_frameStep = frameStep;	
@@ -739,7 +739,8 @@ void MainFrame::OnRatProcess(wxCommandEvent& event)
     }
 	//bool bRet = m_Rat.processEar(m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR);
 	if(inputDialog()==false)  return;
-	bool bRet = m_Rat.process(m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR, m_ptBellyRed, m_ptBellyCyan, m_nLED2);
+	int nLed2 = m_nUserLED2-1;
+	bool bRet = m_Rat.process(m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR, m_ptBellyRed, m_ptBellyCyan, nLed2);
 	if(bRet ==false) return;		
 	updateOutData(m_Rat.getResultImg(0));
 	wxBell();	
@@ -775,8 +776,8 @@ void MainFrame::writeMarks()
 		}
 		if(m_nCageLine >0)
 			fprintf(fp, "C%d\n", m_nCageLine );
-		if(m_nLED2 >0)
-			fprintf(fp, "L%d\n", m_nLED2 );	
+		if(m_nUserLED2 >0)
+			fprintf(fp, "L%d\n", m_nUserLED2 );	
 
 		fprintf(fp, "G%f %f %f\n", m_configData.m_gainHead, m_configData.m_gainBelly, m_configData.m_xSD);	
 		fprintf(fp, "S%d %d\n", m_configData.m_szROIEar, m_configData.m_szROIBelly);
@@ -1264,7 +1265,7 @@ void MainFrame::OnRatAbdomen(wxCommandEvent& event)
         m_ptBellyRed.y -= m_nCageLine;
 		m_ptBellyCyan.y -= m_nCageLine;	      
     }
-	bool bRet = m_Rat.genReferenceFrameSignal(m_ptBellyRed, m_ptBellyCyan, m_nLED2);
+	bool bRet = m_Rat.genReferenceFrameSignal(m_ptBellyRed, m_ptBellyCyan, m_nUserLED2);
 		
 	wxBell();	
 	
@@ -1290,19 +1291,13 @@ void MainFrame::OnUpdateViewMarks(wxUpdateUIEvent& event)
     
     m_menuItemViewMarks->Check(!m_bViewMarks);
 }
-void MainFrame::OnBatchProcess(wxCommandEvent& event)
-{
-	DlgSelectFolder dlg(this);
-	int ret = dlg.ShowModal();
-	if(ret == wxID_OK) {
-		m_strBatchDir = dlg.m_strDir;
-		myMsgOutput("Batch process dir: " + m_strBatchDir +"\n") ;
-	}else return;
-	
 
+void MainFrame::readDirList(wxArrayString& dataDirs)
+{
 	wxString fileSpec = _T("*");
 	wxArrayString  	topDirs;
 	wxArrayString  	secondDirs;
+
 	
 	wxDir dir(m_strBatchDir);
     
@@ -1315,37 +1310,113 @@ void MainFrame::OnBatchProcess(wxCommandEvent& event)
         topDirs.Add(subDirName);
         cont = dir.GetNext(&dirName);
     }
-	
+	if(dir.HasFiles("*Marks.txt")) {
+		dataDirs = topDirs;
+	}else{	
+		// second level subdir
+		int count = topDirs.GetCount();
+		for(int i=0; i<count; i++) {
+	//        MainFrame::myMsgOutput(topDirs[i]+ "\n");
+			wxDir subdir(topDirs[i]);
+			wxString subName;
+			bool bCont = subdir.GetFirst(&subName, fileSpec, wxDIR_DIRS);
+			while ( bCont ) {
+				
+				wxString secondLevelName = topDirs[i]+ "\\" + subName;
+				secondDirs.Add(secondLevelName);
+				bCont = subdir.GetNext(&subName);
+			}  
+		}
+		dataDirs = secondDirs;
+	}
 
-    // second level subdir
-    int count = topDirs.GetCount();
-    for(int i=0; i<count; i++) {
-//        MainFrame::myMsgOutput(topDirs[i]+ "\n");
-        wxDir subdir(topDirs[i]);
-        wxString subName;
-        bool bCont = subdir.GetFirst(&subName, fileSpec, wxDIR_DIRS);
-
-        while ( bCont ) {
-            wxString secondLevelName = topDirs[i]+ "\\" + subName;
-			secondDirs.Add(secondLevelName);
-            bCont = subdir.GetNext(&subName);
-        }  
-    }
-
-  
-	count = secondDirs.GetCount();
-    for(int i=0; i<count; i++) {
-        MainFrame::myMsgOutput(secondDirs[i]+ "\n");
-		wxFileName fileName = secondDirs[i];
+	//count = secondDirs.GetCount();
+    for(int i=0; i<dataDirs.GetCount(); i++) {
+        MainFrame::myMsgOutput(dataDirs[i]+ "\n");
+		wxFileName fileName = dataDirs[i];
 		wxUniChar sep = fileName.GetPathSeparator();
-		wxString  strParentPath =  secondDirs[i].BeforeLast(sep);
+		wxString  strParentPath =  dataDirs[i].BeforeLast(sep);
 		wxString  markName = "_"+fileName.GetName()+"_Marks.txt";
 		wxFileName fullMarkName(strParentPath, markName);
 		
 		bool bHasFile = wxFileName::Exists(fullMarkName.GetFullPath());
 		if(bHasFile)
 			MainFrame::myMsgOutput(fullMarkName.GetFullPath()+ "\n");
-		else
+		else {
 			MainFrame::myMsgOutput("no file\n");
+			dataDirs.RemoveAt(i);
+			i--;
+		}
+	}	
+}
+void MainFrame::OnBatchProcess(wxCommandEvent& event)
+{
+	static wxString strIniDir="";
+	DlgSelectFolder dlg(this, strIniDir);
+	int ret = dlg.ShowModal();
+	if(ret == wxID_OK) {
+		m_strBatchDir = dlg.m_strDir;
+		strIniDir = dlg.m_strDir;
+		myMsgOutput("Batch process dir: " + m_strBatchDir +"\n") ;
+	}else return;
+	
+	wxArrayString  	dataDirs;
+	readDirList(dataDirs);
+	
+	MyConfigData	oldConfigData;
+	m_configData.Init();
+	readMarks(dataDirs[0]);
+	oldConfigData = m_configData;
+	
+	if(inputDialog()==false)  return;
+	for(int i=0; i<dataDirs.GetCount(); i++) {
+//		wxLogMessage(secondDirs[i]);
+		openFile(dataDirs[i]);	
+		m_configData = oldConfigData;
+		
+		if(m_dqEyePts.size()!=2) {
+			wxMessageBox("Select eye points", "error");
+			return;
+		}
+		if(m_dqEarPts.size()!=2) {
+			wxMessageBox("Select ear points", "error");
+			return;
+		}
+		if(m_dqBellyPts.size()!=2) {
+			wxMessageBox("Select abdomen points", "error");
+			return;
+		}	
+		m_ptEyeL = m_dqEyePts[0];
+		m_ptEyeR = m_dqEyePts[1];
+		m_ptEarL = m_dqEarPts[0];
+		m_ptEarR = m_dqEarPts[1];
+		m_ptBellyRed = m_dqBellyPts[0];
+		m_ptBellyCyan = m_dqBellyPts[1];
+		
+		recognizeLeftRight(m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR);	
+		
+		if(preprocessing()==false)  {
+			//wxLogMessage("preprocessing error");
+			return;
+		}
+		if(m_bCutTop) {
+			m_ptEyeL.y -= m_nCageLine;
+			m_ptEyeR.y -= m_nCageLine;
+			m_ptEarL.y -= m_nCageLine;
+			m_ptEarR.y -= m_nCageLine;	 
+			m_ptBellyRed.y -= m_nCageLine;
+			m_ptBellyCyan.y -= m_nCageLine;	      
+		}
+		//bool bRet = m_Rat.processEar(m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR);
+		int nLed2 = m_nUserLED2-1;
+		bool bRet = m_Rat.process(m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR, m_ptBellyRed, m_ptBellyCyan, nLed2);
+		if(bRet ==false) return;		
+		//updateOutData(m_Rat.getResultImg(0));
+		writeMarks();
+		myMsgOutput("-------------------------------------------------\n");		
+		wxBell();
 	}
+	wxBell();
+	wxBell();
+	wxBell();
 }

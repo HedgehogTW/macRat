@@ -5,7 +5,7 @@
 class DlgSelectFolder : public DlgSelectFolderBase
 {
 public:
-    DlgSelectFolder(wxWindow* parent);
+    DlgSelectFolder(wxWindow* parent, wxString& strIniDir);
     virtual ~DlgSelectFolder();
 	
 	wxString	m_strDir;

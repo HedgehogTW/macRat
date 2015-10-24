@@ -47,7 +47,7 @@ public:
     wxButton* GetButtonSelFolder() { return m_buttonSelFolder; }
     wxPanel* GetPanel29() { return m_panel29; }
     wxStaticLine* GetStaticLine27() { return m_staticLine27; }
-    DlgSelectFolderBase(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Select folder"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(500,300), long style = wxDEFAULT_DIALOG_STYLE);
+    DlgSelectFolderBase(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Select folder"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(570,300), long style = wxDEFAULT_DIALOG_STYLE);
     virtual ~DlgSelectFolderBase();
 };
 
