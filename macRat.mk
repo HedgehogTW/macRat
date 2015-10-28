@@ -13,10 +13,10 @@ CurrentFileName        :=
 CurrentFilePath        :=
 CurrentFileFullPath    :=
 User                   :=cclee
-Date                   :=30/06/2015
+Date                   :=24/10/2015
 CodeLitePath           :="C:\Program Files\CodeLite"
-LinkerName             :=C:/MinGW/x86_64-4.9.2/mingw64/bin/g++.exe
-SharedObjectLinkerName :=C:/MinGW/x86_64-4.9.2/mingw64/bin/g++.exe -shared -fPIC
+LinkerName             :=C:/mingw-w64/x86_64-4.9.3/mingw64/bin/g++.exe
+SharedObjectLinkerName :=C:/mingw-w64/x86_64-4.9.3/mingw64/bin/g++.exe -shared -fPIC
 ObjectSuffix           :=.o
 DependSuffix           :=.o.d
 PreprocessSuffix       :=.i
@@ -36,34 +36,34 @@ ObjectsFileList        :="macRat.txt"
 PCHCompileFlags        :=
 MakeDirCommand         :=makedir
 RcCmpOptions           := $(shell wx-config --rcflags)
-RcCompilerName         :=C:/MinGW/x86_64-4.9.2/mingw64/bin/windres.exe
+RcCompilerName         :=C:/mingw-w64/x86_64-4.9.3/mingw64/bin/windres.exe
 LinkOptions            :=  -mwindows -fopenmp $(shell wx-config --libs --debug)
-IncludePath            :=  $(IncludeSwitch). $(IncludeSwitch). $(IncludeSwitch)C:/GSL/include $(IncludeSwitch)C:/opencv/build/include $(IncludeSwitch)C:/ITK/x64/MinGW/include/ITK-4.7 
+IncludePath            :=  $(IncludeSwitch). $(IncludeSwitch). $(IncludeSwitch)C:/GSL/include $(IncludeSwitch)C:/opencv/build/include 
 IncludePCH             := 
 RcIncludePath          := 
-Libs                   := $(LibrarySwitch)gsl $(LibrarySwitch)gslcblas $(LibrarySwitch)opencv_core2411.dll $(LibrarySwitch)opencv_highgui2411.dll $(LibrarySwitch)opencv_imgproc2411.dll $(LibrarySwitch)opencv_video2411.dll $(LibrarySwitch)itkdouble-conversion-4.7.dll $(LibrarySwitch)itksys-4.7.dll $(LibrarySwitch)itkvnl_algo-4.7.dll $(LibrarySwitch)itkvnl-4.7.dll $(LibrarySwitch)itkv3p_netlib-4.7.dll $(LibrarySwitch)ITKCommon-4.7.dll $(LibrarySwitch)itkNetlibSlatec-4.7.dll $(LibrarySwitch)ITKStatistics-4.7.dll $(LibrarySwitch)ITKIOImageBase-4.7.dll $(LibrarySwitch)ITKIOBMP-4.7.dll $(LibrarySwitch)ITKIOBioRad-4.7.dll $(LibrarySwitch)ITKEXPAT-4.7.dll $(LibrarySwitch)itkopenjpeg-4.7.dll $(LibrarySwitch)itkzlib-4.7.dll $(LibrarySwitch)itkgdcmDICT-4.7.dll $(LibrarySwitch)itkgdcmMSFF-4.7.dll $(LibrarySwitch)ITKIOGDCM-4.7.dll $(LibrarySwitch)ITKIOGIPL-4.7.dll $(LibrarySwitch)itkjpeg-4.7.dll $(LibrarySwitch)ITKIOJPEG-4.7.dll $(LibrarySwitch)itktiff-4.7.dll $(LibrarySwitch)ITKIOTIFF-4.7.dll $(LibrarySwitch)ITKIOLSM-4.7.dll $(LibrarySwitch)ITKMetaIO-4.7.dll $(LibrarySwitch)ITKIOMeta-4.7.dll $(LibrarySwitch)ITKznz-4.7.dll $(LibrarySwitch)ITKniftiio-4.7.dll $(LibrarySwitch)ITKIONIFTI-4.7.dll $(LibrarySwitch)ITKNrrdIO-4.7.dll $(LibrarySwitch)ITKIONRRD-4.7.dll $(LibrarySwitch)itkpng-4.7.dll $(LibrarySwitch)ITKIOPNG-4.7.dll $(LibrarySwitch)ITKIOStimulate-4.7.dll $(LibrarySwitch)ITKIOVTK-4.7.dll $(LibrarySwitch)ITKMesh-4.7.dll $(LibrarySwitch)ITKSpatialObjects-4.7.dll $(LibrarySwitch)ITKPath-4.7.dll $(LibrarySwitch)ITKLabelMap-4.7.dll $(LibrarySwitch)ITKQuadEdgeMesh-4.7.dll $(LibrarySwitch)ITKOptimizers-4.7.dll $(LibrarySwitch)ITKPolynomials-4.7.dll $(LibrarySwitch)ITKBiasCorrection-4.7.dll $(LibrarySwitch)ITKBioCell-4.7.dll $(LibrarySwitch)ITKDICOMParser-4.7.dll $(LibrarySwitch)ITKIOXML-4.7.dll $(LibrarySwitch)ITKIOSpatialObjects-4.7.dll $(LibrarySwitch)ITKFEM-4.7.dll $(LibrarySwitch)ITKgiftiio-4.7.dll $(LibrarySwitch)ITKIOMesh-4.7.dll $(LibrarySwitch)itkhdf5_cpp-4.7.dll $(LibrarySwitch)itkhdf5-4.7.dll $(LibrarySwitch)ITKIOCSV-4.7.dll $(LibrarySwitch)ITKIOIPL-4.7.dll $(LibrarySwitch)ITKIOGE-4.7.dll $(LibrarySwitch)ITKIOSiemens-4.7.dll $(LibrarySwitch)ITKIOHDF5-4.7.dll $(LibrarySwitch)ITKIOTransformBase-4.7.dll $(LibrarySwitch)ITKIOTransformHDF5-4.7.dll $(LibrarySwitch)ITKIOTransformInsightLegacy-4.7.dll $(LibrarySwitch)ITKIOTransformMatlab-4.7.dll $(LibrarySwitch)ITKKLMRegionGrowing-4.7.dll $(LibrarySwitch)ITKVTK-4.7.dll $(LibrarySwitch)ITKWatersheds-4.7.dll $(LibrarySwitch)ITKVideoCore-4.7.dll $(LibrarySwitch)ITKVideoIO-4.7.dll $(LibrarySwitch)itkgdcmIOD-4.7.dll $(LibrarySwitch)itkgdcmCommon-4.7.dll $(LibrarySwitch)itkgdcmjpeg8-4.7.dll $(LibrarySwitch)itkgdcmjpeg12-4.7.dll $(LibrarySwitch)itkgdcmjpeg16-4.7.dll $(LibrarySwitch)ITKVNLInstantiation-4.7.dll $(LibrarySwitch)itkv3p_lsqr-4.7.dll $(LibrarySwitch)itkvcl-4.7.dll 
-ArLibs                 :=  "libgsl.a" "libgslcblas.a" "libopencv_core2411.dll.a" "libopencv_highgui2411.dll.a" "libopencv_imgproc2411.dll.a" "libopencv_video2411.dll.a" "libitkdouble-conversion-4.7.dll.a" "libitksys-4.7.dll.a" "libitkvnl_algo-4.7.dll.a" "libitkvnl-4.7.dll.a" "libitkv3p_netlib-4.7.dll.a" "libITKCommon-4.7.dll.a" "libitkNetlibSlatec-4.7.dll.a" "libITKStatistics-4.7.dll.a" "libITKIOImageBase-4.7.dll.a" "libITKIOBMP-4.7.dll.a" "libITKIOBioRad-4.7.dll.a" "libITKEXPAT-4.7.dll.a" "libitkopenjpeg-4.7.dll.a" "libitkzlib-4.7.dll.a" "libitkgdcmDICT-4.7.dll.a" "libitkgdcmMSFF-4.7.dll.a" "libITKIOGDCM-4.7.dll.a" "libITKIOGIPL-4.7.dll.a" "libitkjpeg-4.7.dll.a" "libITKIOJPEG-4.7.dll.a" "libitktiff-4.7.dll.a" "libITKIOTIFF-4.7.dll.a" "libITKIOLSM-4.7.dll.a" "libITKMetaIO-4.7.dll.a" "libITKIOMeta-4.7.dll.a" "libITKznz-4.7.dll.a" "libITKniftiio-4.7.dll.a" "libITKIONIFTI-4.7.dll.a" "libITKNrrdIO-4.7.dll.a" "libITKIONRRD-4.7.dll.a" "libitkpng-4.7.dll.a" "libITKIOPNG-4.7.dll.a" "libITKIOStimulate-4.7.dll.a" "libITKIOVTK-4.7.dll.a" "libITKMesh-4.7.dll.a" "libITKSpatialObjects-4.7.dll.a" "libITKPath-4.7.dll.a" "libITKLabelMap-4.7.dll.a" "libITKQuadEdgeMesh-4.7.dll.a" "libITKOptimizers-4.7.dll.a" "libITKPolynomials-4.7.dll.a" "libITKBiasCorrection-4.7.dll.a" "libITKBioCell-4.7.dll.a" "libITKDICOMParser-4.7.dll.a" "libITKIOXML-4.7.dll.a" "libITKIOSpatialObjects-4.7.dll.a" "libITKFEM-4.7.dll.a" "libITKgiftiio-4.7.dll.a" "libITKIOMesh-4.7.dll.a" "libitkhdf5_cpp-4.7.dll.a" "libitkhdf5-4.7.dll.a" "libITKIOCSV-4.7.dll.a" "libITKIOIPL-4.7.dll.a" "libITKIOGE-4.7.dll.a" "libITKIOSiemens-4.7.dll.a" "libITKIOHDF5-4.7.dll.a" "libITKIOTransformBase-4.7.dll.a" "libITKIOTransformHDF5-4.7.dll.a" "libITKIOTransformInsightLegacy-4.7.dll.a" "libITKIOTransformMatlab-4.7.dll.a" "libITKKLMRegionGrowing-4.7.dll.a" "libITKVTK-4.7.dll.a" "libITKWatersheds-4.7.dll.a" "libITKVideoCore-4.7.dll.a" "libITKVideoIO-4.7.dll.a" "libitkgdcmIOD-4.7.dll.a" "libitkgdcmCommon-4.7.dll.a" "libitkgdcmjpeg8-4.7.dll.a" "libitkgdcmjpeg12-4.7.dll.a" "libitkgdcmjpeg16-4.7.dll.a" "libITKVNLInstantiation-4.7.dll.a" "libitkv3p_lsqr-4.7.dll.a" "libitkvcl-4.7.dll.a" 
-LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)C:/GSL/x64/lib $(LibraryPathSwitch)C:/opencv/build/x64/mingw/lib $(LibraryPathSwitch)C:/ITK/x64/MinGW/lib 
+Libs                   := $(LibrarySwitch)gsl $(LibrarySwitch)gslcblas $(LibrarySwitch)opencv_core300.dll $(LibrarySwitch)opencv_highgui300.dll $(LibrarySwitch)opencv_imgcodecs300.dll $(LibrarySwitch)opencv_imgproc300.dll $(LibrarySwitch)opencv_video300.dll 
+ArLibs                 :=  "libgsl.a" "libgslcblas.a" "libopencv_core300.dll.a" "libopencv_highgui300.dll.a" "libopencv_imgcodecs300.dll.a" "libopencv_imgproc300.dll.a" "libopencv_video300.dll.a" 
+LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)C:/GSL/x64/lib $(LibraryPathSwitch)C:/opencv/build/x64/mingw/lib 
 
 ##
 ## Common variables
 ## AR, CXX, CC, AS, CXXFLAGS and CFLAGS can be overriden using an environment variables
 ##
-AR       := C:/MinGW/x86_64-4.9.2/mingw64/bin/ar.exe rcu
-CXX      := C:/MinGW/x86_64-4.9.2/mingw64/bin/g++.exe
-CC       := C:/MinGW/x86_64-4.9.2/mingw64/bin/gcc.exe
+AR       := C:/mingw-w64/x86_64-4.9.3/mingw64/bin/ar.exe rcu
+CXX      := C:/mingw-w64/x86_64-4.9.3/mingw64/bin/g++.exe
+CC       := C:/mingw-w64/x86_64-4.9.3/mingw64/bin/gcc.exe
 CXXFLAGS :=  -g -O0 -fpermissive -fopenmp -Wall $(shell wx-config --cflags --debug) -Wno-sign-compare $(Preprocessors)
 CFLAGS   :=  -g -Wall $(Preprocessors)
 ASFLAGS  := 
-AS       := C:/MinGW/x86_64-4.9.2/mingw64/bin/as.exe
+AS       := C:/mingw-w64/x86_64-4.9.3/mingw64/bin/as.exe
 
 
 ##
 ## User defined environment variables
 ##
-CodeLiteDir:=C:\CodeLite
+CodeLiteDir:=C:\Program Files\CodeLite
 Objects0=$(IntermediateDirectory)/main.cpp$(ObjectSuffix) $(IntermediateDirectory)/MainFrame.cpp$(ObjectSuffix) $(IntermediateDirectory)/wxcrafter.cpp$(ObjectSuffix) $(IntermediateDirectory)/wxcrafter_bitmaps.cpp$(ObjectSuffix) $(IntermediateDirectory)/scrolled_image_component.cpp$(ObjectSuffix) $(IntermediateDirectory)/KDE.cpp$(ObjectSuffix) $(IntermediateDirectory)/MyUtil.cpp$(ObjectSuffix) $(IntermediateDirectory)/Rat.cpp$(ObjectSuffix) $(IntermediateDirectory)/BendPoint.cpp$(ObjectSuffix) $(IntermediateDirectory)/gnuplot_i.cpp$(ObjectSuffix) \
-	$(IntermediateDirectory)/win_resources.rc$(ObjectSuffix) $(IntermediateDirectory)/DlgOpticalInput.cpp$(ObjectSuffix) $(IntermediateDirectory)/dlg_optical_macrat_bitmaps.cpp$(ObjectSuffix) $(IntermediateDirectory)/dlg_optical_input_base_macrat_bitmaps.cpp$(ObjectSuffix) $(IntermediateDirectory)/dlg_optical_input_base.cpp$(ObjectSuffix) 
+	$(IntermediateDirectory)/win_resources.rc$(ObjectSuffix) $(IntermediateDirectory)/DlgOpticalInput.cpp$(ObjectSuffix) $(IntermediateDirectory)/DlgSelectFolder.cpp$(ObjectSuffix) $(IntermediateDirectory)/dlg_optical_macrat_bitmaps.cpp$(ObjectSuffix) $(IntermediateDirectory)/dlg_optical_input_base_macrat_bitmaps.cpp$(ObjectSuffix) $(IntermediateDirectory)/dlg_select_folder_macrat_bitmaps.cpp$(ObjectSuffix) $(IntermediateDirectory)/dlg_optical_input_base.cpp$(ObjectSuffix) $(IntermediateDirectory)/dlg_select_folder.cpp$(ObjectSuffix) 
 
 
 
@@ -72,7 +72,7 @@ Objects=$(Objects0)
 ##
 ## Main Build Targets 
 ##
-.PHONY: all clean PreBuild PrePreBuild PostBuild
+.PHONY: all clean PreBuild PrePreBuild PostBuild MakeIntermediateDirs
 all: $(OutputFile)
 
 $(OutputFile): $(IntermediateDirectory)/.d $(Objects) 
@@ -80,6 +80,10 @@ $(OutputFile): $(IntermediateDirectory)/.d $(Objects)
 	@echo "" > $(IntermediateDirectory)/.d
 	@echo $(Objects0)  > $(ObjectsFileList)
 	$(LinkerName) $(OutputSwitch)$(OutputFile) @$(ObjectsFileList) $(LibPath) $(Libs) $(LinkOptions)
+
+MakeIntermediateDirs:
+	@$(MakeDirCommand) "./Debug"
+
 
 $(IntermediateDirectory)/.d:
 	@$(MakeDirCommand) "./Debug"
@@ -180,6 +184,14 @@ $(IntermediateDirectory)/DlgOpticalInput.cpp$(DependSuffix): DlgOpticalInput.cpp
 $(IntermediateDirectory)/DlgOpticalInput.cpp$(PreprocessSuffix): DlgOpticalInput.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/DlgOpticalInput.cpp$(PreprocessSuffix) "DlgOpticalInput.cpp"
 
+$(IntermediateDirectory)/DlgSelectFolder.cpp$(ObjectSuffix): DlgSelectFolder.cpp $(IntermediateDirectory)/DlgSelectFolder.cpp$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Project/macRat/DlgSelectFolder.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/DlgSelectFolder.cpp$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/DlgSelectFolder.cpp$(DependSuffix): DlgSelectFolder.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/DlgSelectFolder.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/DlgSelectFolder.cpp$(DependSuffix) -MM "DlgSelectFolder.cpp"
+
+$(IntermediateDirectory)/DlgSelectFolder.cpp$(PreprocessSuffix): DlgSelectFolder.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/DlgSelectFolder.cpp$(PreprocessSuffix) "DlgSelectFolder.cpp"
+
 $(IntermediateDirectory)/dlg_optical_macrat_bitmaps.cpp$(ObjectSuffix): dlg_optical_macrat_bitmaps.cpp $(IntermediateDirectory)/dlg_optical_macrat_bitmaps.cpp$(DependSuffix)
 	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Project/macRat/dlg_optical_macrat_bitmaps.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/dlg_optical_macrat_bitmaps.cpp$(ObjectSuffix) $(IncludePath)
 $(IntermediateDirectory)/dlg_optical_macrat_bitmaps.cpp$(DependSuffix): dlg_optical_macrat_bitmaps.cpp
@@ -196,6 +208,14 @@ $(IntermediateDirectory)/dlg_optical_input_base_macrat_bitmaps.cpp$(DependSuffix
 $(IntermediateDirectory)/dlg_optical_input_base_macrat_bitmaps.cpp$(PreprocessSuffix): dlg_optical_input_base_macrat_bitmaps.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/dlg_optical_input_base_macrat_bitmaps.cpp$(PreprocessSuffix) "dlg_optical_input_base_macrat_bitmaps.cpp"
 
+$(IntermediateDirectory)/dlg_select_folder_macrat_bitmaps.cpp$(ObjectSuffix): dlg_select_folder_macrat_bitmaps.cpp $(IntermediateDirectory)/dlg_select_folder_macrat_bitmaps.cpp$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Project/macRat/dlg_select_folder_macrat_bitmaps.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/dlg_select_folder_macrat_bitmaps.cpp$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/dlg_select_folder_macrat_bitmaps.cpp$(DependSuffix): dlg_select_folder_macrat_bitmaps.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/dlg_select_folder_macrat_bitmaps.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/dlg_select_folder_macrat_bitmaps.cpp$(DependSuffix) -MM "dlg_select_folder_macrat_bitmaps.cpp"
+
+$(IntermediateDirectory)/dlg_select_folder_macrat_bitmaps.cpp$(PreprocessSuffix): dlg_select_folder_macrat_bitmaps.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/dlg_select_folder_macrat_bitmaps.cpp$(PreprocessSuffix) "dlg_select_folder_macrat_bitmaps.cpp"
+
 $(IntermediateDirectory)/dlg_optical_input_base.cpp$(ObjectSuffix): dlg_optical_input_base.cpp $(IntermediateDirectory)/dlg_optical_input_base.cpp$(DependSuffix)
 	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Project/macRat/dlg_optical_input_base.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/dlg_optical_input_base.cpp$(ObjectSuffix) $(IncludePath)
 $(IntermediateDirectory)/dlg_optical_input_base.cpp$(DependSuffix): dlg_optical_input_base.cpp
@@ -203,6 +223,14 @@ $(IntermediateDirectory)/dlg_optical_input_base.cpp$(DependSuffix): dlg_optical_
 
 $(IntermediateDirectory)/dlg_optical_input_base.cpp$(PreprocessSuffix): dlg_optical_input_base.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/dlg_optical_input_base.cpp$(PreprocessSuffix) "dlg_optical_input_base.cpp"
+
+$(IntermediateDirectory)/dlg_select_folder.cpp$(ObjectSuffix): dlg_select_folder.cpp $(IntermediateDirectory)/dlg_select_folder.cpp$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Project/macRat/dlg_select_folder.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/dlg_select_folder.cpp$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/dlg_select_folder.cpp$(DependSuffix): dlg_select_folder.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/dlg_select_folder.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/dlg_select_folder.cpp$(DependSuffix) -MM "dlg_select_folder.cpp"
+
+$(IntermediateDirectory)/dlg_select_folder.cpp$(PreprocessSuffix): dlg_select_folder.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/dlg_select_folder.cpp$(PreprocessSuffix) "dlg_select_folder.cpp"
 
 
 -include $(IntermediateDirectory)/*$(DependSuffix)

@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeLite_Project Name="macRat" InternalType="GUI">
+  <Plugins>
+    <Plugin Name="qmake">
+      <![CDATA[00010001N0005Debug000000000000]]>
+    </Plugin>
+    <Plugin Name="CMakePlugin">
+      <![CDATA[[{
+  "name": "Debug",
+  "enabled": false,
+  "buildDirectory": "build",
+  "sourceDirectory": "$(ProjectPath)",
+  "generator": "",
+  "buildType": "",
+  "arguments": [],
+  "parentProject": ""
+ }]]]>
+    </Plugin>
+  </Plugins>
+  <Description/>
+  <Dependencies/>
+  <VirtualDirectory Name="src">
+    <File Name="main.cpp"/>
+    <File Name="MainFrame.cpp"/>
+    <File Name="wxcrafter.cpp"/>
+    <File Name="wxcrafter_bitmaps.cpp"/>
+    <File Name="scrolled_image_component.h"/>
+    <File Name="scrolled_image_component.cpp"/>
+    <File Name="KDE.cpp"/>
+    <File Name="MyUtil.cpp"/>
+    <File Name="Rat.cpp"/>
+    <File Name="BendPoint.cpp"/>
+    <File Name="gnuplot_i.cpp"/>
+  </VirtualDirectory>
+  <VirtualDirectory Name="include">
+    <File Name="MainFrame.h"/>
+    <File Name="wxcrafter.h"/>
+    <File Name="KDE.h"/>
+    <File Name="MyUtil.h"/>
+    <File Name="Rat.h"/>
+    <File Name="BendPoint.h"/>
+    <File Name="gnuplot_i.h"/>
+  </VirtualDirectory>
+  <VirtualDirectory Name="resources">
+    <File Name="wxcrafter.wxcp"/>
+    <File Name="win_resources.rc"/>
+    <File Name="DlgOpticalInput.h"/>
+    <File Name="DlgOpticalInput.cpp"/>
+    <File Name="DlgSelectFolder.h"/>
+    <File Name="DlgSelectFolder.cpp"/>
+  </VirtualDirectory>
+  <VirtualDirectory Name="wxcrafter">
+    <VirtualDirectory Name="resources">
+      <File Name="dlg_optical_macrat_bitmaps.cpp"/>
+      <File Name="dlg_optical_input_base_macrat_bitmaps.cpp"/>
+      <File Name="dlg_select_folder_macrat_bitmaps.cpp"/>
+    </VirtualDirectory>
+    <VirtualDirectory Name="base">
+      <File Name="dlg_optical_input_base.h"/>
+      <File Name="dlg_optical_input_base.cpp"/>
+      <File Name="dlg_select_folder.h"/>
+      <File Name="dlg_select_folder.cpp"/>
+    </VirtualDirectory>
+    <File Name="dlg_optical_input_base.wxcp"/>
+    <File Name="dlg_select_folder.wxcp"/>
+  </VirtualDirectory>
+  <Settings Type="Executable">
+    <GlobalSettings>
+      <Compiler Options="" C_Options="" Assembler="">
+        <IncludePath Value="."/>
+      </Compiler>
+      <Linker Options="">
+        <LibraryPath Value="."/>
+      </Linker>
+      <ResourceCompiler Options=""/>
+    </GlobalSettings>
+    <Configuration Name="Debug" CompilerType="GCC" DebuggerType="LLDB Debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
+      <Compiler Options="-g;$(shell /usr/local/bin/wx-config --cflags --debug);-Wno-sign-compare" C_Options="-g;-Wall" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
+        <IncludePath Value="."/>
+        <IncludePath Value="/usr/local/include"/>
+      </Compiler>
+      <Linker Options="$(shell /usr/local/bin/wx-config --libs --debug)" Required="yes">
+        <LibraryPath Value="/usr/local/lib"/>
+        <Library Value="libgsl.dylib"/>
+        <Library Value="libgslcblas.dylib"/>
+        <Library Value="libopencv_core.dylib"/>
+        <Library Value="libopencv_video.dylib"/>
+        <Library Value="libopencv_highgui.dylib"/>
+        <Library Value="libopencv_imgproc.dylib"/>
+        <Library Value="libopencv_imgcodecs.dylib"/>
+      </Linker>
+      <ResourceCompiler Options="$(shell /usr/local/bin/wx-config --rcflags)" Required="no"/>
+      <General OutputFile="$(IntermediateDirectory)/$(ProjectName)" IntermediateDirectory="./Debug" Command="./$(ProjectName)" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="no" IsGUIProgram="yes" IsEnabled="yes"/>
+      <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
+        <![CDATA[]]>
+      </Environment>
+      <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="" IsExtended="no">
+        <DebuggerSearchPaths/>
+        <PostConnectCommands/>
+        <StartupCommands/>
+      </Debugger>
+      <PreBuild/>
+      <PostBuild/>
+      <CustomBuild Enabled="no">
+        <RebuildCommand/>
+        <CleanCommand/>
+        <BuildCommand/>
+        <PreprocessFileCommand/>
+        <SingleFileCommand/>
+        <MakefileGenerationCommand/>
+        <ThirdPartyToolName>None</ThirdPartyToolName>
+        <WorkingDirectory/>
+      </CustomBuild>
+      <AdditionalRules>
+        <CustomPostBuild/>
+        <CustomPreBuild/>
+      </AdditionalRules>
+      <Completion EnableCpp11="no" EnableCpp14="no">
+        <ClangCmpFlagsC/>
+        <ClangCmpFlags/>
+        <ClangPP/>
+        <SearchPaths/>
+      </Completion>
+    </Configuration>
+    <Configuration Name="Release" CompilerType="gnu g++" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
+      <Compiler Options="-O2;-Wall;$(shell wx-config --cflags)" C_Options="-O2;-Wall" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
+        <IncludePath Value="."/>
+        <Preprocessor Value="NDEBUG"/>
+      </Compiler>
+      <Linker Options="$(shell wx-config --libs);-mwindows" Required="yes"/>
+      <ResourceCompiler Options="$(shell wx-config --rcflags)" Required="no"/>
+      <General OutputFile="$(IntermediateDirectory)/$(ProjectName)" IntermediateDirectory="./Release" Command="./$(ProjectName)" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="no" IsGUIProgram="no" IsEnabled="yes"/>
+      <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
+        <![CDATA[]]>
+      </Environment>
+      <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="" IsExtended="no">
+        <DebuggerSearchPaths/>
+        <PostConnectCommands/>
+        <StartupCommands/>
+      </Debugger>
+      <PreBuild/>
+      <PostBuild/>
+      <CustomBuild Enabled="no">
+        <RebuildCommand/>
+        <CleanCommand/>
+        <BuildCommand/>
+        <PreprocessFileCommand/>
+        <SingleFileCommand/>
+        <MakefileGenerationCommand/>
+        <ThirdPartyToolName>None</ThirdPartyToolName>
+        <WorkingDirectory/>
+      </CustomBuild>
+      <AdditionalRules>
+        <CustomPostBuild/>
+        <CustomPreBuild/>
+      </AdditionalRules>
+      <Completion EnableCpp11="no" EnableCpp14="no">
+        <ClangCmpFlagsC/>
+        <ClangCmpFlags/>
+        <ClangPP/>
+        <SearchPaths/>
+      </Completion>
+    </Configuration>
+  </Settings>
+</CodeLite_Project>
