@@ -484,6 +484,21 @@ int CRat::isRedSignificant(vector<float>& vecRed, vector<float>& vecCyan)
 
     return bBigRed;
 }
+
+cv::Point CRat::findMostSignificantPt(deque<cv::Point>&  dqBellyPts, int nLed2)
+{
+	vector <float>  vecRedGrayDiff;
+	vector <float>  vecCyanGrayDiff;
+	vector <float>  vecBellyGray;	
+	
+	int ref = 50;
+	graylevelDiff(ref, m_rectRed, m_rectCyan, vecRedGrayDiff, vecCyanGrayDiff);
+    
+	Notch_removal(vecCyanGrayDiff, ref);
+	Notch_removal(vecRedGrayDiff, ref);	
+	bool bBigRedGray = isRedSignificant(vecRedGrayDiff, vecCyanGrayDiff);	
+}
+
 void CRat::computeEyeMaskCenter(Point& ptNewMaskCenter, bool bBigHead)
 {
 	Point ptEyeCenter;

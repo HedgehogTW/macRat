@@ -1149,6 +1149,7 @@ void MainFrame::OnMouseLButtonDown(wxMouseEvent& event)
 	}else if(m_bMarkBelly) {
 		Point ptEar = Point(pt.x, pt.y);
 		m_dqBellyPts.push_back(ptEar);
+		
 		int sz = m_dqBellyPts.size();
         if(sz>2)  {	
             m_dqBellyPts.pop_front();
@@ -1164,6 +1165,7 @@ void MainFrame::OnMouseLButtonDown(wxMouseEvent& event)
                 if(m_bCutTop)  m_ptBellyCyan.y -= m_nCageLine;
             }
         }
+		 
 	}else if(m_bMarkCageline) {
 		m_nCageLine = pt.y;
 		myMsgOutput("cage line %d\n", m_nCageLine);
@@ -1173,6 +1175,8 @@ void MainFrame::OnMouseLButtonDown(wxMouseEvent& event)
 }
 void MainFrame::OnMouseRButtonDown(wxMouseEvent& event)
 {
+//	m_dqBellyPts.clear();
+//	Refresh(); 
 }
 void MainFrame::OnToolsCleanOutput(wxCommandEvent& event)
 {

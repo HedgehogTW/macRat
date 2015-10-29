@@ -96,21 +96,23 @@ void ScrolledImageComponent::OnDraw(wxDC& dc)
 		dc.DrawCircle(ptEarL.x, ptEarL.y, 3);
 		dc.DrawCircle(ptEarR.x, ptEarR.y, 3);
 	}	
-   /* 	
-    int minusCage;
-    deque <Point> vecPts;
-    MainFrame::m_pThis->getBellyPts(vecPts, minusCage);
-    dc.SetTextForeground(wxColour(0, 0, 139));
-    for(int i=0; i<vecPts.size(); i++) {
-        wxRect rect(vecPts[i].x, vecPts[i].y-minusCage, 7, 5);
-        wxString str;
-        str.Printf("%d", i);
-        dc.DrawLabel(str, rect);
- 		dc.SetPen(*wxRED_PEN);
-		dc.SetBrush(*wxRED_BRUSH);
-		dc.DrawCircle(vecPts[i].x, vecPts[i].y-minusCage, 2);	       
-    }
-*/
+
+/*
+	deque<cv::Point>& dqBellyPts =  MainFrame::m_pThis->getBellyPts();
+	int sz = dqBellyPts.size();
+	if(sz > 1) {
+		wxPoint * pBellyPts = new wxPoint[sz];
+		for(int i=0; i<sz; i++) {
+			pBellyPts[i].x = dqBellyPts[i].x;
+			pBellyPts[i].y = dqBellyPts[i].y;
+		}
+		dc.SetPen(*wxCYAN_PEN);
+		dc.SetBrush(*wxTRANSPARENT_BRUSH);
+		dc.DrawPolygon(sz, pBellyPts);
+		delete [] pBellyPts;
+	
+	}
+*/	
     Point 	ptBellyRed, ptBellyCyan;
 	int bigRedPdf = MainFrame::m_pThis->getBellyPts(ptBellyRed, ptBellyCyan);
 	if(ptBellyRed.x != 0 ) {
@@ -125,6 +127,7 @@ void ScrolledImageComponent::OnDraw(wxDC& dc)
             dc.DrawCircle(ptBellyCyan.x, ptBellyCyan.y, 2);
         }
 	}	
+	 
 	//MainFrame:: myMsgOutput("ptBellyBo y %d\n", ptBellyBo.y);
 }
 

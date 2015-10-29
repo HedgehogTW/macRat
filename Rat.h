@@ -124,7 +124,8 @@ public:
 //	void	graylevelDiff_Eye(int refer, Point ptEar, Point offset, vector <Point>& vecEye, vector <float>& vecEarGrayDiff);
 	void 	graylevelDiff(int refer, cv::Rect rectEarL, cv::Rect rectEarR, vector <float>& vLEarGray,  vector <float>& vREarGray);
 	void	pointGraylevel(cv::Point ptBellyRed, cv::Point ptBellyCyan, vector <float>& vecRedPoint, vector <float>& vecCyanPoint);
-	int    isRedSignificant(vector<float>& vecRed, vector<float>& vecCyan);
+	int     isRedSignificant(vector<float>& vecRed, vector<float>& vecCyan);
+	cv::Point findMostSignificantPt(deque<cv::Point>&  dqBellyPts, int nLed2);
     
 	void 	imageDiff(vector<cv::Mat>& vecDiff, vector <float>& vecAdjDiff, int nFrameSteps);
 	void 	saveEarROI(int stable, int motion, cv::Point& pt, cv::Point	offset);
