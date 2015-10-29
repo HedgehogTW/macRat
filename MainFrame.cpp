@@ -597,7 +597,7 @@ bool MainFrame::preprocessing()
 		if(m_nUserLED2 <0) {
 			if(m_Rat.detectLED(m_nCageLine)==false) {
 				wxString str;
-				str.Printf("detectLED error, LED1 %d, LED2 %d, LED end %d", m_Rat.m_nLED1, m_Rat.m_nLED2, m_Rat.m_nLED_End);
+				str.Printf("detectLED error (1-based), LED1 %d, LED2 %d, LED end %d", m_Rat.m_nLED1+1, m_Rat.m_nLED2, m_Rat.m_nLED_End+1);
 				wxLogMessage(str);
 				//return false;
 			}else m_nUserLED2= m_Rat.m_nLED2+1;
