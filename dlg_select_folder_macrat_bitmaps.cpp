@@ -29,7 +29,7 @@ static unsigned char xml_res_file_0[] = {
 47,47,119,119,119,46,119,120,119,105,100,103,101,116,115,46,111,114,103,
 47,119,120,120,114,99,34,47,62,10};
 
-void wxC3A76InitBitmapResources()
+void wxCEF84InitBitmapResources()
 {
 
     // Check for memory FS. If not present, load the handler:
@@ -42,6 +42,6 @@ void wxC3A76InitBitmapResources()
         else wxFileSystem::AddHandler(new wxMemoryFSHandlerBase);
     }
 
-    XRC_ADD_FILE(wxT("XRC_resource/dlg_optical_input_base_macrat_bitmaps.cpp$_Users_CCLee_Project_macRat_dlg_optical_input_base_macrat_bitmaps.xrc"), xml_res_file_0, xml_res_size_0, wxT("text/xml"));
-    wxXmlResource::Get()->Load(wxT("memory:XRC_resource/dlg_optical_input_base_macrat_bitmaps.cpp$_Users_CCLee_Project_macRat_dlg_optical_input_base_macrat_bitmaps.xrc"));
+    XRC_ADD_FILE(wxT("XRC_resource/dlg_select_folder_macrat_bitmaps.cpp$D__Project_macRat_dlg_select_folder_macrat_bitmaps.xrc"), xml_res_file_0, xml_res_size_0, wxT("text/xml"));
+    wxXmlResource::Get()->Load(wxT("memory:XRC_resource/dlg_select_folder_macrat_bitmaps.cpp$D__Project_macRat_dlg_select_folder_macrat_bitmaps.xrc"));
 }

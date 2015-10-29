@@ -15,7 +15,7 @@ CKDE::CKDE(double pdf[], double output[], int nBin)
 	m_offset = 0;
 
 	double min = DBL_MAX;
-	double max = 0;
+	double max = DBL_MIN;
 	for(int i=0; i<nBin; i++) {
 		if(pdf[i] < min)  min = pdf[i];
 		if(pdf[i] > max)  max = pdf[i];

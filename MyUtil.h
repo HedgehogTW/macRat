@@ -11,6 +11,8 @@
 #include "gnuplot_i.h"
 #include "Rat.h"
 
+//#include "itkImportImageFilter.h"
+
 using namespace cv;
 using namespace std;
 
@@ -25,8 +27,9 @@ using namespace std;
                          ((x) >= (z) ? (x) : (z)))
 						 
 void _gnuplotInit(Gnuplot& gnuPlot, const char* title, double ymin=0, double ymax=0);
-void _gnuplotVerticalLine(Gnuplot& gnuPlot, int x, const char* dataName="");
-void _gnuplotLED(Gnuplot& gnuPlot, int nBeginLight, int nTwoLight);
+void _gnuplotVerticalLine(Gnuplot& gnuPlot, float x, const char* color="", const char* dataName="");
+void _gnuplotHoriLine(Gnuplot& gnuPlot, float x, float y, const char* color="", const char* dashtype="", const char* dataName="");
+void _gnuplotLED(Gnuplot& gnuPlot, int LED1, int LED2);
 
 template<typename X>
 void _gnuplotLine(Gnuplot& gnuPlot, const char* titleName, X& data, const char* color="", const char* dashtype="")
@@ -41,20 +44,45 @@ void _gnuplotLine(Gnuplot& gnuPlot, const char* titleName, X& data, const char* 
 }
 
 template<typename X, typename Y>
-void _gnuplotPoint(Gnuplot& gnuPlot, const char* dataName, const X& dataX, const Y& dataY)
+void _gnuplotLineXY(Gnuplot& gnuPlot, const X& x, const Y& y, const char* color="", const char* titleName="")
 {
-//	Gnuplot gnuPlot("lines");
-	if (dataX.size() <= 0) {
+	if (x.size() <= 0) {
 		wxMessageBox("gnuplotShow:: no data", "Error");
 		return;
 	}	
-	gnuPlot.set_style("points").plot_xy(dataX, dataY, dataName);
+
+	gnuPlot.set_style("lines").plot_xy(x, y, 1, color, titleName);
+}
+template<typename X, typename Y>
+void _gnuplotSteps(Gnuplot& gnuPlot, const X& x, const Y& y, const char* color="", const char* titleName="")
+{
+	if (x.size() <= 0) {
+		wxMessageBox("gnuplotShow:: no data", "Error");
+		return;
+	}	
+
+	gnuPlot.set_style("steps").plot_xy(x, y, 1, color, titleName);
+}
+template<typename X>
+void _gnuplotPoint(Gnuplot& gnuPlot, const X& pts, const char* color="", const char* titleName="")
+{
+	if (pts.size() <= 0) {
+		wxMessageBox("gnuplotShow:: no data", "Error");
+		return;
+	}	
+	int sz = pts.size();
+	vector<float> x(sz);
+	vector<float> y(sz);
+	for(int i=0; i<pts.size(); i++) {
+		x[i] = pts[i].x;
+		y[i] = pts[i].y;
+	}
+	gnuPlot.set_style("points").plot_xy(x, y, 1, color, titleName);
 }
 
-
-void	_scalingTraining(Mat& mTrainData);
-void	_scalingData(Mat& mData, vector<Vec2d>& scalePara);
-void	_scalingLoadPara(vector<Vec2d>& scalePara);
+void	_scalingTraining(cv::Mat& mTrainData);
+void	_scalingData(cv::Mat& mData, vector<cv::Vec2d>& scalePara);
+void	_scalingLoadPara(vector<cv::Vec2d>& scalePara);
 
 template<typename X>
 void _OutputVecPoints(X &vecPoints, const char *filename, bool bhasComma)
@@ -75,12 +103,29 @@ void _OutputVecPoints(X &vecPoints, const char *filename, bool bhasComma)
 	fout.close(); 
 }
 
+template<typename X>
+void _OutputVec(X &vec, const char *filename)
+{
+
+    ofstream fout(filename); 
+    if(!fout) { 
+		wxMessageOutputMessageBox().Printf(_T("cannot create output file"));
+		return;
+    } 
+
+	int sz = vec.size();
+	for(int i=0; i<sz; i++) {
+		fout << vec[i] << endl;
+	}
+	fout.close(); 
+}
+
 void _redirectStandardOutputToFile ( string filePath, bool toPromptAlso );
 void _OutputMat(cv::Mat m, const char *filename, bool bhasComma=true);
 void _OutputBinaryMat(cv::Mat m, char *filename);
 void _OutputMatPoint2f(cv::Mat m, const char *filename, bool bAppend=false);
 //void _OutputVecPoints(vector <Point> &vecPoints, const char *filename, bool bhasComma=true);
-void _OutputMatGnuplotBinData(cv::Mat m, const char *filename);
+void _OutputMatGnuplotBinData(cv::Mat m, const char *filename, int low, int high);
 void _rgbMat2hsvMat(cv::Mat &mRGB, cv::Mat &mHSV, bool plus360);
 void rgb2hsv(uchar r, uchar g, uchar b, float &h, float &s, float &v, bool plus360);
 

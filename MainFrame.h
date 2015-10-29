@@ -5,8 +5,8 @@
 #include <wx/filehistory.h>
 
 #include <deque>
-#include "itkMetaImageIO.h"
-#include "itkImageFileReader.h"
+//#include "itkMetaImageIO.h"
+//#include "itkImageFileReader.h"
 
 #include <vector>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -14,7 +14,7 @@
 #include "Rat.h"
 
 using namespace std;
-using namespace cv;
+//using namespace cv;
 
 #define PALETTE_SIZE 256
  
@@ -26,30 +26,34 @@ public:
 	virtual ~MainFrame();
 
 	inline int		getNumSlices() { return m_nSlices; }
-	inline Size	    getImgSize()  { return m_szOutImg; }
+	inline cv::Size	getImgSize()  { return m_szOutImg; }
 	inline int		getBpp() { return m_nBpp; }
 	inline uchar*	getPixelAddr() { return m_mOut.data; }
 	inline int		getStep() { return m_mOut.step[0]; }
 
+	bool	inputDialog();
+	void	writeMarks();
 	void	getConfigData(MyConfigData& data)  { data = m_configData; }
 	void	setConfigData(MyConfigData& data)  { m_configData = data; }
 	
-	void	updateOutData(Mat& mOut);
-	Mat &   getCurrentMat(int idx) { return m_Rat.getSrcImg(idx); }
-	Mat &   getResultMat(int idx) { return m_Rat.getResultImg(idx); }
+	void	updateOutData(cv::Mat& mOut);
+	cv::Mat &   getCurrentMat(int idx) { return m_Rat.getSrcImg(idx); }
+	cv::Mat &   getResultMat(int idx) { return m_Rat.getResultImg(idx); }
 //	Mat &   getFlowMat(int idx) { return m_Rat.getFlowImg(idx); }
 	int		getCageHeight() { return m_Rat.m_nCageLine; }
 
-	void	recognizeLeftRight(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR);
+	void	recognizeLeftRight(cv::Point& ptEyeL, cv::Point& ptEyeR, cv::Point& ptEarL, cv::Point& ptEarR);
 	
-	void 	getEyePts(Point& eyeL, Point& eyeR) { eyeL = m_ptEyeL; eyeR = m_ptEyeR; }
-	void 	getEarPts(Point& earL, Point& earR) { earL = m_ptEarL; earR = m_ptEarR;}
-	void 	getAbdoPts(Point& abRed, Point& abCyan) { abRed = m_ptAbdoRed; abCyan = m_ptAbdoCyan;}
-	
+	void 	getEyePts(cv::Point& eyeL, cv::Point& eyeR) { eyeL = m_ptEyeL; eyeR = m_ptEyeR; }
+	void 	getEarPts(cv::Point& earL, cv::Point& earR) { earL = m_ptEarL; earR = m_ptEarR;}
+	int 	getBellyPts(cv::Point& abRed, cv::Point& abCyan) { abRed = m_ptBellyRed; abCyan = m_ptBellyCyan; return m_Rat.m_BigRedPdf; }
+	bool    isViewMarks() { return m_bViewMarks; };
+    
 	int		getCageline() { return m_nCageLine; }
 	bool	getCroppedStatus()  { return m_bCutTop; }
 	bool	preprocessing();
 	void 	readMarks(wxString &dirName);
+	void	readDirList(wxArrayString& dataDirs);
 	
 	static void myMsgOutput(wxString szFormat,...) {
 		wxString strMsg;
@@ -71,12 +75,17 @@ public:
 	
 	
 protected:
+    virtual void OnBatchProcess(wxCommandEvent& event);
+    virtual void OnRatProcess(wxCommandEvent& event);
+    virtual void OnUpdateViewMarks(wxUpdateUIEvent& event);
+    virtual void OnViewMarks(wxCommandEvent& event);
+    virtual void OnRatAbdomen(wxCommandEvent& event);
+    virtual void OnToolsCleanOutput(wxCommandEvent& event);
     virtual void OnMouseLButtonDown(wxMouseEvent& event);
     virtual void OnMouseRButtonDown(wxMouseEvent& event);
-    virtual void OnRatProcessEar(wxCommandEvent& event);
     virtual void OnMarkCageline(wxCommandEvent& event);
-    virtual void OnRatAbdomen(wxCommandEvent& event);
-    virtual void OnMarkAbdomen(wxCommandEvent& event);
+    virtual void OnRatBelly(wxCommandEvent& event);
+    virtual void OnMarkBelly(wxCommandEvent& event);
     virtual void OnViewFolderImage(wxCommandEvent& event);
     virtual void OnView2DData(wxCommandEvent& event);
     virtual void OnView3DData(wxCommandEvent& event);
@@ -102,33 +111,41 @@ protected:
 
 ///////////////////// config
 	MyConfigData	m_configData;
+	wxLog* 			m_logger;
+	wxLog*			m_old_logger;
+	FILE* 			m_fpLog;
 
-
+	wxString		m_strBatchDir;
 //////////////// Rat
 //	RGBQUAD	m_Palette[PALETTE_SIZE];
 	wxString m_strSourcePath;
-	Mat		m_mOut;
+	cv::Mat		m_mOut;
 	int		m_nBpp;
 	int		m_nChannel;
 	int		m_nDepth;
-	Size	m_szOriSize;
-	Size	m_szOutImg;
+	cv::Size	m_szOriSize;
+	cv::Size	m_szOutImg;
 	CRat	m_Rat;
 	int		m_nSlices ;
 	int		m_nCageLine;
+	int		m_nUserLED2;
 	bool	m_bCutTop;
 	bool	m_bHasCrop;
 ////////////////////////////////mark eyes and ears
 	bool    m_bMarkEye;
 	bool    m_bMarkEar;
-	bool    m_bMarkAbdomen;
+	bool    m_bMarkBelly;
 	bool    m_bMarkCageline;
+    bool    m_bViewMarks;
 	
-	deque<Point>  m_dqEyePts;
-	deque<Point>  m_dqEarPts;
-	deque<Point>  m_dqAbdoPts;
-	Point 	m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR;
-	Point 	m_ptAbdoRed, m_ptAbdoCyan;
+//	double	m_gainHead;
+//	double	m_gainBelly;
+	
+	deque<cv::Point>  m_dqEyePts;
+	deque<cv::Point>  m_dqEarPts;
+	deque<cv::Point>  m_dqBellyPts;
+	cv::Point 	m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR;
+	cv::Point 	m_ptBellyRed, m_ptBellyCyan;
 
 
 };

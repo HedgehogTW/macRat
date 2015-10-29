@@ -70,7 +70,9 @@ class Gnuplot
 private:
 
 		double 	m_yMin;
-		double  m_yMax;
+		double  	m_yMax;
+		double 	m_xMin;
+		double  	m_xMax;		
     //----------------------------------------------------------------------------------
     // member data
 	///\brief pointer to the stream that can be used to write to the pipe
@@ -149,6 +151,7 @@ private:
 
     public:
 		inline void getYRange(double &ymin, double &ymax) { ymin = m_yMin; ymax = m_yMax; }
+		inline void getXRange(double &xmin, double &xmax) { xmin = m_xMin; xmax = m_xMax; }
 		// ----------------------------------------------------------------------------
         /// \brief optional function: set Gnuplot path manual
         /// attention:  for windows: path with slash '/' not backslash '\'
@@ -488,10 +491,16 @@ private:
     Gnuplot& plotfile_xy(const std::string &filename,
                          const unsigned int column_x = 1,
                          const unsigned int column_y = 2,
-                         const std::string &title = "");
+							const unsigned int width = 1,
+							const std::string &color="",
+                         const std::string &title = "",
+						    const std::string &dashtype="");
     ///   from data
     template<typename X, typename Y>
-    Gnuplot& plot_xy(const X& x, const Y& y, const std::string &title = "");
+    Gnuplot& plot_xy(const X& x, const Y& y, const unsigned int width=1, 
+								const std::string &color="",
+								const std::string &title = "",
+								const std::string &dashtype="");
 
 
     /// plot x,y pairs with dy errorbars: x y dy
@@ -520,6 +529,24 @@ private:
                       const Y &y,
                       const Z &z,
                       const std::string &title = "");
+
+
+    /// plot x,y pairs: x y
+    ///   from file
+    Gnuplot& plotfile_Boxxyerrorbars(const std::string &filename,
+                         const unsigned int column_x = 1,
+                         const unsigned int column_y = 2,
+                         const unsigned int column_xlow = 3,
+                         const unsigned int column_xhigh = 4,
+                         const unsigned int column_ylow = 5,
+                         const unsigned int column_yhigh = 6,						 
+							const std::string &color="",
+                         const std::string &title = "");
+    ///   from data
+    template<typename X>
+    Gnuplot& plot_Boxxyerrorbars(const X& x, const X& y, const X& xlow, const X& xhigh, const X& ylow, const X& yhigh, 
+				const std::string &color="",const std::string &title = "");
+
 
 
 
@@ -601,7 +628,9 @@ Gnuplot& Gnuplot::plot_x(const X& x, const std::string &title, const std::string
         throw GnuplotException("std::vector too small");
         return *this;
     }
-
+	m_xMin = x[0];
+	m_xMax = x[x.size()-1];
+	
     std::ofstream tmp;
     std::string name = create_tmpfile(tmp);
     if (name == "")
@@ -622,5 +651,83 @@ Gnuplot& Gnuplot::plot_x(const X& x, const std::string &title, const std::string
     return *this;
 }
 
+  
+//------------------------------------------------------------------------------
+//
+/// Plots a 2d graph from a list of doubles: x y
+//
+template<typename X, typename Y>
+Gnuplot& Gnuplot::plot_xy(const X& x, const Y& y, const unsigned int width, const std::string &color, 
+		const std::string &title, const std::string &dashtype)
+{
+    if (x.size() == 0 || y.size() == 0)
+    {
+        throw GnuplotException("std::vectors too small");
+        return *this;
+    }
 
+    if (x.size() != y.size())
+    {
+        throw GnuplotException("Length of the std::vectors differs");
+        return *this;
+    }
+	m_xMin = x[0];
+	m_xMax = x[x.size()-1];
+
+    std::ofstream tmp;
+    std::string name = create_tmpfile(tmp);
+    if (name == "")
+        return *this;
+
+    //
+    // write the data to file
+    //
+    for (unsigned int i = 0; i < x.size(); i++)
+        tmp << x[i] << " " << y[i] << std::endl;
+
+    tmp.flush();
+    tmp.close();
+
+
+    plotfile_xy(name, 1, 2, width, color, title, dashtype);
+
+    return *this;
+}
+
+template<typename X>
+Gnuplot& Gnuplot::plot_Boxxyerrorbars(const X& x, const X& y, const X& xlow, const X& xhigh, const X& ylow, const X& yhigh, 
+				const std::string &color,const std::string &title)
+{
+    if (x.size() == 0 || y.size() == 0)
+    {
+        throw GnuplotException("std::vectors too small");
+        return *this;
+    }
+
+    if (x.size() != y.size())
+    {
+        throw GnuplotException("Length of the std::vectors differs");
+        return *this;
+    }
+
+
+    std::ofstream tmp;
+    std::string name = create_tmpfile(tmp);
+    if (name == "")
+        return *this;
+
+    //
+    // write the data to file
+    //
+    for (unsigned int i = 0; i < x.size(); i++)
+        tmp << x[i] << " " << y[i] << " " << xlow[i]<< " " << xhigh[i]<< " " << ylow[i]<< " " << yhigh[i]<< std::endl;
+
+    tmp.flush();
+    tmp.close();
+
+
+    plotfile_Boxxyerrorbars(name, 1, 2, 3, 4, 5, 6, color, title);
+
+    return *this;				
+}
 #endif

@@ -63,20 +63,27 @@ MainFrameBaseClass::MainFrameBaseClass(wxWindow* parent, wxWindowID id, const wx
     m_menuItemView3D = new wxMenuItem(m_menuView, wxID_ANY, _("Show 3D data"), wxT(""), wxITEM_NORMAL);
     m_menuView->Append(m_menuItemView3D);
     
+    m_menuItemViewMarks = new wxMenuItem(m_menuView, wxID_VIEW_MARK, _("View Marks"), wxT(""), wxITEM_CHECK);
+    m_menuView->Append(m_menuItemViewMarks);
+    m_menuItemViewMarks->Check();
+    
     m_menuRat = new wxMenu();
     m_menuBar->Append(m_menuRat, _("Rat"));
     
-    m_menuItemProcess = new wxMenuItem(m_menuRat, wxID_RAT_PROCESS, _("Ear Process"), wxT(""), wxITEM_NORMAL);
+    m_menuItemProcess = new wxMenuItem(m_menuRat, wxID_RAT_PROCESS, _("Process"), wxT(""), wxITEM_NORMAL);
     m_menuRat->Append(m_menuItemProcess);
     
-    m_menuItemAbdomen = new wxMenuItem(m_menuRat, wxID_RAT_ABDOMEN, _("Abdomen"), wxT(""), wxITEM_NORMAL);
+    m_menuItemAbdomen = new wxMenuItem(m_menuRat, wxID_RAT_ABDOMEN, _("Ref. Frame Signal"), wxT(""), wxITEM_NORMAL);
     m_menuRat->Append(m_menuItemAbdomen);
     
-    m_menuItemShowResults = new wxMenuItem(m_menuRat, wxID_SHOW_RESULT, _("Show Results"), wxT(""), wxITEM_NORMAL);
-    m_menuRat->Append(m_menuItemShowResults);
+    m_menuItemBatch = new wxMenuItem(m_menuRat, wxID_ANY, _("Batch Process"), wxT(""), wxITEM_NORMAL);
+    m_menuRat->Append(m_menuItemBatch);
     
-    m_menuItemLoadResult = new wxMenuItem(m_menuRat, wxID_LOAD_RESULT, _("Load Result"), wxT(""), wxITEM_NORMAL);
-    m_menuRat->Append(m_menuItemLoadResult);
+    m_menuTools = new wxMenu();
+    m_menuBar->Append(m_menuTools, _("Tools"));
+    
+    m_menuItemCleanOutput = new wxMenuItem(m_menuTools, wxID_ANY, _("Clean output folders"), wxT(""), wxITEM_NORMAL);
+    m_menuTools->Append(m_menuItemCleanOutput);
     
     m_nameHelp = new wxMenu();
     m_menuBar->Append(m_nameHelp, _("Help"));
@@ -119,6 +126,13 @@ MainFrameBaseClass::MainFrameBaseClass(wxWindow* parent, wxWindowID id, const wx
     
     m_auibar31->AddTool(wxID_EDIT_CLEAR_MARKS, _("Clear Marks"), wxXmlResource::Get()->LoadBitmap(wxT("ERASE01")), wxNullBitmap, wxITEM_NORMAL, _("Clear Marks"), wxT(""), NULL);
     
+    m_bmpToggleBtnViewMark = new wxBitmapToggleButton(m_auibar31, wxID_VIEW_MARK, wxXmlResource::Get()->LoadBitmap(wxT("mark")), wxDefaultPosition, wxSize(40,-1), 0);
+    m_bmpToggleBtnViewMark->SetToolTip(_("View Marks"));
+    m_bmpToggleBtnViewMark->SetValue(true);
+    m_auibar31->AddControl(m_bmpToggleBtnViewMark);
+    
+    m_auibar31->AddSeparator();
+    
     m_bmpToggleBtnMarkCageLine = new wxBitmapToggleButton(m_auibar31, wxID_ANY, wxXmlResource::Get()->LoadBitmap(wxT("cage")), wxDefaultPosition, wxSize(-1,-1), wxBU_EXACTFIT);
     m_bmpToggleBtnMarkCageLine->SetToolTip(_("Mark cage line"));
     m_bmpToggleBtnMarkCageLine->SetValue(false);
@@ -134,32 +148,38 @@ MainFrameBaseClass::MainFrameBaseClass(wxWindow* parent, wxWindowID id, const wx
     m_bmpToggleBtnMarkEars->SetValue(false);
     m_auibar31->AddControl(m_bmpToggleBtnMarkEars);
     
-    m_bmpToggleBtnMarkAbdo = new wxBitmapToggleButton(m_auibar31, wxID_RAT_MARK_ABDO, wxXmlResource::Get()->LoadBitmap(wxT("mark_APB")), wxDefaultPosition, wxSize(-1,-1), wxBU_EXACTFIT);
-    m_bmpToggleBtnMarkAbdo->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT));
-    m_bmpToggleBtnMarkAbdo->SetToolTip(_("Mark Abdomen"));
-    m_bmpToggleBtnMarkAbdo->SetValue(false);
-    m_auibar31->AddControl(m_bmpToggleBtnMarkAbdo);
+    m_bmpToggleBtnMarkBelly = new wxBitmapToggleButton(m_auibar31, wxID_RAT_MARK_BELLY, wxXmlResource::Get()->LoadBitmap(wxT("mark_APB")), wxDefaultPosition, wxSize(-1,-1), wxBU_EXACTFIT);
+    m_bmpToggleBtnMarkBelly->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT));
+    m_bmpToggleBtnMarkBelly->SetToolTip(_("Mark Belly"));
+    m_bmpToggleBtnMarkBelly->SetValue(false);
+    m_auibar31->AddControl(m_bmpToggleBtnMarkBelly);
     
     m_auibar31->AddSeparator();
     
-    m_auibar31->AddTool(wxID_RAT_PROCESS, _("Ear Process"), wxXmlResource::Get()->LoadBitmap(wxT("Mouse")), wxNullBitmap, wxITEM_NORMAL, _("Ear Process"), wxT(""), NULL);
-    
-    m_auibar31->AddTool(wxID_RAT_ABDOMEN, _("Abdomen"), wxXmlResource::Get()->LoadBitmap(wxT("rat_APB")), wxNullBitmap, wxITEM_NORMAL, wxT(""), wxT(""), NULL);
-    
-    m_auibar31->AddTool(wxID_SHOW_RESULT, _("Show Result"), wxXmlResource::Get()->LoadBitmap(wxT("result")), wxNullBitmap, wxITEM_NORMAL, _("Show Result"), wxT(""), NULL);
-    
-    m_auibar31->AddTool(wxID_LOAD_RESULT, _("Load Result"), wxXmlResource::Get()->LoadBitmap(wxT("Picts Folder")), wxNullBitmap, wxITEM_NORMAL, _("Load Result"), wxT(""), NULL);
+    m_auibar31->AddTool(wxID_RAT_PROCESS, _("Process"), wxXmlResource::Get()->LoadBitmap(wxT("Mouse")), wxNullBitmap, wxITEM_NORMAL, _("Process"), wxT(""), NULL);
     m_auibar31->Realize();
     
     m_statusBar = new wxStatusBar(this, wxID_ANY, wxSTB_DEFAULT_STYLE);
     m_statusBar->SetFieldsCount(1);
     this->SetStatusBar(m_statusBar);
     
-    SetSizeHints(700,500);
-    if ( GetSizer() ) {
+    SetName(wxT("MainFrameBaseClass"));
+    SetSizeHints(550,500);
+    if (GetSizer()) {
          GetSizer()->Fit(this);
     }
-    Centre(wxBOTH);
+    if(GetParent()) {
+        CentreOnParent(wxBOTH);
+    } else {
+        CentreOnScreen(wxBOTH);
+    }
+#if wxVERSION_NUMBER >= 2900
+    if(!wxPersistenceManager::Get().Find(this)) {
+        wxPersistenceManager::Get().RegisterAndRestore(this);
+    } else {
+        wxPersistenceManager::Get().Restore(this);
+    }
+#endif
     // Connect events
     this->Connect(m_menuItemOpen->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnFileOpen), NULL, this);
     this->Connect(m_menuItem7->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnExit), NULL, this);
@@ -173,19 +193,23 @@ MainFrameBaseClass::MainFrameBaseClass(wxWindow* parent, wxWindowID id, const wx
     this->Connect(m_menuItemViewFolderImage->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnViewFolderImage), NULL, this);
     this->Connect(m_menuItemView2D->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnView2DData), NULL, this);
     this->Connect(m_menuItemView3D->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnView3DData), NULL, this);
-    this->Connect(m_menuItemProcess->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnRatProcessEar), NULL, this);
+    this->Connect(m_menuItemViewMarks->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnViewMarks), NULL, this);
+    this->Connect(m_menuItemViewMarks->GetId(), wxEVT_UPDATE_UI, wxUpdateUIEventHandler(MainFrameBaseClass::OnUpdateViewMarks), NULL, this);
+    this->Connect(m_menuItemProcess->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnRatProcess), NULL, this);
     this->Connect(m_menuItemAbdomen->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnRatAbdomen), NULL, this);
-    this->Connect(m_menuItemShowResults->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnRatShowResults), NULL, this);
-    this->Connect(m_menuItemLoadResult->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnRatLoadResult), NULL, this);
+    this->Connect(m_menuItemBatch->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnBatchProcess), NULL, this);
+    this->Connect(m_menuItemCleanOutput->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnToolsCleanOutput), NULL, this);
     this->Connect(m_menuItem9->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnAbout), NULL, this);
     m_scrollWin->Connect(wxEVT_MOTION, wxMouseEventHandler(MainFrameBaseClass::OnMouseMotion), NULL, this);
     m_scrollWin->Connect(wxEVT_LEFT_DOWN, wxMouseEventHandler(MainFrameBaseClass::OnMouseLButtonDown), NULL, this);
     m_scrollWin->Connect(wxEVT_RIGHT_DOWN, wxMouseEventHandler(MainFrameBaseClass::OnMouseRButtonDown), NULL, this);
     this->Connect(wxID_OPEN, wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(MainFrameBaseClass::OnFileOpen), NULL, this);
+    m_bmpToggleBtnViewMark->Connect(wxEVT_COMMAND_TOGGLEBUTTON_CLICKED, wxCommandEventHandler(MainFrameBaseClass::OnViewMarks), NULL, this);
+    m_bmpToggleBtnViewMark->Connect(wxEVT_UPDATE_UI, wxUpdateUIEventHandler(MainFrameBaseClass::OnUpdateViewMarks), NULL, this);
     m_bmpToggleBtnMarkCageLine->Connect(wxEVT_COMMAND_TOGGLEBUTTON_CLICKED, wxCommandEventHandler(MainFrameBaseClass::OnMarkCageline), NULL, this);
     m_bmpToggleBtnMarkEyes->Connect(wxEVT_COMMAND_TOGGLEBUTTON_CLICKED, wxCommandEventHandler(MainFrameBaseClass::OnMarkEyes), NULL, this);
     m_bmpToggleBtnMarkEars->Connect(wxEVT_COMMAND_TOGGLEBUTTON_CLICKED, wxCommandEventHandler(MainFrameBaseClass::OnMarkEars), NULL, this);
-    m_bmpToggleBtnMarkAbdo->Connect(wxEVT_COMMAND_TOGGLEBUTTON_CLICKED, wxCommandEventHandler(MainFrameBaseClass::OnMarkAbdomen), NULL, this);
+    m_bmpToggleBtnMarkBelly->Connect(wxEVT_COMMAND_TOGGLEBUTTON_CLICKED, wxCommandEventHandler(MainFrameBaseClass::OnMarkBelly), NULL, this);
     
 }
 
@@ -203,19 +227,23 @@ MainFrameBaseClass::~MainFrameBaseClass()
     this->Disconnect(m_menuItemViewFolderImage->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnViewFolderImage), NULL, this);
     this->Disconnect(m_menuItemView2D->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnView2DData), NULL, this);
     this->Disconnect(m_menuItemView3D->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnView3DData), NULL, this);
-    this->Disconnect(m_menuItemProcess->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnRatProcessEar), NULL, this);
+    this->Disconnect(m_menuItemViewMarks->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnViewMarks), NULL, this);
+    this->Disconnect(m_menuItemViewMarks->GetId(), wxEVT_UPDATE_UI, wxUpdateUIEventHandler(MainFrameBaseClass::OnUpdateViewMarks), NULL, this);
+    this->Disconnect(m_menuItemProcess->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnRatProcess), NULL, this);
     this->Disconnect(m_menuItemAbdomen->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnRatAbdomen), NULL, this);
-    this->Disconnect(m_menuItemShowResults->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnRatShowResults), NULL, this);
-    this->Disconnect(m_menuItemLoadResult->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnRatLoadResult), NULL, this);
+    this->Disconnect(m_menuItemBatch->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnBatchProcess), NULL, this);
+    this->Disconnect(m_menuItemCleanOutput->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnToolsCleanOutput), NULL, this);
     this->Disconnect(m_menuItem9->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnAbout), NULL, this);
     m_scrollWin->Disconnect(wxEVT_MOTION, wxMouseEventHandler(MainFrameBaseClass::OnMouseMotion), NULL, this);
     m_scrollWin->Disconnect(wxEVT_LEFT_DOWN, wxMouseEventHandler(MainFrameBaseClass::OnMouseLButtonDown), NULL, this);
     m_scrollWin->Disconnect(wxEVT_RIGHT_DOWN, wxMouseEventHandler(MainFrameBaseClass::OnMouseRButtonDown), NULL, this);
     this->Disconnect(wxID_OPEN, wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(MainFrameBaseClass::OnFileOpen), NULL, this);
+    m_bmpToggleBtnViewMark->Disconnect(wxEVT_COMMAND_TOGGLEBUTTON_CLICKED, wxCommandEventHandler(MainFrameBaseClass::OnViewMarks), NULL, this);
+    m_bmpToggleBtnViewMark->Disconnect(wxEVT_UPDATE_UI, wxUpdateUIEventHandler(MainFrameBaseClass::OnUpdateViewMarks), NULL, this);
     m_bmpToggleBtnMarkCageLine->Disconnect(wxEVT_COMMAND_TOGGLEBUTTON_CLICKED, wxCommandEventHandler(MainFrameBaseClass::OnMarkCageline), NULL, this);
     m_bmpToggleBtnMarkEyes->Disconnect(wxEVT_COMMAND_TOGGLEBUTTON_CLICKED, wxCommandEventHandler(MainFrameBaseClass::OnMarkEyes), NULL, this);
     m_bmpToggleBtnMarkEars->Disconnect(wxEVT_COMMAND_TOGGLEBUTTON_CLICKED, wxCommandEventHandler(MainFrameBaseClass::OnMarkEars), NULL, this);
-    m_bmpToggleBtnMarkAbdo->Disconnect(wxEVT_COMMAND_TOGGLEBUTTON_CLICKED, wxCommandEventHandler(MainFrameBaseClass::OnMarkAbdomen), NULL, this);
+    m_bmpToggleBtnMarkBelly->Disconnect(wxEVT_COMMAND_TOGGLEBUTTON_CLICKED, wxCommandEventHandler(MainFrameBaseClass::OnMarkBelly), NULL, this);
     
     m_auimgr11->UnInit();
     delete m_auimgr11;

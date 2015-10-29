@@ -8,16 +8,18 @@ public:
     DlgOpticalInput(long nFrameSteps, double threshold, wxWindow* parent);
     virtual ~DlgOpticalInput();
 	
-	void setVerticalLine(bool bLED, bool bRefLine, bool bPinna, bool bVerLine, double x=0);
-	void setSeriesLine(bool bEyeMove, bool bGrayDiff, bool bAdjDiff, bool bOptical, bool bOpticalPDF, bool bAccumulate);
-	void setYRange(double min, double max, long szROI, long referFrame);
-	void setGain(double gainEye, double gainPDF);
+	void setVerticalLine(bool bLED, bool bBigHead, bool bUserLED2, int nLED2, bool bVerLine, double x=0);
+	void setSeriesLine(bool bEyeMove, bool bEar, bool bGrayDiff, bool bBelly);
+	void setOptions(bool bOpticalPDF, bool bOpFlowV1, bool bSave, bool bSaveSignalPlot, int refSignal);
+	void setYRange(double min, double max, long szROIEar, long szROIBelly, long referFrame);
+	void setGain(double gainHead, double gainBelly, double xSD);
 	
-	void getVerticalLine(bool& bLED, bool& bRefLine, bool& bPinna, bool& bVerLine, double& x);
-	void getSeriesLine(bool& bEyeMove, bool& bGrayDiff, bool& bAdjDiff, bool& bOptical, bool& bOpticalPDF, bool& bAccumulate);
-	void getYRange(double& min, double& max, long& szROI, long& referFrame);
+	void getVerticalLine(bool& bLED, bool& bBigHead, bool& bUserLED2, int& nLED2, bool& bVerLine, double& x);
+	void getSeriesLine(bool& bEyeMove, bool& bEar, bool& bGrayDiff, bool& bBelly);
+	void getOptions(bool& bOpticalPDF, bool& bOpFlowV1, bool& bSave, bool& bSaveSignalPlot, int& refSignal);
+	void getYRange(double& min, double& max, long& szROIEar, long& szROIBelly, long& referFrame);
 	
-	void getGain(double& gainEye, double &gainPDF);
+	void getGain(double& gainHead, double &gainBelly, double &xSD);
 	
 	double getThreshold() { 
 		wxString  str = m_textCtrlThreshold->GetValue();
@@ -32,5 +34,7 @@ public:
 		str.ToLong(&value);
 		return value;
 	}	
+protected:
+    virtual void OnGenRefFrame(wxCommandEvent& event);
 };
 #endif // DLGOPTICALINPUT_H

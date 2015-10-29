@@ -11,25 +11,23 @@
 void _gnuplotInit(Gnuplot& gnuPlot, const char* title, double ymin, double ymax)
 {
 	gnuPlot.reset_all();
+//	gnuPlot.cmd("set termoption noenhanced");
 	gnuPlot.set_title(title);
 	gnuPlot.set_grid();	
 	
 	if(ymin!=0 || ymax!=0) {
 		gnuPlot.set_yrange(ymin, ymax);
-	}else gnuPlot.set_yrange(_MIN_Y, _MAX_Y);
+	}//else gnuPlot.set_yrange(_MIN_Y, _MAX_Y);
 
 }
-void _gnuplotLED(Gnuplot& gnuPlot, int nBeginLight, int nTwoLight)
+void _gnuplotLED(Gnuplot& gnuPlot, int LED1, int LED2)
 {
-	if (nBeginLight > 0 && nTwoLight>0) {
-		_gnuplotVerticalLine(gnuPlot, nBeginLight);
-		_gnuplotVerticalLine(gnuPlot, nTwoLight);
-	}	
-
+	if (LED1 > 0) _gnuplotVerticalLine(gnuPlot, LED1);
+	if (LED2 > 0)	_gnuplotVerticalLine(gnuPlot, LED2);
 }
 
 
-void _gnuplotVerticalLine(Gnuplot& gnuPlot, int x, const char* dataName)
+void _gnuplotVerticalLine(Gnuplot& gnuPlot, float x, const char* color, const char* dataName)
 {
 	if (x > 0) {
 		double ymin, ymax;
@@ -41,10 +39,25 @@ void _gnuplotVerticalLine(Gnuplot& gnuPlot, int x, const char* dataName)
 		vecx.push_back(x);
 		vecy.push_back(ymax);
 		vecx.push_back(x);	
-		gnuPlot.set_style("lines").plot_xy(vecx, vecy, dataName);
+		gnuPlot.set_style("lines").plot_xy(vecx, vecy, 1, color, dataName);
 	}	
 }
 
+void _gnuplotHoriLine(Gnuplot& gnuPlot, float x, float y, const char* color, const char* dashtype, const char* dataName)
+{
+
+//	double xmin, xmax;
+//	gnuPlot.getXRange(xmin, xmax);
+	
+	std::vector<double> vecx;
+	std::vector<double> vecy;
+	vecy.push_back(y);
+	vecx.push_back(0);
+	vecy.push_back(y);
+	vecx.push_back(x);	
+	gnuPlot.set_style("lines").plot_xy(vecx, vecy, 1, color, dataName, dashtype);
+	
+}
 
 ///////////////////////////////
 SortByKey_STL SortByKey_STL::instance = SortByKey_STL();
@@ -283,7 +296,7 @@ int fwrite_matrix( FILE *fout, cv::Mat &m, int xsize, int ysize, float *rt, floa
     return (1);
 }
 
-void _OutputMatGnuplotBinData(cv::Mat m, const char *filename)
+void _OutputMatGnuplotBinData(cv::Mat m, const char *filename, int low, int high)
 {
 	int channel, depth;
 
@@ -309,10 +322,10 @@ void _OutputMatGnuplotBinData(cv::Mat m, const char *filename)
 	float xmin, xmax;
 	float ymin, ymax;
 	
-	xmin = -20;
-	xmax = 20;
-	ymin = -20;
-	ymax = 20;	
+	xmin = low;
+	xmax = high;
+	ymin = low;
+	ymax = high;	
 	
    	xsize = (xmax - xmin) ;
 	ysize = (ymax - ymin) ;

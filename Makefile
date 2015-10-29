@@ -1,8 +1,8 @@
 .PHONY: clean All
 
 All:
-	@echo "----------Building project:[ Vienna - Debug ]----------"
-	@$(MAKE) -f  "Vienna.mk"
+	@echo "----------Building project:[ macRat - Debug ]----------"
+	@"$(MAKE)" -f  "macRat.mk"
 clean:
-	@echo "----------Cleaning project:[ Vienna - Debug ]----------"
-	@$(MAKE) -f  "Vienna.mk" clean
+	@echo "----------Cleaning project:[ macRat - Debug ]----------"
+	@"$(MAKE)" -f  "macRat.mk" clean

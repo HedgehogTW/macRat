@@ -73,7 +73,7 @@ Gnuplot::Gnuplot(const std::vector<double> &x,
     set_xlabel(labelx);
     set_ylabel(labely);
 
-    plot_xy(x,y,title);
+    plot_xy(x,y, 1, title);
 }
 
 
@@ -102,46 +102,6 @@ Gnuplot::Gnuplot(const std::vector<double> &x,
 }
 
 
-  
-//------------------------------------------------------------------------------
-//
-/// Plots a 2d graph from a list of doubles: x y
-//
-template<typename X, typename Y>
-Gnuplot& Gnuplot::plot_xy(const X& x, const Y& y, const std::string &title)
-{
-    if (x.size() == 0 || y.size() == 0)
-    {
-        throw GnuplotException("std::vectors too small");
-        return *this;
-    }
-
-    if (x.size() != y.size())
-    {
-        throw GnuplotException("Length of the std::vectors differs");
-        return *this;
-    }
-
-
-    std::ofstream tmp;
-    std::string name = create_tmpfile(tmp);
-    if (name == "")
-        return *this;
-
-    //
-    // write the data to file
-    //
-    for (unsigned int i = 0; i < x.size(); i++)
-        tmp << x[i] << " " << y[i] << std::endl;
-
-    tmp.flush();
-    tmp.close();
-
-
-    plotfile_xy(name, 1, 2, title);
-
-    return *this;
-}
 
 ///-----------------------------------------------------------------------------
 ///
@@ -359,7 +319,7 @@ Gnuplot& Gnuplot::reset_plot()
 //
 Gnuplot& Gnuplot::reset_all()
 {
-  remove_tmpfiles();
+	remove_tmpfiles();
 
     nplots = 0;
     cmd("reset");
@@ -636,6 +596,9 @@ Gnuplot& Gnuplot::set_zlabel(const std::string &label)
 Gnuplot& Gnuplot::set_xrange(const double iFrom,
                              const double iTo)
 {
+	m_xMin = iFrom;
+	m_xMax = iTo;
+	
     std::ostringstream cmdstr;
 
     cmdstr << "set xrange[" << iFrom << ":" << iTo << "]";
@@ -851,7 +814,10 @@ Gnuplot& Gnuplot::plotfile_x(const std::string &filename,
 Gnuplot& Gnuplot::plotfile_xy(const std::string &filename,
                               const unsigned int column_x,
                               const unsigned int column_y,
-                              const std::string &title)
+								 const unsigned int width,
+								 const std::string &color,
+                              const std::string &title,
+							 const std::string &dashtype)
 {
     //
     // check if file exists
@@ -876,10 +842,15 @@ Gnuplot& Gnuplot::plotfile_xy(const std::string &filename,
         cmdstr << " title \"" << title << "\" ";
 
     if(smooth == "")
-        cmdstr << "with " << pstyle;
+        cmdstr << "with " << pstyle<< " linewidth " << width;
     else
         cmdstr << "smooth " << smooth;
-
+		
+    if(color != "")
+        cmdstr << " linecolor " << "\"" << color << "\"";
+		
+	if(dashtype != "")
+        cmdstr << " dt " << "\"" << dashtype << "\"";	
     //
     // Do the actual plot
     //
@@ -971,8 +942,50 @@ Gnuplot& Gnuplot::plotfile_xyz(const std::string &filename,
     return *this;
 }
 
+Gnuplot& Gnuplot::plotfile_Boxxyerrorbars(const std::string &filename,
+                         const unsigned int column_x ,
+                         const unsigned int column_y ,
+                         const unsigned int column_xlow ,
+                         const unsigned int column_xhigh,
+                         const unsigned int column_ylow,
+                         const unsigned int column_yhigh,						 
+							const std::string &color,
+                         const std::string &title)
+{
+    //
+    // check if file exists
+    //
+    file_available(filename);
 
+	std::ostringstream cmdstr1;
+    cmdstr1 << "set style fill solid 1.0";
+    cmd(cmdstr1.str());
+	
+    std::ostringstream cmdstr;
+    //
+    // command to be sent to gnuplot
+    //
+    if (nplots > 0  &&  two_dim == false)
+        cmdstr << "replot ";
+    else
+        cmdstr << "plot ";
 
+    cmdstr << "\"" << filename << "\" using " << column_x << ":" << column_y 
+           << ":" << column_xlow  << ":" << column_xhigh << ":" << column_ylow  << ":" << column_yhigh;
+
+    if (title == "")
+        cmdstr << " notitle with boxxyerrorbars";
+    else
+        cmdstr << " title \"" << title << "\" with boxxyerrorbars";
+
+cmdstr << " linecolor " << "\"" << color << "\"";
+    //
+    // Do the actual plot
+    //
+    cmd(cmdstr.str());
+
+    return *this;
+}
 //------------------------------------------------------------------------------
 //
 /// *  note that this function is not valid for versions of GNUPlot below 4.2

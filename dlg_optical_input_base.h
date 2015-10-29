@@ -4,8 +4,8 @@
 // Do not modify this file by hand!
 //////////////////////////////////////////////////////////////////////
 
-#ifndef DLG_OPTICAL_INPUT_BASE_BASE_CLASSES_H
-#define DLG_OPTICAL_INPUT_BASE_BASE_CLASSES_H
+#ifndef MACRAT_DLG_OPTICAL_INPUT_BASE_BASE_CLASSES_H
+#define MACRAT_DLG_OPTICAL_INPUT_BASE_BASE_CLASSES_H
 
 #include <wx/settings.h>
 #include <wx/xrc/xmlres.h>
@@ -15,30 +15,43 @@
 #include <wx/artprov.h>
 #include <wx/sizer.h>
 #include <wx/panel.h>
-#include <wx/gbsizer.h>
+#include <wx/statbox.h>
 #include <wx/checkbox.h>
-#include <wx/statline.h>
-#include <wx/radiobut.h>
-#include <wx/stattext.h>
 #include <wx/textctrl.h>
+#include <wx/gbsizer.h>
+#include <wx/stattext.h>
+#include <wx/radiobut.h>
+#include <wx/statline.h>
 #include <wx/button.h>
+#if wxVERSION_NUMBER >= 2900
+#include <wx/persist.h>
+#include <wx/persist/toplevel.h>
+#include <wx/persist/bookctrl.h>
+#include <wx/persist/treebook.h>
+#endif
 
 class DlgOpticalInputBase : public wxDialog
 {
 protected:
-    wxPanel* m_panel80;
+    wxPanel* m_panel163;
     wxCheckBox* m_checkBoxLED;
-    wxCheckBox* m_checkBoxRef;
-    wxCheckBox* m_checkBoxPinna;
+    wxCheckBox* m_checkBoxVerLine;
+    wxTextCtrl* m_textCtrlVerLine;
     wxCheckBox* m_checkBoxEyeMove;
-    wxCheckBox* m_checkBoxGrayDiff;
-    wxCheckBox* m_checkBoxAdjDiff;
-    wxStaticLine* m_staticLine86;
-    wxCheckBox* m_checkBoxOptical;
+    wxCheckBox* m_checkBoxEar;
+    wxCheckBox* m_checkBoxBelly;
+    wxCheckBox* m_checkBoxBigHead;
+    wxCheckBox* m_checkBoxLED2;
+    wxTextCtrl* m_textCtrlLED2;
+    wxPanel* m_panel171;
     wxCheckBox* m_checkBoxOpticalPDF;
-    wxRadioButton* m_radioButtonInstan;
-    wxRadioButton* m_radioButtonAccumu;
-    wxStaticLine* m_staticLine84;
+    wxCheckBox* m_checkBoxGrayDiff;
+    wxStaticText* m_staticText181;
+    wxRadioButton* m_radioOpV1;
+    wxRadioButton* m_radioOpV2;
+    wxCheckBox* m_checkBoxSaveFlow;
+    wxCheckBox* m_checkBoxSaveSignalPlot;
+    wxStaticLine* m_staticLine781;
     wxPanel* m_panel38;
     wxStaticText* m_staticText718;
     wxTextCtrl* m_textCtrlFrameSteps;
@@ -46,32 +59,83 @@ protected:
     wxStaticText* m_staticText1923;
     wxTextCtrl* m_textCtrlThreshold;
     wxStaticText* m_staticText132;
-    wxTextCtrl* m_textCtrlEyeGain;
+    wxTextCtrl* m_textCtrlHeadGain;
     wxStaticText* m_staticText136;
-    wxTextCtrl* m_textCtrlPDFGain;
+    wxTextCtrl* m_textCtrlBellyGain;
     wxStaticLine* m_staticLine78;
-    wxPanel* m_panel96;
+    wxPanel* m_panel187;
     wxStaticText* m_staticText100;
     wxTextCtrl* m_textCtrlYmin;
     wxStaticText* m_staticText104;
     wxTextCtrl* m_textCtrlYmax;
-    wxPanel* m_panel116;
     wxStaticText* m_staticText124;
-    wxTextCtrl* m_textCtrlROISize;
+    wxTextCtrl* m_textCtrlROIEar;
+    wxStaticText* m_staticText1241;
+    wxTextCtrl* m_textCtrlROIBelly;
+    wxStaticText* m_staticText203;
+    wxRadioButton* m_radioButtonRefBelly;
+    wxRadioButton* m_radioButtonRefHead;
+    wxRadioButton* m_radioButtonRefEar;
     wxStaticText* m_staticText126;
     wxTextCtrl* m_textCtrlReferFrame;
     wxStaticText* m_staticText130;
-    wxPanel* m_panel144;
-    wxCheckBox* m_checkBoxVerLine;
-    wxTextCtrl* m_textCtrlVerLine;
+    wxTextCtrl* m_textCtrlXSD;
     wxStaticLine* m_staticLine108;
-    wxStdDialogButtonSizer* m_stdBtnSizer52;
-    wxButton* m_button56;
-    wxButton* m_button58;
+    wxStdDialogButtonSizer* m_stdBtnSizer243;
+    wxButton* m_button245;
+    wxButton* m_button247;
 
 protected:
 
 public:
+    wxCheckBox* GetCheckBoxLED() { return m_checkBoxLED; }
+    wxCheckBox* GetCheckBoxVerLine() { return m_checkBoxVerLine; }
+    wxTextCtrl* GetTextCtrlVerLine() { return m_textCtrlVerLine; }
+    wxCheckBox* GetCheckBoxEyeMove() { return m_checkBoxEyeMove; }
+    wxCheckBox* GetCheckBoxEar() { return m_checkBoxEar; }
+    wxCheckBox* GetCheckBoxBelly() { return m_checkBoxBelly; }
+    wxCheckBox* GetCheckBoxBigHead() { return m_checkBoxBigHead; }
+    wxCheckBox* GetCheckBoxLED2() { return m_checkBoxLED2; }
+    wxTextCtrl* GetTextCtrlLED2() { return m_textCtrlLED2; }
+    wxPanel* GetPanel163() { return m_panel163; }
+    wxCheckBox* GetCheckBoxOpticalPDF() { return m_checkBoxOpticalPDF; }
+    wxCheckBox* GetCheckBoxGrayDiff() { return m_checkBoxGrayDiff; }
+    wxStaticText* GetStaticText181() { return m_staticText181; }
+    wxRadioButton* GetRadioOpV1() { return m_radioOpV1; }
+    wxRadioButton* GetRadioOpV2() { return m_radioOpV2; }
+    wxCheckBox* GetCheckBoxSaveFlow() { return m_checkBoxSaveFlow; }
+    wxCheckBox* GetCheckBoxSaveSignalPlot() { return m_checkBoxSaveSignalPlot; }
+    wxPanel* GetPanel171() { return m_panel171; }
+    wxStaticLine* GetStaticLine781() { return m_staticLine781; }
+    wxStaticText* GetStaticText718() { return m_staticText718; }
+    wxTextCtrl* GetTextCtrlFrameSteps() { return m_textCtrlFrameSteps; }
+    wxStaticText* GetStaticText1320() { return m_staticText1320; }
+    wxStaticText* GetStaticText1923() { return m_staticText1923; }
+    wxTextCtrl* GetTextCtrlThreshold() { return m_textCtrlThreshold; }
+    wxStaticText* GetStaticText132() { return m_staticText132; }
+    wxTextCtrl* GetTextCtrlHeadGain() { return m_textCtrlHeadGain; }
+    wxStaticText* GetStaticText136() { return m_staticText136; }
+    wxTextCtrl* GetTextCtrlBellyGain() { return m_textCtrlBellyGain; }
+    wxPanel* GetPanel38() { return m_panel38; }
+    wxStaticLine* GetStaticLine78() { return m_staticLine78; }
+    wxStaticText* GetStaticText100() { return m_staticText100; }
+    wxTextCtrl* GetTextCtrlYmin() { return m_textCtrlYmin; }
+    wxStaticText* GetStaticText104() { return m_staticText104; }
+    wxTextCtrl* GetTextCtrlYmax() { return m_textCtrlYmax; }
+    wxStaticText* GetStaticText124() { return m_staticText124; }
+    wxTextCtrl* GetTextCtrlROIEar() { return m_textCtrlROIEar; }
+    wxStaticText* GetStaticText1241() { return m_staticText1241; }
+    wxTextCtrl* GetTextCtrlROIBelly() { return m_textCtrlROIBelly; }
+    wxStaticText* GetStaticText203() { return m_staticText203; }
+    wxRadioButton* GetRadioButtonRefBelly() { return m_radioButtonRefBelly; }
+    wxRadioButton* GetRadioButtonRefHead() { return m_radioButtonRefHead; }
+    wxRadioButton* GetRadioButtonRefEar() { return m_radioButtonRefEar; }
+    wxStaticText* GetStaticText126() { return m_staticText126; }
+    wxTextCtrl* GetTextCtrlReferFrame() { return m_textCtrlReferFrame; }
+    wxStaticText* GetStaticText130() { return m_staticText130; }
+    wxTextCtrl* GetTextCtrlXSD() { return m_textCtrlXSD; }
+    wxPanel* GetPanel187() { return m_panel187; }
+    wxStaticLine* GetStaticLine108() { return m_staticLine108; }
     DlgOpticalInputBase(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Optical Input Dialog"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(-1,-1), long style = wxDEFAULT_DIALOG_STYLE);
     virtual ~DlgOpticalInputBase();
 };
