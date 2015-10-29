@@ -157,8 +157,9 @@ void MainFrame::DeleteContents()
 	m_dqEyePts.clear();
 	m_dqEarPts.clear();
 	m_dqBellyPts.clear();
+	m_dqBellyPts1.clear();	
 	
-	m_ptBellyRed = m_ptBellyCyan = m_ptEyeL = m_ptEyeR = m_ptEarL = m_ptEarR = Point(0,0);
+	m_ptMostBelly = m_ptBellyRed = m_ptBellyCyan = m_ptEyeL = m_ptEyeR = m_ptEarL = m_ptEarR = Point(0,0);
 	
 	m_bmpToggleBtnMarkEyes->SetValue(false);
 	m_bmpToggleBtnMarkEars->SetValue(false);	
@@ -465,6 +466,7 @@ void MainFrame::OnEditClearMarks(wxCommandEvent& event)
 	m_dqEyePts.clear();
 	m_dqEarPts.clear();
 	m_dqBellyPts.clear();
+	m_dqBellyPts1.clear();
 	Refresh();
 }
 void MainFrame::OnMarkEyes(wxCommandEvent& event)
@@ -712,8 +714,8 @@ void MainFrame::OnRatProcess(wxCommandEvent& event)
 		wxMessageBox("Select ear points", "error");
 		return;
 	}
-	if(m_dqBellyPts.size()!=2) {
-		wxMessageBox("Select abdomen points", "error");
+	if(m_dqBellyPts.size()<2) {
+		wxMessageBox("Select abdomen points >=2", "error");
 		return;
 	}	
 	m_ptEyeL = m_dqEyePts[0];
@@ -740,13 +742,17 @@ void MainFrame::OnRatProcess(wxCommandEvent& event)
 	//bool bRet = m_Rat.processEar(m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR);
 	if(inputDialog()==false)  return;
 	int nLed2 = m_nUserLED2-1;
-	bool bRet = m_Rat.process(m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR, m_ptBellyRed, m_ptBellyCyan, nLed2);
-	if(bRet ==false) return;		
-	updateOutData(m_Rat.getResultImg(0));
+	m_ptMostBelly = m_Rat.findMostSignificantPt(m_dqBellyPts1, nLed2);
+//	bool bRet = m_Rat.process(m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR, m_ptBellyRed, m_ptBellyCyan, nLed2);
+//	if(bRet ==false) return;		
+//	updateOutData(m_Rat.getResultImg(0));
+
+	Refresh();
 	wxBell();	
 	
 	writeMarks();
 	myMsgOutput("-------------------------------------------------\n");	
+
 
 }
 
@@ -1147,11 +1153,22 @@ void MainFrame::OnMouseLButtonDown(wxMouseEvent& event)
             }
 		}	
 	}else if(m_bMarkBelly) {
-		Point ptEar = Point(pt.x, pt.y);
-		m_dqBellyPts.push_back(ptEar);
+		Point ptB = Point(pt.x, pt.y);
+		m_dqBellyPts.push_back(ptB);
 		
-		int sz = m_dqBellyPts.size();
-        if(sz>2)  {	
+
+		if(m_bCutTop) ptB.y -= m_nCageLine;
+		m_dqBellyPts1.push_back(ptB);
+/*		
+		int sz = m_dqBellyPts.size();		
+		for(int i=0; i<sz; i++) {
+			wxString str;
+			str.Printf("LButton (%d, %d) \n", ptB.x, m_dqBellyPts1[i].y);
+			myMsgOutput(str);
+		}
+		 */ 
+/* 
+       if(sz>2)  {	
             m_dqBellyPts.pop_front();
             sz--;
         }
@@ -1165,7 +1182,7 @@ void MainFrame::OnMouseLButtonDown(wxMouseEvent& event)
                 if(m_bCutTop)  m_ptBellyCyan.y -= m_nCageLine;
             }
         }
-		 
+		*/ 
 	}else if(m_bMarkCageline) {
 		m_nCageLine = pt.y;
 		myMsgOutput("cage line %d\n", m_nCageLine);
@@ -1175,8 +1192,9 @@ void MainFrame::OnMouseLButtonDown(wxMouseEvent& event)
 }
 void MainFrame::OnMouseRButtonDown(wxMouseEvent& event)
 {
-//	m_dqBellyPts.clear();
-//	Refresh(); 
+	m_dqBellyPts.clear();
+	m_dqBellyPts1.clear();	
+	Refresh(); 
 }
 void MainFrame::OnToolsCleanOutput(wxCommandEvent& event)
 {

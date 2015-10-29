@@ -24,7 +24,6 @@
     <File Name="MainFrame.cpp"/>
     <File Name="wxcrafter.cpp"/>
     <File Name="wxcrafter_bitmaps.cpp"/>
-    <File Name="scrolled_image_component.h"/>
     <File Name="scrolled_image_component.cpp"/>
     <File Name="KDE.cpp"/>
     <File Name="MyUtil.cpp"/>
@@ -40,6 +39,7 @@
     <File Name="Rat.h"/>
     <File Name="BendPoint.h"/>
     <File Name="gnuplot_i.h"/>
+    <File Name="scrolled_image_component.h"/>
   </VirtualDirectory>
   <VirtualDirectory Name="resources">
     <File Name="wxcrafter.wxcp"/>

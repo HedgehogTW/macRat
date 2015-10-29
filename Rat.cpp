@@ -487,16 +487,53 @@ int CRat::isRedSignificant(vector<float>& vecRed, vector<float>& vecCyan)
 
 cv::Point CRat::findMostSignificantPt(deque<cv::Point>&  dqBellyPts, int nLed2)
 {
-	vector <float>  vecRedGrayDiff;
-	vector <float>  vecCyanGrayDiff;
-	vector <float>  vecBellyGray;	
+
+	int n = nLed2 -5;
+	int ref = 50;	
 	
-	int ref = 50;
-	graylevelDiff(ref, m_rectRed, m_rectCyan, vecRedGrayDiff, vecCyanGrayDiff);
+	Mat mSrc1, mSrc2, mDiff;
+	vector<Mat> vmDiff(n);
+	
+	m_vecMat[ref].convertTo(mSrc1, CV_16S);;
+	
+	for(int i=0; i<n; i++) {
+		double errSumL, errSumR;
+		m_vecMat[i].convertTo(mSrc2, CV_16S);
+		cv::absdiff(mSrc1, mSrc2, vmDiff[i]);
+	}
+	
+	
+	int h = m_vecMat[0].rows;
+	int w = m_vecMat[0].cols;
+	int nPts = dqBellyPts.size();
+	vector<float>  bellySeries(n);
+	int idxMaxAmp;
+	float maxAmp = -999;
+	for(int k=0; k<nPts; k++) {
+		Point pt1 = Point(dqBellyPts[k]-m_offsetAPB);
+		Point pt2 = Point(dqBellyPts[k]+m_offsetAPB);
+		
+		if(pt1.x <0) pt1.x = 0;
+		if(pt1.y <0) pt1.y = 0;
+		if(pt2.x >= w) pt2.x = w-1;
+		if(pt2.y >= h) pt2.y = h-1;	
+		Rect rect = Rect(pt1, pt2);
+		 // = vecBellyGray[k];
+		//bellySeries.resize(n);
+		for(int i=0; i<n; i++) {
+			double errSum = avgROI(vmDiff[i], rect);
+			bellySeries[i] = errSum;
+		}
+		Notch_removal(bellySeries, ref);
+		auto minMaxRed = std::minmax_element (bellySeries.begin(), bellySeries.end());
+		float amplitude = *minMaxRed.second - *minMaxRed.first;
+		if(amplitude > maxAmp) {
+			maxAmp = amplitude;
+			idxMaxAmp = k;
+		}
+	}
     
-	Notch_removal(vecCyanGrayDiff, ref);
-	Notch_removal(vecRedGrayDiff, ref);	
-	bool bBigRedGray = isRedSignificant(vecRedGrayDiff, vecCyanGrayDiff);	
+	return dqBellyPts[idxMaxAmp];
 }
 
 void CRat::computeEyeMaskCenter(Point& ptNewMaskCenter, bool bBigHead)
