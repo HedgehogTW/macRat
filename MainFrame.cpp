@@ -12,6 +12,7 @@
 #include <wx/utils.h> 
 #include <wx/dir.h>
 #include <wx/msgdlg.h>
+#include <wx/sound.h>
 
 #include <opencv2/opencv.hpp>
 #include "KDE.h"
@@ -1431,8 +1432,12 @@ void MainFrame::OnBatchProcess(wxCommandEvent& event)
 		wxBell();
 	}
 	waitKey(100); 
-	wxBell();
-	waitKey(100); 
-	wxBell();
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__TOS_WIN__)
+	if(wxSound::Play("..\\Gong.wav")==false)
+		myMsgOutput("no sound\n");
+#elif defined(unix) || defined(__unix) || defined(__unix__) || defined(__APPLE__)
+	if(wxSound::Play("../Gong.wav")==false)
+		myMsgOutput("no sound\n");
+#endif	
 
 }
