@@ -106,8 +106,8 @@ public:
 	void	computeROIRect();
 	void	recomputeHeadROI();
 	float	computeSD(vector<float>& vSignal, int nLED2);
-    bool	process(cv::Point& ptEyeL, cv::Point& ptEyeR, cv::Point& ptEarL, cv::Point& ptEarR, cv::Point& ptRed, cv::Point& ptCyan, int& nLED2);
-	bool	genReferenceFrameSignal(cv::Point& ptRed, cv::Point& ptCyan, int& nLED2);
+    bool	process(cv::Point& ptEyeL, cv::Point& ptEyeR, cv::Point& ptEarL, cv::Point& ptEarR, cv::Point& ptBelly, int& nLED2);
+	bool	genReferenceFrameSignal(cv::Point& ptBelly, int& nLED2);
 	
 	void	plotSoundOnset(float baseline, float deltaY, int msec);
 	void 	drawOnDestImage(bool bSaveFile);
@@ -123,9 +123,10 @@ public:
 	int 	findMaxMotionPoint(vector<float>& inData);
 //	void	graylevelDiff_Eye(int refer, Point ptEar, Point offset, vector <Point>& vecEye, vector <float>& vecEarGrayDiff);
 	void 	graylevelDiff(int refer, cv::Rect rectEarL, cv::Rect rectEarR, vector <float>& vLEarGray,  vector <float>& vREarGray);
+	void 	graylevelDiff(int refer, cv::Rect rect, vector <float>& vGray);
 	void	pointGraylevel(cv::Point ptBellyRed, cv::Point ptBellyCyan, vector <float>& vecRedPoint, vector <float>& vecCyanPoint);
 	int     isRedSignificant(vector<float>& vecRed, vector<float>& vecCyan);
-	cv::Point findMostSignificantPt(deque<cv::Point>&  dqBellyPts, int nLed2);
+	cv::Point findMostSignificantPt(deque<cv::Point>&  dqBellyPts, int nLed2, long	szROIBelly);
     
 	void 	imageDiff(vector<cv::Mat>& vecDiff, vector <float>& vecAdjDiff, int nFrameSteps);
 	void 	saveEarROI(int stable, int motion, cv::Point& pt, cv::Point	offset);
@@ -183,7 +184,7 @@ public:
 	vector <cv::Mat> m_vmDistEyeL;
 	vector <cv::Mat> m_vmDistEyeR;
 	vector <cv::Mat> m_vmDistRed;
-	vector <cv::Mat> m_vmDistCyan;
+//	vector <cv::Mat> m_vmDistCyan;
     
     vector <cv::Mat> m_vmOpPDFMap;
 	
@@ -201,9 +202,10 @@ public:
 //	Point	m_ptEyeC;
 	cv::Point	m_ptEarL;
 	cv::Point	m_ptEarR;
-	cv::Point 	m_ptRed;
-	cv::Point	m_ptCyan;
+//	cv::Point 	m_ptRed;
+//	cv::Point	m_ptCyan;
 	cv::Point	m_ptHead;
+	cv::Point	m_ptBelly;
 	
 	cv::Point 	m_offsetEye;
 	cv::Point 	m_offsetEar;
@@ -212,8 +214,9 @@ public:
 	cv::Rect	m_rectHead;
 	cv::Rect  	m_rectEarL;
 	cv::Rect  	m_rectEarR;	
-	cv::Rect  	m_rectRed;
-	cv::Rect  	m_rectCyan;	
+	cv::Rect  	m_rectBelly;
+//	cv::Rect  	m_rectRed;
+//	cv::Rect  	m_rectCyan;	
 	
 //	vector <double>  m_vecLEyeGrayDiff;
 //	vector <double>  m_vecREyeGrayDiff;

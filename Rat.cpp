@@ -485,11 +485,12 @@ int CRat::isRedSignificant(vector<float>& vecRed, vector<float>& vecCyan)
     return bBigRed;
 }
 
-cv::Point CRat::findMostSignificantPt(deque<cv::Point>&  dqBellyPts, int nLed2)
+cv::Point CRat::findMostSignificantPt(deque<cv::Point>&  dqBellyPts1, int nLed2, long szROIBelly)
 {
 
 	int n = nLed2 -5;
 	int ref = 50;	
+	Point offsetBelly = Point(szROIBelly/2, szROIBelly/2);	
 	
 	Mat mSrc1, mSrc2, mDiff;
 	vector<Mat> vmDiff(n);
@@ -505,13 +506,13 @@ cv::Point CRat::findMostSignificantPt(deque<cv::Point>&  dqBellyPts, int nLed2)
 	
 	int h = m_vecMat[0].rows;
 	int w = m_vecMat[0].cols;
-	int nPts = dqBellyPts.size();
+	int nPts = dqBellyPts1.size();
 	vector<float>  bellySeries(n);
 	int idxMaxAmp;
 	float maxAmp = -999;
 	for(int k=0; k<nPts; k++) {
-		Point pt1 = Point(dqBellyPts[k]-m_offsetAPB);
-		Point pt2 = Point(dqBellyPts[k]+m_offsetAPB);
+		Point pt1 = Point(dqBellyPts1[k] - offsetBelly);
+		Point pt2 = Point(dqBellyPts1[k] + offsetBelly);
 		
 		if(pt1.x <0) pt1.x = 0;
 		if(pt1.y <0) pt1.y = 0;
@@ -533,7 +534,7 @@ cv::Point CRat::findMostSignificantPt(deque<cv::Point>&  dqBellyPts, int nLed2)
 		}
 	}
     
-	return dqBellyPts[idxMaxAmp];
+	return dqBellyPts1[idxMaxAmp];
 }
 
 void CRat::computeEyeMaskCenter(Point& ptNewMaskCenter, bool bBigHead)
@@ -716,6 +717,16 @@ void CRat::computeROIRect()
 	m_rectEarR = Rect(pt1, pt2);	
 	
 	////////////////////////////////////////////////
+	pt1 = Point(m_ptBelly-m_offsetAPB);
+	pt2 = Point(m_ptBelly+m_offsetAPB);
+	
+	if(pt1.x <0) pt1.x = 0;
+	if(pt1.y <0) pt1.y = 0;
+	if(pt2.x >= w) pt2.x = w-1;
+	if(pt2.y >= h) pt2.y = h-1;	
+	m_rectBelly = Rect(pt1, pt2);	
+	////////////////////////////////////////////////
+/*
 	
 	pt1 = Point(m_ptRed-m_offsetAPB);
 	pt2 = Point(m_ptRed+m_offsetAPB);
@@ -736,7 +747,7 @@ void CRat::computeROIRect()
 	if(pt2.y >= h) pt2.y = h-1;	
 	m_rectCyan = Rect(pt1, pt2);	
 	////////////////////////////////////////////////
-	
+	*/
 	pt1 = Point(m_ptHead-m_offsetEye);
 	pt2 = Point(m_ptHead+m_offsetEye);
 	
@@ -747,10 +758,10 @@ void CRat::computeROIRect()
 	m_rectHead = Rect(pt1, pt2);	
 }
 
-bool CRat::genReferenceFrameSignal(Point& ptRed, Point& ptCyan, int& nLED2)
+bool CRat::genReferenceFrameSignal(Point& ptBelly, int& nLED2)
 {
-	m_ptRed = ptRed;
-	m_ptCyan = ptCyan;
+	m_ptBelly = ptBelly;
+//	m_ptCyan = ptCyan;
 
 	/////////////////////////////////////////////////////////////optical flow
 	MyConfigData  configData;
@@ -802,16 +813,16 @@ bool CRat::genReferenceFrameSignal(Point& ptRed, Point& ptCyan, int& nLED2)
 	int h = m_vecMat[0].rows;
 	int w = m_vecMat[0].cols;
 	
-	Point pt1 = Point(m_ptRed-m_offsetAPB);
-	Point pt2 = Point(m_ptRed+m_offsetAPB);
+	Point pt1 = Point(m_ptBelly-m_offsetAPB);
+	Point pt2 = Point(m_ptBelly+m_offsetAPB);
 	
 	if(pt1.x <0) pt1.x = 0;
 	if(pt1.y <0) pt1.y = 0;
 	if(pt2.x >= w) pt2.x = w-1;
 	if(pt2.y >= h) pt2.y = h-1;	
-	m_rectRed = Rect(pt1, pt2);	
+	m_rectBelly = Rect(pt1, pt2);	
 	////////////////////////////////////////////////
-	
+/*	
 	pt1 = Point(m_ptCyan-m_offsetAPB);
 	pt2 = Point(m_ptCyan+m_offsetAPB);
 	
@@ -821,24 +832,16 @@ bool CRat::genReferenceFrameSignal(Point& ptRed, Point& ptCyan, int& nLED2)
 	if(pt2.y >= h) pt2.y = h-1;	
 	m_rectCyan = Rect(pt1, pt2);	
 	////////////////////////////////////////////////
-	
+	*/
 	/////////////////////////////////// just for findReferenceFrame
 	vector <float>  vecRedGrayDiff;
-	vector <float>  vecCyanGrayDiff;
 	vector <float>  vecBellyGray;	
 	
 	int ref = 50;
-	graylevelDiff(ref, m_rectRed, m_rectCyan, vecRedGrayDiff, vecCyanGrayDiff);
-    
-	Notch_removal(vecCyanGrayDiff, ref);
+	graylevelDiff(ref, m_rectBelly, vecRedGrayDiff);
 	Notch_removal(vecRedGrayDiff, ref);	
-	bool bBigRedGray = isRedSignificant(vecRedGrayDiff, vecCyanGrayDiff);
-			
-	if(bBigRedGray) 
-		newReferFrame = findReferenceFrame(m_rectRed);
-	else
-		newReferFrame = findReferenceFrame(m_rectCyan);
-        
+	newReferFrame = findReferenceFrame(m_rectBelly);
+	
 	MainFrame::myMsgOutput("Reference frame %d\n", newReferFrame);
 	if(newReferFrame <0) {
 		wxLogMessage("cannot find reference frame");
@@ -876,13 +879,9 @@ bool CRat::genReferenceFrameSignal(Point& ptRed, Point& ptCyan, int& nLED2)
 		int ref = newReferFrame + i;
 	//for(int i=0; i<m_nLED2; i++) {
 		//int ref = i;
-		graylevelDiff(ref, m_rectRed, m_rectCyan, vecRedGrayDiff, vecCyanGrayDiff);
+		graylevelDiff(ref, m_rectBelly, vecRedGrayDiff);
 	
-		if(bBigRedGray>0) {
-			std::copy ( vecRedGrayDiff.begin(), vecRedGrayDiff.end(), vecBellyGray.begin() );
-		}else {
-			std::copy ( vecCyanGrayDiff.begin(), vecCyanGrayDiff.end(), vecBellyGray.begin() );
-		}
+		std::copy ( vecRedGrayDiff.begin(), vecRedGrayDiff.end(), vecBellyGray.begin() );
 		
 		DC_removal(m_nLED2, vecBellyGray);			
 		Notch_removal(vecBellyGray, ref);
@@ -904,7 +903,7 @@ bool CRat::genReferenceFrameSignal(Point& ptRed, Point& ptCyan, int& nLED2)
 	return true;
 }
 
-bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, Point& ptRed, Point& ptCyan, int& nLED2)
+bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, Point& ptBelly, int& nLED2)
 {
 	m_ptEyeL = ptEyeL;
 	m_ptEyeR = ptEyeR;
@@ -912,8 +911,8 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	m_ptEarL = ptEarL;
 	m_ptEarR = ptEarR;
     
-	m_ptRed = ptRed;
-	m_ptCyan = ptCyan;
+	m_ptBelly = ptBelly;
+//	m_ptCyan = ptCyan;
 	
 	m_vecEyeL.clear();
 	m_vecEyeR.clear();
@@ -980,23 +979,12 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	if(!bBigHead) recomputeHeadROI();
 	
 	/////////////////////////////////// just for findReferenceFrame
-	vector <float>  vecRedGrayDiff;
-	vector <float>  vecCyanGrayDiff;
+
 	vector <float>  vecBellyGray;	
-	
-	int ref = 50;
-	graylevelDiff(ref, m_rectRed, m_rectCyan, vecRedGrayDiff, vecCyanGrayDiff);
-    
-	Notch_removal(vecCyanGrayDiff, ref);
-	Notch_removal(vecRedGrayDiff, ref);	
-	bool bBigRedGray = isRedSignificant(vecRedGrayDiff, vecCyanGrayDiff);
 			
     if(referFrame<=0) {
 		if(refSignal==0) {
-			if(bBigRedGray) 
-				newReferFrame = findReferenceFrame(m_rectRed);
-			else
-				newReferFrame = findReferenceFrame(m_rectCyan);
+			newReferFrame = findReferenceFrame(m_rectBelly);
 		}else if (refSignal==1)
 			newReferFrame = findReferenceFrame(m_rectHead);
 		else if(refSignal==2)
@@ -1047,7 +1035,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	vector <float>  vecLEarFlowPdf;
 	vector <float>  vecREarFlowPdf;
 	vector <float>  vecRedFlowPdf;
-	vector <float>  vecCyanFlowPdf;
+//	vector <float>  vecCyanFlowPdf;
 	vector <float>  vecBellyPdf;
 	vector <float>  vecBellySmooth;
 	
@@ -1073,6 +1061,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	
 	vector <float>  vecLEarGrayDiff;
 	vector <float>  vecREarGrayDiff;
+	vector <float>  vecRedGrayDiff;
 //	vector<float> smoothL;	
 //	vector<float> smoothR;
         
@@ -1096,18 +1085,13 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 		if(m_bShowBelly) {
             //if(bSaveDiffSignal)  ref = referFrame;
             //else ref = m_referFrame;
-			graylevelDiff(newReferFrame, m_rectRed, m_rectCyan, vecRedGrayDiff, vecCyanGrayDiff);
-			m_BigRedGray = isRedSignificant(vecRedGrayDiff, vecCyanGrayDiff);
+			graylevelDiff(newReferFrame, m_rectBelly, vecRedGrayDiff);
 			
 			vecBellyGray.resize(vecRedGrayDiff.size());
-			if(m_BigRedGray>0) {
-				std::copy ( vecRedGrayDiff.begin(), vecRedGrayDiff.end(), vecBellyGray.begin() );
-			}else {
-				std::copy ( vecCyanGrayDiff.begin(), vecCyanGrayDiff.end(), vecBellyGray.begin() );
-			}
-			vecRedGrayDiff.clear();
-			vecCyanGrayDiff.clear();
+			std::copy ( vecRedGrayDiff.begin(), vecRedGrayDiff.end(), vecBellyGray.begin() );
 			
+			vecRedGrayDiff.clear();
+						
 			DC_removal(m_nLED2, vecBellyGray);			
 			Notch_removal(vecBellyGray, newReferFrame);
 		}
@@ -1152,17 +1136,17 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 		}
 		
 		if(m_bShowBelly) {
-			opticalMovement(m_rectRed, vecRedFlowPdf, m_vmDistRed, threshold, bOpFlowV1);
-			opticalMovement(m_rectCyan, vecCyanFlowPdf, m_vmDistCyan, threshold, bOpFlowV1);      
-			m_BigRedPdf = isRedSignificant(vecRedFlowPdf, vecCyanFlowPdf);
+			opticalMovement(m_rectBelly, vecRedFlowPdf, m_vmDistRed, threshold, bOpFlowV1);
+//			opticalMovement(m_rectCyan, vecCyanFlowPdf, m_vmDistCyan, threshold, bOpFlowV1);      
+//			m_BigRedPdf = isRedSignificant(vecRedFlowPdf, vecCyanFlowPdf);
 			vecBellyPdf.resize(vecRedFlowPdf.size());
-			if(m_BigRedPdf>0) {
+//			if(m_BigRedPdf>0) {
 				std::copy ( vecRedFlowPdf.begin(), vecRedFlowPdf.end(), vecBellyPdf.begin() );
-			}else {
-				std::copy ( vecCyanFlowPdf.begin(), vecCyanFlowPdf.end(), vecBellyPdf.begin() );
-			}
+//			}else {
+//				std::copy ( vecCyanFlowPdf.begin(), vecCyanFlowPdf.end(), vecBellyPdf.begin() );
+//			}
 			vecRedFlowPdf.clear();
-			vecCyanFlowPdf.clear();
+//			vecCyanFlowPdf.clear();
 			
 			if(gainBelly!=1) {
 				for(int i=0; i<sz; i++) {
@@ -1184,15 +1168,9 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			peakMinMax.push_back(pt2);
 			
 			if(bSaveFile) {
-                if(m_BigRedPdf>0) {
-                    opticalAssignThresholdMap(m_vmDistRed, threshold, m_rectRed);
-                    vDrawRect.push_back(m_rectRed);
-                    vDrawPt.push_back(ptRed);
-                }else {
-						opticalAssignThresholdMap(m_vmDistCyan, threshold, m_rectCyan);
-						vDrawRect.push_back(m_rectCyan);
-						vDrawPt.push_back(ptCyan);          
-                }                
+				opticalAssignThresholdMap(m_vmDistRed, threshold, m_rectBelly);
+				vDrawRect.push_back(m_rectBelly);
+				vDrawPt.push_back(ptBelly);
             }            
 		}
 		
@@ -1519,10 +1497,10 @@ void CRat::drawOnDestImage(bool bSaveFile)
             rectangle(mDestColor, m_rectEarR, Scalar(255,0, 0));
         }
         if(m_bShowBelly) {
-            if(m_BigRedPdf>0)
-                rectangle(mDestColor, m_rectRed, Scalar(0,128,0));
-            else
-                rectangle(mDestColor, m_rectCyan, Scalar(0,128,0));
+ //           if(m_BigRedPdf>0)
+                rectangle(mDestColor, m_rectBelly, Scalar(0,128,0));
+//            else
+//                rectangle(mDestColor, m_rectCyan, Scalar(0,128,0));
         }
 		if(m_bShowEye) {
             rectangle(mDestColor, m_rectHead, Scalar(0, 0,255));
@@ -1917,6 +1895,24 @@ void CRat::graylevelDiff(int refer, Rect rectEarL, Rect rectEarR, vector <float>
 		vREarGray[i] = errSumR;
 	}
 }
+
+void CRat::graylevelDiff(int refer, cv::Rect rect, vector <float>& vGray)
+{
+	vGray.resize(m_nSlices);	
+	
+	Mat mSrc1, mSrc2, mDiff;
+	
+	m_vecMat[refer].convertTo(mSrc1, CV_16S);;
+	
+	for(int i=0; i<m_nSlices; i++) {
+		double errSumL, errSumR;
+		m_vecMat[i].convertTo(mSrc2, CV_16S);
+		cv::absdiff(mSrc1, mSrc2, mDiff);
+		
+		errSumL = avgROI(mDiff, rect);
+		vGray[i] = errSumL;
+	}	
+}
 void CRat::opticalFlow_v2(int referFrame)
 {
 	// optical flow
@@ -2238,11 +2234,7 @@ void CRat::opticalSavePlot(char* subpath, char* type, float threshold)
             szY = 0.97;
             if(m_bShowBelly) {
                 oriX = 0; oriY = 0;
-                if(m_BigRedPdf >0 )
-                    plotOneSpot(type, plotSave, i, saveName, m_rectRed, m_vmDistRed,
-                        "_Belly", "Abdomen", threshold, szX, szY, oriX, oriY); 
-                else 
-                    plotOneSpot(type, plotSave, i, saveName, m_rectCyan, m_vmDistCyan,
+                plotOneSpot(type, plotSave, i, saveName, m_rectBelly, m_vmDistRed,
                         "_Belly", "Abdomen", threshold, szX, szY, oriX, oriY); 
             }  
             if(m_bShowEye) {
@@ -2266,11 +2258,7 @@ void CRat::opticalSavePlot(char* subpath, char* type, float threshold)
             }else {
             
                 oriX = 0; oriY = 0;
-                if(m_BigRedPdf >0 ) 
-                    plotOneSpot(type, plotSave, i, saveName, m_rectRed, m_vmDistRed,
-                        "_Belly", "Abdomen", threshold, szX, szY, oriX, oriY); 
-                else
-                    plotOneSpot(type, plotSave, i, saveName, m_rectCyan, m_vmDistCyan,
+				plotOneSpot(type, plotSave, i, saveName, m_rectBelly, m_vmDistRed,
                         "_Belly", "Abdomen", threshold, szX, szY, oriX, oriY); 
          
                 oriX = 0.5; oriY = 0;
@@ -2293,11 +2281,8 @@ void CRat::opticalSavePlot(char* subpath, char* type, float threshold)
                 
 
             oriX = 0; oriY = 0;                
-            if(m_BigRedPdf >0 )         
-                plotOneSpot(type, plotSave, i, saveName, m_rectRed, m_vmDistRed,
-                    "_Belly", "Abdomen", threshold, szX, szY, oriX, oriY); 
-            else
-                plotOneSpot(type, plotSave, i, saveName, m_rectCyan, m_vmDistCyan,
+       
+			plotOneSpot(type, plotSave, i, saveName, m_rectBelly, m_vmDistRed,
                     "_Belly", "Abdomen", threshold, szX, szY, oriX, oriY); 
                     
             oriX = 0.5; oriY = 0;           

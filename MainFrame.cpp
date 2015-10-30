@@ -159,7 +159,7 @@ void MainFrame::DeleteContents()
 	m_dqBellyPts.clear();
 	m_dqBellyPts1.clear();	
 	
-	m_ptMostBelly = m_ptBellyRed = m_ptBellyCyan = m_ptEyeL = m_ptEyeR = m_ptEarL = m_ptEarR = Point(0,0);
+	m_ptMostBelly = m_ptEyeL = m_ptEyeR = m_ptEarL = m_ptEarR = Point(0,0);
 	
 	m_bmpToggleBtnMarkEyes->SetValue(false);
 	m_bmpToggleBtnMarkEars->SetValue(false);	
@@ -271,11 +271,15 @@ void MainFrame::readMarks(wxString &dirName)
 				if(n==4) {
 					m_dqBellyPts.push_back(ptBellyRed);
 					m_dqBellyPts.push_back(ptBellyCyan);
-					m_ptBellyRed = m_dqBellyPts[0];
-					m_ptBellyCyan = m_dqBellyPts[1];
+//					m_ptBellyRed = m_dqBellyPts[0];
+//					m_ptBellyCyan = m_dqBellyPts[1];
 				}		
 				//myMsgOutput("A Red[%d %d], Cyan[%d %d]\n", ptBellyRed.x, ptBellyRed.y, ptBellyCyan.x, ptBellyCyan.y );
 				break;	
+			case 'B':
+				n = fscanf(fp, "%d %d\n", &m_ptMostBelly.x, &m_ptMostBelly.y);		
+				//myMsgOutput("A Red[%d %d], Cyan[%d %d]\n", ptBellyRed.x, ptBellyRed.y, ptBellyCyan.x, ptBellyCyan.y );
+				break;					
 			case 'C':
 				n = fscanf(fp, "%d\n", &line);
 				if(n==1)  m_nCageLine = line;
@@ -714,7 +718,7 @@ void MainFrame::OnRatProcess(wxCommandEvent& event)
 		wxMessageBox("Select ear points", "error");
 		return;
 	}
-	if(m_dqBellyPts.size()<2) {
+	if(m_dqBellyPts.size()<2 && m_ptMostBelly == Point(0, 0)) {
 		wxMessageBox("Select abdomen points >=2", "error");
 		return;
 	}	
@@ -722,12 +726,12 @@ void MainFrame::OnRatProcess(wxCommandEvent& event)
 	m_ptEyeR = m_dqEyePts[1];
 	m_ptEarL = m_dqEarPts[0];
 	m_ptEarR = m_dqEarPts[1];
-	m_ptBellyRed = m_dqBellyPts[0];
-	m_ptBellyCyan = m_dqBellyPts[1];
+//	m_ptBellyRed = m_dqBellyPts[0];
+//	m_ptBellyCyan = m_dqBellyPts[1];
 	
 	recognizeLeftRight(m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR);	
 	
-	if(preprocessing()==false)  {
+	if(preprocessing()==false)  { // crop image
 		//wxLogMessage("preprocessing error");
 		return;
 	}
@@ -736,18 +740,31 @@ void MainFrame::OnRatProcess(wxCommandEvent& event)
 		m_ptEyeR.y -= m_nCageLine;
 		m_ptEarL.y -= m_nCageLine;
 		m_ptEarR.y -= m_nCageLine;	 
-        m_ptBellyRed.y -= m_nCageLine;
-		m_ptBellyCyan.y -= m_nCageLine;	      
+		if(m_ptMostBelly != Point(0, 0)) 
+			m_ptMostBelly.y -= m_nCageLine;
+//		m_ptBellyCyan.y -= m_nCageLine;	      
     }
+	
+	int sz = m_dqBellyPts.size();
+	m_dqBellyPts1.resize(sz);
+	for(int i=0; i<sz; i++) {
+		m_dqBellyPts1[i] = m_dqBellyPts[i];
+		if(m_bCutTop)  m_dqBellyPts1[i].y -= m_nCageLine;
+	}		
+	
 	//bool bRet = m_Rat.processEar(m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR);
 	if(inputDialog()==false)  return;
 	int nLed2 = m_nUserLED2-1;
-	m_ptMostBelly = m_Rat.findMostSignificantPt(m_dqBellyPts1, nLed2);
-//	bool bRet = m_Rat.process(m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR, m_ptBellyRed, m_ptBellyCyan, nLed2);
-//	if(bRet ==false) return;		
-//	updateOutData(m_Rat.getResultImg(0));
+	if(m_ptMostBelly == Point(0, 0)) {
+		m_ptMostBelly = m_Rat.findMostSignificantPt(m_dqBellyPts1, nLed2, m_configData.m_szROIBelly);
+		myMsgOutput("m_ptMostBelly: (%d, %d)\n", m_ptMostBelly.x, m_ptMostBelly.y);
+	}
+		
+	bool bRet = m_Rat.process(m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR, m_ptMostBelly, nLed2);
+	if(bRet ==false) return;		
+	updateOutData(m_Rat.getResultImg(0));
 
-	Refresh();
+//	Refresh();
 	wxBell();	
 	
 	writeMarks();
@@ -776,8 +793,14 @@ void MainFrame::writeMarks()
 			fprintf(fp, "E%d %d %d %d\n", m_dqEarPts[0].x, m_dqEarPts[0].y, m_dqEarPts[1].x, m_dqEarPts[1].y );
 //			myMsgOutput("Left Ear: [%d, %d], Right Ear: [%d, %d]\n", m_dqEarPts[0].x, m_dqEarPts[0].y, m_dqEarPts[1].x, m_dqEarPts[1].y);
 		}
-		if(m_dqBellyPts.size()>=2) {
-			fprintf(fp, "A%d %d %d %d\n", m_dqBellyPts[0].x, m_dqBellyPts[0].y, m_dqBellyPts[1].x, m_dqBellyPts[1].y );
+//		if(m_dqBellyPts.size()>=2) {
+//			fprintf(fp, "A%d %d %d %d\n", m_dqBellyPts[0].x, m_dqBellyPts[0].y, m_dqBellyPts[1].x, m_dqBellyPts[1].y );
+//			myMsgOutput("Belly [%d, %d], [%d, %d]\n",m_dqBellyPts[0].x, m_dqBellyPts[0].y, m_dqBellyPts[1].x, m_dqBellyPts[1].y );
+//		}
+		if(m_ptMostBelly != Point(0, 0)) {
+			int y = m_ptMostBelly.y;
+			if(m_bCutTop)  y += m_nCageLine;
+			fprintf(fp, "B%d %d\n", m_ptMostBelly.x, y);
 //			myMsgOutput("Belly [%d, %d], [%d, %d]\n",m_dqBellyPts[0].x, m_dqBellyPts[0].y, m_dqBellyPts[1].x, m_dqBellyPts[1].y );
 		}
 		if(m_nCageLine >0)
@@ -792,48 +815,6 @@ void MainFrame::writeMarks()
 		fclose(fp);
 	}		
 }
-void MainFrame::OnRatBelly(wxCommandEvent& event)
-{
-	if(m_dqBellyPts.size()!=2) {
-		wxMessageBox("Select abdomen points", "error");
-		return;
-	}	
-   
-	m_ptBellyRed = m_dqBellyPts[0];
-	m_ptBellyCyan = m_dqBellyPts[1];
-
-	
-	if(m_dqEyePts.size()>0 && m_dqEarPts.size()>0) {          
-		m_ptEyeL = m_dqEyePts[0];
-		m_ptEyeR = m_dqEyePts[1];
-		m_ptEarL = m_dqEarPts[0];
-		m_ptEarR = m_dqEarPts[1];
-		recognizeLeftRight(m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR);
-	}
-		
-	if(preprocessing()==false)  {
-		//wxLogMessage("preprocessing error");
-		return;
-	}
-	if(m_bCutTop) {
-        m_ptBellyRed.y -= m_nCageLine;
-		m_ptBellyCyan.y -= m_nCageLine;	
-	    if(m_dqEyePts.size()>0 && m_dqEarPts.size()>0) {
-   			m_ptEyeL.y -= m_nCageLine;
-			m_ptEyeR.y -= m_nCageLine;
-			m_ptEarL.y -= m_nCageLine;
-			m_ptEarR.y -= m_nCageLine;	
-		}
-    }
-    
-//	bool bRet = m_Rat.processAbdomen(m_ptAbdoRed, m_ptAbdoCyan);
-//	if(bRet ==false) return;
-	
-//	updateOutData(m_Rat.getResultImg(0));
-
-	wxBell();		
-}
-
 
 void MainFrame::OnRatShowResults(wxCommandEvent& event)
 {
@@ -1153,6 +1134,8 @@ void MainFrame::OnMouseLButtonDown(wxMouseEvent& event)
             }
 		}	
 	}else if(m_bMarkBelly) {
+		m_ptMostBelly = Point(0, 0);
+		
 		Point ptB = Point(pt.x, pt.y);
 		m_dqBellyPts.push_back(ptB);
 		
@@ -1194,6 +1177,8 @@ void MainFrame::OnMouseRButtonDown(wxMouseEvent& event)
 {
 	m_dqBellyPts.clear();
 	m_dqBellyPts1.clear();	
+	m_ptMostBelly = Point(0, 0);
+	
 	Refresh(); 
 }
 void MainFrame::OnToolsCleanOutput(wxCommandEvent& event)
@@ -1269,25 +1254,20 @@ void MainFrame::OnToolsCleanOutput(wxCommandEvent& event)
 void MainFrame::OnRatAbdomen(wxCommandEvent& event)
 {
 
-	if(m_dqBellyPts.size()!=2) {
+	if(m_ptMostBelly == Point(0,0)) {
 		wxMessageBox("Select abdomen points", "error");
 		return;
 	}	
 
-	m_ptBellyRed = m_dqBellyPts[0];
-	m_ptBellyCyan = m_dqBellyPts[1];
-	
-	
+
 	if(preprocessing()==false)  {
 		//wxLogMessage("preprocessing error");
 		return;
 	}
 	if(m_bCutTop) {
-
-        m_ptBellyRed.y -= m_nCageLine;
-		m_ptBellyCyan.y -= m_nCageLine;	      
+        m_ptMostBelly.y -= m_nCageLine; 
     }
-	bool bRet = m_Rat.genReferenceFrameSignal(m_ptBellyRed, m_ptBellyCyan, m_nUserLED2);
+	bool bRet = m_Rat.genReferenceFrameSignal(m_ptMostBelly, m_nUserLED2);
 		
 	wxBell();	
 	
@@ -1404,16 +1384,16 @@ void MainFrame::OnBatchProcess(wxCommandEvent& event)
 			wxMessageBox("Select ear points", "error");
 			return;
 		}
-		if(m_dqBellyPts.size()!=2) {
-			wxMessageBox("Select abdomen points", "error");
+		if(m_dqBellyPts.size()<2 && m_ptMostBelly == Point(0, 0)) {
+			wxMessageBox("Select abdomen points >=2", "error");
 			return;
 		}	
 		m_ptEyeL = m_dqEyePts[0];
 		m_ptEyeR = m_dqEyePts[1];
 		m_ptEarL = m_dqEarPts[0];
 		m_ptEarR = m_dqEarPts[1];
-		m_ptBellyRed = m_dqBellyPts[0];
-		m_ptBellyCyan = m_dqBellyPts[1];
+//		m_ptBellyRed = m_dqBellyPts[0];
+//		m_ptBellyCyan = m_dqBellyPts[1];
 		
 		recognizeLeftRight(m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR);	
 		
@@ -1425,13 +1405,25 @@ void MainFrame::OnBatchProcess(wxCommandEvent& event)
 			m_ptEyeL.y -= m_nCageLine;
 			m_ptEyeR.y -= m_nCageLine;
 			m_ptEarL.y -= m_nCageLine;
-			m_ptEarR.y -= m_nCageLine;	 
-			m_ptBellyRed.y -= m_nCageLine;
-			m_ptBellyCyan.y -= m_nCageLine;	      
+			m_ptEarR.y -= m_nCageLine;	
+			if(m_ptMostBelly != Point(0, 0)) 
+				m_ptMostBelly.y -= m_nCageLine; 
+//			m_ptBellyRed.y -= m_nCageLine;
+//			m_ptBellyCyan.y -= m_nCageLine;	      
 		}
-		//bool bRet = m_Rat.processEar(m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR);
+
+		int sz = m_dqBellyPts.size();
+		m_dqBellyPts1.resize(sz);
+		for(int i=0; i<sz; i++) {
+			m_dqBellyPts1[i] = m_dqBellyPts[i];
+			if(m_bCutTop)  m_dqBellyPts1[i].y -= m_nCageLine;
+		}		
+		
 		int nLed2 = m_nUserLED2-1;
-		bool bRet = m_Rat.process(m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR, m_ptBellyRed, m_ptBellyCyan, nLed2);
+		if(m_ptMostBelly == Point(0, 0))
+			m_ptMostBelly = m_Rat.findMostSignificantPt(m_dqBellyPts1, nLed2, m_configData.m_szROIBelly);
+		
+		bool bRet = m_Rat.process(m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR, m_ptMostBelly, nLed2);
 		if(bRet ==false) return;		
 		//updateOutData(m_Rat.getResultImg(0));
 		writeMarks();

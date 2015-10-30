@@ -46,7 +46,7 @@ public:
 	
 	void 	getEyePts(cv::Point& eyeL, cv::Point& eyeR) { eyeL = m_ptEyeL; eyeR = m_ptEyeR; }
 	void 	getEarPts(cv::Point& earL, cv::Point& earR) { earL = m_ptEarL; earR = m_ptEarR;}
-	int 	getBellyPts(cv::Point& abRed, cv::Point& abCyan) { abRed = m_ptBellyRed; abCyan = m_ptBellyCyan; return m_Rat.m_BigRedPdf; }
+//	int 	getBellyPts(cv::Point& abRed, cv::Point& abCyan) { abRed = m_ptBellyRed; abCyan = m_ptBellyCyan; return m_Rat.m_BigRedPdf; }
 	deque<cv::Point>& getBellyPts(	cv::Point& ptMostBelly) { 	ptMostBelly = m_ptMostBelly; return m_dqBellyPts1; }
 	
 	bool    isViewMarks() { return m_bViewMarks; };
@@ -85,8 +85,7 @@ protected:
     virtual void OnToolsCleanOutput(wxCommandEvent& event);
     virtual void OnMouseLButtonDown(wxMouseEvent& event);
     virtual void OnMouseRButtonDown(wxMouseEvent& event);
-    virtual void OnMarkCageline(wxCommandEvent& event);
-    virtual void OnRatBelly(wxCommandEvent& event);
+    virtual void OnMarkCageline(wxCommandEvent& event);   
     virtual void OnMarkBelly(wxCommandEvent& event);
     virtual void OnViewFolderImage(wxCommandEvent& event);
     virtual void OnView2DData(wxCommandEvent& event);
@@ -143,14 +142,12 @@ protected:
 //	double	m_gainHead;
 //	double	m_gainBelly;
 	
-	deque<cv::Point>  m_dqEyePts;
+	deque<cv::Point>  m_dqEyePts; // dequq stores the original coordinates.
 	deque<cv::Point>  m_dqEarPts;
-	deque<cv::Point>  m_dqBellyPts;
-	deque<cv::Point>  m_dqBellyPts1;
-	cv::Point 	m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR;
-	cv::Point 	m_ptBellyRed, m_ptBellyCyan;
-	cv::Point  m_ptMostBelly;
-
-
+	deque<cv::Point>  m_dqBellyPts;	// original coordinates.
+	deque<cv::Point>  m_dqBellyPts1;  //  cropped coordinates.
+	cv::Point 	m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR;  // Point stores the cutted coordinates.
+//	cv::Point 	m_ptBellyRed, m_ptBellyCyan;
+	cv::Point  m_ptMostBelly;	// store original coordinates.
 };
 #endif // MAINFRAME_H

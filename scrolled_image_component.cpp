@@ -107,8 +107,8 @@ void ScrolledImageComponent::OnDraw(wxDC& dc)
 		dc.DrawCircle(dqBellyPts[i].x, dqBellyPts[i].y, 3);
 		//MainFrame:: myMsgOutput("ptBellyBo y %d %d\n", pt.x, pt.y);
 	}
-	dc.SetPen(*wxRED_PEN);
-	dc.SetBrush(*wxRED_BRUSH);
+	dc.SetPen(*wxBLUE_PEN);
+	dc.SetBrush(*wxBLUE_BRUSH);
 	dc.DrawCircle(ptMostBelly.x, ptMostBelly.y, 3);	
 	
 /*	
