@@ -4147,7 +4147,7 @@
           }, {
            "type": "bool",
            "m_label": "Default Button",
-           "m_value": false
+           "m_value": true
           }],
          "m_events": [],
          "m_children": []

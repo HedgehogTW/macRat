@@ -149,5 +149,6 @@ protected:
 	cv::Point 	m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR;  // Point stores the cutted coordinates.
 //	cv::Point 	m_ptBellyRed, m_ptBellyCyan;
 	cv::Point  m_ptMostBelly;	// store original coordinates.
+	bool	m_bAlreadyCrop;
 };
 #endif // MAINFRAME_H

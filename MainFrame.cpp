@@ -155,6 +155,8 @@ void MainFrame::DeleteContents()
 	m_bMarkCageline = false;
     m_bViewMarks = true;
 	
+	m_bAlreadyCrop = false;
+	
 	m_dqEyePts.clear();
 	m_dqEarPts.clear();
 	m_dqBellyPts.clear();
@@ -278,7 +280,8 @@ void MainFrame::readMarks(wxString &dirName)
 				//myMsgOutput("A Red[%d %d], Cyan[%d %d]\n", ptBellyRed.x, ptBellyRed.y, ptBellyCyan.x, ptBellyCyan.y );
 				break;	
 			case 'B':
-				n = fscanf(fp, "%d %d\n", &m_ptMostBelly.x, &m_ptMostBelly.y);		
+				n = fscanf(fp, "%d %d\n", &m_ptMostBelly.x, &m_ptMostBelly.y);
+				myMsgOutput("m_ptMostBelly (%d, %d)\n", m_ptMostBelly.x, m_ptMostBelly.y);
 				//myMsgOutput("A Red[%d %d], Cyan[%d %d]\n", ptBellyRed.x, ptBellyRed.y, ptBellyCyan.x, ptBellyCyan.y );
 				break;					
 			case 'C':
@@ -741,8 +744,10 @@ void MainFrame::OnRatProcess(wxCommandEvent& event)
 		m_ptEyeR.y -= m_nCageLine;
 		m_ptEarL.y -= m_nCageLine;
 		m_ptEarR.y -= m_nCageLine;	 
-		if(m_ptMostBelly != Point(0, 0)) 
+		if(m_ptMostBelly != Point(0, 0) && !m_bAlreadyCrop) {
 			m_ptMostBelly.y -= m_nCageLine;
+			m_bAlreadyCrop = true;
+		}
 //		m_ptBellyCyan.y -= m_nCageLine;	      
     }
 	
@@ -1407,8 +1412,11 @@ void MainFrame::OnBatchProcess(wxCommandEvent& event)
 			m_ptEyeR.y -= m_nCageLine;
 			m_ptEarL.y -= m_nCageLine;
 			m_ptEarR.y -= m_nCageLine;	
-			if(m_ptMostBelly != Point(0, 0)) 
-				m_ptMostBelly.y -= m_nCageLine; 
+			
+			if(m_ptMostBelly != Point(0, 0) && !m_bAlreadyCrop) {
+				m_ptMostBelly.y -= m_nCageLine;
+				m_bAlreadyCrop = true;
+			}
 //			m_ptBellyRed.y -= m_nCageLine;
 //			m_ptBellyCyan.y -= m_nCageLine;	      
 		}

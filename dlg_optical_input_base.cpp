@@ -298,6 +298,7 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     boxSizer315->Add(m_stdBtnSizer243, 0, wxALL|wxEXPAND, 5);
     
     m_button245 = new wxButton(this, wxID_OK, wxT(""), wxDefaultPosition, wxSize(-1, -1), 0);
+    m_button245->SetDefault();
     m_stdBtnSizer243->AddButton(m_button245);
     
     m_button247 = new wxButton(this, wxID_CANCEL, wxT(""), wxDefaultPosition, wxSize(-1, -1), 0);
