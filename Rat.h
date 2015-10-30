@@ -193,8 +193,8 @@ public:
 	vector <float>  m_vecEyeLMove;
 	vector <float>  m_vecEyeRMove;
 	
-    int     m_BigRedPdf;
-    int     m_BigRedGray;
+//    int     m_BigRedPdf;
+//    int     m_BigRedGray;
 //	Point	m_offsetEar; //(50, 50);
 
 	cv::Point 	m_ptEyeL;

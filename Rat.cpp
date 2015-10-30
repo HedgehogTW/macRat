@@ -69,8 +69,8 @@ void CRat::clearData()
 //	m_bCutTop = false;
 	m_bLED_OK = false;
     
-	m_BigRedPdf = -1;
-    m_BigRedGray = -1;    
+//	m_BigRedPdf = -1;
+//    m_BigRedGray = -1;    
 }
 
 int CRat::readData(wxString inputPath)
@@ -1056,8 +1056,9 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			ymin, ymax, m_ROIEar, m_ROIBelly, m_nLED2, bSaveFile);	
 	MainFrame:: myMsgOutput("PDF threshold %f, frame steps %d, bOpFlowV1 %d, headGain %.2f, bellyGain %.2f\n", 
 			threshold, frameStep, bOpFlowV1, gainHead, gainBelly);
-	
-
+			
+	if(m_bShowBelly)
+		MainFrame:: myMsgOutput("Belly Point (%d, %d)\n", ptBelly.x, ptBelly.y);
 	
 	vector <float>  vecLEarGrayDiff;
 	vector <float>  vecREarGrayDiff;
@@ -1085,6 +1086,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 		if(m_bShowBelly) {
             //if(bSaveDiffSignal)  ref = referFrame;
             //else ref = m_referFrame;
+			
 			graylevelDiff(newReferFrame, m_rectBelly, vecRedGrayDiff);
 			
 			vecBellyGray.resize(vecRedGrayDiff.size());
@@ -1335,7 +1337,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	duration = (double)(finish - start) / CLOCKS_PER_SEC;
 	int minutes = duration / 60;
 	int second = duration - minutes * 60;
-	MainFrame::myMsgOutput("OnRatProcessEar: computation time: %02dm:%02ds, bBigRedPdf %d\n", minutes, second, m_BigRedPdf);
+	MainFrame::myMsgOutput("OnRatProcessEar: computation time: %02dm:%02ds\n", minutes, second);
 	
 	
 	return true;

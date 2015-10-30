@@ -1365,16 +1365,16 @@ void MainFrame::OnBatchProcess(wxCommandEvent& event)
 	wxArrayString  	dataDirs;
 	readDirList(dataDirs);
 	
-	MyConfigData	oldConfigData;
+	//MyConfigData	oldConfigData;
 	m_configData.Init();
 	readMarks(dataDirs[0]);
-	oldConfigData = m_configData;
+	//oldConfigData = m_configData;
 	
 	if(inputDialog()==false)  return;
 	for(int i=0; i<dataDirs.GetCount(); i++) {
 //		wxLogMessage(secondDirs[i]);
 		openFile(dataDirs[i]);	
-		m_configData = oldConfigData;
+		//m_configData = oldConfigData;
 		
 		if(m_dqEyePts.size()!=2) {
 			wxMessageBox("Select eye points", "error");
