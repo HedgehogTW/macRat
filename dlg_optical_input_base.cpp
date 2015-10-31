@@ -131,6 +131,11 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     
     gridBagSizer225->Add(m_checkBoxSaveSignalPlot, wxGBPosition(2,1), wxGBSpan(1,1), wxALL, 5);
     
+    m_checkBoxShowPeak = new wxCheckBox(m_panel171, wxID_ANY, _("Show Peak Symbols"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_checkBoxShowPeak->SetValue(false);
+    
+    gridBagSizer225->Add(m_checkBoxShowPeak, wxGBPosition(2,2), wxGBSpan(1,1), wxALL, 5);
+    
     m_staticLine781 = new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxLI_HORIZONTAL);
     
     boxSizer315->Add(m_staticLine781, 0, wxALL|wxEXPAND, 5);

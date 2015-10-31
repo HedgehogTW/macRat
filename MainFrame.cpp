@@ -642,6 +642,7 @@ bool MainFrame::inputDialog()
 	bool bOpFlowV1 = m_configData.m_bOpFlowV1;
 	bool bSaveFile = m_configData.m_bSaveFile;
 	bool bSaveSignalPlot = m_configData.m_bSaveSignalPlot;
+	bool bShowPeaks = m_configData.m_bShowPeaks;
 
 	double verLine = m_configData.m_verLine;
 	double ymin = m_configData.m_ymin;
@@ -666,7 +667,7 @@ bool MainFrame::inputDialog()
 	
 	dlg.setVerticalLine(bLEDLine, bBigHead, bUserLED2, nLED2, bVerLine, verLine);
 	dlg.setSeriesLine(bEyeMove, bEar, bGrayDiff, bBelly);
-	dlg.setOptions(bOpticalPDF, bOpFlowV1, bSaveFile, bSaveSignalPlot, refSignal);
+	dlg.setOptions(bOpticalPDF, bOpFlowV1, bSaveFile, bSaveSignalPlot, bShowPeaks, refSignal);
 	dlg.setYRange(ymin, ymax, ROIEar, ROIBelly, referFrame);
 	dlg.setGain(gainHead, gainBelly, xSD);
 
@@ -675,7 +676,7 @@ bool MainFrame::inputDialog()
 	threshold = dlg.getThreshold();
 	dlg.getVerticalLine(bLEDLine, bBigHead, bUserLED2, nLED2, bVerLine, verLine);
 	dlg.getSeriesLine(bEyeMove, bEar, bGrayDiff, bBelly);
-	dlg.getOptions(bOpticalPDF, bOpFlowV1, bSaveFile, bSaveSignalPlot, refSignal);
+	dlg.getOptions(bOpticalPDF, bOpFlowV1, bSaveFile, bSaveSignalPlot, bShowPeaks, refSignal);
 	dlg.getYRange(ymin, ymax, ROIEar, ROIBelly, referFrame);
 	dlg.getGain(gainHead, gainBelly, xSD);
 //	dlg.Destroy();
@@ -699,6 +700,7 @@ bool MainFrame::inputDialog()
 	m_configData.m_bOpFlowV1 = bOpFlowV1;
 	m_configData.m_bSaveFile = bSaveFile;
 	m_configData.m_bSaveSignalPlot = bSaveSignalPlot;
+	m_configData.m_bShowPeaks = bShowPeaks;	
 
 	m_configData.m_verLine = verLine;
 	m_configData.m_ymin = ymin;
@@ -1315,7 +1317,13 @@ void MainFrame::readDirList(wxArrayString& dataDirs)
     bool cont = dir.GetFirst(&dirName, fileSpec, wxDIR_DIRS);
     while ( cont )
     {   
-        wxString subDirName = m_strBatchDir + "\\" + dirName;
+        
+		wxString subDirName;
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__TOS_WIN__)
+		subDirName = m_strBatchDir + "\\" + dirName;
+#elif defined(unix) || defined(__unix) || defined(__unix__) || defined(__APPLE__)
+		subDirName = m_strBatchDir + "/" + dirName;;
+#endif		
         topDirs.Add(subDirName);
         cont = dir.GetNext(&dirName);
     }
@@ -1330,8 +1338,12 @@ void MainFrame::readDirList(wxArrayString& dataDirs)
 			wxString subName;
 			bool bCont = subdir.GetFirst(&subName, fileSpec, wxDIR_DIRS);
 			while ( bCont ) {
-				
-				wxString secondLevelName = topDirs[i]+ "\\" + subName;
+				wxString secondLevelName;
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__TOS_WIN__)
+				secondLevelName = topDirs[i]+ "\\" + subName;
+#elif defined(unix) || defined(__unix) || defined(__unix__) || defined(__APPLE__)
+				secondLevelName = topDirs[i]+ "/" + subName;
+#endif				
 				secondDirs.Add(secondLevelName);
 				bCont = subdir.GetNext(&subName);
 			}  
@@ -1449,4 +1461,5 @@ void MainFrame::OnBatchProcess(wxCommandEvent& event)
 		myMsgOutput("no sound\n");
 #endif	
 
+	myMsgOutput("Batch process finish: "+m_strBatchDir + "\n");
 }

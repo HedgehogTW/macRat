@@ -4,8 +4,8 @@
 // Do not modify this file by hand!
 //////////////////////////////////////////////////////////////////////
 
-#ifndef MACRAT_DLG_OPTICAL_INPUT_BASE_BASE_CLASSES_H
-#define MACRAT_DLG_OPTICAL_INPUT_BASE_BASE_CLASSES_H
+#ifndef PROJECT_MACRAT_DLG_OPTICAL_INPUT_BASE_BASE_CLASSES_H
+#define PROJECT_MACRAT_DLG_OPTICAL_INPUT_BASE_BASE_CLASSES_H
 
 #include <wx/settings.h>
 #include <wx/xrc/xmlres.h>
@@ -51,6 +51,7 @@ protected:
     wxRadioButton* m_radioOpV2;
     wxCheckBox* m_checkBoxSaveFlow;
     wxCheckBox* m_checkBoxSaveSignalPlot;
+    wxCheckBox* m_checkBoxShowPeak;
     wxStaticLine* m_staticLine781;
     wxPanel* m_panel38;
     wxStaticText* m_staticText718;
@@ -105,6 +106,7 @@ public:
     wxRadioButton* GetRadioOpV2() { return m_radioOpV2; }
     wxCheckBox* GetCheckBoxSaveFlow() { return m_checkBoxSaveFlow; }
     wxCheckBox* GetCheckBoxSaveSignalPlot() { return m_checkBoxSaveSignalPlot; }
+    wxCheckBox* GetCheckBoxShowPeak() { return m_checkBoxShowPeak; }
     wxPanel* GetPanel171() { return m_panel171; }
     wxStaticLine* GetStaticLine781() { return m_staticLine781; }
     wxStaticText* GetStaticText718() { return m_staticText718; }
