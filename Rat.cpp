@@ -405,12 +405,14 @@ Point CRat::aspectRatio(vector<cv::Point> &con, double &ratio, double &angle )
 	return box.center;
 }
 
-void CRat::cropImage(bool& bCutTop)
+void CRat::cropImage(bool& bCutTop, int nCageLine)
 {
 	vector <Mat> vecData;
 	vector <string> vFilenames;
 	int w = m_vecMat[0].cols;
 	int h = m_vecMat[0].rows;
+	
+	m_nCageLine = nCageLine;
 	
 	if(h <=m_nCageLine) return;
 	if(m_nCageLine >0) {
@@ -1160,15 +1162,15 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			Notch_removal(vecBellyPdf, m_referFrame);
 			sdBelly = computeSD(vecBellyPdf, m_nLED2);
 			
-			smoothData(vecBellyPdf, vecBellySmooth, 2);	
+			smoothData(vecBellyPdf, vecBellySmooth, 2.5);	
 			findPeaks(vecBellyPdf, vecBellySmooth, peakBelly);
-			peakAnalysis(peakBelly, vPeakDistX, vPeakDistY, m_nLED2, meanPeak, sdPeak);
+/*			peakAnalysis(peakBelly, vPeakDistX, vPeakDistY, m_nLED2, meanPeak, sdPeak);
 			
 			Point2f pt(314, vecBellyPdf[314]);
 			peakMinMax.push_back(pt);
 			Point2f pt2(336, vecBellyPdf[336]);
 			peakMinMax.push_back(pt2);
-			
+	*/		
 			if(bSaveFile) {
 				opticalAssignThresholdMap(m_vmDistRed, threshold, m_rectBelly);
 				vDrawRect.push_back(m_rectBelly);
@@ -1304,13 +1306,13 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			_OutputVec(vecBellyPdf, newFullMarkerName.GetFullPath());
 //			_gnuplotPoint(gPlotL, peakMinMax, "#00008f00" );
 //			_gnuplotPoint(gPlotR, peakMinMax /*peakBelly*/, "#00008f00" );
-			
+			/*
 			_gnuplotSteps(gPlotP, vPeakDistX, vPeakDistY, "#00F08000", "Cycle time");
 			_gnuplotHoriLine(gPlotP, m_nSlices, meanPeak, "#000088FF");						
 			_gnuplotHoriLine(gPlotP, m_nSlices, meanPeak+xSD*sdPeak, "#00100800", "..-", strLine);			
 			_gnuplotHoriLine(gPlotP, m_nSlices, meanPeak-xSD*sdPeak, "#00100800", "..-");			
 			_gnuplotVerticalLine(gPlotP, m_nLED2, "#00FF0000");
- 				
+ 				*/
 		}
 		if(m_bShowEye) {
 			vX.clear();
@@ -1382,13 +1384,14 @@ void CRat::peakAnalysis(vector<Point2f>& peaks, vector<float>& vPeakDistX, vecto
 {
 	int n = peaks.size();
 	int led = -1;
-//	float ledPos;
+
 	vPeakDistX.resize(n-1);
 	vPeakDistY.resize(n-1);
 	for(int i=0; i<n-1; i++) {
 		vPeakDistY[i] = peaks[i+1].x - peaks[i].x;
 		vPeakDistX[i] = peaks[i].x;
 		if(peaks[i+1].x > nLED2 && led<0) led = i;
+		MainFrame::myMsgOutput("peaks[i+1].x %.2f  ", peaks[i+1].x);
 	}
 //	ledPos = led + (float)(nLED2-peaks[led].x)/(peaks[led+1].x - peaks[led].x);
 	
@@ -1427,6 +1430,10 @@ void CRat::findPeaks(vector<float>& inDataOri, vector<float>& inData, vector<Poi
 				peaks.push_back(pt);				
 		}
 	}
+	
+	for(int i=0; i<peaks.size(); i++) {
+		MainFrame::myMsgOutput("peaks[%d].x %.2f \n", i, peaks[i].x);
+	}	
 }
 float CRat::computeSD(vector<float>& vSignal, int nLED2)
 {

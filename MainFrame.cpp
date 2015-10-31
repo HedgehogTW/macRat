@@ -609,12 +609,13 @@ bool MainFrame::preprocessing()
 				wxString str;
 				str.Printf("detectLED error (1-based), LED1 %d, LED2 %d, LED end %d", m_Rat.m_nLED1+1, m_Rat.m_nLED2, m_Rat.m_nLED_End+1);
 				wxLogMessage(str);
+				m_nUserLED2= m_Rat.m_nLED1+1;
 				//return false;
 			}else m_nUserLED2= m_Rat.m_nLED2+1;
 		}
 	}
 	if(!m_bHasCrop ) {
-		m_Rat.cropImage(m_bCutTop);
+		m_Rat.cropImage(m_bCutTop, m_nCageLine);
 		updateOutData(m_Rat.getSrcImg(0));	
 		m_bHasCrop = true;
 	}

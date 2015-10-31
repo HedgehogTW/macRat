@@ -97,7 +97,7 @@ public:
 	void	saveResult(const char *subpath, vector <cv::Mat> &vecDest);
 	bool	detectLED(int nCageLine);
 	cv::Point	aspectRatio(vector<cv::Point> &con, double &ratio, double &angle );
-	void	cropImage(bool& bCutTop);
+	void	cropImage(bool& bCutTop, int nCageLine);
 	void 	DC_removal(int nFirstLED, vector <float>& vecSignal);
 	float   Notch_removal(vector <float>& vecSignal, int refFrame);
         
