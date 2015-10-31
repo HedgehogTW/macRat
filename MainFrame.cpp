@@ -24,6 +24,7 @@
 using namespace std;
 //using namespace cv;
 
+Gnuplot gPlotCSV("lines");
 vector <Mat> gvecMat;
 
 MainFrame *	MainFrame::m_pThis=NULL;
@@ -1462,4 +1463,150 @@ void MainFrame::OnBatchProcess(wxCommandEvent& event)
 #endif	
 
 	myMsgOutput("Batch process finish: "+m_strBatchDir + "\n");
+}
+void MainFrame::OnShowCSV(wxCommandEvent& event)
+{
+	wxString inputPath;
+	static wxString strIniDir="";
+	DlgSelectFolder dlg(this, strIniDir);
+	int ret = dlg.ShowModal();
+	if(ret == wxID_OK) {
+		inputPath = dlg.m_strDir;
+		strIniDir = dlg.m_strDir;
+		myMsgOutput("OnShowCSV dir: " + inputPath +"\n") ;
+	}else return;	
+	
+	wxString fileSpec = _T("*_Belly.csv");
+	wxArrayString  	files;
+	wxDir::GetAllFiles(inputPath, &files,  fileSpec, wxDIR_FILES );
+	int nFiles = files.size();
+	
+	if(nFiles==0)  return;
+	
+	
+	_gnuplotInit(gPlotCSV, "CSV", 10, 70);
+	gPlotCSV.set_legend("left");
+	gPlotCSV.cmd("set size 1,1");
+	gPlotCSV.cmd("set origin 0,0");
+	gPlotCSV.cmd("set termoption noenhanced");
+	
+	float sizeX, sizeY, oriX, oriY;	
+	sizeX = 1.;
+	sizeY = 1./nFiles;
+	char str[100];
+
+	
+    for(unsigned int i=0; i<nFiles; i++ ) {
+		wxFileName fileName = files[i];
+		wxString  fName = fileName.GetName();
+		wxString s;
+		s.Printf("read %d, %s\n", i, fName);
+		myMsgOutput(s);
+		
+		std::ostringstream cmdstr1;
+        cmdstr1 << "set multiplot title '" << fName.ToAscii() << "'" ;
+        gPlotCSV.cmd(cmdstr1.str());
+		
+
+		sprintf(str, "set size %f, %f", sizeX, sizeY);
+		gPlotCSV.cmd(str);
+
+		oriX = 0;
+		oriY = i*sizeY;
+		
+		sprintf(str, "set origin %f, %f", oriX, oriY);
+		gPlotCSV.cmd(str);
+
+		std::ostringstream cmdstr2;
+		cmdstr2 << "set title '" << fName.ToAscii() << "'" ;
+		gPlotCSV.cmd(cmdstr2.str());	
+		
+		int numR = 0;
+		FILE *fp = fopen(files[i].ToAscii(), "r");
+		while(!feof(fp)) {
+			float a;
+			int r = fscanf(fp, "%f", &a);
+			if(r==1) numR++;
+			else break;
+		}
+		rewind(fp);
+		vector<float> vSignal(numR);
+		for(int i=0; i<numR; i++) {
+			fscanf(fp, "%f", &vSignal[i]);			
+		}
+		fclose(fp);		
+		_gnuplotLine(gPlotCSV, "Abdomen", vSignal, "#00008000");
+
+
+/*		
+ 		wxFileName fileName = files[i];
+		wxString  fName = fileName.GetName();
+       int pos = fName.Find('_'); 
+       if(pos==0 || pos ==wxNOT_FOUND ) {
+            files.RemoveAt(i);
+            i--;
+            continue;
+        }
+		 */ 
+		 gPlotCSV.cmd("unset multiplot");
+    }
+	gPlotCSV.cmd("replot");
+   /* 
+    for(unsigned int i=0; i<files.size(); i++ ) {
+        wxFileName fileName = files[i];
+        wxString  fName = fileName.GetName();
+        wxString  fileNum = fName.AfterLast('_');
+        if(fileNum.IsEmpty()) continue;
+        if(fileNum.Len() >=3) continue;
+        long  num;
+        if(fileNum.ToLong(&num)) {
+            wxString strNum;
+            strNum.Printf("%03d", num);
+            wxString  fileNameBefore = files[i].BeforeLast('_');   
+            wxString  strExt = files[i].AfterLast('.');   
+            wxString  newfileName = fileNameBefore +"_"+ strNum +"."+ strExt;
+            //MainFrame::myMsgOutput(newfileName+ "\n");
+            if(!wxRenameFile(files[i], newfileName)) {
+                wxString strMsg = "rename error: " + files[i];
+                wxLogMessage(strMsg); 
+                break;
+            }
+       }
+    }   
+    wxArrayString  newFiles;
+	wxDir::GetAllFiles(inputPath, &newFiles, fileSpec, wxDIR_FILES );
+	//newFiles.Sort();
+    
+	cv::Mat	 cvMat;
+	m_vecMat.clear();
+	m_vFilenames.clear();
+	for(unsigned int i=0; i<newFiles.size(); i++ ) {
+ 		wxFileName fileName = newFiles[i];
+		wxString  fName = fileName.GetName();
+       int pos = fName.Find('_'); 
+       if(pos==0 || pos ==wxNOT_FOUND ) continue;
+        
+		//MainFrame::myMsgOutput(newFiles[i]+ "\n");
+		std::string strStd = newFiles[i].ToStdString();
+		cvMat = cv::imread(strStd, CV_LOAD_IMAGE_UNCHANGED);
+		//gpOutput->ShowMessage("%s", castr);
+		if(cvMat.data == NULL) {
+			wxString str;
+			str.Printf("read file %s ERROR\n", strStd);
+			MainFrame::myMsgOutput(str);
+			break;
+		}
+		m_vecMat.push_back(cvMat);
+		m_vFilenames.push_back(strStd);
+		
+	}
+    
+	m_nSlices = m_vecMat.size();
+	if(m_nSlices <=0) {
+		wxLogMessage("cannot read images");
+		return 0;
+	}
+	m_szImg = Size(m_vecMat[0].cols, m_vecMat[0].rows );
+	MainFrame:: myMsgOutput("read %d bmp files, size w%d, h%d\n",m_nSlices, m_szImg.width, m_szImg.height );	
+*/	
 }

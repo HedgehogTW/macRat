@@ -77,6 +77,7 @@ public:
 	
 	
 protected:
+    virtual void OnShowCSV(wxCommandEvent& event);
     virtual void OnBatchProcess(wxCommandEvent& event);
     virtual void OnRatProcess(wxCommandEvent& event);
     virtual void OnUpdateViewMarks(wxUpdateUIEvent& event);

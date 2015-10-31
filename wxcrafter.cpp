@@ -85,6 +85,9 @@ MainFrameBaseClass::MainFrameBaseClass(wxWindow* parent, wxWindowID id, const wx
     m_menuItemCleanOutput = new wxMenuItem(m_menuTools, wxID_ANY, _("Clean output folders"), wxT(""), wxITEM_NORMAL);
     m_menuTools->Append(m_menuItemCleanOutput);
     
+    m_menuItemShowCSV = new wxMenuItem(m_menuTools, wxID_TOOLS_SHOW_CSV, _("Show CSV"), wxT(""), wxITEM_NORMAL);
+    m_menuTools->Append(m_menuItemShowCSV);
+    
     m_nameHelp = new wxMenu();
     m_menuBar->Append(m_nameHelp, _("Help"));
     
@@ -118,7 +121,7 @@ MainFrameBaseClass::MainFrameBaseClass(wxWindow* parent, wxWindowID id, const wx
     m_auimgr11->AddPane(m_auibar31, wxAuiPaneInfo().Direction(wxAUI_DOCK_TOP).Layer(0).Row(0).Position(0).BestSize(42,42).MinSize(42,42).CaptionVisible(false).MaximizeButton(false).CloseButton(false).MinimizeButton(false).PinButton(false).ToolbarPane());
     m_auimgr11->Update();
     
-    m_auibar31->AddTool(wxID_OPEN, _("Tool Label"), wxArtProvider::GetBitmap(wxART_FILE_OPEN, wxART_TOOLBAR, wxSize(32, 32)), wxNullBitmap, wxITEM_NORMAL, wxT(""), wxT(""), NULL);
+    m_auibar31->AddTool(wxID_OPEN, _("Open"), wxArtProvider::GetBitmap(wxART_FILE_OPEN, wxART_TOOLBAR, wxDefaultSize), wxNullBitmap, wxITEM_NORMAL, wxT(""), wxT(""), NULL);
     
     m_auibar31->AddTool(wxID_VIEW_RESULT_SERIES, _("View Series"), wxXmlResource::Get()->LoadBitmap(wxT("Projector")), wxNullBitmap, wxITEM_NORMAL, wxT(""), wxT(""), NULL);
     
@@ -157,6 +160,8 @@ MainFrameBaseClass::MainFrameBaseClass(wxWindow* parent, wxWindowID id, const wx
     m_auibar31->AddSeparator();
     
     m_auibar31->AddTool(wxID_RAT_PROCESS, _("Process"), wxXmlResource::Get()->LoadBitmap(wxT("Mouse")), wxNullBitmap, wxITEM_NORMAL, _("Process"), wxT(""), NULL);
+    
+    m_auibar31->AddTool(wxID_TOOLS_SHOW_CSV, _("Show CSV"), wxXmlResource::Get()->LoadBitmap(wxT("result")), wxNullBitmap, wxITEM_NORMAL, wxT(""), wxT(""), NULL);
     m_auibar31->Realize();
     
     m_statusBar = new wxStatusBar(this, wxID_ANY, wxSTB_DEFAULT_STYLE);
@@ -199,6 +204,7 @@ MainFrameBaseClass::MainFrameBaseClass(wxWindow* parent, wxWindowID id, const wx
     this->Connect(m_menuItemAbdomen->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnRatAbdomen), NULL, this);
     this->Connect(m_menuItemBatch->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnBatchProcess), NULL, this);
     this->Connect(m_menuItemCleanOutput->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnToolsCleanOutput), NULL, this);
+    this->Connect(m_menuItemShowCSV->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnShowCSV), NULL, this);
     this->Connect(m_menuItem9->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnAbout), NULL, this);
     m_scrollWin->Connect(wxEVT_MOTION, wxMouseEventHandler(MainFrameBaseClass::OnMouseMotion), NULL, this);
     m_scrollWin->Connect(wxEVT_LEFT_DOWN, wxMouseEventHandler(MainFrameBaseClass::OnMouseLButtonDown), NULL, this);
@@ -233,6 +239,7 @@ MainFrameBaseClass::~MainFrameBaseClass()
     this->Disconnect(m_menuItemAbdomen->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnRatAbdomen), NULL, this);
     this->Disconnect(m_menuItemBatch->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnBatchProcess), NULL, this);
     this->Disconnect(m_menuItemCleanOutput->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnToolsCleanOutput), NULL, this);
+    this->Disconnect(m_menuItemShowCSV->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnShowCSV), NULL, this);
     this->Disconnect(m_menuItem9->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnAbout), NULL, this);
     m_scrollWin->Disconnect(wxEVT_MOTION, wxMouseEventHandler(MainFrameBaseClass::OnMouseMotion), NULL, this);
     m_scrollWin->Disconnect(wxEVT_LEFT_DOWN, wxMouseEventHandler(MainFrameBaseClass::OnMouseLButtonDown), NULL, this);
