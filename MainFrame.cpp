@@ -1492,20 +1492,20 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 
 	
 	gPlotCSV.set_legend("left");
-	gPlotCSV.cmd("set size 1,1");
-	gPlotCSV.cmd("set origin 0,0");
+//	gPlotCSV.cmd("set size 1,1");
+//	gPlotCSV.cmd("set origin 0,0");
 	gPlotCSV.cmd("set termoption noenhanced");
 	
 	float sizeX, sizeY, oriX, oriY;	
 	sizeX = 1.;
 	sizeY = 1./nFiles;
 	char str[100];
-sprintf(str, "set multiplot layout %d, 1", nFiles);
-		gPlotCSV.cmd(str);
+	//sprintf(str, "set multiplot layout %d, 1", nFiles);
+	//gPlotCSV.cmd(str);
 		
-		std::ostringstream cmdstr1;
-        cmdstr1 << "set multiplot title '" << inputPath.ToAscii() << "'" ;
-        gPlotCSV.cmd(cmdstr1.str());
+	std::ostringstream cmdstr1;
+	cmdstr1 << "set multiplot title '" << inputPath.ToAscii() << "'" ;
+	gPlotCSV.cmd(cmdstr1.str());
 		
 
 	
@@ -1516,21 +1516,21 @@ sprintf(str, "set multiplot layout %d, 1", nFiles);
 		s.Printf("read %d, %s\n", i, fName);
 		myMsgOutput(s);
 		
-		sprintf(str, "set size %f, %f", sizeX, sizeY);
-//		gPlotCSV.cmd(str);
+		sprintf(str, "set size %.2f, %.2f", sizeX, sizeY);
+		gPlotCSV.cmd(str);
 		myMsgOutput("%s\n", str);
 		
 		oriX = 0;
 		oriY = i*sizeY;
 		
-		sprintf(str, "set origin %f, %f", oriX, oriY);
-//		gPlotCSV.cmd(str);
+		sprintf(str, "set origin %.2f, %.2f", oriX, oriY);
+		gPlotCSV.cmd(str);
 		myMsgOutput("%s\n", str);
 
 
 		std::ostringstream cmdstr2;
 		cmdstr2 << "set title '" << fName.ToAscii() << "'" ;
-//		gPlotCSV.cmd(cmdstr2.str());	
+		gPlotCSV.cmd(cmdstr2.str());	
 		
 		int numR = 0;
 		FILE *fp = fopen(files[i].ToAscii(), "r");
