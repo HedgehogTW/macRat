@@ -1490,10 +1490,11 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__TOS_WIN__)	
 	gPlotCSV.cmd("set terminal wxt size 600, 850");
 #else
-	gPlotCSV.cmd("set terminal aqua size 600, 850");
+	//gPlotCSV.cmd("set terminal aqua size 600, 850");
+	gPlotCSV.cmd("set terminal png size 500, 900");
 #endif
 	
-	gPlotCSV.cmd("set grid");
+	gPlotCSV.cmd("unset grid");
 	gPlotCSV.cmd("unset key");	
 	gPlotCSV.set_xrange(0, 500);
 	gPlotCSV.set_yrange(-0.6, 2);
@@ -1508,6 +1509,11 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 	sizeX = 1.;
 	sizeY = 0.97/nFiles;	
 	char str[100];
+	
+	std::ostringstream cmdstr0;
+	cmdstr0 << "set output '" << inputPath.ToAscii() << ".png'";
+//	myMsgOutput(cmdstr0.str());
+	gPlotCSV.cmd(cmdstr0.str());	
 	
 	std::ostringstream cmdstr1;
 	cmdstr1 << "set multiplot title '"<< inputPath.ToAscii() << "' "; //<< " layout "<< nFiles <<",1";
@@ -1529,25 +1535,26 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 		
 		cv::Scalar meanS, stddev;
 		cv::meanStdDev(vSignal, meanS, stddev);
-		double sd = stddev(0);
+		double sdBelly = stddev(0);
 		
 		string sColor;
-		if(sd >1 )  {
+		if(sdBelly >1 )  {
 			sColor = "'#FF0022'";
 			
 			wxString sNameWOExt = files[i].BeforeLast('.');
 			sNameWOExt += "_X";
 			wxRenameFile(files[i], sNameWOExt);
 			wxString  str;
-			str.Printf("stddev = %f ----------rename to %s---\m", sd, sNameWOExt);
+			str.Printf("stddev = %f ----------rename to %s---\m", sdBelly, sNameWOExt);
 			myMsgOutput(str);
 		}
 		else {
 			sColor = "'#0000FF'";
-			myMsgOutput("stddev = %f\n", sd);
+			myMsgOutput("stddev = %f\n", sdBelly);
 		}
 	
 		readMarks(dataDirs[i]);
+		double xSD = m_configData.m_xSD;
 		myMsgOutput("m_nUserLED2 %d\n", m_nUserLED2);
 		
 		
@@ -1568,8 +1575,13 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 		gPlotCSV.cmd(cmdstr1.str());
 		
 		_gnuplotLED(gPlotCSV, m_nUserLED2, -1);	
+		_gnuplotHoriLine(gPlotCSV, n, sdBelly*xSD, "#00008800", "..-");
+		_gnuplotHoriLine(gPlotCSV, n, -sdBelly*xSD, "#00008800",  "..-");
     }
 	 
 	gPlotCSV.cmd("unset multiplot");	
-
+gPlotCSV.cmd("reset");    
+	Mat m = imread(cmdstr0.str());
+	if(m.data != NULL)
+		imshow("png", m);
 }

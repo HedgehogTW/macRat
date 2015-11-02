@@ -1281,11 +1281,11 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			_gnuplotLine(gPlotL, "LEar", vecLEarFlowPdf, "#000000ff");
 			_gnuplotLine(gPlotR, "REar", vecREarFlowPdf, "#000000ff");
 
-			wxString  newMarkerName = title+"_"+"LEar.csv";
+			wxString  newMarkerName = title+"_LEar.csv";
 			wxFileName newFullMarkerName(strParentPath, newMarkerName);
 			_OutputVec(vecLEarFlowPdf, newFullMarkerName.GetFullPath());
 			
-			newMarkerName =  title+"_"+"REar.csv";
+			newMarkerName =  title+"_REar.csv";
 			wxFileName newFullMarkerName1(strParentPath, newMarkerName);
 			_OutputVec(vecREarFlowPdf, newFullMarkerName1.GetFullPath());			
 		}
@@ -1298,7 +1298,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			_gnuplotHoriLine(gPlotL, m_nSlices, -sdBelly*xSD, "#00008800",  "..-");
 			_gnuplotHoriLine(gPlotR, m_nSlices, -sdBelly*xSD, "#00008800",  "..-");
 	
-			wxString  newMarkerName = title+"_"+"Belly.csv";
+			wxString  newMarkerName = title+"_Belly.csv";
 			wxFileName newFullMarkerName(strParentPath, newMarkerName);			
 			
 			_gnuplotLine(gPlotL, "Abdomen", vecBellyPdf, "#00008000");
@@ -1330,7 +1330,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			_gnuplotLine(gPlotL, "Head", vecEyeFlowPdfL, "#008B0000");
 			_gnuplotLine(gPlotR, "Head", vecEyeFlowPdfL, "#008B0000");	
 			
-			wxString  newMarkerName = title+"_"+"Head.csv";
+			wxString  newMarkerName = title+"_Head.csv";
 			wxFileName newFullMarkerName(strParentPath, newMarkerName);	
 			_OutputVec(vecEyeFlowPdfL, newFullMarkerName.GetFullPath()); 
 		}		
