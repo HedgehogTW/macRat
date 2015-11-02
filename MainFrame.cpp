@@ -13,6 +13,7 @@
 #include <wx/dir.h>
 #include <wx/msgdlg.h>
 #include <wx/sound.h>
+#include <wx/filefn.h> 
 
 #include <opencv2/opencv.hpp>
 #include "KDE.h"
@@ -282,8 +283,7 @@ void MainFrame::readMarks(wxString &dirName)
 				break;	
 			case 'B':
 				n = fscanf(fp, "%d %d\n", &m_ptMostBelly.x, &m_ptMostBelly.y);
-				myMsgOutput("m_ptMostBelly (%d, %d)\n", m_ptMostBelly.x, m_ptMostBelly.y);
-				//myMsgOutput("A Red[%d %d], Cyan[%d %d]\n", ptBellyRed.x, ptBellyRed.y, ptBellyCyan.x, ptBellyCyan.y );
+				//myMsgOutput("m_ptMostBelly (%d, %d)\n", m_ptMostBelly.x, m_ptMostBelly.y);				
 				break;					
 			case 'C':
 				n = fscanf(fp, "%d\n", &line);
@@ -304,7 +304,7 @@ void MainFrame::readMarks(wxString &dirName)
 					m_configData.m_gainHead = gainHead;
 					m_configData.m_gainBelly = gainBelly;
 					m_configData.m_xSD = xSD;
-					myMsgOutput("head, belly gain %.2f %.2f, xSD %.2f\n", gainHead, gainBelly, xSD);
+					//myMsgOutput("head, belly gain %.2f %.2f, xSD %.2f\n", gainHead, gainBelly, xSD);
 				}else
 					myMsgOutput("head, belly gain load error\n");
 				break;		
@@ -314,7 +314,7 @@ void MainFrame::readMarks(wxString &dirName)
 				if(n==2) {
 					m_configData.m_szROIEar = szEar;
 					m_configData.m_szROIBelly = szBelly;
-					myMsgOutput("ear, belly size %d %d\n", szEar, szBelly);
+					//myMsgOutput("ear, belly size %d %d\n", szEar, szBelly);
 				}else
 					myMsgOutput("ear, belly size load error\n");
 				break;	
@@ -1304,14 +1304,14 @@ void MainFrame::OnUpdateViewMarks(wxUpdateUIEvent& event)
     m_menuItemViewMarks->Check(!m_bViewMarks);
 }
 
-void MainFrame::readDirList(wxArrayString& dataDirs)
+void MainFrame::readDirList(wxString& basepath, wxArrayString& dataDirs)
 {
 	wxString fileSpec = _T("*");
 	wxArrayString  	topDirs;
 	wxArrayString  	secondDirs;
 
 	
-	wxDir dir(m_strBatchDir);
+	wxDir dir(basepath);
     
 	// top level
     wxString dirName;
@@ -1321,9 +1321,9 @@ void MainFrame::readDirList(wxArrayString& dataDirs)
         
 		wxString subDirName;
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__TOS_WIN__)
-		subDirName = m_strBatchDir + "\\" + dirName;
+		subDirName = basepath + "\\" + dirName;
 #elif defined(unix) || defined(__unix) || defined(__unix__) || defined(__APPLE__)
-		subDirName = m_strBatchDir + "/" + dirName;;
+		subDirName = basepath + "/" + dirName;;
 #endif		
         topDirs.Add(subDirName);
         cont = dir.GetNext(&dirName);
@@ -1373,17 +1373,18 @@ void MainFrame::readDirList(wxArrayString& dataDirs)
 }
 void MainFrame::OnBatchProcess(wxCommandEvent& event)
 {
-	static wxString strIniDir="";
-	DlgSelectFolder dlg(this, strIniDir);
+	wxString basepath;
+//	static wxString strIniDir="";
+	DlgSelectFolder dlg(this, m_strBatchDir);
 	int ret = dlg.ShowModal();
 	if(ret == wxID_OK) {
 		m_strBatchDir = dlg.m_strDir;
-		strIniDir = dlg.m_strDir;
+		basepath = dlg.m_strDir;
 		myMsgOutput("Batch process dir: " + m_strBatchDir +"\n") ;
 	}else return;
 	
 	wxArrayString  	dataDirs;
-	readDirList(dataDirs);
+	readDirList(basepath, dataDirs);
 	
 	//MyConfigData	oldConfigData;
 	m_configData.Init();
@@ -1480,8 +1481,12 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 	wxArrayString  	files;
 	wxDir::GetAllFiles(inputPath, &files,  fileSpec, wxDIR_FILES );
 	int nFiles = files.size();
-	
 	if(nFiles==0)  return;
+	
+	wxArrayString  	dataDirs;
+	readDirList(inputPath, dataDirs);
+
+	
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__TOS_WIN__)	
 	gPlotCSV.cmd("set terminal wxt size 600, 850");
 #else
@@ -1499,8 +1504,13 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 	gPlotCSV.cmd("set origin 0,0");
 	gPlotCSV.cmd("set termoption noenhanced");
 	
+	float sizeX, sizeY, oriX, oriY;	
+	sizeX = 1.;
+	sizeY = 0.97/nFiles;	
+	char str[100];
+	
 	std::ostringstream cmdstr1;
-	cmdstr1 << "set multiplot title '"<< inputPath.ToAscii() << "' "<< " layout "<< nFiles <<",1";
+	cmdstr1 << "set multiplot title '"<< inputPath.ToAscii() << "' "; //<< " layout "<< nFiles <<",1";
 	gPlotCSV.cmd(cmdstr1.str());
 //	myMsgOutput(cmdstr1.str());
     for(unsigned int i=0; i<nFiles; i++ ) {
@@ -1524,21 +1534,40 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 		string sColor;
 		if(sd >1 )  {
 			sColor = "'#FF0022'";
-			myMsgOutput("stddev = %f -------------\n", sd);
+			
+			wxString sNameWOExt = files[i].BeforeLast('.');
+			sNameWOExt += "_X";
+			wxRenameFile(files[i], sNameWOExt);
+			wxString  str;
+			str.Printf("stddev = %f ----------rename to %s---\m", sd, sNameWOExt);
+			myMsgOutput(str);
 		}
 		else {
 			sColor = "'#0000FF'";
 			myMsgOutput("stddev = %f\n", sd);
 		}
 	
+		readMarks(dataDirs[i]);
+		myMsgOutput("m_nUserLED2 %d\n", m_nUserLED2);
 		
+		
+		sprintf(str, "set size %f, %f", sizeX, sizeY);
+		gPlotCSV.cmd(str);
+	
+		oriX = 0;
+		oriY = 0.97 - (i+1)*sizeY;
+		sprintf(str, "set origin %f, %f", oriX, oriY);
+		gPlotCSV.cmd(str);
+			
 		std::ostringstream cmdstr2;
 		cmdstr2 << "set title '" << fName.ToAscii() << "'" ;
 		gPlotCSV.cmd(cmdstr2.str());	
 		
 		std::ostringstream cmdstr1;
 		cmdstr1 << "plot '" << files[i] << "'" << " notitle with lines linecolor " << sColor;
-		gPlotCSV.cmd(cmdstr1.str());	
+		gPlotCSV.cmd(cmdstr1.str());
+		
+		_gnuplotLED(gPlotCSV, m_nUserLED2, -1);	
     }
 	 
 	gPlotCSV.cmd("unset multiplot");	

@@ -55,7 +55,7 @@ public:
 	bool	getCroppedStatus()  { return m_bCutTop; }
 	bool	preprocessing();
 	void 	readMarks(wxString &dirName);
-	void	readDirList(wxArrayString& dataDirs);
+	void	readDirList(wxString& basepath, wxArrayString& dataDirs);
 	
 	static void myMsgOutput(wxString szFormat,...) {
 		wxString strMsg;
