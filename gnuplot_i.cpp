@@ -1066,18 +1066,24 @@ Gnuplot& Gnuplot::cmd(const std::string &cmdstr)
     // to the file.  If the argument is a null pointer, all open files are 
     // flushed.  The stream remains open after this call.
     fflush(gnucmd);
-
+	
+	// for handling the multiplot ...
+	std::string str1 = cmdstr.substr (0,5); // extract "splot ..."
+	std::string str2 = cmdstr.substr (0,4); // extract "plot ..."
+	
 
     if( cmdstr.find("replot") != std::string::npos )
     {
         return *this;
     }
-    else if( cmdstr.find("splot") != std::string::npos )
+    //else if( cmdstr.find("splot") != std::string::npos )
+	else if(str1.compare("splot")==0 )
     {
         two_dim = false;
         nplots++;
     }
-    else if( cmdstr.find("plot") != std::string::npos )
+    //else if( cmdstr.find("plot") != std::string::npos )
+	else if(str2.compare("plot")==0 )
     {
         two_dim = true;
         nplots++;

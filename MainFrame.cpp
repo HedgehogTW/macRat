@@ -1483,32 +1483,22 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 	
 	if(nFiles==0)  return;
 	
-	
-//	_gnuplotInit(gPlotCSV, "CSV", 10, 70);
+	gPlotCSV.cmd("set terminal wxt size 600, 850");
 	gPlotCSV.cmd("set grid");
 	gPlotCSV.cmd("unset key");	
 	gPlotCSV.set_xrange(0, 500);
-	gPlotCSV.set_yrange(-2, 2);
+//	gPlotCSV.set_yrange(-2, 2);
 
 	
 	gPlotCSV.set_legend("left");
-//	gPlotCSV.cmd("set size 1,1");
-//	gPlotCSV.cmd("set origin 0,0");
+	gPlotCSV.cmd("set size 1,1");
+	gPlotCSV.cmd("set origin 0,0");
 	gPlotCSV.cmd("set termoption noenhanced");
 	
-	float sizeX, sizeY, oriX, oriY;	
-	sizeX = 1.;
-	sizeY = 1./nFiles;
-	char str[100];
-	//sprintf(str, "set multiplot layout %d, 1", nFiles);
-	//gPlotCSV.cmd(str);
-		
 	std::ostringstream cmdstr1;
-	cmdstr1 << "set multiplot title '" << inputPath.ToAscii() << "'" ;
+	cmdstr1 << "set multiplot title '"<< inputPath.ToAscii() << "' "<< " layout "<< nFiles <<",1";
 	gPlotCSV.cmd(cmdstr1.str());
-		
-
-	
+//	myMsgOutput(cmdstr1.str());
     for(unsigned int i=0; i<nFiles; i++ ) {
 		wxFileName fileName = files[i];
 		wxString  fName = fileName.GetName();
@@ -1516,42 +1506,15 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 		s.Printf("read %d, %s\n", i, fName);
 		myMsgOutput(s);
 		
-		sprintf(str, "set size %.2f, %.2f", sizeX, sizeY);
-		gPlotCSV.cmd(str);
-		myMsgOutput("%s\n", str);
-		
-		oriX = 0;
-		oriY = i*sizeY;
-		
-		sprintf(str, "set origin %.2f, %.2f", oriX, oriY);
-		gPlotCSV.cmd(str);
-		myMsgOutput("%s\n", str);
-
-
 		std::ostringstream cmdstr2;
 		cmdstr2 << "set title '" << fName.ToAscii() << "'" ;
 		gPlotCSV.cmd(cmdstr2.str());	
 		
-		int numR = 0;
-		FILE *fp = fopen(files[i].ToAscii(), "r");
-		while(!feof(fp)) {
-			float a;
-			int r = fscanf(fp, "%f", &a);
-			if(r==1) numR++;
-			else break;
-		}
-		rewind(fp);
-		vector<float> vSignal(numR);
-		for(int i=0; i<numR; i++) {
-			fscanf(fp, "%f", &vSignal[i]);			
-		}
-		fclose(fp);		
-		_gnuplotLine(gPlotCSV, "Abdomen", vSignal, "#00008000");
-
+		std::ostringstream cmdstr1;
+		cmdstr1 << "plot '" << files[i] << "'" << " notitle with lines linecolor '#FF0022'";
+		gPlotCSV.cmd(cmdstr1.str());	
     }
-//gPlotCSV.cmd("replot");		 
-gPlotCSV.cmd("unset multiplot");	
-		 //gPlotCSV.cmd("reset");   
-	
- 
+	 
+	gPlotCSV.cmd("unset multiplot");	
+
 }
