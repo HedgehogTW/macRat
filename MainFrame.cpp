@@ -1482,12 +1482,16 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 	int nFiles = files.size();
 	
 	if(nFiles==0)  return;
-	
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__TOS_WIN__)	
 	gPlotCSV.cmd("set terminal wxt size 600, 850");
+#else
+	gPlotCSV.cmd("set terminal aqua size 600, 850");
+#endif
+	
 	gPlotCSV.cmd("set grid");
 	gPlotCSV.cmd("unset key");	
 	gPlotCSV.set_xrange(0, 500);
-//	gPlotCSV.set_yrange(-2, 2);
+	gPlotCSV.set_yrange(-0.6, 2);
 
 	
 	gPlotCSV.set_legend("left");
@@ -1506,12 +1510,34 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 		s.Printf("read %d, %s\n", i, fName);
 		myMsgOutput(s);
 		
+		vector<float> vSignal;
+		int n = _readCSVFile(files[i].ToStdString(), vSignal);
+		if(n< 0 ) {
+			myMsgOutput("read data ERROR\n");
+			continue;
+		}
+		
+		cv::Scalar meanS, stddev;
+		cv::meanStdDev(vSignal, meanS, stddev);
+		double sd = stddev(0);
+		
+		string sColor;
+		if(sd >1 )  {
+			sColor = "'#FF0022'";
+			myMsgOutput("stddev = %f -------------\n", sd);
+		}
+		else {
+			sColor = "'#0000FF'";
+			myMsgOutput("stddev = %f\n", sd);
+		}
+	
+		
 		std::ostringstream cmdstr2;
 		cmdstr2 << "set title '" << fName.ToAscii() << "'" ;
 		gPlotCSV.cmd(cmdstr2.str());	
 		
 		std::ostringstream cmdstr1;
-		cmdstr1 << "plot '" << files[i] << "'" << " notitle with lines linecolor '#FF0022'";
+		cmdstr1 << "plot '" << files[i] << "'" << " notitle with lines linecolor " << sColor;
 		gPlotCSV.cmd(cmdstr1.str());	
     }
 	 

@@ -128,6 +128,29 @@ void _redirectStandardOutputToFile ( string filePath, bool toPromptAlso )
 		cout.rdbuf(sbuf);
 }
 
+
+int _readCSVFile(string filename, vector<float>& vSignal)
+{
+	int numR = 0;
+	FILE *fp = fopen(filename.c_str(), "r");
+	if(fp==NULL) return -1;
+	
+	while(!feof(fp)) {
+		float a;
+		int r = fscanf(fp, "%f", &a);
+		if(r==1) numR++;
+		else break;
+	}
+	rewind(fp);
+	vSignal.resize(numR);
+	for(int i=0; i<numR; i++) {
+		fscanf(fp, "%f", &vSignal[i]);			
+	}
+	fclose(fp);		
+		
+	return numR;
+}
+
 void _OutputBinaryMat(cv::Mat m, char *filename)
 {
 	int lines = m.rows;
