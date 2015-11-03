@@ -1489,9 +1489,10 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 	
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__TOS_WIN__)	
 	gPlotCSV.cmd("set terminal wxt size 600, 850");
+//	gPlotCSV.cmd("set terminal pngcairo size 600, 850");
 #else
-	//gPlotCSV.cmd("set terminal aqua size 600, 850");
-	gPlotCSV.cmd("set terminal png size 500, 900");
+	gPlotCSV.cmd("set terminal aqua size 600, 850");
+//	gPlotCSV.cmd("set terminal png size 500, 900");
 #endif
 	
 	gPlotCSV.cmd("unset grid");
@@ -1510,10 +1511,10 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 	sizeY = 0.97/nFiles;	
 	char str[100];
 	
-	std::ostringstream cmdstr0;
-	cmdstr0 << "set output '" << inputPath.ToAscii() << ".png'";
+//	std::ostringstream cmdstr0;
+//	cmdstr0 << "set output '" << inputPath.ToAscii() << ".png'";
 //	myMsgOutput(cmdstr0.str());
-	gPlotCSV.cmd(cmdstr0.str());	
+//	gPlotCSV.cmd(cmdstr0.str());	
 	
 	std::ostringstream cmdstr1;
 	cmdstr1 << "set multiplot title '"<< inputPath.ToAscii() << "' "; //<< " layout "<< nFiles <<",1";
@@ -1557,6 +1558,7 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 		double xSD = m_configData.m_xSD;
 		myMsgOutput("m_nUserLED2 %d\n", m_nUserLED2);
 		
+	
 		
 		sprintf(str, "set size %f, %f", sizeX, sizeY);
 		gPlotCSV.cmd(str);
@@ -1574,14 +1576,18 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 		cmdstr1 << "plot '" << files[i] << "'" << " notitle with lines linecolor " << sColor;
 		gPlotCSV.cmd(cmdstr1.str());
 		
+
 		_gnuplotLED(gPlotCSV, m_nUserLED2, -1);	
 		_gnuplotHoriLine(gPlotCSV, n, sdBelly*xSD, "#00008800", "..-");
 		_gnuplotHoriLine(gPlotCSV, n, -sdBelly*xSD, "#00008800",  "..-");
+		
+		
     }
 	 
 	gPlotCSV.cmd("unset multiplot");	
-gPlotCSV.cmd("reset");    
+ /* 
 	Mat m = imread(cmdstr0.str());
 	if(m.data != NULL)
 		imshow("png", m);
+		 */
 }
