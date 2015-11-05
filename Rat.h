@@ -111,15 +111,14 @@ public:
     bool	process(cv::Point& ptEyeL, cv::Point& ptEyeR, cv::Point& ptEarL, cv::Point& ptEarR, cv::Point& ptBelly, int& nLED2);
 	bool	genReferenceFrameSignal(cv::Point& ptBelly, int& nLED2);
 	
-	void	plotSoundOnset(float baseline, float deltaY, int msec);
 	void 	drawOnDestImage(bool bSaveFile);
 	void 	findEyeCenter(cv::Point& ptEye0, vector <cv::Point>& vecEye, vector <float>&  vecEyeMove, int referFrame);
 	void  	findNewEarCenter(vector <cv::Point>& vecEye, cv::Point ptEar0, vector <cv::Point>& vecEar, int referFrame);
-	void	findPeaks(vector<float>& inDataOri, vector<float>& inData, vector<cv::Point2f>& peaks);
-	void	peakAnalysis(vector<cv::Point2f>& peaks, vector<float>& vPeakDistX, vector<float>& vPeakDistY, int nLED2, float& mean, float& sd);
+	static void	findPeaks(vector<float>& inDataOri, vector<float>& inData, vector<cv::Point2f>& peaks);
+	static void	peakAnalysis(vector<cv::Point2f>& peaks, vector<float>& vPeakDistX, vector<float>& vPeakDistY, int nLED2, float& mean, float& sd);
 	float	findMode(vector<float>& inData, float sigma);
 	
-	void 	smoothData(vector<float>& inData, vector<float>& outData, int bw=5);
+	static void 	smoothData(vector<float>& inData, vector<float>& outData, int bw=5);
 	double  avgROI(cv::Mat &mDiff, cv::Rect rectEar);
 	int		findReferenceFrame(cv::Rect rect);
 	int 	findMaxMotionPoint(vector<float>& inData);

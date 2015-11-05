@@ -30,6 +30,7 @@ void _gnuplotInit(Gnuplot& gnuPlot, const char* title, double ymin=0, double yma
 void _gnuplotVerticalLine(Gnuplot& gnuPlot, float x, const char* color="", const char* dataName="");
 void _gnuplotHoriLine(Gnuplot& gnuPlot, float x, float y, const char* color="", const char* dashtype="", const char* dataName="");
 void _gnuplotLED(Gnuplot& gnuPlot, int LED1, int LED2);
+void _gnuplotSoundOnset(Gnuplot& gnuPlot, int nLED2, int len, float baseline, float deltaY, int msec);
 
 template<typename X>
 void _gnuplotLine(Gnuplot& gnuPlot, const char* titleName, X& data, const char* color="", const char* dashtype="")

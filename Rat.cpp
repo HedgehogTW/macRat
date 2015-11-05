@@ -1220,24 +1220,9 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	gPlotR.cmd("set termoption noenhanced");
 	gPlotP.cmd("set termoption noenhanced");
 
-/*
-	if(bSaveSignalPlot) {
-		// assign save filename
-		wxFileName fileName = m_strSrcPath;
-		wxUniChar sep = fileName.GetPathSeparator();
-		wxString 	strParentPath =  m_strSrcPath.BeforeLast(sep);
-		wxString  plotName = "_"+fileName.GetName();
-		wxFileName fullPlotName(strParentPath, plotName);
-      
-        /////////////////////////////////////////////// plot command
-        std::ostringstream cmdstr0, cmdstr1;
-        cmdstr0 << "set output '" << fullPlotName.GetFullPath().ToAscii() << "_plotL.png'";
-		cmdstr1 << "set output '" << fullPlotName.GetFullPath().ToAscii() << "_plotP.png'";
-//        gPlotL.cmd(cmdstr0.str());
-		gPlotP.cmd(cmdstr1.str());
-	}	
-*/	
-	plotSoundOnset(-0.65, 0.06, 100);
+
+	_gnuplotSoundOnset(gPlotL, m_nLED2, m_nSlices, -0.65, 0.06, 100);
+	_gnuplotSoundOnset(gPlotR, m_nLED2, m_nSlices, -0.65, 0.06, 100);
 	
 	if(bLEDLine && (m_nLED1>0 || m_nLED2 >0)) {
 		_gnuplotLED(gPlotL, m_nLED1, m_nLED2);
@@ -1314,7 +1299,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			_gnuplotHoriLine(gPlotP, m_nSlices, meanPeak, "#000088FF");						
 			_gnuplotHoriLine(gPlotP, m_nSlices, meanPeak+xSD*sdPeak, "#00100800", "..-", strLine);			
 			_gnuplotHoriLine(gPlotP, m_nSlices, meanPeak-xSD*sdPeak, "#00100800", "..-");			
-			_gnuplotVerticalLine(gPlotP, m_nLED2, "#00FF0000");
+			_gnuplotVerticalLine(gPlotP, m_nLED2, "#000000FF");
  				
 		}
 		if(m_bShowEye) {
@@ -1448,36 +1433,7 @@ float CRat::computeSD(vector<float>& vSignal, int nLED2)
 	float sd = stddev(0);
 	return sd;
 }
-void CRat::plotSoundOnset(float baseline, float deltaY, int msec)
-{
-	vector <float>  vX;
-	vector <float>  vY;
-	vector <float>  vXlow;
-	vector <float>  vYlow;
-	vector <float>  vXhigh;
-	vector <float>  vYhigh;
-	
-	float duration = msec * 60/1000.;
-	
-	vX.push_back(m_nLED2);
-	vYlow.push_back(baseline+deltaY);
-	vYhigh.push_back(baseline-deltaY);	
-	
-	vXlow.push_back(m_nLED2);
-	vXhigh.push_back(m_nLED2+duration);
-	vY.push_back(baseline);	
-	gPlotR.plot_Boxxyerrorbars(vX, vY, vXlow, vXhigh, vYlow, vYhigh, "#00888888");
-	gPlotL.plot_Boxxyerrorbars(vX, vY, vXlow, vXhigh, vYlow, vYhigh, "#00888888");
-	
-	vX.clear();
-	vY.clear();
-	vX.push_back(0);
-	vX.push_back(m_nSlices);
-	vY.push_back(baseline);
-	vY.push_back(baseline);	
-	_gnuplotLineXY(gPlotL, vX, vY, "#00888888");	
-	_gnuplotLineXY(gPlotR, vX, vY, "#00888888");	
-}
+
 void CRat::drawOnDestImage(bool bSaveFile)
 {
 	////////////////////// save result to dest

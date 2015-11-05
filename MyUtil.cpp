@@ -26,6 +26,35 @@ void _gnuplotLED(Gnuplot& gnuPlot, int LED1, int LED2)
 	if (LED2 > 0)	_gnuplotVerticalLine(gnuPlot, LED2);
 }
 
+void _gnuplotSoundOnset(Gnuplot& gnuPlot, int nLED2, int len, float baseline, float deltaY, int msec)
+{
+	vector <float>  vX;
+	vector <float>  vY;
+	vector <float>  vXlow;
+	vector <float>  vYlow;
+	vector <float>  vXhigh;
+	vector <float>  vYhigh;
+	
+	float duration = msec * 60/1000.;
+	
+	vX.push_back(nLED2);
+	vYlow.push_back(baseline+deltaY);
+	vYhigh.push_back(baseline-deltaY);	
+	
+	vXlow.push_back(nLED2);
+	vXhigh.push_back(nLED2+duration);
+	vY.push_back(baseline);	
+	gnuPlot.plot_Boxxyerrorbars(vX, vY, vXlow, vXhigh, vYlow, vYhigh, "#00888888");
+		
+	vX.clear();
+	vY.clear();
+	vX.push_back(0);
+	vX.push_back(len);
+	vY.push_back(baseline);
+	vY.push_back(baseline);	
+	_gnuplotLineXY(gnuPlot, vX, vY, "#00888888");	
+	//_gnuplotLineXY(gPlotR, vX, vY, "#00888888");	
+}
 
 void _gnuplotVerticalLine(Gnuplot& gnuPlot, float x, const char* color, const char* dataName)
 {

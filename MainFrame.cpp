@@ -25,7 +25,7 @@
 using namespace std;
 //using namespace cv;
 
-Gnuplot gPlotCSV("lines");
+//Gnuplot gPlotCSV("lines");
 vector <Mat> gvecMat;
 
 MainFrame *	MainFrame::m_pThis=NULL;
@@ -1486,40 +1486,8 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 	wxArrayString  	dataDirs;
 	readDirList(inputPath, dataDirs);
 
-	
-#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__TOS_WIN__)	
-	gPlotCSV.cmd("set terminal wxt size 600, 850");
-//	gPlotCSV.cmd("set terminal pngcairo size 600, 850");
-#else
-	gPlotCSV.cmd("set terminal aqua size 600, 850");
-//	gPlotCSV.cmd("set terminal png size 500, 900");
-#endif
-	
-	gPlotCSV.cmd("unset grid");
-	gPlotCSV.cmd("unset key");	
-	gPlotCSV.set_xrange(0, 500);
-	gPlotCSV.set_yrange(-0.6, 2);
-
-	
-	gPlotCSV.set_legend("left");
-	gPlotCSV.cmd("set size 1,1");
-	gPlotCSV.cmd("set origin 0,0");
-	gPlotCSV.cmd("set termoption noenhanced");
-	
-	float sizeX, sizeY, oriX, oriY;	
-	sizeX = 1.;
-	sizeY = 0.97/nFiles;	
 	char str[100];
-	
-//	std::ostringstream cmdstr0;
-//	cmdstr0 << "set output '" << inputPath.ToAscii() << ".png'";
-//	myMsgOutput(cmdstr0.str());
-//	gPlotCSV.cmd(cmdstr0.str());	
-	
-	std::ostringstream cmdstr1;
-	cmdstr1 << "set multiplot title '"<< inputPath.ToAscii() << "' "; //<< " layout "<< nFiles <<",1";
-	gPlotCSV.cmd(cmdstr1.str());
-//	myMsgOutput(cmdstr1.str());
+
     for(unsigned int i=0; i<nFiles; i++ ) {
 		wxFileName fileName = files[i];
 		wxString  fName = fileName.GetName();
@@ -1533,14 +1501,14 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 			myMsgOutput("read data ERROR\n");
 			continue;
 		}
-		
+					
 		cv::Scalar meanS, stddev;
 		cv::meanStdDev(vSignal, meanS, stddev);
 		double sdBelly = stddev(0);
 		
 		string sColor;
 		if(sdBelly >1 )  {
-			sColor = "'#FF0022'";
+			sColor = "#FF0022";
 			
 			wxString sNameWOExt = files[i].BeforeLast('.');
 			sNameWOExt += "_X";
@@ -1550,44 +1518,67 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 			myMsgOutput(str);
 		}
 		else {
-			sColor = "'#0000FF'";
+			sColor = "#0000FF";
 			myMsgOutput("stddev = %f\n", sdBelly);
 		}
 	
 		readMarks(dataDirs[i]);
 		double xSD = m_configData.m_xSD;
+		double ymin = m_configData.m_ymin;
+		double ymax = m_configData.m_ymax;
 		myMsgOutput("m_nUserLED2 %d\n", m_nUserLED2);
 		
+		vector <float>  vecBellySmooth;
+		vector<Point2f> peakBelly;
+		vector<Point2f> peakMinMax;
+		vector<Point2f> vPeakDist;
+		vector<float> 	vPeakDistX;
+		vector<float> 	vPeakDistY;
+		float meanPeak, sdPeak;
 	
+		CRat::smoothData(vSignal, vecBellySmooth, 2);	
+		CRat::findPeaks(vSignal, vecBellySmooth, peakBelly);
+		CRat::peakAnalysis(peakBelly, vPeakDistX, vPeakDistY, m_nUserLED2, meanPeak, sdPeak);
 		
-		sprintf(str, "set size %f, %f", sizeX, sizeY);
-		gPlotCSV.cmd(str);
-	
-		oriX = 0;
-		oriY = 0.97 - (i+1)*sizeY;
-		sprintf(str, "set origin %f, %f", oriX, oriY);
-		gPlotCSV.cmd(str);
-			
-		std::ostringstream cmdstr2;
-		cmdstr2 << "set title '" << fName.ToAscii() << "'" ;
-		gPlotCSV.cmd(cmdstr2.str());	
 		
-		std::ostringstream cmdstr1;
-		cmdstr1 << "plot '" << files[i] << "'" << " notitle with lines linecolor " << sColor;
-		gPlotCSV.cmd(cmdstr1.str());
+		
+		///////////G N U P L O T/////////////////////////////////////////////////
+		
 		
 
-		_gnuplotLED(gPlotCSV, m_nUserLED2, -1);	
-		_gnuplotHoriLine(gPlotCSV, n, sdBelly*xSD, "#00008800", "..-");
-		_gnuplotHoriLine(gPlotCSV, n, -sdBelly*xSD, "#00008800",  "..-");
+		_gnuplotInit(gPlotR, fName.ToAscii(), ymin, ymax);
+		_gnuplotInit(gPlotP, fName.ToAscii(), 10, 70);
 		
+
+
+		gPlotR.set_legend("left");	
+		gPlotP.set_legend("left");	
+
+		gPlotR.cmd("set termoption noenhanced");
+		gPlotP.cmd("set termoption noenhanced");
+		_gnuplotSoundOnset(gPlotR, m_nUserLED2, n, -0.65, 0.06, 100);	
+			
+		wxString strLine;
+		strLine.Printf("%.1fxSD", xSD);
 		
+		_gnuplotHoriLine(gPlotR, n, sdBelly*xSD, "#00008800", "..-", strLine);	
+		_gnuplotHoriLine(gPlotR, n, -sdBelly*xSD, "#00008800",  "..-");
+		
+		_gnuplotLine(gPlotR, "Abdomen", vSignal, sColor.c_str()); //"#00008000");
+			
+
+		if(true) //bShowPeaks)
+			_gnuplotPoint(gPlotR, peakBelly, "#00008f00" );
+		
+		_gnuplotSteps(gPlotP, vPeakDistX, vPeakDistY, "#00F08000", "Cycle time");
+		_gnuplotHoriLine(gPlotP, n, meanPeak, "#000088FF");						
+		_gnuplotHoriLine(gPlotP, n, meanPeak+xSD*sdPeak, "#00100800", "..-", strLine);			
+		_gnuplotHoriLine(gPlotP, n, meanPeak-xSD*sdPeak, "#00100800", "..-");			
+		_gnuplotVerticalLine(gPlotP, m_nUserLED2, "#000000FF");
+		
+		if(i < nFiles-1)
+			wxMessageBox("press anykey ...");
     }
 	 
-	gPlotCSV.cmd("unset multiplot");	
- /* 
-	Mat m = imread(cmdstr0.str());
-	if(m.data != NULL)
-		imshow("png", m);
-		 */
+
 }

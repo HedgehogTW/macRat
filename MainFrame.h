@@ -152,4 +152,9 @@ protected:
 	cv::Point  m_ptMostBelly;	// store original coordinates.
 	bool	m_bAlreadyCrop;
 };
+
+extern Gnuplot gPlotL;
+extern Gnuplot gPlotR;
+extern Gnuplot gPlotP;
+
 #endif // MAINFRAME_H
