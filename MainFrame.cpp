@@ -1501,13 +1501,17 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 			myMsgOutput("read data ERROR\n");
 			continue;
 		}
-					
-		cv::Scalar meanS, stddev;
-		cv::meanStdDev(vSignal, meanS, stddev);
-		double sdBelly = stddev(0);
 		
-		string sColor;
-		if(sdBelly >1 )  {
+		readMarks(dataDirs[i]);
+		double xSD = m_configData.m_xSD;
+		double ymin = -1; //m_configData.m_ymin;
+		double ymax = 1; //m_configData.m_ymax;
+		myMsgOutput("m_nUserLED2 %d\n", m_nUserLED2);	
+				
+		//float sdBelly = CRat::computeSD(vSignal, m_nUserLED2);
+	
+		string sColor= "#0000FF";
+	/*		if(sdBelly >1 )  {
 			sColor = "#FF0022";
 			
 			wxString sNameWOExt = files[i].BeforeLast('.');
@@ -1521,12 +1525,7 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 			sColor = "#0000FF";
 			myMsgOutput("stddev = %f\n", sdBelly);
 		}
-	
-		readMarks(dataDirs[i]);
-		double xSD = m_configData.m_xSD;
-		double ymin = m_configData.m_ymin;
-		double ymax = m_configData.m_ymax;
-		myMsgOutput("m_nUserLED2 %d\n", m_nUserLED2);
+	*/
 		
 		vector <float>  vecBellySmooth;
 		vector<Point2f> peakBelly;
@@ -1534,23 +1533,19 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 		vector<Point2f> vPeakDist;
 		vector<float> 	vPeakDistX;
 		vector<float> 	vPeakDistY;
-		float meanPeak, sdPeak;
+		float meanPeriod, sdPeriod, meanAmp, sdAmp;
 	
 		CRat::smoothData(vSignal, vecBellySmooth, 2);	
 		CRat::findPeaks(vSignal, vecBellySmooth, peakBelly);
-		CRat::peakAnalysis(peakBelly, vPeakDistX, vPeakDistY, m_nUserLED2, meanPeak, sdPeak);
-		
-		
+
+		CRat::peakPeriodAnalysis(peakBelly, vPeakDistX, vPeakDistY, m_nUserLED2, meanPeriod, sdPeriod);
+		CRat::peakAmplitudeAnalysis(peakBelly, m_nUserLED2, meanAmp, sdAmp);
 		
 		///////////G N U P L O T/////////////////////////////////////////////////
-		
-		
-
+		/////////////////////////////////////////////////////////////////////////
 		_gnuplotInit(gPlotR, fName.ToAscii(), ymin, ymax);
 		_gnuplotInit(gPlotP, fName.ToAscii(), 10, 70);
 		
-
-
 		gPlotR.set_legend("left");	
 		gPlotP.set_legend("left");	
 
@@ -1561,8 +1556,8 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 		wxString strLine;
 		strLine.Printf("%.1fxSD", xSD);
 		
-		_gnuplotHoriLine(gPlotR, n, sdBelly*xSD, "#00008800", "..-", strLine);	
-		_gnuplotHoriLine(gPlotR, n, -sdBelly*xSD, "#00008800",  "..-");
+		_gnuplotHoriLine(gPlotR, n, meanAmp + sdAmp*xSD, "#00008800", "..-", strLine);	
+		_gnuplotHoriLine(gPlotR, n, meanAmp - sdAmp*xSD, "#00008800",  "..-");
 		
 		_gnuplotLine(gPlotR, "Abdomen", vSignal, sColor.c_str()); //"#00008000");
 			
@@ -1571,9 +1566,9 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 			_gnuplotPoint(gPlotR, peakBelly, "#00008f00" );
 		
 		_gnuplotSteps(gPlotP, vPeakDistX, vPeakDistY, "#00F08000", "Cycle time");
-		_gnuplotHoriLine(gPlotP, n, meanPeak, "#000088FF");						
-		_gnuplotHoriLine(gPlotP, n, meanPeak+xSD*sdPeak, "#00100800", "..-", strLine);			
-		_gnuplotHoriLine(gPlotP, n, meanPeak-xSD*sdPeak, "#00100800", "..-");			
+		_gnuplotHoriLine(gPlotP, n, meanPeriod, "#000088FF");						
+		_gnuplotHoriLine(gPlotP, n, meanPeriod+xSD*sdPeriod, "#00100800", "..-", strLine);			
+		_gnuplotHoriLine(gPlotP, n, meanPeriod-xSD*sdPeriod, "#00100800", "..-");			
 		_gnuplotVerticalLine(gPlotP, m_nUserLED2, "#000000FF");
 		
 		if(i < nFiles-1)

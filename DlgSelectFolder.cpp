@@ -5,6 +5,7 @@ DlgSelectFolder::DlgSelectFolder(wxWindow* parent, wxString& strIniDir)
     : DlgSelectFolderBase(parent)
 {
 	m_strDir = strIniDir;
+	m_textCtrlFolder->SetValue(m_strDir);
 }
 
 DlgSelectFolder::~DlgSelectFolder()

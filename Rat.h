@@ -107,7 +107,7 @@ public:
 	void 	computeEyeMaskCenter(cv::Point& ptNewMaskCenter, bool bBigHead);
 	void	computeROIRect();
 	void	recomputeHeadROI();
-	float	computeSD(vector<float>& vSignal, int nLED2);
+	static float	computeSD(vector<float>& vSignal, int nLED2);
     bool	process(cv::Point& ptEyeL, cv::Point& ptEyeR, cv::Point& ptEarL, cv::Point& ptEarR, cv::Point& ptBelly, int& nLED2);
 	bool	genReferenceFrameSignal(cv::Point& ptBelly, int& nLED2);
 	
@@ -115,7 +115,8 @@ public:
 	void 	findEyeCenter(cv::Point& ptEye0, vector <cv::Point>& vecEye, vector <float>&  vecEyeMove, int referFrame);
 	void  	findNewEarCenter(vector <cv::Point>& vecEye, cv::Point ptEar0, vector <cv::Point>& vecEar, int referFrame);
 	static void	findPeaks(vector<float>& inDataOri, vector<float>& inData, vector<cv::Point2f>& peaks);
-	static void	peakAnalysis(vector<cv::Point2f>& peaks, vector<float>& vPeakDistX, vector<float>& vPeakDistY, int nLED2, float& mean, float& sd);
+	static void	peakPeriodAnalysis(vector<cv::Point2f>& peaks, vector<float>& vPeakDistX, vector<float>& vPeakDistY, int nLED2, float& mean, float& sd);
+	static void peakAmplitudeAnalysis(vector<cv::Point2f>& peaks, int nLED2, float& mean, float& sd);
 	float	findMode(vector<float>& inData, float sigma);
 	
 	static void 	smoothData(vector<float>& inData, vector<float>& outData, int bw=5);

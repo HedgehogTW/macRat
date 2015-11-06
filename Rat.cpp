@@ -1110,7 +1110,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	vector<Point2f> 	vPeakDist;
 	vector<float> 	vPeakDistX;
 	vector<float> 	vPeakDistY;
-	float meanPeak, sdPeak;
+	float meanPeriod, sdPeriod, meanAmp, sdAmp;
 	
 	if(bOpticalPDF) {
 		int sz = m_vecFlow.size();
@@ -1161,11 +1161,12 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			DC_removal(m_nLED2, vecBellyPdf);
 			
 			Notch_removal(vecBellyPdf, m_referFrame);
-			sdBelly = computeSD(vecBellyPdf, m_nLED2);
+			//sdBelly = computeSD(vecBellyPdf, m_nLED2);
 			
 			smoothData(vecBellyPdf, vecBellySmooth, 2);	
 			findPeaks(vecBellyPdf, vecBellySmooth, peakBelly);
-			peakAnalysis(peakBelly, vPeakDistX, vPeakDistY, m_nLED2, meanPeak, sdPeak);
+			peakPeriodAnalysis(peakBelly, vPeakDistX, vPeakDistY, m_nLED2, meanPeriod, sdPeriod);
+			peakAmplitudeAnalysis(peakBelly, m_nLED2, meanAmp, sdAmp);
 			
 			Point2f pt(314, vecBellyPdf[314]);
 			peakMinMax.push_back(pt);
@@ -1278,10 +1279,10 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
             //_OutputVec(vecRedFlowPdf, "_redw.csv");
 			wxString strLine;
 			strLine.Printf("%.1fxSD", xSD);
-			_gnuplotHoriLine(gPlotL, m_nSlices, sdBelly*xSD, "#00008800", "..-", strLine);
-			_gnuplotHoriLine(gPlotR, m_nSlices, sdBelly*xSD, "#00008800", "..-", strLine);
-			_gnuplotHoriLine(gPlotL, m_nSlices, -sdBelly*xSD, "#00008800",  "..-");
-			_gnuplotHoriLine(gPlotR, m_nSlices, -sdBelly*xSD, "#00008800",  "..-");
+			_gnuplotHoriLine(gPlotL, m_nSlices, meanAmp + sdAmp*xSD, "#00008800", "..-", strLine);
+			_gnuplotHoriLine(gPlotR, m_nSlices, meanAmp + sdAmp*xSD, "#00008800", "..-", strLine);
+			_gnuplotHoriLine(gPlotL, m_nSlices, meanAmp - sdAmp*xSD, "#00008800",  "..-");
+			_gnuplotHoriLine(gPlotR, m_nSlices, meanAmp - sdAmp*xSD, "#00008800",  "..-");
 	
 			wxString  newMarkerName = title+"_Belly.csv";
 			wxFileName newFullMarkerName(strParentPath, newMarkerName);			
@@ -1296,9 +1297,9 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 				_gnuplotPoint(gPlotR, peakBelly, "#00008f00" );
 			
 			_gnuplotSteps(gPlotP, vPeakDistX, vPeakDistY, "#00F08000", "Cycle time");
-			_gnuplotHoriLine(gPlotP, m_nSlices, meanPeak, "#000088FF");						
-			_gnuplotHoriLine(gPlotP, m_nSlices, meanPeak+xSD*sdPeak, "#00100800", "..-", strLine);			
-			_gnuplotHoriLine(gPlotP, m_nSlices, meanPeak-xSD*sdPeak, "#00100800", "..-");			
+			_gnuplotHoriLine(gPlotP, m_nSlices, meanPeriod, "#000088FF");						
+			_gnuplotHoriLine(gPlotP, m_nSlices, meanPeriod+xSD*sdPeriod, "#00100800", "..-", strLine);			
+			_gnuplotHoriLine(gPlotP, m_nSlices, meanPeriod-xSD*sdPeriod, "#00100800", "..-");			
 			_gnuplotVerticalLine(gPlotP, m_nLED2, "#000000FF");
  				
 		}
@@ -1368,7 +1369,23 @@ float CRat::findMode(vector<float>& inData, float sigma)
 	return mode;	
 }
 
-void CRat::peakAnalysis(vector<Point2f>& peaks, vector<float>& vPeakDistX, vector<float>& vPeakDistY, int nLED2, float& mean, float& sd)
+void CRat::peakAmplitudeAnalysis(vector<Point2f>& peaks, int nLED2, float& mean, float& sd)
+{
+	vector<float> vPeakAmp;
+	int n = peaks.size();
+
+	for(int i=0; i<n; i++) {
+		if(peaks[i].x <= nLED2)
+			vPeakAmp.push_back(peaks[i].y);
+		else break;
+	}	
+	cv::Scalar meanS, stddev;
+	cv::meanStdDev(vPeakAmp, meanS, stddev);
+	sd = stddev(0);
+	mean = meanS(0);
+}
+
+void CRat::peakPeriodAnalysis(vector<Point2f>& peaks, vector<float>& vPeakDistX, vector<float>& vPeakDistY, int nLED2, float& mean, float& sd)
 {
 	int n = peaks.size();
 	int led = -1;
@@ -1397,7 +1414,7 @@ void CRat::peakAnalysis(vector<Point2f>& peaks, vector<float>& vPeakDistX, vecto
 		if(i==led-1)  MainFrame::myMsgOutput(" | ");
 	}
 */
-	MainFrame::myMsgOutput("Before LED mean = %.3f, sd = %.3f\n", mean, sd);
+	MainFrame::myMsgOutput("Before LED period mean = %.3f, sd = %.3f\n", mean, sd);
 //	return ledPos;
 }
 void CRat::findPeaks(vector<float>& inDataOri, vector<float>& inData, vector<Point2f>& peaks)
@@ -1411,9 +1428,9 @@ void CRat::findPeaks(vector<float>& inDataOri, vector<float>& inData, vector<Poi
 				peaks.push_back(pt);
 		}
 	}
-	for(int i=7; i<n-7; i++) {
-		if(inData[i-6] < inData[i-5] && inData[i-5] < inData[i-3] && inData[i-3] < inData[i-2] && inData[i-2] < inData[i-1] && inData[i-1] < inData[i] &&
-			inData[i+6] < inData[i+5] && inData[i+5] < inData[i+3] && inData[i+3] < inData[i+2] && inData[i+2] < inData[i+1] && inData[i+1] < inData[i]) {
+	for(int i=4; i<n-4; i++) {
+		if(/*inData[i-6] < inData[i-5] &&*/ inData[i-4] < inData[i-3] && inData[i-3] < inData[i-2] && inData[i-2] < inData[i-1] && inData[i-1] < inData[i] &&
+			/*inData[i+6] < inData[i+5] &&*/ inData[i+4] < inData[i+3] && inData[i+3] < inData[i+2] && inData[i+2] < inData[i+1] && inData[i+1] < inData[i]) {
 				Point2f pt(i, inDataOri[i]);
 				peaks.push_back(pt);				
 		}
@@ -1423,6 +1440,7 @@ void CRat::findPeaks(vector<float>& inDataOri, vector<float>& inData, vector<Poi
 //		MainFrame::myMsgOutput("peaks[%d].x %.2f \n", i, peaks[i].x);
 //	}	
 }
+
 float CRat::computeSD(vector<float>& vSignal, int nLED2)
 {
 	vector<float>  data(nLED2);
