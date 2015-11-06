@@ -1421,13 +1421,14 @@ void CRat::findPeaks(vector<float>& inDataOri, vector<float>& inData, vector<Poi
 {
 	peaks.clear();
 	int n = inData.size();
+	/*
 	for(int i=3; i<7-3; i++) {
 		if(inData[i-3] < inData[i-1] && inData[i-1] < inData[i] &&
 			inData[i+3] < inData[i+1] && inData[i+1] < inData[i]) {
 				Point2f pt(i, inDataOri[i]);
 				peaks.push_back(pt);
 		}
-	}
+	}*/
 	for(int i=4; i<n-4; i++) {
 		if(/*inData[i-6] < inData[i-5] &&*/ inData[i-4] < inData[i-3] && inData[i-3] < inData[i-2] && inData[i-2] < inData[i-1] && inData[i-1] < inData[i] &&
 			/*inData[i+6] < inData[i+5] &&*/ inData[i+4] < inData[i+3] && inData[i+3] < inData[i+2] && inData[i+2] < inData[i+1] && inData[i+1] < inData[i]) {

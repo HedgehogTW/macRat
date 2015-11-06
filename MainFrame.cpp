@@ -1467,14 +1467,19 @@ void MainFrame::OnBatchProcess(wxCommandEvent& event)
 }
 void MainFrame::OnShowCSV(wxCommandEvent& event)
 {
+	static double smoothWidth = 3;
 	wxString inputPath;
 	static wxString strIniDir="";
 	DlgSelectFolder dlg(this, strIniDir);
+	dlg.setSmoothWidth(smoothWidth);
 	int ret = dlg.ShowModal();
 	if(ret == wxID_OK) {
 		inputPath = dlg.m_strDir;
 		strIniDir = dlg.m_strDir;
-		myMsgOutput("OnShowCSV dir: " + inputPath +"\n") ;
+		dlg.getSmoothWidth(smoothWidth);
+		wxString str1;
+		str1.Printf("OnShowCSV dir: %s\n", inputPath );
+		myMsgOutput(str1) ;
 	}else return;	
 	
 	wxString fileSpec = _T("*_Belly.csv");
@@ -1506,7 +1511,7 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 		double xSD = m_configData.m_xSD;
 		double ymin = -1; //m_configData.m_ymin;
 		double ymax = 1; //m_configData.m_ymax;
-		myMsgOutput("m_nUserLED2 %d\n", m_nUserLED2);	
+		myMsgOutput("m_nUserLED2 %d, Smooth: %.2f\n", m_nUserLED2, smoothWidth);	
 				
 		//float sdBelly = CRat::computeSD(vSignal, m_nUserLED2);
 	
@@ -1535,7 +1540,7 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 		vector<float> 	vPeakDistY;
 		float meanPeriod, sdPeriod, meanAmp, sdAmp;
 	
-		CRat::smoothData(vSignal, vecBellySmooth, 2);	
+		CRat::smoothData(vSignal, vecBellySmooth, 3);	
 		CRat::findPeaks(vSignal, vecBellySmooth, peakBelly);
 
 		CRat::peakPeriodAnalysis(peakBelly, vPeakDistX, vPeakDistY, m_nUserLED2, meanPeriod, sdPeriod);

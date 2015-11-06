@@ -8,6 +8,9 @@ public:
     DlgSelectFolder(wxWindow* parent, wxString& strIniDir);
     virtual ~DlgSelectFolder();
 	
+	void	setSmoothWidth(double s);
+	void	getSmoothWidth(double& s);
+	
 	wxString	m_strDir;
 protected:
     virtual void OnButtonSelectFolder(wxCommandEvent& event);

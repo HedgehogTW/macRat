@@ -12,6 +12,21 @@ DlgSelectFolder::~DlgSelectFolder()
 {
 }
 
+void DlgSelectFolder::getSmoothWidth(double& s)
+{
+	wxString  str = m_textCtrlSmooth->GetValue();
+	double  value;
+	str.ToDouble(&value);
+	s = value;
+}
+
+void DlgSelectFolder::setSmoothWidth(double s)
+{
+	wxString  str1;
+	str1 << s;
+//	*m_textCtrlVerLine << str1;
+	m_textCtrlSmooth->SetValue(str1);
+}
 void DlgSelectFolder::OnButtonSelectFolder(wxCommandEvent& event)
 {
 	//wxString dir

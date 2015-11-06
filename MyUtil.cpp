@@ -11,6 +11,11 @@
 void _gnuplotInit(Gnuplot& gnuPlot, const char* title, double ymin, double ymax)
 {
 	gnuPlot.reset_all();
+
+#if defined(unix) || defined(__unix) || defined(__unix__) || defined(__APPLE__)
+	gnuPlot.cmd("set terminal aqua size 600, 300");
+#endif	
+	
 //	gnuPlot.cmd("set termoption noenhanced");
 	gnuPlot.set_title(title);
 	gnuPlot.set_grid();	

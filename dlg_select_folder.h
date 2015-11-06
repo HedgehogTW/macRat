@@ -4,8 +4,8 @@
 // Do not modify this file by hand!
 //////////////////////////////////////////////////////////////////////
 
-#ifndef MACRAT_DLG_SELECT_FOLDER_BASE_CLASSES_H
-#define MACRAT_DLG_SELECT_FOLDER_BASE_CLASSES_H
+#ifndef PROJECT_MACRAT_DLG_SELECT_FOLDER_BASE_CLASSES_H
+#define PROJECT_MACRAT_DLG_SELECT_FOLDER_BASE_CLASSES_H
 
 #include <wx/settings.h>
 #include <wx/xrc/xmlres.h>
@@ -18,7 +18,6 @@
 #include <wx/stattext.h>
 #include <wx/textctrl.h>
 #include <wx/button.h>
-#include <wx/statline.h>
 #if wxVERSION_NUMBER >= 2900
 #include <wx/persist.h>
 #include <wx/persist/toplevel.h>
@@ -33,7 +32,9 @@ protected:
     wxStaticText* m_staticText33;
     wxTextCtrl* m_textCtrlFolder;
     wxButton* m_buttonSelFolder;
-    wxStaticLine* m_staticLine27;
+    wxPanel* m_panel39;
+    wxStaticText* m_staticText43;
+    wxTextCtrl* m_textCtrlSmooth;
     wxStdDialogButtonSizer* m_stdBtnSizer21;
     wxButton* m_button23;
     wxButton* m_button25;
@@ -46,8 +47,10 @@ public:
     wxTextCtrl* GetTextCtrlFolder() { return m_textCtrlFolder; }
     wxButton* GetButtonSelFolder() { return m_buttonSelFolder; }
     wxPanel* GetPanel29() { return m_panel29; }
-    wxStaticLine* GetStaticLine27() { return m_staticLine27; }
-    DlgSelectFolderBase(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Select folder"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(570,300), long style = wxDEFAULT_DIALOG_STYLE);
+    wxStaticText* GetStaticText43() { return m_staticText43; }
+    wxTextCtrl* GetTextCtrlSmooth() { return m_textCtrlSmooth; }
+    wxPanel* GetPanel39() { return m_panel39; }
+    DlgSelectFolderBase(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Select folder"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(550, 230), long style = wxDEFAULT_DIALOG_STYLE);
     virtual ~DlgSelectFolderBase();
 };
 

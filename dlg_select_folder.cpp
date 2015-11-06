@@ -48,13 +48,27 @@ DlgSelectFolderBase::DlgSelectFolderBase(wxWindow* parent, wxWindowID id, const 
     
     boxSizer31->Add(m_buttonSelFolder, 0, wxALL|wxEXPAND|wxALIGN_RIGHT, 5);
     
-    m_staticLine27 = new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxLI_HORIZONTAL);
+    m_panel39 = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxTAB_TRAVERSAL);
     
-    boxSizer19->Add(m_staticLine27, 0, wxALL|wxEXPAND, 5);
+    boxSizer19->Add(m_panel39, 0, wxALL|wxEXPAND, 5);
+    
+    wxBoxSizer* boxSizer41 = new wxBoxSizer(wxHORIZONTAL);
+    m_panel39->SetSizer(boxSizer41);
+    
+    m_staticText43 = new wxStaticText(m_panel39, wxID_ANY, _("Smooth width"), wxDefaultPosition, wxSize(-1,-1), 0);
+    
+    boxSizer41->Add(m_staticText43, 0, wxALL, 5);
+    
+    m_textCtrlSmooth = new wxTextCtrl(m_panel39, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(-1,-1), 0);
+    #if wxVERSION_NUMBER >= 3000
+    m_textCtrlSmooth->SetHint(wxT(""));
+    #endif
+    
+    boxSizer41->Add(m_textCtrlSmooth, 0, wxALL, 5);
     
     m_stdBtnSizer21 = new wxStdDialogButtonSizer();
     
-    boxSizer19->Add(m_stdBtnSizer21, 0, wxALL|wxALIGN_RIGHT, 5);
+    boxSizer19->Add(m_stdBtnSizer21, 0, wxALL|wxEXPAND|wxALIGN_RIGHT, 5);
     
     m_button23 = new wxButton(this, wxID_OK, wxT(""), wxDefaultPosition, wxSize(-1, -1), 0);
     m_stdBtnSizer21->AddButton(m_button23);
@@ -64,7 +78,7 @@ DlgSelectFolderBase::DlgSelectFolderBase(wxWindow* parent, wxWindowID id, const 
     m_stdBtnSizer21->Realize();
     
     SetName(wxT("DlgSelectFolderBase"));
-    SetSizeHints(570,300);
+    SetSizeHints(550,230);
     if (GetSizer()) {
          GetSizer()->Fit(this);
     }
