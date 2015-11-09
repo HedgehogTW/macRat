@@ -1468,15 +1468,18 @@ void MainFrame::OnBatchProcess(wxCommandEvent& event)
 void MainFrame::OnShowCSV(wxCommandEvent& event)
 {
 	static double smoothWidth = 3;
+	static bool  bShowSymbol = true;
 	wxString inputPath;
 	static wxString strIniDir="";
 	DlgSelectFolder dlg(this, strIniDir);
 	dlg.setSmoothWidth(smoothWidth);
+	dlg.setShowSymbol(bShowSymbol);
 	int ret = dlg.ShowModal();
 	if(ret == wxID_OK) {
 		inputPath = dlg.m_strDir;
 		strIniDir = dlg.m_strDir;
 		dlg.getSmoothWidth(smoothWidth);
+		bShowSymbol = dlg.showSymbol();
 		wxString str1;
 		str1.Printf("OnShowCSV dir: %s\n", inputPath );
 		myMsgOutput(str1) ;
@@ -1567,7 +1570,7 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 		_gnuplotLine(gPlotR, "Abdomen", vSignal, sColor.c_str()); //"#00008000");
 			
 
-		if(true) //bShowPeaks)
+		if(bShowSymbol)
 			_gnuplotPoint(gPlotR, peakBelly, "#00008f00" );
 		
 		_gnuplotSteps(gPlotP, vPeakDistX, vPeakDistY, "#00F08000", "Cycle time");

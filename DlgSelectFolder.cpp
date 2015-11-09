@@ -37,3 +37,6 @@ void DlgSelectFolder::OnButtonSelectFolder(wxCommandEvent& event)
 
 
 }
+void DlgSelectFolder::OnOK(wxCommandEvent& event)
+{
+}

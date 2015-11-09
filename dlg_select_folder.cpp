@@ -66,19 +66,24 @@ DlgSelectFolderBase::DlgSelectFolderBase(wxWindow* parent, wxWindowID id, const 
     
     boxSizer41->Add(m_textCtrlSmooth, 0, wxALL, 5);
     
-    m_stdBtnSizer21 = new wxStdDialogButtonSizer();
+    m_checkBoxSymbol = new wxCheckBox(m_panel39, wxID_ANY, _("Symbols on peaks"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_checkBoxSymbol->SetValue(false);
     
-    boxSizer19->Add(m_stdBtnSizer21, 0, wxALL|wxEXPAND|wxALIGN_RIGHT, 5);
+    boxSizer41->Add(m_checkBoxSymbol, 0, wxALL, 5);
     
-    m_button23 = new wxButton(this, wxID_OK, wxT(""), wxDefaultPosition, wxSize(-1, -1), 0);
-    m_stdBtnSizer21->AddButton(m_button23);
+    m_stdBtnSizer75 = new wxStdDialogButtonSizer();
     
-    m_button25 = new wxButton(this, wxID_CANCEL, wxT(""), wxDefaultPosition, wxSize(-1, -1), 0);
-    m_stdBtnSizer21->AddButton(m_button25);
-    m_stdBtnSizer21->Realize();
+    boxSizer19->Add(m_stdBtnSizer75, 0, wxALL|wxEXPAND, 5);
+    
+    m_button77 = new wxButton(this, wxID_OK, wxT(""), wxDefaultPosition, wxSize(-1, -1), 0);
+    m_stdBtnSizer75->AddButton(m_button77);
+    
+    m_button79 = new wxButton(this, wxID_CANCEL, wxT(""), wxDefaultPosition, wxSize(-1, -1), 0);
+    m_stdBtnSizer75->AddButton(m_button79);
+    m_stdBtnSizer75->Realize();
     
     SetName(wxT("DlgSelectFolderBase"));
-    SetSizeHints(550,230);
+    SetSizeHints(-1,-1);
     if (GetSizer()) {
          GetSizer()->Fit(this);
     }

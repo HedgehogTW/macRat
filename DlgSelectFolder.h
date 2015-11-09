@@ -11,8 +11,12 @@ public:
 	void	setSmoothWidth(double s);
 	void	getSmoothWidth(double& s);
 	
+	bool	showSymbol() { return m_checkBoxSymbol->GetValue(); }
+	void	setShowSymbol(bool b) { m_checkBoxSymbol->SetValue(b);	}
+	
 	wxString	m_strDir;
 protected:
+    virtual void OnOK(wxCommandEvent& event);
     virtual void OnButtonSelectFolder(wxCommandEvent& event);
 };
 #endif // DLGSELECTFOLDER_H
