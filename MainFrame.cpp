@@ -1481,7 +1481,7 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 		dlg.getSmoothWidth(smoothWidth);
 		bShowSymbol = dlg.showSymbol();
 		wxString str1;
-		str1.Printf("OnShowCSV dir: %s\n", inputPath );
+		str1.Printf("OnShowCSV dir: %s, sigma %.2f\n", inputPath, smoothWidth );
 		myMsgOutput(str1) ;
 	}else return;	
 	
@@ -1501,7 +1501,7 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 		wxFileName fileName = files[i];
 		wxString  fName = fileName.GetName();
 		wxString s;
-		s.Printf("read %d, %s\n", i, fName);
+		s.Printf("Read [%d/%d], %s\n", i+1, nFiles, fName);
 		myMsgOutput(s);
 		
 		vector<float> vSignal;
