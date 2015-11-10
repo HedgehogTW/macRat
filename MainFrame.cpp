@@ -1495,8 +1495,8 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 	readDirList(inputPath, dataDirs);
 
 	char str[100];
-	static int ampCounter = 0;
-	static int periodCount = 0;
+	int ampCounter = 0;
+	int periodCount = 0;
     for(unsigned int i=0; i<nFiles; i++ ) {
 		wxFileName fileName = files[i];
 		wxString  fName = fileName.GetName();
@@ -1529,13 +1529,13 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 		CRat::smoothData(vSignal, vecBellySmooth, 3);	
 		CRat::findPeaks(vSignal, vecBellySmooth, peakBelly);
 
-		CRat::peakPeriodAnalysis(peakBelly, vPeakDistX, vPeakDistY, m_nUserLED2, meanPeriod, sdPeriod);
-		CRat::peakAmplitudeAnalysis(peakBelly, m_nUserLED2, meanAmp, sdAmp);
+		int nLedPeriod = CRat::peakPeriodAnalysis(peakBelly, vPeakDistX, vPeakDistY, m_nUserLED2, meanPeriod, sdPeriod);
+		int nLedPeak = CRat::peakAmplitudeAnalysis(peakBelly, m_nUserLED2, meanAmp, sdAmp);
 		
 		int both = -1;
 		string sColorAmp= "#0000FF";
 		string sColorPeriod= "#0000FF";
-		for(int i=0; i<peakBelly.size()-1; i++) {
+		for(int i=nLedPeak; i<peakBelly.size()-1; i++) {
 			float upper = meanAmp + xSD*sdAmp;
 			float lower = meanAmp - xSD*sdAmp;
 			if(peakBelly[i].y >= upper || peakBelly[i].y <= lower) {
@@ -1545,7 +1545,7 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 				break;
 			}
 		}
-		for(int i=0; i<vPeakDistY.size()-1; i++) {
+		for(int i=nLedPeriod; i<vPeakDistY.size()-1; i++) {
 			float upper = meanPeriod + xSD*sdPeriod;
 			float lower = meanPeriod - xSD*sdPeriod;
 			if(vPeakDistY[i] >= upper || vPeakDistY[i] <= lower) {
@@ -1556,7 +1556,8 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 			}
 		}
 	
-		myMsgOutput("------- ampCounter %d, periodCount %d, both %d\n", ampCounter, periodCount, both);
+		myMsgOutput("--LED Peak %d %d --- ampCounter %d, periodCount %d, both %d\n", 
+			nLedPeak, nLedPeriod, ampCounter, periodCount, both);
 		///////////G N U P L O T/////////////////////////////////////////////////
 		/////////////////////////////////////////////////////////////////////////
 		_gnuplotInit(gPlotR, fName.ToAscii(), ymin, ymax);

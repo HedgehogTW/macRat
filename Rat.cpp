@@ -1369,23 +1369,29 @@ float CRat::findMode(vector<float>& inData, float sigma)
 	return mode;	
 }
 
-void CRat::peakAmplitudeAnalysis(vector<Point2f>& peaks, int nLED2, float& mean, float& sd)
+int CRat::peakAmplitudeAnalysis(vector<Point2f>& peaks, int nLED2, float& mean, float& sd)
 {
 	vector<float> vPeakAmp;
 	int n = peaks.size();
+	int led = -1;
 
 	for(int i=0; i<n; i++) {
 		if(peaks[i].x <= nLED2)
 			vPeakAmp.push_back(peaks[i].y);
-		else break;
+		else {
+			led = i;
+			break;
+		}
 	}	
 	cv::Scalar meanS, stddev;
 	cv::meanStdDev(vPeakAmp, meanS, stddev);
 	sd = stddev(0);
 	mean = meanS(0);
+	
+	return led;
 }
 
-void CRat::peakPeriodAnalysis(vector<Point2f>& peaks, vector<float>& vPeakDistX, vector<float>& vPeakDistY, int nLED2, float& mean, float& sd)
+int CRat::peakPeriodAnalysis(vector<Point2f>& peaks, vector<float>& vPeakDistX, vector<float>& vPeakDistY, int nLED2, float& mean, float& sd)
 {
 	int n = peaks.size();
 	int led = -1;
@@ -1416,6 +1422,8 @@ void CRat::peakPeriodAnalysis(vector<Point2f>& peaks, vector<float>& vPeakDistX,
 */
 //	MainFrame::myMsgOutput("Before LED period mean = %.3f, sd = %.3f\n", mean, sd);
 //	return ledPos;
+
+	return led;
 }
 void CRat::findPeaks(vector<float>& inDataOri, vector<float>& inData, vector<Point2f>& peaks)
 {
@@ -1430,8 +1438,8 @@ void CRat::findPeaks(vector<float>& inDataOri, vector<float>& inData, vector<Poi
 		}
 	}*/
 	for(int i=4; i<n-4; i++) {
-		if(/*inData[i-6] < inData[i-5] &&*/ inData[i-4] < inData[i-3] && inData[i-3] < inData[i-2] && inData[i-2] < inData[i-1] && inData[i-1] < inData[i] &&
-			/*inData[i+6] < inData[i+5] &&*/ inData[i+4] < inData[i+3] && inData[i+3] < inData[i+2] && inData[i+2] < inData[i+1] && inData[i+1] < inData[i]) {
+		if(/*inData[i-6] < inData[i-5] && inData[i-4] < inData[i-3] &&*/ inData[i-3] < inData[i-2] && inData[i-2] < inData[i-1] && inData[i-1] < inData[i] &&
+			/*inData[i+6] < inData[i+5] && inData[i+4] < inData[i+3] &&*/ inData[i+3] < inData[i+2] && inData[i+2] < inData[i+1] && inData[i+1] < inData[i]) {
 				Point2f pt(i, inDataOri[i]);
 				peaks.push_back(pt);				
 		}
