@@ -1467,7 +1467,7 @@ void MainFrame::OnBatchProcess(wxCommandEvent& event)
 }
 void MainFrame::OnShowCSV(wxCommandEvent& event)
 {
-	static double smoothWidth = 2.5;
+	static double smoothWidth = 3;
 	static bool  bShowSymbol = true;
 	wxString inputPath;
 	static wxString strIniDir="";
@@ -1526,7 +1526,7 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 		vector<float> 	vPeakDistY;
 		float meanPeriod, sdPeriod, meanAmp, sdAmp;
 	
-		CRat::smoothData(vSignal, vecBellySmooth, 3);	
+		CRat::smoothData(vSignal, vecBellySmooth, smoothWidth);	
 		CRat::findPeaks(vSignal, vecBellySmooth, peakBelly);
 		
 		FILE* fp = fopen("_tmp.csv", "w");

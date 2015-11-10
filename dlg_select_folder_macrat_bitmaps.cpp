@@ -42,6 +42,6 @@ void wxCEF84InitBitmapResources()
         else wxFileSystem::AddHandler(new wxMemoryFSHandlerBase);
     }
 
-    XRC_ADD_FILE(wxT("XRC_resource/dlg_select_folder_macrat_bitmaps.cpp$D__Project_macRat_dlg_select_folder_macrat_bitmaps.xrc"), xml_res_file_0, xml_res_size_0, wxT("text/xml"));
-    wxXmlResource::Get()->Load(wxT("memory:XRC_resource/dlg_select_folder_macrat_bitmaps.cpp$D__Project_macRat_dlg_select_folder_macrat_bitmaps.xrc"));
+    XRC_ADD_FILE(wxT("XRC_resource/dlg_select_folder_macrat_bitmaps.cpp$_Users_cclee_project_macRat_dlg_select_folder_macrat_bitmaps.xrc"), xml_res_file_0, xml_res_size_0, wxT("text/xml"));
+    wxXmlResource::Get()->Load(wxT("memory:XRC_resource/dlg_select_folder_macrat_bitmaps.cpp$_Users_cclee_project_macRat_dlg_select_folder_macrat_bitmaps.xrc"));
 }
