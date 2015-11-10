@@ -1414,7 +1414,7 @@ void CRat::peakPeriodAnalysis(vector<Point2f>& peaks, vector<float>& vPeakDistX,
 		if(i==led-1)  MainFrame::myMsgOutput(" | ");
 	}
 */
-	MainFrame::myMsgOutput("Before LED period mean = %.3f, sd = %.3f\n", mean, sd);
+//	MainFrame::myMsgOutput("Before LED period mean = %.3f, sd = %.3f\n", mean, sd);
 //	return ledPos;
 }
 void CRat::findPeaks(vector<float>& inDataOri, vector<float>& inData, vector<Point2f>& peaks)

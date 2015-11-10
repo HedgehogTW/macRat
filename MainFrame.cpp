@@ -1495,7 +1495,8 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 	readDirList(inputPath, dataDirs);
 
 	char str[100];
-
+	static int ampCounter = 0;
+	static int periodCount = 0;
     for(unsigned int i=0; i<nFiles; i++ ) {
 		wxFileName fileName = files[i];
 		wxString  fName = fileName.GetName();
@@ -1515,7 +1516,7 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 		double xSD = m_configData.m_xSD;
 		double ymin = -0.8; //m_configData.m_ymin; -1
 		double ymax = 0.8; //m_configData.m_ymax;  1
-		myMsgOutput("m_nUserLED2 %d, Smooth %.2f, minValue %f\n", m_nUserLED2, smoothWidth, minValue);	
+//		myMsgOutput("m_nUserLED2 %d, Smooth %.2f, minValue %f\n", m_nUserLED2, smoothWidth, minValue);	
 					
 		vector <float>  vecBellySmooth;
 		vector<Point2f> peakBelly;
@@ -1531,6 +1532,7 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 		CRat::peakPeriodAnalysis(peakBelly, vPeakDistX, vPeakDistY, m_nUserLED2, meanPeriod, sdPeriod);
 		CRat::peakAmplitudeAnalysis(peakBelly, m_nUserLED2, meanAmp, sdAmp);
 		
+		int both = -1;
 		string sColorAmp= "#0000FF";
 		string sColorPeriod= "#0000FF";
 		for(int i=0; i<peakBelly.size()-1; i++) {
@@ -1538,6 +1540,8 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 			float lower = meanAmp - xSD*sdAmp;
 			if(peakBelly[i].y >= upper || peakBelly[i].y <= lower) {
 				sColorAmp = "#FF0022";
+				ampCounter ++;
+				both ++;
 				break;
 			}
 		}
@@ -1546,10 +1550,13 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 			float lower = meanPeriod - xSD*sdPeriod;
 			if(vPeakDistY[i] >= upper || vPeakDistY[i] <= lower) {
 				sColorPeriod = "#FF0022";
+				periodCount ++;
+				both ++;				
 				break;
 			}
 		}
 	
+		myMsgOutput("------- ampCounter %d, periodCount %d, both %d\n", ampCounter, periodCount, both);
 		///////////G N U P L O T/////////////////////////////////////////////////
 		/////////////////////////////////////////////////////////////////////////
 		_gnuplotInit(gPlotR, fName.ToAscii(), ymin, ymax);
