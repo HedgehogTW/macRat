@@ -90,7 +90,7 @@ DlgSelectFolderBase::DlgSelectFolderBase(wxWindow* parent, wxWindowID id, const 
     m_stdBtnSizer75->Realize();
     
     SetName(wxT("DlgSelectFolderBase"));
-    SetSize(-1,-1);
+    SetSizeHints(-1,-1);
     if (GetSizer()) {
          GetSizer()->Fit(this);
     }

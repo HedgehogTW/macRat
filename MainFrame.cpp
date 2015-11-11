@@ -1560,7 +1560,7 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 				break;
 			}
 		}
-	
+		//myMsgOutput("--amp mean %f, sd %f, [%f, %f]\n", meanAmp, sdAmp,  meanAmp- xSD*sdAmp, meanAmp+ xSD*sdAmp);
 		myMsgOutput("--LED Peak %d %d --- ampCounter %d, periodCount %d, both %d\n", 
 			nLedPeak, nLedPeriod, ampCounter, periodCount, both);
 		///////////G N U P L O T/////////////////////////////////////////////////

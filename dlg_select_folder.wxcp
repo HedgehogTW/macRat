@@ -9,7 +9,6 @@
 		"m_outputFileName":	"",
 		"m_firstWindowId":	1000,
 		"m_useEnum":	true,
-		"m_useUnderscoreMacro":	true,
 		"m_templateClasses":	[]
 	},
 	"windows":	[{
@@ -18,7 +17,7 @@
 			"border":	5,
 			"gbSpan":	"1,1",
 			"gbPosition":	"0,0",
-			"m_styles":	["wxDEFAULT_DIALOG_STYLE"],
+			"m_styles":	["wxDEFAULT_DIALOG_STYLE", "wxRESIZE_BORDER"],
 			"m_sizerFlags":	["wxALL", "wxLEFT", "wxRIGHT", "wxTOP", "wxBOTTOM"],
 			"m_properties":	[{
 					"type":	"string",

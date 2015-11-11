@@ -55,7 +55,7 @@ public:
     wxCheckBox* GetCheckBoxSymbol() { return m_checkBoxSymbol; }
     wxPanel* GetPanel39() { return m_panel39; }
     wxPanel* GetPanel29() { return m_panel29; }
-    DlgSelectFolderBase(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Select folder"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(-1, -1), long style = wxDEFAULT_DIALOG_STYLE);
+    DlgSelectFolderBase(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Select folder"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(-1, -1), long style = wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER);
     virtual ~DlgSelectFolderBase();
 };
 
