@@ -1495,7 +1495,8 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 	readDirList(inputPath, dataDirs);
 
 	char str[100];
-	int ampCounter = 0;
+	int ampUpCounter = 0;
+	int ampLowCounter = 0;
 	int periodCount = 0;
     for(unsigned int i=0; i<nFiles; i++ ) {
 		wxFileName fileName = files[i];
@@ -1543,11 +1544,16 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 		for(int i=nLedPeak; i<peakBelly.size()-1; i++) {
 			float upper = meanAmp + xSD*sdAmp;
 			float lower = meanAmp - xSD*sdAmp;
-			if(peakBelly[i].y >= upper || peakBelly[i].y <= lower) {
+			if(peakBelly[i].y >= upper) {
 				sColorAmp = "#FF0022";
-				ampCounter ++;
+				ampUpCounter ++;
 				both ++;
 				break;
+			}else if(peakBelly[i].y <= lower) {
+				sColorAmp = "#FF0022";
+				ampLowCounter ++;
+				both ++;
+				break;				
 			}
 		}
 		for(int i=nLedPeriod; i<vPeakDistY.size()-1; i++) {
@@ -1561,8 +1567,8 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 			}
 		}
 		//myMsgOutput("--amp mean %f, sd %f, [%f, %f]\n", meanAmp, sdAmp,  meanAmp- xSD*sdAmp, meanAmp+ xSD*sdAmp);
-		myMsgOutput("--LED Peak %d %d --- ampCounter %d, periodCount %d, both %d\n", 
-			nLedPeak, nLedPeriod, ampCounter, periodCount, both);
+		myMsgOutput("--LED Peak %d %d --- amp %d %d, periodCount %d, both %d\n", 
+			nLedPeak, nLedPeriod, ampUpCounter, ampLowCounter, periodCount, both);
 		///////////G N U P L O T/////////////////////////////////////////////////
 		/////////////////////////////////////////////////////////////////////////
 		_gnuplotInit(gPlotR, fName.ToAscii(), ymin, ymax);
