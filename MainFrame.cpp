@@ -1498,6 +1498,7 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 	int ampUpCounter = 0;
 	int ampLowCounter = 0;
 	int periodCount = 0;
+	int bothAcc = 0;
     for(unsigned int i=0; i<nFiles; i++ ) {
 		wxFileName fileName = files[i];
 		wxString  fName = fileName.GetName();
@@ -1539,6 +1540,7 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 		int nLedPeak = CRat::peakAmplitudeAnalysis(peakBelly, m_nUserLED2, meanAmp, sdAmp);
 		
 		int both = -1;
+		
 		string sColorAmp= "#0000FF";
 		string sColorPeriod= "#0000FF";
 		for(int i=nLedPeak; i<peakBelly.size()-1; i++) {
@@ -1566,9 +1568,10 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 				break;
 			}
 		}
+		if(both>=1) bothAcc++;
 		//myMsgOutput("--amp mean %f, sd %f, [%f, %f]\n", meanAmp, sdAmp,  meanAmp- xSD*sdAmp, meanAmp+ xSD*sdAmp);
-		myMsgOutput("--LED Peak %d %d --- amp %d %d, periodCount %d, both %d\n", 
-			nLedPeak, nLedPeriod, ampUpCounter, ampLowCounter, periodCount, both);
+		myMsgOutput("--LED Peak %d %d --- amp (%d, %d), period %d, both %d\n", 
+			nLedPeak, nLedPeriod, ampUpCounter, ampLowCounter, periodCount, bothAcc);
 		///////////G N U P L O T/////////////////////////////////////////////////
 		/////////////////////////////////////////////////////////////////////////
 		_gnuplotInit(gPlotR, fName.ToAscii(), ymin, ymax);
