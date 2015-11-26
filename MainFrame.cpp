@@ -1570,8 +1570,11 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 		}
 		if(both>=1) bothAcc++;
 		//myMsgOutput("--amp mean %f, sd %f, [%f, %f]\n", meanAmp, sdAmp,  meanAmp- xSD*sdAmp, meanAmp+ xSD*sdAmp);
-		myMsgOutput("--LED Peak %d %d --- amp (%d, %d), period %d, both %d\n", 
-			nLedPeak, nLedPeriod, ampUpCounter, ampLowCounter, periodCount, bothAcc);
+		myMsgOutput("     [%d]-LED Peak %d %d --- amp (%d, %d), period (%d), both %d ", 
+			i+1, nLedPeak, nLedPeriod, ampUpCounter, ampLowCounter, periodCount, bothAcc);
+		if(both == -1)  myMsgOutput("\n");
+		else myMsgOutput(" **\n");
+		
 		///////////G N U P L O T/////////////////////////////////////////////////
 		/////////////////////////////////////////////////////////////////////////
 		_gnuplotInit(gPlotR, fName.ToAscii(), ymin, ymax);
