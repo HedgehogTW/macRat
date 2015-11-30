@@ -1497,7 +1497,8 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 	char str[100];
 	int ampUpCounter = 0;
 	int ampLowCounter = 0;
-	int periodCount = 0;
+	int periodInc = 0;
+	int periodDec = 0;
 	int bothAcc = 0;
     for(unsigned int i=0; i<nFiles; i++ ) {
 		wxFileName fileName = files[i];
@@ -1561,17 +1562,22 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 		for(int i=nLedPeriod; i<vPeakDistY.size()-1; i++) {
 			float upper = meanPeriod + xSD*sdPeriod;
 			float lower = meanPeriod - xSD*sdPeriod;
-			if(vPeakDistY[i] >= upper || vPeakDistY[i] <= lower) {
+			if(vPeakDistY[i] >= upper ) {
 				sColorPeriod = "#FF0022";
-				periodCount ++;
+				periodInc ++;
+				both ++;				
+				break;
+			}else if(vPeakDistY[i] <= lower) {
+				sColorPeriod = "#FF0022";
+				periodDec ++;
 				both ++;				
 				break;
 			}
 		}
 		if(both>=1) bothAcc++;
 		//myMsgOutput("--amp mean %f, sd %f, [%f, %f]\n", meanAmp, sdAmp,  meanAmp- xSD*sdAmp, meanAmp+ xSD*sdAmp);
-		myMsgOutput("     [%d]-LED Peak %d %d --- amp (%d, %d), period (%d), both %d ", 
-			i+1, nLedPeak, nLedPeriod, ampUpCounter, ampLowCounter, periodCount, bothAcc);
+		myMsgOutput("     [%d]-LED Peak %d %d --- amp (%d, %d), period (%d, %d), both %d ", 
+			i+1, nLedPeak, nLedPeriod, ampUpCounter, ampLowCounter, periodInc, periodDec, bothAcc);
 		if(both == -1)  myMsgOutput("\n");
 		else myMsgOutput(" **\n");
 		
