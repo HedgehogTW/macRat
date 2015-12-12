@@ -12,20 +12,25 @@ DlgSelectFolder::~DlgSelectFolder()
 {
 }
 
-void DlgSelectFolder::getSmoothWidth(double& s)
+void DlgSelectFolder::getParam(double& s, bool& bCheckOnlyFirst)
 {
 	wxString  str = m_textCtrlSmooth->GetValue();
 	double  value;
 	str.ToDouble(&value);
 	s = value;
+	
+	bCheckOnlyFirst = m_checkBoxFirst->GetValue();
+	
 }
 
-void DlgSelectFolder::setSmoothWidth(double s)
+void DlgSelectFolder::setParam(double s, bool bCheckOnlyFirst)
 {
 	wxString  str1;
 	str1 << s;
 //	*m_textCtrlVerLine << str1;
 	m_textCtrlSmooth->SetValue(str1);
+	
+	m_checkBoxFirst->SetValue(bCheckOnlyFirst);
 }
 void DlgSelectFolder::OnButtonSelectFolder(wxCommandEvent& event)
 {

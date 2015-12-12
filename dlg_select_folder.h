@@ -38,6 +38,7 @@ protected:
     wxStaticText* m_staticText43;
     wxTextCtrl* m_textCtrlSmooth;
     wxCheckBox* m_checkBoxSymbol;
+    wxCheckBox* m_checkBoxFirst;
     wxStdDialogButtonSizer* m_stdBtnSizer75;
     wxButton* m_button77;
     wxButton* m_button79;
@@ -53,6 +54,7 @@ public:
     wxStaticText* GetStaticText43() { return m_staticText43; }
     wxTextCtrl* GetTextCtrlSmooth() { return m_textCtrlSmooth; }
     wxCheckBox* GetCheckBoxSymbol() { return m_checkBoxSymbol; }
+    wxCheckBox* GetCheckBoxFirst() { return m_checkBoxFirst; }
     wxPanel* GetPanel39() { return m_panel39; }
     wxPanel* GetPanel29() { return m_panel29; }
     DlgSelectFolderBase(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Select folder"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(-1, -1), long style = wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER);
