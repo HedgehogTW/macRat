@@ -8,8 +8,8 @@ public:
     DlgSelectFolder(wxWindow* parent, wxString& strIniDir);
     virtual ~DlgSelectFolder();
 	
-	void	setSmoothWidth(double s);
-	void	getSmoothWidth(double& s);
+	void	setParam(double s, bool bCheckOnlyFirst);
+	void	getParam(double& s, bool &bCheckOnlyFirst);
 	
 	bool	showSymbol() { return m_checkBoxSymbol->GetValue(); }
 	void	setShowSymbol(bool b) { m_checkBoxSymbol->SetValue(b);	}

@@ -1469,16 +1469,17 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 {
 	static double smoothWidth = 3;
 	static bool  bShowSymbol = true;
+	static bool  bCheckOnlyFirst = false;
 	wxString inputPath;
 	static wxString strIniDir="";
 	DlgSelectFolder dlg(this, strIniDir);
-	dlg.setSmoothWidth(smoothWidth);
+	dlg.setParam(smoothWidth, bCheckOnlyFirst);
 	dlg.setShowSymbol(bShowSymbol);
 	int ret = dlg.ShowModal();
 	if(ret == wxID_OK) {
 		inputPath = dlg.m_strDir;
 		strIniDir = dlg.m_strDir;
-		dlg.getSmoothWidth(smoothWidth);
+		dlg.getParam(smoothWidth, bCheckOnlyFirst);
 		bShowSymbol = dlg.showSymbol();
 		wxString str1;
 		str1.Printf("OnShowCSV dir: %s, sigma %.2f\n", inputPath, smoothWidth );
@@ -1558,6 +1559,8 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 				both ++;
 				break;				
 			}
+			
+			if(bCheckOnlyFirst)  break;
 		}
 		for(int i=nLedPeriod; i<vPeakDistY.size()-1; i++) {
 			float upper = meanPeriod + xSD*sdPeriod;
@@ -1573,6 +1576,7 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 				both ++;				
 				break;
 			}
+			if(bCheckOnlyFirst)  break;
 		}
 		if(both>=1) bothAcc++;
 		//myMsgOutput("--amp mean %f, sd %f, [%f, %f]\n", meanAmp, sdAmp,  meanAmp- xSD*sdAmp, meanAmp+ xSD*sdAmp);

@@ -78,6 +78,11 @@ DlgSelectFolderBase::DlgSelectFolderBase(wxWindow* parent, wxWindowID id, const 
     
     boxSizer41->Add(m_checkBoxSymbol, 0, wxALL, 5);
     
+    m_checkBoxFirst = new wxCheckBox(m_panel39, wxID_ANY, _("Check first interval"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_checkBoxFirst->SetValue(false);
+    
+    boxSizer41->Add(m_checkBoxFirst, 0, wxALL, 5);
+    
     m_stdBtnSizer75 = new wxStdDialogButtonSizer();
     
     boxSizer31->Add(m_stdBtnSizer75, 0, wxALL|wxEXPAND, 5);
@@ -90,7 +95,7 @@ DlgSelectFolderBase::DlgSelectFolderBase(wxWindow* parent, wxWindowID id, const 
     m_stdBtnSizer75->Realize();
     
     SetName(wxT("DlgSelectFolderBase"));
-    SetSizeHints(-1,-1);
+    SetSize(-1,-1);
     if (GetSizer()) {
          GetSizer()->Fit(this);
     }
