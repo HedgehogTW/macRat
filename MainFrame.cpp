@@ -211,23 +211,28 @@ void MainFrame::OnFileOpen(wxCommandEvent& event)
 
 void MainFrame::readMarks(wxString &dirName)
 {
+	wxString  s1 = dirName.BeforeLast('_');
+	wxString  s2 = s1.Right(2);
+	wxString  s3 = s2 + "_Marks.txt";
+	
     wxFileName fileName = dirName;
     wxUniChar sep = fileName.GetPathSeparator();
     wxString 	strParentPath =  dirName.BeforeLast(sep);
-    wxString  newMarkerName = "_"+fileName.GetName()+"_Marks.txt";
+    wxString  newMarkerName = s3; //"_"+fileName.GetName()+"_Marks.txt";
     wxFileName newFullMarkerName(strParentPath, newMarkerName);
-    wxFileName oldMarkerName(dirName, "_Marks.txt");
+    wxFileName oldMarkerName(strParentPath, "_Marks.txt");
+	
+ //   myMsgOutput("dirname " + newFullMarkerName.GetFullPath() +"\n");
+ //   myMsgOutput("oldname " + oldMarkerName.GetFullPath() +"\n");
+ 
+	
     bool bNewMarker = true;
     if(newFullMarkerName.IsFileReadable() ==false) {
         bNewMarker = false;
         if(oldMarkerName.IsFileReadable() ==false) 
             return;
     }
-	
-//    myMsgOutput("dirname " + newFullMarkerName.GetFullPath() +"\n");
-//    myMsgOutput("oldname " + oldMarkerName.GetFullPath() +"\n");
-    
-			
+
 	Point ptEyeL, ptEyeR, ptEarL, ptEarR;
 	Point ptBellyRed, ptBellyCyan;
 	int n, line, led2;
@@ -1516,7 +1521,8 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 		}
 		
 		float minValue = *std::min_element(vSignal.begin(),vSignal.end());
-		readMarks(dataDirs[i]);
+		//readMarks(dataDirs[i]);
+		readMarks(files[i]);
 		double xSD = m_configData.m_xSD;
 		double ymin = -0.8; //m_configData.m_ymin; -1
 		double ymax = 0.8; //m_configData.m_ymax;  1
