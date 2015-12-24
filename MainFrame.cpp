@@ -1510,7 +1510,7 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 		wxFileName fileName = files[i];
 		wxString  fName = fileName.GetName();
 		wxString s;
-		s.Printf("Read [%d/%d], %s\n", i+1, nFiles, fName);
+		s.Printf("Read [%d/%d], %s, sigma %.3f\n", i+1, nFiles, fName, smoothWidth);
 		myMsgOutput(s);
 		
 		vector<float> vSignal;
