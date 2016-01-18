@@ -4,8 +4,8 @@
 // Do not modify this file by hand!
 //////////////////////////////////////////////////////////////////////
 
-#ifndef PROJECT_MACRAT_WXCRAFTER_BASE_CLASSES_H
-#define PROJECT_MACRAT_WXCRAFTER_BASE_CLASSES_H
+#ifndef MACRAT_WXCRAFTER_BASE_CLASSES_H
+#define MACRAT_WXCRAFTER_BASE_CLASSES_H
 
 #include <wx/settings.h>
 #include <wx/xrc/xmlres.h>
@@ -41,11 +41,11 @@ public:
     enum {
         wxID_EDIT_CLEAR_MARKS = 1001,
         wxID_RAT_ABDOMEN = 1002,
-        wxID_RAT_MARK_BELLY = 1003,
-        wxID_RAT_MARK_EAR = 1004,
-        wxID_RAT_MARK_EYE = 1005,
-        wxID_RAT_PROCESS = 1006,
-        wxID_TOOLS_SHOW_CSV = 1007,
+        wxID_RAT_CHECK_APB = 1003,
+        wxID_RAT_MARK_BELLY = 1004,
+        wxID_RAT_MARK_EAR = 1005,
+        wxID_RAT_MARK_EYE = 1006,
+        wxID_RAT_PROCESS = 1007,
         wxID_VIEW_MARK = 1008,
         wxID_VIEW_RESULT_SERIES = 1009,
         wxID_VIEW_SERIES = 1010,
@@ -69,9 +69,10 @@ protected:
     wxMenuItem* m_menuItemProcess;
     wxMenuItem* m_menuItemAbdomen;
     wxMenuItem* m_menuItemBatch;
+    wxMenuItem* m_menuItem175;
+    wxMenuItem* m_menuItemCheckAPB;
     wxMenu* m_menuTools;
     wxMenuItem* m_menuItemCleanOutput;
-    wxMenuItem* m_menuItemShowCSV;
     wxMenu* m_nameHelp;
     wxMenuItem* m_menuItem9;
     wxAuiManager* m_auimgr11;
@@ -103,8 +104,8 @@ protected:
     virtual void OnRatProcess(wxCommandEvent& event) { event.Skip(); }
     virtual void OnRatAbdomen(wxCommandEvent& event) { event.Skip(); }
     virtual void OnBatchProcess(wxCommandEvent& event) { event.Skip(); }
+    virtual void OnRatCheckAPB(wxCommandEvent& event) { event.Skip(); }
     virtual void OnToolsCleanOutput(wxCommandEvent& event) { event.Skip(); }
-    virtual void OnShowCSV(wxCommandEvent& event) { event.Skip(); }
     virtual void OnAbout(wxCommandEvent& event) { event.Skip(); }
     virtual void OnMouseMotion(wxMouseEvent& event) { event.Skip(); }
     virtual void OnMouseLButtonDown(wxMouseEvent& event) { event.Skip(); }

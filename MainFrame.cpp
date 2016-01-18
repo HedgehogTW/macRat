@@ -211,19 +211,29 @@ void MainFrame::OnFileOpen(wxCommandEvent& event)
 
 void MainFrame::readMarks(wxString &dirName)
 {
-	wxString  s1 = dirName.BeforeLast('_');
-	wxString  s2 = s1.Right(2);
-	wxString  s3 = s2 + "_Marks.txt";
-	
-    wxFileName fileName = dirName;
+	//myMsgOutput("dirname " +dirName+"\n");
+	wxString last3 = dirName.Right(3);
+	wxString markName;
+	wxFileName fileName = dirName;
     wxUniChar sep = fileName.GetPathSeparator();
+	
+	if(last3.CmpNoCase("csv")==0) {
+		wxString  s1 = dirName.BeforeLast('_');
+		wxString  s2 = s1.Right(2);
+		markName = s2 + "_Marks.txt";	
+	}else {
+		wxString folderName =  dirName.AfterLast(sep);
+		markName = "_" + folderName + "_Marks.txt";	
+	}
+	
+
     wxString 	strParentPath =  dirName.BeforeLast(sep);
-    wxString  newMarkerName = s3; //"_"+fileName.GetName()+"_Marks.txt";
+    wxString  newMarkerName = markName; //"_"+fileName.GetName()+"_Marks.txt";
     wxFileName newFullMarkerName(strParentPath, newMarkerName);
     wxFileName oldMarkerName(strParentPath, "_Marks.txt");
 	
- //   myMsgOutput("dirname " + newFullMarkerName.GetFullPath() +"\n");
- //   myMsgOutput("oldname " + oldMarkerName.GetFullPath() +"\n");
+    //myMsgOutput("dirname " + newFullMarkerName.GetFullPath() +"\n");
+    //myMsgOutput("oldname " + oldMarkerName.GetFullPath() +"\n");
  
 	
     bool bNewMarker = true;
@@ -1470,7 +1480,7 @@ void MainFrame::OnBatchProcess(wxCommandEvent& event)
 
 	myMsgOutput("Batch process finish: "+m_strBatchDir + "\n");
 }
-void MainFrame::OnShowCSV(wxCommandEvent& event)
+void MainFrame::OnRatCheckAPB(wxCommandEvent& event)
 {
 	static double smoothWidth = 3;
 	static bool  bShowSymbol = true;
@@ -1624,3 +1634,4 @@ void MainFrame::OnShowCSV(wxCommandEvent& event)
 	 
 
 }
+
