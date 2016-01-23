@@ -125,7 +125,7 @@ public:
 	int 	findMaxMotionPoint(vector<float>& inData);
 //	void	graylevelDiff_Eye(int refer, Point ptEar, Point offset, vector <Point>& vecEye, vector <float>& vecEarGrayDiff);
 	void 	graylevelDiff(int refer, cv::Rect rectEarL, cv::Rect rectEarR, vector <float>& vLEarGray,  vector <float>& vREarGray);
-	void 	graylevelDiff(int refer, cv::Rect rect, vector <float>& vGray);
+	void 	graylevelDiff(int refer, cv::Rect rect, vector <float>& vGray, int szSeries=-1, bool bAbs=true);
 	void	pointGraylevel(cv::Point ptBellyRed, cv::Point ptBellyCyan, vector <float>& vecRedPoint, vector <float>& vecCyanPoint);
 	int     isRedSignificant(vector<float>& vecRed, vector<float>& vecCyan);
 	cv::Point findMostSignificantPt(deque<cv::Point>&  dqBellyPts, int nLed2, long	szROIBelly);

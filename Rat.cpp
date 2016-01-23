@@ -836,12 +836,11 @@ bool CRat::genReferenceFrameSignal(Point& ptBelly, int& nLED2)
 	////////////////////////////////////////////////
 	*/
 	/////////////////////////////////// just for findReferenceFrame
-	vector <float>  vecRedGrayDiff;
-	vector <float>  vecBellyGray;	
+
 	
-	int ref = 50;
-	graylevelDiff(ref, m_rectBelly, vecRedGrayDiff);
-	Notch_removal(vecRedGrayDiff, ref);	
+//	int ref = 50;
+//	graylevelDiff(ref, m_rectBelly, vecRedGrayDiff);
+//	Notch_removal(vecRedGrayDiff, ref);	
 	newReferFrame = findReferenceFrame(m_rectBelly);
 	
 	MainFrame::myMsgOutput("Reference frame %d\n", newReferFrame);
@@ -871,17 +870,21 @@ bool CRat::genReferenceFrameSignal(Point& ptBelly, int& nLED2)
 	title = title.Right(len-1);
 	title.Replace("/", "_");
 	
-	int szSeries = vecRedGrayDiff.size();
+	vector <float>  vecRedGrayDiff;
+	vector <float>  vecBellyGray;	
+	
+	int szSeries = m_nLED2+1; //vecRedGrayDiff.size();
 	vecBellyGray.resize(szSeries);
 	
-	Mat  mRef(m_nLED2+1, 49, CV_32F);
+	Mat  mRef(szSeries, 49, CV_32F);
+	Mat  mRef1B(49, 2, CV_32F);
 	//Mat  mRef(m_nLED2+1, m_nLED2, CV_32F);
 	
 	for(int i=-24; i<=24; i++) {
 		int ref = newReferFrame + i;
 	//for(int i=0; i<m_nLED2; i++) {
 		//int ref = i;
-		graylevelDiff(ref, m_rectBelly, vecRedGrayDiff);
+		graylevelDiff(ref, m_rectBelly, vecRedGrayDiff, szSeries, true);
 	
 		std::copy ( vecRedGrayDiff.begin(), vecRedGrayDiff.end(), vecBellyGray.begin() );
 		
@@ -889,8 +892,10 @@ bool CRat::genReferenceFrameSignal(Point& ptBelly, int& nLED2)
 		Notch_removal(vecBellyGray, ref);
 	
 		mRef.at<float>(0, i+24) = ref;
+		mRef1B.at<float>(i+24, 0) = ref;
+		mRef1B.at<float>(i+24, 1) = vecBellyGray[ref-1];
 		//mRef.at<float>(0, i) = ref;
-		for(int k=1; k<m_nLED2+1; k++) {
+		for(int k=1; k<szSeries; k++) {
 			mRef.at<float>(k, i+24) = vecBellyGray[k-1];
 			//mRef.at<float>(k, i) = vecBellyGray[k-1];
 		}
@@ -898,10 +903,15 @@ bool CRat::genReferenceFrameSignal(Point& ptBelly, int& nLED2)
 	}
 	wxString  diffSignalName;
 	diffSignalName << title << "_Diff_Ref_" << ".csv";
-	wxFileName newFullMarkerName(strParentPath, diffSignalName);
-	//_OutputVec(vecBellyGray, newFullMarkerName.GetFullPath());   
+	wxFileName newFullMarkerName(strParentPath, diffSignalName); 
 	_OutputMat(mRef, newFullMarkerName.GetFullPath());
 	MainFrame::myMsgOutput("save: "+diffSignalName+"\n");	
+	
+	wxString  name1B;
+	name1B << title << "_Diff_Ref_1B" << ".csv";
+	wxFileName newName(strParentPath, name1B); 
+	_OutputMat(mRef1B, newName.GetFullPath());
+	
 	return true;
 }
 
@@ -1900,18 +1910,27 @@ void CRat::graylevelDiff(int refer, Rect rectEarL, Rect rectEarR, vector <float>
 	}
 }
 
-void CRat::graylevelDiff(int refer, cv::Rect rect, vector <float>& vGray)
+void CRat::graylevelDiff(int refer, cv::Rect rect, vector <float>& vGray, int szSeries, bool bAbs)
 {
-	vGray.resize(m_nSlices);	
+	int numSlices;
+	if(szSeries <0)
+		numSlices = m_nSlices;
+	else
+		numSlices = szSeries;
+		
+	vGray.resize(numSlices);	
 	
 	Mat mSrc1, mSrc2, mDiff;
 	
-	m_vecMat[refer].convertTo(mSrc1, CV_16S);;
+	m_vecMat[refer].convertTo(mSrc2, CV_16S);;
 	
-	for(int i=0; i<m_nSlices; i++) {
+	for(int i=0; i<numSlices; i++) {
 		double errSumL, errSumR;
-		m_vecMat[i].convertTo(mSrc2, CV_16S);
-		cv::absdiff(mSrc1, mSrc2, mDiff);
+		m_vecMat[i].convertTo(mSrc1, CV_16S);
+		if(bAbs)
+			cv::absdiff(mSrc1, mSrc2, mDiff);
+		else
+			mDiff = mSrc1 - mSrc2;
 		
 		errSumL = avgROI(mDiff, rect);
 		vGray[i] = errSumL;

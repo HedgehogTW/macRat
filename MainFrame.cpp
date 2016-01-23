@@ -1276,7 +1276,7 @@ void MainFrame::OnToolsCleanOutput(wxCommandEvent& event)
         }  
     }
 }
-void MainFrame::OnRatAbdomen(wxCommandEvent& event)
+void MainFrame::OnRatGenRefFrame(wxCommandEvent& event)
 {
 
 	if(m_ptMostBelly == Point(0,0)) {

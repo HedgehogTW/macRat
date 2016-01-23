@@ -869,15 +869,15 @@
          "m_properties": [{
            "type": "winid",
            "m_label": "ID:",
-           "m_winid": "wxID_RAT_ABDOMEN"
+           "m_winid": "wxID_ANY"
           }, {
            "type": "string",
            "m_label": "Name:",
-           "m_value": "m_menuItemAbdomen"
+           "m_value": "m_menuItemRatGenRefFrame"
           }, {
            "type": "string",
            "m_label": "Label:",
-           "m_value": "Ref. Frame Signal"
+           "m_value": "Gen. Ref. Frame Signal"
           }, {
            "type": "string",
            "m_label": "Shortcut:",
@@ -904,7 +904,7 @@
            "m_eventName": "wxEVT_COMMAND_MENU_SELECTED",
            "m_eventClass": "wxCommandEvent",
            "m_eventHandler": "wxCommandEventHandler",
-           "m_functionNameAndSignature": "OnRatAbdomen(wxCommandEvent& event)",
+           "m_functionNameAndSignature": "OnRatGenRefFrame(wxCommandEvent& event)",
            "m_description": "Menu item has been clicked",
            "m_noBody": false
           }],

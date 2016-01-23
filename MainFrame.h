@@ -77,12 +77,13 @@ public:
 	
 	
 protected:
+    virtual void OnRatGenRefFrame(wxCommandEvent& event);
     virtual void OnRatCheckAPB(wxCommandEvent& event);
     virtual void OnBatchProcess(wxCommandEvent& event);
     virtual void OnRatProcess(wxCommandEvent& event);
     virtual void OnUpdateViewMarks(wxUpdateUIEvent& event);
     virtual void OnViewMarks(wxCommandEvent& event);
-    virtual void OnRatAbdomen(wxCommandEvent& event);
+
     virtual void OnToolsCleanOutput(wxCommandEvent& event);
     virtual void OnMouseLButtonDown(wxMouseEvent& event);
     virtual void OnMouseRButtonDown(wxMouseEvent& event);

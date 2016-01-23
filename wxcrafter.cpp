@@ -73,8 +73,8 @@ MainFrameBaseClass::MainFrameBaseClass(wxWindow* parent, wxWindowID id, const wx
     m_menuItemProcess = new wxMenuItem(m_menuRat, wxID_RAT_PROCESS, _("Process"), wxT(""), wxITEM_NORMAL);
     m_menuRat->Append(m_menuItemProcess);
     
-    m_menuItemAbdomen = new wxMenuItem(m_menuRat, wxID_RAT_ABDOMEN, _("Ref. Frame Signal"), wxT(""), wxITEM_NORMAL);
-    m_menuRat->Append(m_menuItemAbdomen);
+    m_menuItemRatGenRefFrame = new wxMenuItem(m_menuRat, wxID_ANY, _("Gen. Ref. Frame Signal"), wxT(""), wxITEM_NORMAL);
+    m_menuRat->Append(m_menuItemRatGenRefFrame);
     
     m_menuItemBatch = new wxMenuItem(m_menuRat, wxID_ANY, _("Batch Process"), wxT(""), wxITEM_NORMAL);
     m_menuRat->Append(m_menuItemBatch);
@@ -203,7 +203,7 @@ MainFrameBaseClass::MainFrameBaseClass(wxWindow* parent, wxWindowID id, const wx
     this->Connect(m_menuItemViewMarks->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnViewMarks), NULL, this);
     this->Connect(m_menuItemViewMarks->GetId(), wxEVT_UPDATE_UI, wxUpdateUIEventHandler(MainFrameBaseClass::OnUpdateViewMarks), NULL, this);
     this->Connect(m_menuItemProcess->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnRatProcess), NULL, this);
-    this->Connect(m_menuItemAbdomen->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnRatAbdomen), NULL, this);
+    this->Connect(m_menuItemRatGenRefFrame->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnRatGenRefFrame), NULL, this);
     this->Connect(m_menuItemBatch->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnBatchProcess), NULL, this);
     this->Connect(m_menuItemCheckAPB->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnRatCheckAPB), NULL, this);
     this->Connect(m_menuItemCleanOutput->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnToolsCleanOutput), NULL, this);
@@ -238,7 +238,7 @@ MainFrameBaseClass::~MainFrameBaseClass()
     this->Disconnect(m_menuItemViewMarks->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnViewMarks), NULL, this);
     this->Disconnect(m_menuItemViewMarks->GetId(), wxEVT_UPDATE_UI, wxUpdateUIEventHandler(MainFrameBaseClass::OnUpdateViewMarks), NULL, this);
     this->Disconnect(m_menuItemProcess->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnRatProcess), NULL, this);
-    this->Disconnect(m_menuItemAbdomen->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnRatAbdomen), NULL, this);
+    this->Disconnect(m_menuItemRatGenRefFrame->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnRatGenRefFrame), NULL, this);
     this->Disconnect(m_menuItemBatch->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnBatchProcess), NULL, this);
     this->Disconnect(m_menuItemCheckAPB->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnRatCheckAPB), NULL, this);
     this->Disconnect(m_menuItemCleanOutput->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnToolsCleanOutput), NULL, this);

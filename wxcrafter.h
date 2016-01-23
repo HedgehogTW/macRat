@@ -40,15 +40,14 @@ class MainFrameBaseClass : public wxFrame
 public:
     enum {
         wxID_EDIT_CLEAR_MARKS = 1001,
-        wxID_RAT_ABDOMEN = 1002,
-        wxID_RAT_CHECK_APB = 1003,
-        wxID_RAT_MARK_BELLY = 1004,
-        wxID_RAT_MARK_EAR = 1005,
-        wxID_RAT_MARK_EYE = 1006,
-        wxID_RAT_PROCESS = 1007,
-        wxID_VIEW_MARK = 1008,
-        wxID_VIEW_RESULT_SERIES = 1009,
-        wxID_VIEW_SERIES = 1010,
+        wxID_RAT_CHECK_APB = 1002,
+        wxID_RAT_MARK_BELLY = 1003,
+        wxID_RAT_MARK_EAR = 1004,
+        wxID_RAT_MARK_EYE = 1005,
+        wxID_RAT_PROCESS = 1006,
+        wxID_VIEW_MARK = 1007,
+        wxID_VIEW_RESULT_SERIES = 1008,
+        wxID_VIEW_SERIES = 1009,
     };
 protected:
     wxMenuBar* m_menuBar;
@@ -67,7 +66,7 @@ protected:
     wxMenuItem* m_menuItemViewMarks;
     wxMenu* m_menuRat;
     wxMenuItem* m_menuItemProcess;
-    wxMenuItem* m_menuItemAbdomen;
+    wxMenuItem* m_menuItemRatGenRefFrame;
     wxMenuItem* m_menuItemBatch;
     wxMenuItem* m_menuItem175;
     wxMenuItem* m_menuItemCheckAPB;
@@ -102,7 +101,7 @@ protected:
     virtual void OnViewMarks(wxCommandEvent& event) { event.Skip(); }
     virtual void OnUpdateViewMarks(wxUpdateUIEvent& event) { event.Skip(); }
     virtual void OnRatProcess(wxCommandEvent& event) { event.Skip(); }
-    virtual void OnRatAbdomen(wxCommandEvent& event) { event.Skip(); }
+    virtual void OnRatGenRefFrame(wxCommandEvent& event) { event.Skip(); }
     virtual void OnBatchProcess(wxCommandEvent& event) { event.Skip(); }
     virtual void OnRatCheckAPB(wxCommandEvent& event) { event.Skip(); }
     virtual void OnToolsCleanOutput(wxCommandEvent& event) { event.Skip(); }
