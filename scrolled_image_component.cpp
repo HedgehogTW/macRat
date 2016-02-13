@@ -78,9 +78,11 @@ void ScrolledImageComponent::OnDraw(wxDC& dc)
     
     bool bViewMarks = MainFrame::m_pThis->isViewMarks();
     if(! bViewMarks)  return;
-    
+   
+	MyConfigData  configData;
+	MainFrame::m_pThis->getConfigData(configData);
+ 
 	Point 	ptEyeL, ptEyeR, ptEarL, ptEarR;
-	
 	MainFrame::m_pThis->getEyePts(ptEyeL, ptEyeR);
 	if(ptEyeL.x != 0 ) {
 		dc.SetPen(*wxRED_PEN);
@@ -101,10 +103,15 @@ void ScrolledImageComponent::OnDraw(wxDC& dc)
 	deque<cv::Point>& dqBellyPts =  MainFrame::m_pThis->getBellyPts(ptMostBelly);
 	
 	dc.SetPen(*wxCYAN_PEN);
+	//dc.SetBrush(*wxTRANSPARENT_BRUSH);
 	dc.SetBrush(*wxCYAN_BRUSH);
 	int sz = dqBellyPts.size();
+	
 	for(int i=0; i<sz; i++) {
 		dc.DrawCircle(dqBellyPts[i].x, dqBellyPts[i].y, 3);
+//		wxCoord x = dqBellyPts[i].x - configData.m_szROIBelly/2;
+//		wxCoord y = dqBellyPts[i].y - configData.m_szROIBelly/2;
+//		dc.DrawRectangle(x, y, configData.m_szROIBelly, configData.m_szROIBelly);
 		//MainFrame:: myMsgOutput("ptBellyBo y %d %d\n", pt.x, pt.y);
 	}
 	dc.SetPen(*wxBLUE_PEN);
