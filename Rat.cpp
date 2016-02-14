@@ -876,11 +876,12 @@ bool CRat::genReferenceFrameSignal(Point& ptBelly, int& nLED2)
 	int szSeries = m_nLED2+1; //vecRedGrayDiff.size();
 	vecBellyGray.resize(szSeries);
 	
-	Mat  mRef(szSeries, 49, CV_32F);
-	Mat  mRef1B(49, 2, CV_32F);
+	int  start = 110; // 24
+	Mat  mRef(szSeries, start*2+1, CV_32F);  // 49
+	Mat  mRef1B(start*2+1, 2, CV_32F);   // 49
 	//Mat  mRef(m_nLED2+1, m_nLED2, CV_32F);
 	
-	for(int i=-24; i<=24; i++) {
+	for(int i=-start; i<=start; i++) {  // -24 .. 24
 		int ref = newReferFrame + i;
 	//for(int i=0; i<m_nLED2; i++) {
 		//int ref = i;
@@ -891,18 +892,18 @@ bool CRat::genReferenceFrameSignal(Point& ptBelly, int& nLED2)
 		DC_removal(m_nLED2, vecBellyGray);			
 		Notch_removal(vecBellyGray, ref);
 	
-		mRef.at<float>(0, i+24) = ref;
-		mRef1B.at<float>(i+24, 0) = ref;
-		mRef1B.at<float>(i+24, 1) = vecBellyGray[ref-1];
+		mRef.at<float>(0, i+start) = ref;
+		mRef1B.at<float>(i+start, 0) = ref;
+		mRef1B.at<float>(i+start, 1) = vecBellyGray[ref-1];
 		//mRef.at<float>(0, i) = ref;
 		for(int k=1; k<szSeries; k++) {
-			mRef.at<float>(k, i+24) = vecBellyGray[k-1];
+			mRef.at<float>(k, i+start) = vecBellyGray[k-1];
 			//mRef.at<float>(k, i) = vecBellyGray[k-1];
 		}
 
 	}
 	wxString  diffSignalName;
-	diffSignalName << title << "_Diff_Ref_" << ".csv";
+	diffSignalName << title << "_Diff_Ref_" << newReferFrame << ".csv";
 	wxFileName newFullMarkerName(strParentPath, diffSignalName); 
 	_OutputMat(mRef, newFullMarkerName.GetFullPath());
 	MainFrame::myMsgOutput("save: "+diffSignalName+"\n");	
