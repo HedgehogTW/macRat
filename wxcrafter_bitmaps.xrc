@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resource xmlns="http://www.wxwidgets.org/wxxrc">
+  <!-- Handler Generation is ON -->
   <object class="wxBitmap" name="ERASE01">ERASE01.png</object>
   <object class="wxBitmap" name="Mouse">Mouse.bmp</object>
   <object class="wxBitmap" name="Projector">Projector.png</object>

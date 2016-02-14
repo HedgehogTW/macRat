@@ -156,6 +156,7 @@ void MainFrame::DeleteContents()
 	m_bMarkBelly = false;
 	m_bMarkCageline = false;
     m_bViewMarks = true;
+	m_bViewBellyROI = true;
 	
 	m_bAlreadyCrop = false;
 	
@@ -169,6 +170,9 @@ void MainFrame::DeleteContents()
 	m_bmpToggleBtnMarkEyes->SetValue(false);
 	m_bmpToggleBtnMarkEars->SetValue(false);	
 	m_bmpToggleBtnMarkBelly->SetValue(false);
+	
+	m_menuItemViewMarks->Check(m_bViewMarks);
+	m_menuItemViewBellyROI->Check(m_bViewBellyROI);
 }
 void MainFrame::OnMRUFile(wxCommandEvent& event)
 {
@@ -1300,7 +1304,7 @@ void MainFrame::OnRatGenRefFrame(wxCommandEvent& event)
 
 }
 void MainFrame::OnViewMarks(wxCommandEvent& event)
-{
+{/*
 	if(event.IsChecked()) {
  //       m_bmpToggleBtnViewMark->SetValue(false);
         m_bViewMarks = false;
@@ -1310,14 +1314,28 @@ void MainFrame::OnViewMarks(wxCommandEvent& event)
         m_bViewMarks = true;   
         //MainFrame::myMsgOutput("no checked\n");
     }
-	m_bmpToggleBtnViewMark->SetValue(!m_bViewMarks);
+	*/
+	m_bViewMarks = !m_bViewMarks;
+	m_bmpToggleBtnViewMark->SetValue(m_bViewMarks);
     Refresh();
 }
 void MainFrame::OnUpdateViewMarks(wxUpdateUIEvent& event)
 {
     
-    m_menuItemViewMarks->Check(!m_bViewMarks);
+    m_menuItemViewMarks->Check(m_bViewMarks);
 }
+
+
+void MainFrame::OnViewBellyROI(wxCommandEvent& event)
+{
+	m_bViewBellyROI = !m_bViewBellyROI;
+	Refresh();
+}
+void MainFrame::OnUpdateViewBellyROI(wxUpdateUIEvent& event)
+{
+	m_menuItemViewBellyROI->Check(m_bViewBellyROI);
+}
+
 
 void MainFrame::readDirList(wxString& basepath, wxArrayString& dataDirs)
 {
@@ -1634,4 +1652,3 @@ void MainFrame::OnRatCheckAPB(wxCommandEvent& event)
 	 
 
 }
-

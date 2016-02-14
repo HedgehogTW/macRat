@@ -50,6 +50,7 @@ public:
 	deque<cv::Point>& getBellyPts(	cv::Point& ptMostBelly) { 	ptMostBelly = m_ptMostBelly; return m_dqBellyPts1; }
 	
 	bool    isViewMarks() { return m_bViewMarks; };
+	bool    isViewBellyROI() { return m_bViewBellyROI; };	
     
 	int		getCageline() { return m_nCageLine; }
 	bool	getCroppedStatus()  { return m_bCutTop; }
@@ -77,6 +78,8 @@ public:
 	
 	
 protected:
+    virtual void OnUpdateViewBellyROI(wxUpdateUIEvent& event);
+    virtual void OnViewBellyROI(wxCommandEvent& event);
     virtual void OnRatGenRefFrame(wxCommandEvent& event);
     virtual void OnRatCheckAPB(wxCommandEvent& event);
     virtual void OnBatchProcess(wxCommandEvent& event);
@@ -140,6 +143,7 @@ protected:
 	bool    m_bMarkBelly;
 	bool    m_bMarkCageline;
     bool    m_bViewMarks;
+	bool	m_bViewBellyROI;
 	
 //	double	m_gainHead;
 //	double	m_gainBelly;

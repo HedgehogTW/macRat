@@ -76,65 +76,60 @@ void ScrolledImageComponent::OnDraw(wxDC& dc)
 		dc.DrawLine(wxPoint(0, nCageline), wxPoint(m_nWidth, nCageline));
 	}
     
-    bool bViewMarks = MainFrame::m_pThis->isViewMarks();
-    if(! bViewMarks)  return;
-   
 	MyConfigData  configData;
 	MainFrame::m_pThis->getConfigData(configData);
- 
-	Point 	ptEyeL, ptEyeR, ptEarL, ptEarR;
-	MainFrame::m_pThis->getEyePts(ptEyeL, ptEyeR);
-	if(ptEyeL.x != 0 ) {
-		dc.SetPen(*wxRED_PEN);
-		dc.SetBrush(*wxRED_BRUSH);
-		dc.DrawCircle(ptEyeL.x, ptEyeL.y, 2);
-		dc.DrawCircle(ptEyeR.x, ptEyeR.y, 2);
-	}
-	
-	MainFrame::m_pThis->getEarPts(ptEarL, ptEarR);
-	if(ptEarL.x != 0 ) {
-		dc.SetPen(*wxYELLOW_PEN);
-		dc.SetBrush(*wxYELLOW_BRUSH);
-		dc.DrawCircle(ptEarL.x, ptEarL.y, 3);
-		dc.DrawCircle(ptEarR.x, ptEarR.y, 3);
-	}	
 
 	cv::Point ptMostBelly;
 	deque<cv::Point>& dqBellyPts =  MainFrame::m_pThis->getBellyPts(ptMostBelly);
-	
-	dc.SetPen(*wxCYAN_PEN);
-	//dc.SetBrush(*wxTRANSPARENT_BRUSH);
-	dc.SetBrush(*wxCYAN_BRUSH);
-	int sz = dqBellyPts.size();
-	
-	for(int i=0; i<sz; i++) {
-		dc.DrawCircle(dqBellyPts[i].x, dqBellyPts[i].y, 3);
-//		wxCoord x = dqBellyPts[i].x - configData.m_szROIBelly/2;
-//		wxCoord y = dqBellyPts[i].y - configData.m_szROIBelly/2;
-//		dc.DrawRectangle(x, y, configData.m_szROIBelly, configData.m_szROIBelly);
-		//MainFrame:: myMsgOutput("ptBellyBo y %d %d\n", pt.x, pt.y);
+
+    bool bViewMarks = MainFrame::m_pThis->isViewMarks();
+
+	if( bViewMarks) {
+		Point 	ptEyeL, ptEyeR, ptEarL, ptEarR;
+		MainFrame::m_pThis->getEyePts(ptEyeL, ptEyeR);
+		if(ptEyeL.x != 0 ) {
+			dc.SetPen(*wxRED_PEN);
+			dc.SetBrush(*wxRED_BRUSH);
+			dc.DrawCircle(ptEyeL.x, ptEyeL.y, 2);
+			dc.DrawCircle(ptEyeR.x, ptEyeR.y, 2);
+		}
+		
+		MainFrame::m_pThis->getEarPts(ptEarL, ptEarR);
+		if(ptEarL.x != 0 ) {
+			dc.SetPen(*wxYELLOW_PEN);
+			dc.SetBrush(*wxYELLOW_BRUSH);
+			dc.DrawCircle(ptEarL.x, ptEarL.y, 3);
+			dc.DrawCircle(ptEarR.x, ptEarR.y, 3);
+		}	
+
+		
+		dc.SetPen(*wxCYAN_PEN);
+		dc.SetBrush(*wxCYAN_BRUSH);
+		int sz = dqBellyPts.size();
+		
+		for(int i=0; i<sz; i++) {
+			dc.DrawCircle(dqBellyPts[i].x, dqBellyPts[i].y, 3);
+		}
+		dc.SetPen(*wxBLUE_PEN);
+		dc.SetBrush(*wxBLUE_BRUSH);
+		dc.DrawCircle(ptMostBelly.x, ptMostBelly.y, 3);	
 	}
-	dc.SetPen(*wxBLUE_PEN);
-	dc.SetBrush(*wxBLUE_BRUSH);
-	dc.DrawCircle(ptMostBelly.x, ptMostBelly.y, 3);	
+	// draw belly roi
+    bool bViewBellyROI = MainFrame::m_pThis->isViewBellyROI();
+    if( bViewBellyROI)  {
+		dc.SetPen(*wxCYAN_PEN);
+		dc.SetBrush(*wxTRANSPARENT_BRUSH);
+		int sz = dqBellyPts.size();
+		for(int i=0; i<sz; i++) {
+			wxCoord x = dqBellyPts[i].x - configData.m_szROIBelly/2;
+			wxCoord y = dqBellyPts[i].y - configData.m_szROIBelly/2;
+			dc.DrawRectangle(x, y, configData.m_szROIBelly, configData.m_szROIBelly);
+		}
+		wxCoord x =ptMostBelly.x - configData.m_szROIBelly/2;
+		wxCoord y = ptMostBelly.y - configData.m_szROIBelly/2;
+		dc.DrawRectangle(x, y, configData.m_szROIBelly, configData.m_szROIBelly);	
 	
-/*	
-    Point 	ptBellyRed, ptBellyCyan;
-	int bigRedPdf = MainFrame::m_pThis->getBellyPts(ptBellyRed, ptBellyCyan);
-	if(ptBellyRed.x != 0 ) {
-        if(bigRedPdf==-1 || bigRedPdf==1) {
-            dc.SetPen(*wxRED_PEN);
-            dc.SetBrush(*wxRED_BRUSH);
-            dc.DrawCircle(ptBellyRed.x, ptBellyRed.y, 2);		
-        }
-        if(bigRedPdf==-1 || bigRedPdf==0) {
-            dc.SetPen(*wxCYAN_PEN);
-            dc.SetBrush(*wxCYAN_BRUSH);
-            dc.DrawCircle(ptBellyCyan.x, ptBellyCyan.y, 2);
-        }
-	}	
-*/	 
-	//MainFrame:: myMsgOutput("ptBellyBo y %d\n", ptBellyBo.y);
+	}
 }
 
 

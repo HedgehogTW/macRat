@@ -4,8 +4,8 @@
 // Do not modify this file by hand!
 //////////////////////////////////////////////////////////////////////
 
-#ifndef MACRAT_WXCRAFTER_BASE_CLASSES_H
-#define MACRAT_WXCRAFTER_BASE_CLASSES_H
+#ifndef PROJECT_MACRAT_WXCRAFTER_BASE_CLASSES_H
+#define PROJECT_MACRAT_WXCRAFTER_BASE_CLASSES_H
 
 #include <wx/settings.h>
 #include <wx/xrc/xmlres.h>
@@ -13,13 +13,13 @@
 #include <wx/frame.h>
 #include <wx/iconbndl.h>
 #include <wx/artprov.h>
+#include <wx/sizer.h>
 #include <wx/menu.h>
 #include <wx/aui/framemanager.h>
 #include <wx/aui/dockart.h>
 #include <wx/scrolwin.h>
 #include "scrolled_image_component.h"
 #include <wx/panel.h>
-#include <wx/sizer.h>
 #include <wx/richtext/richtextctrl.h>
 #include <wx/pen.h>
 #include <wx/aui/auibar.h>
@@ -64,6 +64,7 @@ protected:
     wxMenuItem* m_menuItemView2D;
     wxMenuItem* m_menuItemView3D;
     wxMenuItem* m_menuItemViewMarks;
+    wxMenuItem* m_menuItemViewBellyROI;
     wxMenu* m_menuRat;
     wxMenuItem* m_menuItemProcess;
     wxMenuItem* m_menuItemRatGenRefFrame;
@@ -100,6 +101,8 @@ protected:
     virtual void OnView3DData(wxCommandEvent& event) { event.Skip(); }
     virtual void OnViewMarks(wxCommandEvent& event) { event.Skip(); }
     virtual void OnUpdateViewMarks(wxUpdateUIEvent& event) { event.Skip(); }
+    virtual void OnViewBellyROI(wxCommandEvent& event) { event.Skip(); }
+    virtual void OnUpdateViewBellyROI(wxUpdateUIEvent& event) { event.Skip(); }
     virtual void OnRatProcess(wxCommandEvent& event) { event.Skip(); }
     virtual void OnRatGenRefFrame(wxCommandEvent& event) { event.Skip(); }
     virtual void OnBatchProcess(wxCommandEvent& event) { event.Skip(); }
