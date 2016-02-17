@@ -79,8 +79,8 @@ void ScrolledImageComponent::OnDraw(wxDC& dc)
 	MyConfigData  configData;
 	MainFrame::m_pThis->getConfigData(configData);
 
-	cv::Point ptMostBelly;
-	deque<cv::Point>& dqBellyPts =  MainFrame::m_pThis->getBellyPts(ptMostBelly);
+	cv::Point ptMostBelly, ptMostBellyOld;
+	deque<cv::Point>& dqBellyPts =  MainFrame::m_pThis->getBellyPts(ptMostBelly, ptMostBellyOld);
 
     bool bViewMarks = MainFrame::m_pThis->isViewMarks();
 
@@ -125,10 +125,14 @@ void ScrolledImageComponent::OnDraw(wxDC& dc)
 			wxCoord y = dqBellyPts[i].y - configData.m_szROIBelly/2;
 			dc.DrawRectangle(x, y, configData.m_szROIBelly, configData.m_szROIBelly);
 		}
+		dc.SetPen(*wxRED_PEN);	
 		wxCoord x =ptMostBelly.x - configData.m_szROIBelly/2;
 		wxCoord y = ptMostBelly.y - configData.m_szROIBelly/2;
 		dc.DrawRectangle(x, y, configData.m_szROIBelly, configData.m_szROIBelly);	
 	
+		x = ptMostBellyOld.x - configData.m_szROIBelly/2;
+		y = ptMostBellyOld.y - configData.m_szROIBelly/2;
+		dc.DrawRectangle(x, y, configData.m_szROIBelly, configData.m_szROIBelly);	
 	}
 }
 

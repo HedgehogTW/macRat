@@ -165,7 +165,7 @@ void MainFrame::DeleteContents()
 	m_dqBellyPts.clear();
 	m_dqBellyPts1.clear();	
 	
-	m_ptMostBelly = m_ptEyeL = m_ptEyeR = m_ptEarL = m_ptEarR = Point(0,0);
+	m_ptMostBellyOld = m_ptMostBelly = m_ptEyeL = m_ptEyeR = m_ptEarL = m_ptEarR = Point(0,0);
 	
 	m_bmpToggleBtnMarkEyes->SetValue(false);
 	m_bmpToggleBtnMarkEars->SetValue(false);	
@@ -558,6 +558,7 @@ void MainFrame::OnMarkBelly(wxCommandEvent& event)
 		}
 		m_bMarkBelly = true;
 		m_scrollWin->SetCursor(wxCursor(wxCURSOR_CROSS ));
+		m_ptMostBellyOld = m_ptMostBelly;
 	}else {
 		m_bMarkBelly = false;
 		m_scrollWin->SetCursor(wxCursor(wxCURSOR_ARROW ));
@@ -1163,6 +1164,7 @@ void MainFrame::OnMouseLButtonDown(wxMouseEvent& event)
             }
 		}	
 	}else if(m_bMarkBelly) {
+
 		m_ptMostBelly = Point(0, 0);
 		
 		Point ptB = Point(pt.x, pt.y);
@@ -1171,30 +1173,6 @@ void MainFrame::OnMouseLButtonDown(wxMouseEvent& event)
 
 		if(m_bCutTop) ptB.y -= m_nCageLine;
 		m_dqBellyPts1.push_back(ptB);
-/*		
-		int sz = m_dqBellyPts.size();		
-		for(int i=0; i<sz; i++) {
-			wxString str;
-			str.Printf("LButton (%d, %d) \n", ptB.x, m_dqBellyPts1[i].y);
-			myMsgOutput(str);
-		}
-		 */ 
-/* 
-       if(sz>2)  {	
-            m_dqBellyPts.pop_front();
-            sz--;
-        }
-        for(int i=0; i<sz; i++) {
-            if(i==0)	{
-                m_ptBellyRed = m_dqBellyPts[0];
-                if(m_bCutTop)  m_ptBellyRed.y -= m_nCageLine;
-            }
-            if(i==1)	{
-                m_ptBellyCyan = m_dqBellyPts[1];
-                if(m_bCutTop)  m_ptBellyCyan.y -= m_nCageLine;
-            }
-        }
-		*/ 
 	}else if(m_bMarkCageline) {
 		m_nCageLine = pt.y;
 		myMsgOutput("cage line %d\n", m_nCageLine);

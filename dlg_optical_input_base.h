@@ -4,8 +4,8 @@
 // Do not modify this file by hand!
 //////////////////////////////////////////////////////////////////////
 
-#ifndef PROJECT_MACRAT_DLG_OPTICAL_INPUT_BASE_BASE_CLASSES_H
-#define PROJECT_MACRAT_DLG_OPTICAL_INPUT_BASE_BASE_CLASSES_H
+#ifndef MACRAT_DLG_OPTICAL_INPUT_BASE_BASE_CLASSES_H
+#define MACRAT_DLG_OPTICAL_INPUT_BASE_BASE_CLASSES_H
 
 #include <wx/settings.h>
 #include <wx/xrc/xmlres.h>

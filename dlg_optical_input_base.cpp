@@ -311,7 +311,7 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     m_stdBtnSizer243->Realize();
     
     SetName(wxT("DlgOpticalInputBase"));
-    SetSizeHints(-1,-1);
+    SetSize(-1,-1);
     if (GetSizer()) {
          GetSizer()->Fit(this);
     }

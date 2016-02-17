@@ -47,7 +47,8 @@ public:
 	void 	getEyePts(cv::Point& eyeL, cv::Point& eyeR) { eyeL = m_ptEyeL; eyeR = m_ptEyeR; }
 	void 	getEarPts(cv::Point& earL, cv::Point& earR) { earL = m_ptEarL; earR = m_ptEarR;}
 //	int 	getBellyPts(cv::Point& abRed, cv::Point& abCyan) { abRed = m_ptBellyRed; abCyan = m_ptBellyCyan; return m_Rat.m_BigRedPdf; }
-	deque<cv::Point>& getBellyPts(	cv::Point& ptMostBelly) { 	ptMostBelly = m_ptMostBelly; return m_dqBellyPts1; }
+	deque<cv::Point>& getBellyPts(	cv::Point& ptMostBelly, cv::Point& ptMostBellyOld) 
+			{ 	ptMostBelly = m_ptMostBelly; ptMostBellyOld = m_ptMostBellyOld; return m_dqBellyPts1; }
 	
 	bool    isViewMarks() { return m_bViewMarks; };
 	bool    isViewBellyROI() { return m_bViewBellyROI; };	
@@ -155,6 +156,7 @@ protected:
 	cv::Point 	m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR;  // Point stores the cutted coordinates.
 //	cv::Point 	m_ptBellyRed, m_ptBellyCyan;
 	cv::Point  m_ptMostBelly;	// store original coordinates.
+	cv::Point  m_ptMostBellyOld;
 	bool	m_bAlreadyCrop;
 };
 
