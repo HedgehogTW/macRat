@@ -955,6 +955,12 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	double verLine = configData.m_verLine;
 	double ymin = configData.m_ymin;
 	double ymax = configData.m_ymax;
+	double ysnd = configData.m_ysnd;
+	
+	double intvymin = configData.m_intvymin;
+	double intvymax = configData.m_intvymax;
+	double intvysnd = configData.m_intvysnd;
+	
 	m_ROIEar = configData.m_szROIEar;
 	m_ROIBelly = configData.m_szROIBelly;
 	long referFrame = configData.m_referFrame;
@@ -1222,7 +1228,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 ///////////G N U P L O T//////////////////////////////////////////////////////////////////////////////
 	_gnuplotInit(gPlotL, title.ToAscii(), ymin, ymax);
 	_gnuplotInit(gPlotR, title.ToAscii(), ymin, ymax);
-	_gnuplotInit(gPlotP, title.ToAscii(), 10, 70);
+	_gnuplotInit(gPlotP, title.ToAscii(), intvymin, intvymax);
 	
 
 	gPlotL.set_legend("left");
@@ -1233,8 +1239,9 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	gPlotP.cmd("set termoption noenhanced");
 
 
-	_gnuplotSoundOnset(gPlotL, m_nLED2, m_nSlices, -0.65, 0.06, 100);
-	_gnuplotSoundOnset(gPlotR, m_nLED2, m_nSlices, -0.65, 0.06, 100);
+	_gnuplotSoundOnset(gPlotL, m_nLED2, m_nSlices, ysnd, 0.06, 100);
+	_gnuplotSoundOnset(gPlotR, m_nLED2, m_nSlices, ysnd, 0.06, 100);
+	_gnuplotSoundOnset(gPlotP, m_nLED2, m_nSlices, intvysnd, 1.5, 100);
 	
 	if(bLEDLine && (m_nLED1>0 || m_nLED2 >0)) {
 		_gnuplotLED(gPlotL, m_nLED1, m_nLED2);

@@ -130,9 +130,11 @@ void ScrolledImageComponent::OnDraw(wxDC& dc)
 		wxCoord y = ptMostBelly.y - configData.m_szROIBelly/2;
 		dc.DrawRectangle(x, y, configData.m_szROIBelly, configData.m_szROIBelly);	
 	
-		x = ptMostBellyOld.x - configData.m_szROIBelly/2;
-		y = ptMostBellyOld.y - configData.m_szROIBelly/2;
-		dc.DrawRectangle(x, y, configData.m_szROIBelly, configData.m_szROIBelly);	
+		if(ptMostBellyOld != Point(0,0)) {
+			x = ptMostBellyOld.x - configData.m_szROIBelly/2;
+			y = ptMostBellyOld.y - configData.m_szROIBelly/2;
+			dc.DrawRectangle(x, y, configData.m_szROIBelly, configData.m_szROIBelly);	
+		}
 	}
 }
 

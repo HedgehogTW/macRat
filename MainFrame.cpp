@@ -346,14 +346,28 @@ void MainFrame::readMarks(wxString &dirName)
 					myMsgOutput("m_refSignal load error\n");
 				break;	
 			case 'y': // m_ymin, m_ymax
-				float ymin, ymax;
-				n = fscanf(fp, "%f %f\n", &ymin, &ymax);
+				float ymin, ymax, ysnd;
+				n = fscanf(fp, "%f %f %f\n", &ymin, &ymax, &ysnd);
 				if(n==2) {
 					m_configData.m_ymin = ymin;
 					m_configData.m_ymax = ymax;
 					//myMsgOutput("head, belly gain %.2f %.2f\n", gainHead, gainBelly);
+				}else if(n==3) {
+					m_configData.m_ymin = ymin;
+					m_configData.m_ymax = ymax;		
+					m_configData.m_ysnd = ysnd;	
 				}else
 					myMsgOutput("m_ymin, m_ymax load error\n");
+				break;	
+			case 'z': // interval m_ymin, m_ymax
+				float intvymin, intvymax, intvysnd;
+				n = fscanf(fp, "%f %f %f\n", &intvymin, &intvymax, &intvysnd);
+				if(n==3) {
+					m_configData.m_intvymin = intvymin;
+					m_configData.m_intvymax = intvymax;		
+					m_configData.m_intvysnd = intvysnd;	
+				}else
+					myMsgOutput("interval m_ymin, m_ymax load error\n");
 				break;					
 		}
 		
@@ -668,6 +682,12 @@ bool MainFrame::inputDialog()
 	double verLine = m_configData.m_verLine;
 	double ymin = m_configData.m_ymin;
 	double ymax = m_configData.m_ymax;
+	double ysnd = m_configData.m_ysnd;
+
+	double intvymin = m_configData.m_intvymin;
+	double intvymax = m_configData.m_intvymax;
+	double intvysnd = m_configData.m_intvysnd;
+	
 	long ROIEar = m_configData.m_szROIEar;
 	long ROIBelly = m_configData.m_szROIBelly;
 	long referFrame = m_configData.m_referFrame;
@@ -689,7 +709,8 @@ bool MainFrame::inputDialog()
 	dlg.setVerticalLine(bLEDLine, bBigHead, bUserLED2, nLED2, bVerLine, verLine);
 	dlg.setSeriesLine(bEyeMove, bEar, bGrayDiff, bBelly);
 	dlg.setOptions(bOpticalPDF, bOpFlowV1, bSaveFile, bSaveSignalPlot, bShowPeaks, refSignal);
-	dlg.setYRange(ymin, ymax, ROIEar, ROIBelly, referFrame);
+	dlg.setAmpYRange(ymin, ymax, ysnd, ROIEar, ROIBelly, referFrame);
+	dlg.setIntervalYRange(intvymin, intvymax, intvysnd);
 	dlg.setGain(gainHead, gainBelly, xSD);
 
 	if(dlg.ShowModal() !=  wxID_OK) return false;
@@ -698,7 +719,8 @@ bool MainFrame::inputDialog()
 	dlg.getVerticalLine(bLEDLine, bBigHead, bUserLED2, nLED2, bVerLine, verLine);
 	dlg.getSeriesLine(bEyeMove, bEar, bGrayDiff, bBelly);
 	dlg.getOptions(bOpticalPDF, bOpFlowV1, bSaveFile, bSaveSignalPlot, bShowPeaks, refSignal);
-	dlg.getYRange(ymin, ymax, ROIEar, ROIBelly, referFrame);
+	dlg.getAmpYRange(ymin, ymax, ysnd, ROIEar, ROIBelly, referFrame);
+	dlg.getIntervalYRange(intvymin, intvymax, intvysnd);
 	dlg.getGain(gainHead, gainBelly, xSD);
 //	dlg.Destroy();
 	
@@ -726,6 +748,12 @@ bool MainFrame::inputDialog()
 	m_configData.m_verLine = verLine;
 	m_configData.m_ymin = ymin;
 	m_configData.m_ymax = ymax;
+	m_configData.m_ysnd = ysnd;
+	
+	m_configData.m_intvymin = intvymin;
+	m_configData.m_intvymax = intvymax;
+	m_configData.m_intvysnd = intvysnd;
+	
 	m_configData.m_szROIEar = ROIEar;
 	m_configData.m_szROIBelly = ROIBelly;
 	m_configData.m_referFrame = referFrame;
@@ -841,7 +869,8 @@ void MainFrame::writeMarks()
 		fprintf(fp, "G%f %f %f\n", m_configData.m_gainHead, m_configData.m_gainBelly, m_configData.m_xSD);	
 		fprintf(fp, "S%d %d\n", m_configData.m_szROIEar, m_configData.m_szROIBelly);
 		fprintf(fp, "R%d\n", m_configData.m_refSignal);
-		fprintf(fp, "y%f %f %f\n", m_configData.m_ymin, m_configData.m_ymax, m_configData.m_xSD);	
+		fprintf(fp, "y%f %f %f\n", m_configData.m_ymin, m_configData.m_ymax, m_configData.m_ysnd);	
+		fprintf(fp, "z%f %f %f\n", m_configData.m_intvymin, m_configData.m_intvymax, m_configData.m_intvysnd);	
 		fclose(fp);
 	}		
 }

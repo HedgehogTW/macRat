@@ -93,48 +93,52 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     wxStaticBoxSizer* staticBoxSizer173 = new wxStaticBoxSizer( new wxStaticBox(m_panel171, wxID_ANY, _("Signal types")), wxVERTICAL);
     m_panel171->SetSizer(staticBoxSizer173);
     
-    wxGridBagSizer* gridBagSizer225 = new wxGridBagSizer(0, 0);
+    wxGridSizer* gridSizer257 = new wxGridSizer(3, 3, 0, 0);
     
-    staticBoxSizer173->Add(gridBagSizer225, 1, wxALL|wxEXPAND, 5);
+    staticBoxSizer173->Add(gridSizer257, 1, wxALL|wxEXPAND, 5);
     
     m_checkBoxOpticalPDF = new wxCheckBox(m_panel171, wxID_ANY, _("Opticalflow w/ PDF"), wxDefaultPosition, wxSize(-1,-1), 0);
     m_checkBoxOpticalPDF->SetValue(false);
     
-    gridBagSizer225->Add(m_checkBoxOpticalPDF, wxGBPosition(0,0), wxGBSpan(1,1), wxALL, 5);
+    gridSizer257->Add(m_checkBoxOpticalPDF, 0, wxALL, 5);
     
     m_checkBoxGrayDiff = new wxCheckBox(m_panel171, wxID_ANY, _("Graylevel Diff"), wxDefaultPosition, wxSize(-1,-1), 0);
     m_checkBoxGrayDiff->SetValue(false);
     
-    gridBagSizer225->Add(m_checkBoxGrayDiff, wxGBPosition(0,1), wxGBSpan(1,1), wxALL, 5);
+    gridSizer257->Add(m_checkBoxGrayDiff, 0, wxALL, 5);
+    
+    m_staticLine261 = new wxStaticLine(m_panel171, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxLI_HORIZONTAL);
+    
+    gridSizer257->Add(m_staticLine261, 0, wxALL, 5);
     
     m_staticText181 = new wxStaticText(m_panel171, wxID_ANY, _("OpticalFlow Type"), wxDefaultPosition, wxSize(-1,-1), 0);
     
-    gridBagSizer225->Add(m_staticText181, wxGBPosition(1,0), wxGBSpan(1,1), wxALL, 5);
+    gridSizer257->Add(m_staticText181, 0, wxALL, 5);
     
     m_radioOpV1 = new wxRadioButton(m_panel171, wxID_ANY, _("V1 (stable)"), wxDefaultPosition, wxSize(-1,-1), wxRB_GROUP);
     m_radioOpV1->SetValue(1);
     
-    gridBagSizer225->Add(m_radioOpV1, wxGBPosition(1,1), wxGBSpan(1,1), wxALL, 5);
+    gridSizer257->Add(m_radioOpV1, 0, wxALL, 5);
     
     m_radioOpV2 = new wxRadioButton(m_panel171, wxID_ANY, _("V2 (drastic)"), wxDefaultPosition, wxSize(-1,-1), 0);
     m_radioOpV2->SetValue(1);
     
-    gridBagSizer225->Add(m_radioOpV2, wxGBPosition(1,2), wxGBSpan(1,1), wxALL, 5);
+    gridSizer257->Add(m_radioOpV2, 0, wxALL, 5);
     
     m_checkBoxSaveFlow = new wxCheckBox(m_panel171, wxID_ANY, _("Save OpFlow"), wxDefaultPosition, wxSize(-1,-1), 0);
     m_checkBoxSaveFlow->SetValue(false);
     
-    gridBagSizer225->Add(m_checkBoxSaveFlow, wxGBPosition(2,0), wxGBSpan(1,1), wxALL, 5);
+    gridSizer257->Add(m_checkBoxSaveFlow, 0, wxALL, 5);
     
     m_checkBoxSaveSignalPlot = new wxCheckBox(m_panel171, wxID_ANY, _("Save signal plots"), wxDefaultPosition, wxSize(-1,-1), 0);
     m_checkBoxSaveSignalPlot->SetValue(false);
     
-    gridBagSizer225->Add(m_checkBoxSaveSignalPlot, wxGBPosition(2,1), wxGBSpan(1,1), wxALL, 5);
+    gridSizer257->Add(m_checkBoxSaveSignalPlot, 0, wxALL, 5);
     
     m_checkBoxShowPeak = new wxCheckBox(m_panel171, wxID_ANY, _("Show Peak Symbols"), wxDefaultPosition, wxSize(-1,-1), 0);
     m_checkBoxShowPeak->SetValue(false);
     
-    gridBagSizer225->Add(m_checkBoxShowPeak, wxGBPosition(2,2), wxGBSpan(1,1), wxALL, 5);
+    gridSizer257->Add(m_checkBoxShowPeak, 0, wxALL, 5);
     
     m_staticLine781 = new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxLI_HORIZONTAL);
     
@@ -146,57 +150,65 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     
     boxSizer315->Add(m_panel38, 0, wxLEFT|wxRIGHT|wxBOTTOM, 5);
     
-    wxGridBagSizer* gridBagSizer40 = new wxGridBagSizer(0, 0);
-    m_panel38->SetSizer(gridBagSizer40);
+    wxBoxSizer* boxSizer266 = new wxBoxSizer(wxVERTICAL);
+    m_panel38->SetSizer(boxSizer266);
+    
+    wxBoxSizer* boxSizer265 = new wxBoxSizer(wxHORIZONTAL);
+    
+    boxSizer266->Add(boxSizer265, 1, wxALL|wxEXPAND, 5);
     
     m_staticText718 = new wxStaticText(m_panel38, wxID_ANY, _("Frame steps"), wxDefaultPosition, wxSize(-1,-1), 0);
     m_staticText718->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_BTNTEXT));
     
-    gridBagSizer40->Add(m_staticText718, wxGBPosition(0,0), wxGBSpan(1,1), wxALL, 5);
+    boxSizer265->Add(m_staticText718, 0, wxALL, 5);
     
     m_textCtrlFrameSteps = new wxTextCtrl(m_panel38, wxID_ANY, wxT("0"), wxDefaultPosition, wxSize(50,-1), wxTE_RIGHT);
     #if wxVERSION_NUMBER >= 3000
     m_textCtrlFrameSteps->SetHint(wxT(""));
     #endif
     
-    gridBagSizer40->Add(m_textCtrlFrameSteps, wxGBPosition(0,1), wxGBSpan(1,1), wxALL, 5);
+    boxSizer265->Add(m_textCtrlFrameSteps, 0, wxALL, 5);
     
     m_staticText1320 = new wxStaticText(m_panel38, wxID_ANY, _("0: use single reference frame"), wxDefaultPosition, wxSize(-1,-1), 0);
     
-    gridBagSizer40->Add(m_staticText1320, wxGBPosition(0,2), wxGBSpan(1,2), wxALL, 5);
+    boxSizer265->Add(m_staticText1320, 0, wxALL, 5);
+    
+    wxBoxSizer* boxSizer268 = new wxBoxSizer(wxHORIZONTAL);
+    
+    boxSizer266->Add(boxSizer268, 1, wxALL|wxEXPAND, 5);
     
     m_staticText1923 = new wxStaticText(m_panel38, wxID_ANY, _("Prob. th."), wxDefaultPosition, wxSize(-1,-1), 0);
     
-    gridBagSizer40->Add(m_staticText1923, wxGBPosition(1,0), wxGBSpan(1,1), wxALL, 5);
+    boxSizer268->Add(m_staticText1923, 0, wxALL, 5);
     
     m_textCtrlThreshold = new wxTextCtrl(m_panel38, wxID_ANY, wxT("0.005"), wxDefaultPosition, wxSize(60,-1), wxTE_RIGHT);
     #if wxVERSION_NUMBER >= 3000
     m_textCtrlThreshold->SetHint(wxT(""));
     #endif
     
-    gridBagSizer40->Add(m_textCtrlThreshold, wxGBPosition(1,1), wxGBSpan(1,1), wxALL, 5);
+    boxSizer268->Add(m_textCtrlThreshold, 0, wxALL, 5);
     
     m_staticText132 = new wxStaticText(m_panel38, wxID_ANY, _("head gain *"), wxDefaultPosition, wxSize(-1,-1), 0);
     
-    gridBagSizer40->Add(m_staticText132, wxGBPosition(1,2), wxGBSpan(1,1), wxALL, 5);
+    boxSizer268->Add(m_staticText132, 0, wxALL, 5);
     
     m_textCtrlHeadGain = new wxTextCtrl(m_panel38, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(50,-1), 0);
     #if wxVERSION_NUMBER >= 3000
     m_textCtrlHeadGain->SetHint(wxT(""));
     #endif
     
-    gridBagSizer40->Add(m_textCtrlHeadGain, wxGBPosition(1,3), wxGBSpan(1,1), wxALL, 5);
+    boxSizer268->Add(m_textCtrlHeadGain, 0, wxALL, 5);
     
     m_staticText136 = new wxStaticText(m_panel38, wxID_ANY, _("Belly gain *"), wxDefaultPosition, wxSize(-1,-1), 0);
     
-    gridBagSizer40->Add(m_staticText136, wxGBPosition(1,4), wxGBSpan(1,1), wxALL, 5);
+    boxSizer268->Add(m_staticText136, 0, wxALL, 5);
     
     m_textCtrlBellyGain = new wxTextCtrl(m_panel38, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(50,-1), 0);
     #if wxVERSION_NUMBER >= 3000
     m_textCtrlBellyGain->SetHint(wxT(""));
     #endif
     
-    gridBagSizer40->Add(m_textCtrlBellyGain, wxGBPosition(1,5), wxGBSpan(1,1), wxALL, 5);
+    boxSizer268->Add(m_textCtrlBellyGain, 0, wxALL, 5);
     
     m_staticLine78 = new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxLI_HORIZONTAL);
     
@@ -206,93 +218,157 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     
     boxSizer315->Add(m_panel187, 0, wxALL, 5);
     
-    wxGridBagSizer* gridBagSizer254 = new wxGridBagSizer(0, 0);
-    m_panel187->SetSizer(gridBagSizer254);
+    wxBoxSizer* boxSizer269 = new wxBoxSizer(wxVERTICAL);
+    m_panel187->SetSizer(boxSizer269);
     
-    m_staticText100 = new wxStaticText(m_panel187, wxID_ANY, _("Y range, min"), wxDefaultPosition, wxSize(-1,-1), 0);
+    wxBoxSizer* boxSizer271 = new wxBoxSizer(wxHORIZONTAL);
     
-    gridBagSizer254->Add(m_staticText100, wxGBPosition(0,0), wxGBSpan(1,1), wxALL, 5);
+    boxSizer269->Add(boxSizer271, 1, wxALL|wxEXPAND, 5);
     
-    m_textCtrlYmin = new wxTextCtrl(m_panel187, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(50,-1), 0);
+    m_staticText100 = new wxStaticText(m_panel187, wxID_ANY, _("Amp. Y range, min"), wxDefaultPosition, wxSize(-1,-1), 0);
+    
+    boxSizer271->Add(m_staticText100, 0, wxALL|wxEXPAND, 5);
+    
+    m_textCtrlAmpYmin = new wxTextCtrl(m_panel187, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(50,-1), 0);
     #if wxVERSION_NUMBER >= 3000
-    m_textCtrlYmin->SetHint(wxT(""));
+    m_textCtrlAmpYmin->SetHint(wxT(""));
     #endif
     
-    gridBagSizer254->Add(m_textCtrlYmin, wxGBPosition(0,1), wxGBSpan(1,1), wxALL, 5);
+    boxSizer271->Add(m_textCtrlAmpYmin, 0, wxALL, 5);
     
     m_staticText104 = new wxStaticText(m_panel187, wxID_ANY, _("max"), wxDefaultPosition, wxSize(-1,-1), 0);
     
-    gridBagSizer254->Add(m_staticText104, wxGBPosition(0,2), wxGBSpan(1,1), wxALL|wxALIGN_RIGHT, 5);
+    boxSizer271->Add(m_staticText104, 0, wxALL|wxALIGN_RIGHT, 5);
     
-    m_textCtrlYmax = new wxTextCtrl(m_panel187, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(50,-1), 0);
+    m_textCtrlAmpYmax = new wxTextCtrl(m_panel187, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(50,-1), 0);
     #if wxVERSION_NUMBER >= 3000
-    m_textCtrlYmax->SetHint(wxT(""));
+    m_textCtrlAmpYmax->SetHint(wxT(""));
     #endif
     
-    gridBagSizer254->Add(m_textCtrlYmax, wxGBPosition(0,3), wxGBSpan(1,1), wxALL, 5);
+    boxSizer271->Add(m_textCtrlAmpYmax, 0, wxALL, 5);
+    
+    m_staticText273 = new wxStaticText(m_panel187, wxID_ANY, _("sound Y pos."), wxDefaultPosition, wxSize(-1,-1), 0);
+    
+    boxSizer271->Add(m_staticText273, 0, wxALL, 5);
+    
+    m_textCtrlSoundYAmp = new wxTextCtrl(m_panel187, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(50,-1), 0);
+    #if wxVERSION_NUMBER >= 3000
+    m_textCtrlSoundYAmp->SetHint(wxT(""));
+    #endif
+    
+    boxSizer271->Add(m_textCtrlSoundYAmp, 0, wxALL, 5);
+    
+    wxBoxSizer* boxSizer2711 = new wxBoxSizer(wxHORIZONTAL);
+    
+    boxSizer269->Add(boxSizer2711, 1, wxALL|wxEXPAND, 5);
+    
+    m_staticText1002 = new wxStaticText(m_panel187, wxID_ANY, _("Interval Y range, min"), wxDefaultPosition, wxSize(-1,-1), 0);
+    
+    boxSizer2711->Add(m_staticText1002, 0, wxALL|wxEXPAND, 5);
+    
+    m_textCtrlIntervalYmin = new wxTextCtrl(m_panel187, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(50,-1), 0);
+    #if wxVERSION_NUMBER >= 3000
+    m_textCtrlIntervalYmin->SetHint(wxT(""));
+    #endif
+    
+    boxSizer2711->Add(m_textCtrlIntervalYmin, 0, wxALL, 5);
+    
+    m_staticText1044 = new wxStaticText(m_panel187, wxID_ANY, _("max"), wxDefaultPosition, wxSize(-1,-1), 0);
+    
+    boxSizer2711->Add(m_staticText1044, 0, wxALL|wxALIGN_RIGHT, 5);
+    
+    m_textCtrlIntervalYmax = new wxTextCtrl(m_panel187, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(50,-1), 0);
+    #if wxVERSION_NUMBER >= 3000
+    m_textCtrlIntervalYmax->SetHint(wxT(""));
+    #endif
+    
+    boxSizer2711->Add(m_textCtrlIntervalYmax, 0, wxALL, 5);
+    
+    m_staticText2736 = new wxStaticText(m_panel187, wxID_ANY, _("sound Y pos."), wxDefaultPosition, wxSize(-1,-1), 0);
+    
+    boxSizer2711->Add(m_staticText2736, 0, wxALL, 5);
+    
+    m_textCtrlSoundYInterval = new wxTextCtrl(m_panel187, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(50,-1), 0);
+    #if wxVERSION_NUMBER >= 3000
+    m_textCtrlSoundYInterval->SetHint(wxT(""));
+    #endif
+    
+    boxSizer2711->Add(m_textCtrlSoundYInterval, 0, wxALL, 5);
+    
+    wxBoxSizer* boxSizer291 = new wxBoxSizer(wxHORIZONTAL);
+    
+    boxSizer269->Add(boxSizer291, 1, wxALL|wxEXPAND, 5);
     
     m_staticText124 = new wxStaticText(m_panel187, wxID_ANY, _("ROI Size, Ear"), wxDefaultPosition, wxSize(-1,-1), 0);
     
-    gridBagSizer254->Add(m_staticText124, wxGBPosition(1,0), wxGBSpan(1,1), wxALL, 5);
+    boxSizer291->Add(m_staticText124, 0, wxALL, 5);
     
     m_textCtrlROIEar = new wxTextCtrl(m_panel187, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(50,-1), 0);
     #if wxVERSION_NUMBER >= 3000
     m_textCtrlROIEar->SetHint(wxT(""));
     #endif
     
-    gridBagSizer254->Add(m_textCtrlROIEar, wxGBPosition(1,1), wxGBSpan(1,1), wxALL, 5);
+    boxSizer291->Add(m_textCtrlROIEar, 0, wxALL, 5);
     
     m_staticText1241 = new wxStaticText(m_panel187, wxID_ANY, _("Belly"), wxDefaultPosition, wxSize(-1,-1), 0);
     
-    gridBagSizer254->Add(m_staticText1241, wxGBPosition(1,2), wxGBSpan(1,1), wxALL|wxALIGN_RIGHT, 5);
+    boxSizer291->Add(m_staticText1241, 0, wxALL|wxALIGN_RIGHT, 5);
     
     m_textCtrlROIBelly = new wxTextCtrl(m_panel187, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(50,-1), 0);
     #if wxVERSION_NUMBER >= 3000
     m_textCtrlROIBelly->SetHint(wxT(""));
     #endif
     
-    gridBagSizer254->Add(m_textCtrlROIBelly, wxGBPosition(1,3), wxGBSpan(1,1), wxALL, 5);
+    boxSizer291->Add(m_textCtrlROIBelly, 0, wxALL, 5);
+    
+    wxBoxSizer* boxSizer293 = new wxBoxSizer(wxHORIZONTAL);
+    
+    boxSizer269->Add(boxSizer293, 1, wxALL|wxEXPAND, 5);
     
     m_staticText203 = new wxStaticText(m_panel187, wxID_ANY, _("Refer. signal"), wxDefaultPosition, wxSize(-1,-1), 0);
     
-    gridBagSizer254->Add(m_staticText203, wxGBPosition(2,0), wxGBSpan(1,1), wxALL, 5);
+    boxSizer293->Add(m_staticText203, 0, wxALL, 5);
     
     m_radioButtonRefBelly = new wxRadioButton(m_panel187, wxID_ANY, _("Belly"), wxDefaultPosition, wxSize(-1,-1), wxRB_GROUP);
     m_radioButtonRefBelly->SetValue(1);
     
-    gridBagSizer254->Add(m_radioButtonRefBelly, wxGBPosition(2,1), wxGBSpan(1,1), wxALL, 5);
+    boxSizer293->Add(m_radioButtonRefBelly, 0, wxALL, 5);
     
     m_radioButtonRefHead = new wxRadioButton(m_panel187, wxID_ANY, _("Head"), wxDefaultPosition, wxSize(-1,-1), 0);
     m_radioButtonRefHead->SetValue(1);
     
-    gridBagSizer254->Add(m_radioButtonRefHead, wxGBPosition(2,2), wxGBSpan(1,1), wxALL, 5);
+    boxSizer293->Add(m_radioButtonRefHead, 0, wxALL, 5);
     
     m_radioButtonRefEar = new wxRadioButton(m_panel187, wxID_ANY, _("Ear"), wxDefaultPosition, wxSize(-1,-1), 0);
     m_radioButtonRefEar->SetValue(1);
     
-    gridBagSizer254->Add(m_radioButtonRefEar, wxGBPosition(2,3), wxGBSpan(1,1), wxALL, 5);
+    boxSizer293->Add(m_radioButtonRefEar, 0, wxALL, 5);
+    
+    wxBoxSizer* boxSizer295 = new wxBoxSizer(wxHORIZONTAL);
+    
+    boxSizer269->Add(boxSizer295, 1, wxALL|wxEXPAND, 5);
     
     m_staticText126 = new wxStaticText(m_panel187, wxID_ANY, _("Refer. Frame"), wxDefaultPosition, wxSize(-1,-1), 0);
     
-    gridBagSizer254->Add(m_staticText126, wxGBPosition(3,0), wxGBSpan(1,1), wxALL, 5);
+    boxSizer295->Add(m_staticText126, 0, wxALL, 5);
     
     m_textCtrlReferFrame = new wxTextCtrl(m_panel187, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(50,-1), 0);
     #if wxVERSION_NUMBER >= 3000
     m_textCtrlReferFrame->SetHint(wxT(""));
     #endif
     
-    gridBagSizer254->Add(m_textCtrlReferFrame, wxGBPosition(3,1), wxGBSpan(1,1), wxALL, 5);
+    boxSizer295->Add(m_textCtrlReferFrame, 0, wxALL, 5);
     
     m_staticText130 = new wxStaticText(m_panel187, wxID_ANY, _("0: automatic       xSD"), wxDefaultPosition, wxSize(-1,-1), 0);
     
-    gridBagSizer254->Add(m_staticText130, wxGBPosition(3,2), wxGBSpan(1,2), wxALL, 5);
+    boxSizer295->Add(m_staticText130, 0, wxALL, 5);
     
     m_textCtrlXSD = new wxTextCtrl(m_panel187, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(50,-1), 0);
     #if wxVERSION_NUMBER >= 3000
     m_textCtrlXSD->SetHint(wxT(""));
     #endif
     
-    gridBagSizer254->Add(m_textCtrlXSD, wxGBPosition(3,4), wxGBSpan(1,1), wxALL, 5);
+    boxSizer295->Add(m_textCtrlXSD, 0, wxALL, 5);
     
     m_staticLine108 = new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxLI_HORIZONTAL);
     

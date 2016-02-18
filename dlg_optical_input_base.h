@@ -18,10 +18,9 @@
 #include <wx/statbox.h>
 #include <wx/checkbox.h>
 #include <wx/textctrl.h>
-#include <wx/gbsizer.h>
+#include <wx/statline.h>
 #include <wx/stattext.h>
 #include <wx/radiobut.h>
-#include <wx/statline.h>
 #include <wx/button.h>
 #if wxVERSION_NUMBER >= 2900
 #include <wx/persist.h>
@@ -46,6 +45,7 @@ protected:
     wxPanel* m_panel171;
     wxCheckBox* m_checkBoxOpticalPDF;
     wxCheckBox* m_checkBoxGrayDiff;
+    wxStaticLine* m_staticLine261;
     wxStaticText* m_staticText181;
     wxRadioButton* m_radioOpV1;
     wxRadioButton* m_radioOpV2;
@@ -66,9 +66,17 @@ protected:
     wxStaticLine* m_staticLine78;
     wxPanel* m_panel187;
     wxStaticText* m_staticText100;
-    wxTextCtrl* m_textCtrlYmin;
+    wxTextCtrl* m_textCtrlAmpYmin;
     wxStaticText* m_staticText104;
-    wxTextCtrl* m_textCtrlYmax;
+    wxTextCtrl* m_textCtrlAmpYmax;
+    wxStaticText* m_staticText273;
+    wxTextCtrl* m_textCtrlSoundYAmp;
+    wxStaticText* m_staticText1002;
+    wxTextCtrl* m_textCtrlIntervalYmin;
+    wxStaticText* m_staticText1044;
+    wxTextCtrl* m_textCtrlIntervalYmax;
+    wxStaticText* m_staticText2736;
+    wxTextCtrl* m_textCtrlSoundYInterval;
     wxStaticText* m_staticText124;
     wxTextCtrl* m_textCtrlROIEar;
     wxStaticText* m_staticText1241;
@@ -101,6 +109,7 @@ public:
     wxPanel* GetPanel163() { return m_panel163; }
     wxCheckBox* GetCheckBoxOpticalPDF() { return m_checkBoxOpticalPDF; }
     wxCheckBox* GetCheckBoxGrayDiff() { return m_checkBoxGrayDiff; }
+    wxStaticLine* GetStaticLine261() { return m_staticLine261; }
     wxStaticText* GetStaticText181() { return m_staticText181; }
     wxRadioButton* GetRadioOpV1() { return m_radioOpV1; }
     wxRadioButton* GetRadioOpV2() { return m_radioOpV2; }
@@ -121,9 +130,17 @@ public:
     wxPanel* GetPanel38() { return m_panel38; }
     wxStaticLine* GetStaticLine78() { return m_staticLine78; }
     wxStaticText* GetStaticText100() { return m_staticText100; }
-    wxTextCtrl* GetTextCtrlYmin() { return m_textCtrlYmin; }
+    wxTextCtrl* GetTextCtrlAmpYmin() { return m_textCtrlAmpYmin; }
     wxStaticText* GetStaticText104() { return m_staticText104; }
-    wxTextCtrl* GetTextCtrlYmax() { return m_textCtrlYmax; }
+    wxTextCtrl* GetTextCtrlAmpYmax() { return m_textCtrlAmpYmax; }
+    wxStaticText* GetStaticText273() { return m_staticText273; }
+    wxTextCtrl* GetTextCtrlSoundYAmp() { return m_textCtrlSoundYAmp; }
+    wxStaticText* GetStaticText1002() { return m_staticText1002; }
+    wxTextCtrl* GetTextCtrlIntervalYmin() { return m_textCtrlIntervalYmin; }
+    wxStaticText* GetStaticText1044() { return m_staticText1044; }
+    wxTextCtrl* GetTextCtrlIntervalYmax() { return m_textCtrlIntervalYmax; }
+    wxStaticText* GetStaticText2736() { return m_staticText2736; }
+    wxTextCtrl* GetTextCtrlSoundYInterval() { return m_textCtrlSoundYInterval; }
     wxStaticText* GetStaticText124() { return m_staticText124; }
     wxTextCtrl* GetTextCtrlROIEar() { return m_textCtrlROIEar; }
     wxStaticText* GetStaticText1241() { return m_staticText1241; }
@@ -138,7 +155,7 @@ public:
     wxTextCtrl* GetTextCtrlXSD() { return m_textCtrlXSD; }
     wxPanel* GetPanel187() { return m_panel187; }
     wxStaticLine* GetStaticLine108() { return m_staticLine108; }
-    DlgOpticalInputBase(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Optical Input Dialog"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(-1,-1), long style = wxDEFAULT_DIALOG_STYLE);
+    DlgOpticalInputBase(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Optical Input Dialog"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(-1,-1), long style = wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER);
     virtual ~DlgOpticalInputBase();
 };
 

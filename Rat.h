@@ -58,6 +58,10 @@ public:
 	double 	m_verLine;
 	double 	m_ymin;
 	double	m_ymax;	
+	double  m_ysnd;
+	double 	m_intvymin;
+	double	m_intvymax;	
+	double  m_intvysnd;	
 	double 	m_xSD;
 	
 	long	m_szROIEar;
@@ -76,6 +80,12 @@ public:
 		m_refSignal = 0;
 		m_ymin = -1;
 		m_ymax = 3;
+		m_ysnd = -0.65;
+		
+		m_intvymin = 10;
+		m_intvymax = 70;
+		m_intvysnd = 20;
+		
 		m_xSD = 3;
 		m_bSaveSignalPlot = false;
 		m_bShowPeaks = false;

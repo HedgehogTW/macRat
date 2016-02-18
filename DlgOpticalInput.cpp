@@ -67,14 +67,17 @@ void DlgOpticalInput::setOptions(bool bOpticalPDF, bool bOpFlowV1, bool bSave, b
 			break;		
 	}
 }
-void DlgOpticalInput::setYRange(double min, double max, long szROIEar, long szROIBelly, long referFrame)
+void DlgOpticalInput::setAmpYRange(double min, double max, double ysnd, long szROIEar, long szROIBelly, long referFrame)
 {
-	wxString  str1, str2, str3, str4, str5;
+	wxString  str1, str2, str3, str4, str5, str6;
 	str1 << min;
-	*m_textCtrlYmin << str1;
+	*m_textCtrlAmpYmin << str1;
 	
 	str2 << max;
-	*m_textCtrlYmax << str2;
+	*m_textCtrlAmpYmax << str2;
+	
+	str6 << ysnd;
+	*m_textCtrlSoundYAmp << str6;
 	
 	str3 << szROIEar;
 	*m_textCtrlROIEar << str3;
@@ -86,6 +89,18 @@ void DlgOpticalInput::setYRange(double min, double max, long szROIEar, long szRO
 	*m_textCtrlReferFrame << str5;   
 }
 
+void DlgOpticalInput::setIntervalYRange(double min, double max, double ysnd)
+{
+	wxString  str1, str2, str3;
+	str1 << min;
+	*m_textCtrlIntervalYmin << str1;
+	
+	str2 << max;
+	*m_textCtrlIntervalYmax << str2;
+	
+	str3 << ysnd;
+	*m_textCtrlSoundYInterval << str3;
+}
 void DlgOpticalInput::setGain(double gainHead, double gainBelly, double xSD)
 {
 	wxString  str1, str2, str3;
@@ -143,16 +158,20 @@ void DlgOpticalInput::getOptions(bool& bOpticalPDF, bool& bOpFlowV1, bool& bSave
 	else if(b3) refSignal = 2;
 }	
 
-void DlgOpticalInput::getYRange(double& min, double& max, long& szROIEar, long& szROIBelly, long& referFrame)
+void DlgOpticalInput::getAmpYRange(double& min, double& max, double& ysnd, long& szROIEar, long& szROIBelly, long& referFrame)
 {
-	wxString  str = m_textCtrlYmin->GetValue();
+	wxString  str = m_textCtrlAmpYmin->GetValue();
 	double  value;
 	str.ToDouble(&value);	
 	min = value;
 	
-	str = m_textCtrlYmax->GetValue();
+	str = m_textCtrlAmpYmax->GetValue();
 	str.ToDouble(&value);	
 	max = value;
+	
+	str = m_textCtrlSoundYAmp->GetValue();
+	str.ToDouble(&value);	
+	ysnd = value;
 	
 	long  a;
 	str = m_textCtrlROIEar->GetValue();
@@ -166,6 +185,22 @@ void DlgOpticalInput::getYRange(double& min, double& max, long& szROIEar, long& 
    	str = m_textCtrlReferFrame->GetValue();
 	str.ToLong(&a);	
 	referFrame = a;	 
+}
+
+void DlgOpticalInput::getIntervalYRange(double& min, double& max, double& ysnd)
+{
+	wxString  str = m_textCtrlIntervalYmin->GetValue();
+	double  value;
+	str.ToDouble(&value);	
+	min = value;
+	
+	str = m_textCtrlIntervalYmax->GetValue();
+	str.ToDouble(&value);	
+	max = value;
+	
+	str = m_textCtrlSoundYInterval->GetValue();
+	str.ToDouble(&value);	
+	ysnd = value;
 }
 
 void DlgOpticalInput::getGain(double& gainHead, double &gainBelly, double &xSD)
