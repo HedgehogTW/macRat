@@ -82,9 +82,9 @@ public:
 		m_ymax = 3;
 		m_ysnd = -0.65;
 		
-		m_intvymin = 10;
+		m_intvymin = 00;
 		m_intvymax = 70;
-		m_intvysnd = 00;
+		m_intvysnd = 20;
 		
 		m_xSD = 3;
 		m_bSaveSignalPlot = false;
