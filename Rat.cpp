@@ -1238,10 +1238,11 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	gPlotR.cmd("set termoption noenhanced");
 	gPlotP.cmd("set termoption noenhanced");
 
-
-	_gnuplotSoundOnset(gPlotL, m_nLED2, m_nSlices, ysnd, 0.06, 100);
-	_gnuplotSoundOnset(gPlotR, m_nLED2, m_nSlices, ysnd, 0.06, 100);
-	_gnuplotSoundOnset(gPlotP, m_nLED2, m_nSlices, intvysnd, 1.5, 100);
+	float highAmp = (ymax-ymin) / 35.;
+	float highIntv = (intvymax-intvymin)/35.;
+	_gnuplotSoundOnset(gPlotL, m_nLED2, m_nSlices, ysnd, highAmp, 100);
+	_gnuplotSoundOnset(gPlotR, m_nLED2, m_nSlices, ysnd, highAmp, 100);
+	_gnuplotSoundOnset(gPlotP, m_nLED2, m_nSlices, intvysnd, highIntv, 100);
 	
 	if(bLEDLine && (m_nLED1>0 || m_nLED2 >0)) {
 		_gnuplotLED(gPlotL, m_nLED1, m_nLED2);
@@ -1295,18 +1296,20 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 		}
 		if(m_bShowBelly) {
             //_OutputVec(vecRedFlowPdf, "_redw.csv");
+			_gnuplotLine(gPlotL, "Abdomen", vecBellyPdf, "#00008000");
+			_gnuplotLine(gPlotR, "Abdomen", vecBellyPdf, "#00008000");
+			
 			wxString strLine;
 			strLine.Printf("%.1fxSD", xSD);
-			_gnuplotHoriLine(gPlotL, m_nSlices, meanAmp + sdAmp*xSD, "#00008800", "..-", strLine);
-			_gnuplotHoriLine(gPlotR, m_nSlices, meanAmp + sdAmp*xSD, "#00008800", "..-", strLine);
-			_gnuplotHoriLine(gPlotL, m_nSlices, meanAmp - sdAmp*xSD, "#00008800",  "..-");
-			_gnuplotHoriLine(gPlotR, m_nSlices, meanAmp - sdAmp*xSD, "#00008800",  "..-");
+			_gnuplotHoriLine(gPlotL, m_nSlices, meanAmp + sdAmp*xSD, "#00100800", "..-", strLine);
+			_gnuplotHoriLine(gPlotR, m_nSlices, meanAmp + sdAmp*xSD, "#00100800", "..-", strLine);
+			_gnuplotHoriLine(gPlotL, m_nSlices, meanAmp - sdAmp*xSD, "#00100800",  "..-");
+			_gnuplotHoriLine(gPlotR, m_nSlices, meanAmp - sdAmp*xSD, "#00100800",  "..-");
 	
 			wxString  newMarkerName = title+"_Belly.csv";
 			wxFileName newFullMarkerName(strParentPath, newMarkerName);			
 			
-			_gnuplotLine(gPlotL, "Abdomen", vecBellyPdf, "#00008000");
-			_gnuplotLine(gPlotR, "Abdomen", vecBellyPdf, "#00008000");
+
 				
 			_OutputVec(vecBellyPdf, newFullMarkerName.GetFullPath());
 //			_gnuplotPoint(gPlotL, peakMinMax, "#00008f00" );
@@ -1314,11 +1317,11 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			if(bShowPeaks)
 				_gnuplotPoint(gPlotR, peakBelly, "#00008f00" );
 			
-			_gnuplotSteps(gPlotP, vPeakDistX, vPeakDistY, "#00F08000", "Cycle time");
-			_gnuplotHoriLine(gPlotP, m_nSlices, meanPeriod, "#000088FF");						
+			_gnuplotSteps(gPlotP, vPeakDistX, vPeakDistY, "#00FF0000", "Inter-peak interval");
+			//_gnuplotHoriLine(gPlotP, m_nSlices, meanPeriod, "#000000FF");						
 			_gnuplotHoriLine(gPlotP, m_nSlices, meanPeriod+xSD*sdPeriod, "#00100800", "..-", strLine);			
 			_gnuplotHoriLine(gPlotP, m_nSlices, meanPeriod-xSD*sdPeriod, "#00100800", "..-");			
-			_gnuplotVerticalLine(gPlotP, m_nLED2, "#000000FF");
+			//_gnuplotVerticalLine(gPlotP, m_nLED2, "#000000FF");
  				
 		}
 		if(m_bShowEye) {
