@@ -1458,7 +1458,7 @@ void CRat::findPeaks(vector<float>& inDataOri, vector<float>& inData, vector<Poi
 				peaks.push_back(pt);
 		}
 	}*/
-	for(int i=8; i<n-8; i++) {
+	for(int i=3; i<n-3; i++) {
 		if(/*inData[i-6] < inData[i-5] && inData[i-4] < inData[i-3] && inData[i-3] < inData[i-2] &&*/ inData[i-2] < inData[i-1] && inData[i-1] < inData[i] &&
 			/*inData[i+6] < inData[i+5] && inData[i+4] < inData[i+3] && inData[i+3] < inData[i+2] &&*/ inData[i+2] < inData[i+1] && inData[i+1] < inData[i]) {
 				float maxV = -999;
