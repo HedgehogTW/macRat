@@ -1657,9 +1657,10 @@ void MainFrame::OnRatCheckAPB(wxCommandEvent& event)
 		wxString strLine;
 		strLine.Printf("%.1fxSD", xSD);
 		
+		_gnuplotLine(gPlotR, "Abdomen", vSignal, sColorAmp.c_str()); //"#00008000");			
 		_gnuplotHoriLine(gPlotR, n, meanAmp + sdAmp*xSD, "#00100800", "..-", strLine);	
 		_gnuplotHoriLine(gPlotR, n, meanAmp - sdAmp*xSD, "#00100800",  "..-");
-		_gnuplotLine(gPlotR, "Abdomen", vSignal, sColorAmp.c_str()); //"#00008000");			
+		
 		if(bShowSymbol)
 			_gnuplotPoint(gPlotR, peakBelly, "#00008f00" );
 		
