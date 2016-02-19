@@ -1557,10 +1557,17 @@ void MainFrame::OnRatCheckAPB(wxCommandEvent& event)
 		
 		float minValue = *std::min_element(vSignal.begin(),vSignal.end());
 		//readMarks(dataDirs[i]);
+		m_configData.Init();
 		readMarks(files[i]);
 		double xSD = m_configData.m_xSD;
-		double ymin = -0.8; //m_configData.m_ymin; -1
-		double ymax = 0.8; //m_configData.m_ymax;  1
+		double ymin = m_configData.m_ymin; // -0.8
+		double ymax = m_configData.m_ymax; // 0.8 
+		double ysnd = m_configData.m_ysnd;
+	
+		double intvymin = m_configData.m_intvymin;
+		double intvymax = m_configData.m_intvymax;
+		double intvysnd = m_configData.m_intvysnd;
+	
 //		myMsgOutput("m_nUserLED2 %d, Smooth %.2f, minValue %f\n", m_nUserLED2, smoothWidth, minValue);	
 					
 		vector <float>  vecBellySmooth;
@@ -1628,30 +1635,39 @@ void MainFrame::OnRatCheckAPB(wxCommandEvent& event)
 		
 		///////////G N U P L O T/////////////////////////////////////////////////
 		/////////////////////////////////////////////////////////////////////////
+		
+		if(intvymin >= meanPeriod-xSD*sdPeriod) intvymin = meanPeriod-xSD*sdPeriod - 20;
+		if(intvymax <= meanPeriod+xSD*sdPeriod) intvymax = meanPeriod-xSD*sdPeriod + 20;
+		
 		_gnuplotInit(gPlotR, fName.ToAscii(), ymin, ymax);
-		_gnuplotInit(gPlotP, fName.ToAscii(), 10, 70);
+		_gnuplotInit(gPlotP, fName.ToAscii(), intvymin, intvymax);
 		
 		gPlotR.set_legend("left");	
 		gPlotP.set_legend("left");	
 
 		gPlotR.cmd("set termoption noenhanced");
 		gPlotP.cmd("set termoption noenhanced");
-		_gnuplotSoundOnset(gPlotR, m_nUserLED2, n, minValue -0.02, 0.06, 100);	// -0.65
-			
+		float highAmp = (ymax-ymin) / 35.;
+		float highIntv = (intvymax-intvymin)/35.;
+		if(ysnd <= ymin || ysnd >= ymax) ysnd = ymin + 0.2;
+		if(intvysnd <= intvymin || intvysnd >= intvymax) intvysnd = intvymin + 10;
+		_gnuplotSoundOnset(gPlotR, m_nUserLED2, n, ysnd, highAmp, 100);	// -0.65
+		_gnuplotSoundOnset(gPlotP, m_nUserLED2, n, intvysnd, highIntv, 100);
+		myMsgOutput(" ymin %f %f, intvymin %f %f %f\n", ymin, ysnd, intvymin, intvymax, intvysnd);
 		wxString strLine;
 		strLine.Printf("%.1fxSD", xSD);
 		
-		_gnuplotHoriLine(gPlotR, n, meanAmp + sdAmp*xSD, "#00008800", "..-", strLine);	
-		_gnuplotHoriLine(gPlotR, n, meanAmp - sdAmp*xSD, "#00008800",  "..-");
+		_gnuplotHoriLine(gPlotR, n, meanAmp + sdAmp*xSD, "#00100800", "..-", strLine);	
+		_gnuplotHoriLine(gPlotR, n, meanAmp - sdAmp*xSD, "#00100800",  "..-");
 		_gnuplotLine(gPlotR, "Abdomen", vSignal, sColorAmp.c_str()); //"#00008000");			
 		if(bShowSymbol)
 			_gnuplotPoint(gPlotR, peakBelly, "#00008f00" );
 		
-		_gnuplotSteps(gPlotP, vPeakDistX, vPeakDistY, sColorPeriod.c_str(), "Cycle time");
-		_gnuplotHoriLine(gPlotP, n, meanPeriod, "#000088FF");						
+		_gnuplotSteps(gPlotP, vPeakDistX, vPeakDistY, sColorPeriod.c_str(), "Inter-peak interval");
+		//_gnuplotHoriLine(gPlotP, n, meanPeriod, "#000088FF");						
 		_gnuplotHoriLine(gPlotP, n, meanPeriod+xSD*sdPeriod, "#00100800", "..-", strLine);			
 		_gnuplotHoriLine(gPlotP, n, meanPeriod-xSD*sdPeriod, "#00100800", "..-");			
-		_gnuplotVerticalLine(gPlotP, m_nUserLED2, "#000000FF");
+		//_gnuplotVerticalLine(gPlotP, m_nUserLED2, "#000000FF");
 		
 		if(i < nFiles-1)
 			wxMessageBox("press anykey ...");

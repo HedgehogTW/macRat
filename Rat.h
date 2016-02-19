@@ -84,7 +84,7 @@ public:
 		
 		m_intvymin = 10;
 		m_intvymax = 70;
-		m_intvysnd = 20;
+		m_intvysnd = 00;
 		
 		m_xSD = 3;
 		m_bSaveSignalPlot = false;
