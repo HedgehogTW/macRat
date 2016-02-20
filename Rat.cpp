@@ -961,6 +961,8 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	double intvymax = configData.m_intvymax;
 	double intvysnd = configData.m_intvysnd;
 	
+	double  smoothWidth = configData.m_smoothWidth;
+	
 	m_ROIEar = configData.m_szROIEar;
 	m_ROIBelly = configData.m_szROIBelly;
 	long referFrame = configData.m_referFrame;
@@ -1072,8 +1074,8 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 //	frameStep = newFrameSteps;
 	m_referFrame = newReferFrame;
     
-	MainFrame:: myMsgOutput("y range [%.2f, %.2f], Ear ROI %d, APB ROI %d, m_nLED2 %d, bSave %d\n", 
-			ymin, ymax, m_ROIEar, m_ROIBelly, m_nLED2, bSaveFile);	
+	MainFrame:: myMsgOutput("y range [%.2f, %.2f], Ear ROI %d, APB ROI %d, m_nLED2 %d, bSave %d, smooth %.2f\n", 
+			ymin, ymax, m_ROIEar, m_ROIBelly, m_nLED2, bSaveFile, smoothWidth);	
 	MainFrame:: myMsgOutput("PDF threshold %f, frame steps %d, bOpFlowV1 %d, headGain %.2f, bellyGain %.2f\n", 
 			threshold, frameStep, bOpFlowV1, gainHead, gainBelly);
 			
@@ -1180,7 +1182,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			Notch_removal(vecBellyPdf, m_referFrame);
 			//sdBelly = computeSD(vecBellyPdf, m_nLED2);
 			
-			smoothData(vecBellyPdf, vecBellySmooth, 2);	
+			smoothData(vecBellyPdf, vecBellySmooth, smoothWidth);	
 			findPeaks(vecBellyPdf, vecBellySmooth, peakBelly);
 			peakPeriodAnalysis(peakBelly, vPeakDistX, vPeakDistY, m_nLED2, meanPeriod, sdPeriod);
 			peakAmplitudeAnalysis(peakBelly, m_nLED2, meanAmp, sdAmp);

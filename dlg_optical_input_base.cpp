@@ -321,6 +321,17 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     
     boxSizer291->Add(m_textCtrlROIBelly, 0, wxALL, 5);
     
+    m_staticTextSmooth = new wxStaticText(m_panel187, wxID_ANY, _("Smooth"), wxDefaultPosition, wxSize(-1,-1), 0);
+    
+    boxSizer291->Add(m_staticTextSmooth, 0, wxALL, 5);
+    
+    m_textCtrlSmooth = new wxTextCtrl(m_panel187, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(50,-1), 0);
+    #if wxVERSION_NUMBER >= 3000
+    m_textCtrlSmooth->SetHint(wxT(""));
+    #endif
+    
+    boxSizer291->Add(m_textCtrlSmooth, 0, wxALL, 5);
+    
     wxBoxSizer* boxSizer293 = new wxBoxSizer(wxHORIZONTAL);
     
     boxSizer269->Add(boxSizer293, 1, wxALL|wxEXPAND, 5);

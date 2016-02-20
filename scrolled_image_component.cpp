@@ -126,13 +126,15 @@ void ScrolledImageComponent::OnDraw(wxDC& dc)
 			dc.DrawRectangle(x, y, configData.m_szROIBelly, configData.m_szROIBelly);
 		}
 		dc.SetPen(*wxRED_PEN);	
-		wxCoord x =ptMostBelly.x - configData.m_szROIBelly/2;
-		wxCoord y = ptMostBelly.y - configData.m_szROIBelly/2;
-		dc.DrawRectangle(x, y, configData.m_szROIBelly, configData.m_szROIBelly);	
+		if(ptMostBelly != Point(0,0)) {
+			wxCoord x =ptMostBelly.x - configData.m_szROIBelly/2;
+			wxCoord y = ptMostBelly.y - configData.m_szROIBelly/2;
+			dc.DrawRectangle(x, y, configData.m_szROIBelly, configData.m_szROIBelly);	
+		}
 	
 		if(ptMostBellyOld != Point(0,0)) {
-			x = ptMostBellyOld.x - configData.m_szROIBelly/2;
-			y = ptMostBellyOld.y - configData.m_szROIBelly/2;
+			wxCoord x = ptMostBellyOld.x - configData.m_szROIBelly/2;
+			wxCoord y = ptMostBellyOld.y - configData.m_szROIBelly/2;
 			dc.DrawRectangle(x, y, configData.m_szROIBelly, configData.m_szROIBelly);	
 		}
 	}

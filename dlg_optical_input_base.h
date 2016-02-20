@@ -81,6 +81,8 @@ protected:
     wxTextCtrl* m_textCtrlROIEar;
     wxStaticText* m_staticText1241;
     wxTextCtrl* m_textCtrlROIBelly;
+    wxStaticText* m_staticTextSmooth;
+    wxTextCtrl* m_textCtrlSmooth;
     wxStaticText* m_staticText203;
     wxRadioButton* m_radioButtonRefBelly;
     wxRadioButton* m_radioButtonRefHead;
@@ -145,6 +147,8 @@ public:
     wxTextCtrl* GetTextCtrlROIEar() { return m_textCtrlROIEar; }
     wxStaticText* GetStaticText1241() { return m_staticText1241; }
     wxTextCtrl* GetTextCtrlROIBelly() { return m_textCtrlROIBelly; }
+    wxStaticText* GetStaticTextSmooth() { return m_staticTextSmooth; }
+    wxTextCtrl* GetTextCtrlSmooth() { return m_textCtrlSmooth; }
     wxStaticText* GetStaticText203() { return m_staticText203; }
     wxRadioButton* GetRadioButtonRefBelly() { return m_radioButtonRefBelly; }
     wxRadioButton* GetRadioButtonRefHead() { return m_radioButtonRefHead; }

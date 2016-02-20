@@ -345,6 +345,14 @@ void MainFrame::readMarks(wxString &dirName)
 				}else
 					myMsgOutput("m_refSignal load error\n");
 				break;	
+			case 'm': // m_refSignal
+				double  smoothWidth;
+				n = fscanf(fp, "%f\n", &smoothWidth);
+				if(n==1) {
+					m_configData.m_smoothWidth = smoothWidth;
+				}else
+					myMsgOutput("m_smoothWidth load error\n");
+				break;					
 			case 'y': // m_ymin, m_ymax
 				float ymin, ymax, ysnd;
 				n = fscanf(fp, "%f %f %f\n", &ymin, &ymax, &ysnd);
@@ -378,6 +386,7 @@ void MainFrame::readMarks(wxString &dirName)
 }
 void MainFrame::openFile(wxString &dirName)
 {
+	wxBeginBusyCursor();
 	DeleteContents();
 
 	m_strSourcePath = dirName;
@@ -386,8 +395,11 @@ void MainFrame::openFile(wxString &dirName)
 
 
 	bool  bRet = false;
-	if(m_Rat.readData(dirName) <=0) 
+	if(m_Rat.readData(dirName) <=0) {
+		wxEndBusyCursor(); 
 		return;
+	}
+		
 	
 	m_configData.Init();
 	readMarks(dirName);
@@ -396,9 +408,24 @@ void MainFrame::openFile(wxString &dirName)
 	m_szOriSize = m_Rat.getImgSize();
 	updateOutData(m_Rat.getSrcImg(0));
 
-	wxString title = dirName.AfterLast('\\');
+	wxFileName fileName = dirName;
+	wxString title =fileName.GetName();
+	int lenTitle = strlen(title);
+	if(lenTitle <=3) {
+		wxUniChar sep = fileName.GetPathSeparator();
+		int len = dirName.Len();
+		int p1 = dirName.find_last_of(sep, len -lenTitle-1);
+		int p2 = dirName.find_last_of(sep, p1-1);
+		int p3 = dirName.find_last_of(sep, p2-1);
+		title = dirName.Right(len-p3);
+		title.Replace("\\", "/");
+//		MainFrame:: myMsgOutput("strUpperPath "+ m_strSrcPath.Right(len-p3)+ "\n" );
+	}
+
+	//wxString title = dirName.AfterLast('\\');
 	SetTitle(wxString("Dataset: ") << title);
 	
+	wxEndBusyCursor(); 
 }
 void MainFrame::updateOutData(Mat& mOut)
 {
@@ -688,6 +715,7 @@ bool MainFrame::inputDialog()
 	double intvymax = m_configData.m_intvymax;
 	double intvysnd = m_configData.m_intvysnd;
 	
+	double  smoothWidth = m_configData.m_smoothWidth;
 	long ROIEar = m_configData.m_szROIEar;
 	long ROIBelly = m_configData.m_szROIBelly;
 	long referFrame = m_configData.m_referFrame;
@@ -712,6 +740,7 @@ bool MainFrame::inputDialog()
 	dlg.setAmpYRange(ymin, ymax, ysnd, ROIEar, ROIBelly, referFrame);
 	dlg.setIntervalYRange(intvymin, intvymax, intvysnd);
 	dlg.setGain(gainHead, gainBelly, xSD);
+	dlg.setSmooth(smoothWidth);
 
 	if(dlg.ShowModal() !=  wxID_OK) return false;
 	frameStep = dlg.getFrameSteps();
@@ -722,6 +751,7 @@ bool MainFrame::inputDialog()
 	dlg.getAmpYRange(ymin, ymax, ysnd, ROIEar, ROIBelly, referFrame);
 	dlg.getIntervalYRange(intvymin, intvymax, intvysnd);
 	dlg.getGain(gainHead, gainBelly, xSD);
+	dlg.getSmooth(smoothWidth);
 //	dlg.Destroy();
 	
 	if(bUserLED2 && nLED2 > 0) {
@@ -754,6 +784,7 @@ bool MainFrame::inputDialog()
 	m_configData.m_intvymax = intvymax;
 	m_configData.m_intvysnd = intvysnd;
 	
+	m_configData.m_smoothWidth = smoothWidth;
 	m_configData.m_szROIEar = ROIEar;
 	m_configData.m_szROIBelly = ROIBelly;
 	m_configData.m_referFrame = referFrame;
@@ -869,6 +900,7 @@ void MainFrame::writeMarks()
 		fprintf(fp, "G%f %f %f\n", m_configData.m_gainHead, m_configData.m_gainBelly, m_configData.m_xSD);	
 		fprintf(fp, "S%d %d\n", m_configData.m_szROIEar, m_configData.m_szROIBelly);
 		fprintf(fp, "R%d\n", m_configData.m_refSignal);
+		fprintf(fp, "m%f\n", m_configData.m_smoothWidth);
 		fprintf(fp, "y%f %f %f\n", m_configData.m_ymin, m_configData.m_ymax, m_configData.m_ysnd);	
 		fprintf(fp, "z%f %f %f\n", m_configData.m_intvymin, m_configData.m_intvymax, m_configData.m_intvysnd);	
 		fclose(fp);

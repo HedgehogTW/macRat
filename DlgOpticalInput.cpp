@@ -114,6 +114,12 @@ void DlgOpticalInput::setGain(double gainHead, double gainBelly, double xSD)
 	*m_textCtrlXSD << str3;	
 }
 
+void DlgOpticalInput::setSmooth(double smoothWidth)
+{
+	wxString  str1;
+	str1 << smoothWidth;
+	*m_textCtrlSmooth << str1;	
+}
 void DlgOpticalInput::getVerticalLine(bool& bLED, bool& bBigHead, bool& bUserLED2, int& nLED2, bool& bVerLine, double& x)
 {
 	bLED = m_checkBoxLED->GetValue();
@@ -218,6 +224,10 @@ void DlgOpticalInput::getGain(double& gainHead, double &gainBelly, double &xSD)
 	str.ToDouble(&value);	
 	xSD = value;	
 }
-void DlgOpticalInput::OnGenRefFrame(wxCommandEvent& event)
+void DlgOpticalInput::getSmooth(double& smoothWidth)
 {
+	wxString  str = m_textCtrlSmooth->GetValue();
+	double  value;
+	str.ToDouble(&value);	
+	smoothWidth = value;
 }

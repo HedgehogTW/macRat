@@ -63,6 +63,7 @@ public:
 	double	m_intvymax;	
 	double  m_intvysnd;	
 	double 	m_xSD;
+	double  m_smoothWidth;
 	
 	long	m_szROIEar;
 	long	m_szROIBelly;
@@ -87,6 +88,7 @@ public:
 		m_intvysnd = 20;
 		
 		m_xSD = 3;
+		m_smoothWidth = 3;
 		m_bSaveSignalPlot = false;
 		m_bShowPeaks = false;
 	}
