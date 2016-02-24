@@ -49,7 +49,7 @@ void _gnuplotSoundOnset(Gnuplot& gnuPlot, int nLED2, int len, float baseline, fl
 	vXlow.push_back(nLED2);
 	vXhigh.push_back(nLED2+duration);
 	vY.push_back(baseline);	
-	gnuPlot.plot_Boxxyerrorbars(vX, vY, vXlow, vXhigh, vYlow, vYhigh, "#00888888");
+	gnuPlot.plot_Boxxyerrorbars(vX, vY, vXlow, vXhigh, vYlow, vYhigh, "#00000000");
 		
 	vX.clear();
 	vY.clear();

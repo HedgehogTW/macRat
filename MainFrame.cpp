@@ -156,7 +156,7 @@ void MainFrame::DeleteContents()
 	m_bMarkBelly = false;
 	m_bMarkCageline = false;
     m_bViewMarks = true;
-	m_bViewBellyROI = true;
+	m_bViewBellyROI = false;
 	
 	m_bAlreadyCrop = false;
 	
@@ -346,7 +346,7 @@ void MainFrame::readMarks(wxString &dirName)
 					myMsgOutput("m_refSignal load error\n");
 				break;	
 			case 'm': // m_refSignal
-				double  smoothWidth;
+				float  smoothWidth;
 				n = fscanf(fp, "%f\n", &smoothWidth);
 				if(n==1) {
 					m_configData.m_smoothWidth = smoothWidth;
@@ -1667,10 +1667,16 @@ void MainFrame::OnRatCheckAPB(wxCommandEvent& event)
 		
 		///////////G N U P L O T/////////////////////////////////////////////////
 		/////////////////////////////////////////////////////////////////////////
+		double upperSD = meanPeriod + xSD*sdPeriod;
+		double lowerSD = meanPeriod - xSD*sdPeriod;
+		if(intvymax <= upperSD +10) intvymax = upperSD + 30;		
+		if(intvymin >= lowerSD -10) intvymin = lowerSD - 30;
 		
-		if(intvymin >= meanPeriod-xSD*sdPeriod) intvymin = meanPeriod-xSD*sdPeriod - 20;
-		if(intvymax <= meanPeriod+xSD*sdPeriod) intvymax = meanPeriod-xSD*sdPeriod + 20;
-		
+		float highAmp = (ymax-ymin) / 35.;
+		float highIntv = (intvymax-intvymin)/35.;
+		if(ysnd <= ymin || ysnd >= ymax) ysnd = ymin + 0.2;
+		if(intvysnd >= lowerSD ) intvysnd = lowerSD - 15;
+		if(intvysnd < intvymin)  intvymin -=10;
 		_gnuplotInit(gPlotR, fName.ToAscii(), ymin, ymax);
 		_gnuplotInit(gPlotP, fName.ToAscii(), intvymin, intvymax);
 		
@@ -1679,13 +1685,10 @@ void MainFrame::OnRatCheckAPB(wxCommandEvent& event)
 
 		gPlotR.cmd("set termoption noenhanced");
 		gPlotP.cmd("set termoption noenhanced");
-		float highAmp = (ymax-ymin) / 35.;
-		float highIntv = (intvymax-intvymin)/35.;
-		if(ysnd <= ymin || ysnd >= ymax) ysnd = ymin + 0.2;
-		if(intvysnd <= intvymin || intvysnd >= intvymax) intvysnd = intvymin + 10;
+
 		_gnuplotSoundOnset(gPlotR, m_nUserLED2, n, ysnd, highAmp, 100);	// -0.65
 		_gnuplotSoundOnset(gPlotP, m_nUserLED2, n, intvysnd, highIntv, 100);
-		myMsgOutput(" ymin %f %f, intvymin %f %f %f\n", ymin, ysnd, intvymin, intvymax, intvysnd);
+//		myMsgOutput(" ymin %f %f, intvymin %f %f %f, sd [%f, %f]\n", ymin, ysnd, intvymin, intvymax, intvysnd, lowerSD, upperSD);
 		wxString strLine;
 		strLine.Printf("%.1fxSD", xSD);
 		
