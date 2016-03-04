@@ -28,7 +28,7 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     
     m_panel163 = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxTAB_TRAVERSAL);
     
-    boxSizer315->Add(m_panel163, 0, wxALL, 5);
+    boxSizer315->Add(m_panel163, 0, wxALL|wxEXPAND, 5);
     
     wxStaticBoxSizer* staticBoxSizer165 = new wxStaticBoxSizer( new wxStaticBox(m_panel163, wxID_ANY, _("Display signals")), wxVERTICAL);
     m_panel163->SetSizer(staticBoxSizer165);
@@ -148,7 +148,7 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     m_panel38->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_BTNTEXT));
     m_panel38->SetToolTip(_("set"));
     
-    boxSizer315->Add(m_panel38, 0, wxLEFT|wxRIGHT|wxBOTTOM, 5);
+    boxSizer315->Add(m_panel38, 0, wxLEFT|wxRIGHT|wxBOTTOM|wxEXPAND, 5);
     
     wxBoxSizer* boxSizer266 = new wxBoxSizer(wxVERTICAL);
     m_panel38->SetSizer(boxSizer266);
@@ -216,7 +216,7 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     
     m_panel187 = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxTAB_TRAVERSAL);
     
-    boxSizer315->Add(m_panel187, 0, wxALL, 5);
+    boxSizer315->Add(m_panel187, 0, wxALL|wxEXPAND, 5);
     
     wxBoxSizer* boxSizer269 = new wxBoxSizer(wxVERTICAL);
     m_panel187->SetSizer(boxSizer269);
@@ -238,7 +238,7 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     
     m_staticText104 = new wxStaticText(m_panel187, wxID_ANY, _("max"), wxDefaultPosition, wxSize(-1,-1), 0);
     
-    boxSizer271->Add(m_staticText104, 0, wxALL|wxALIGN_RIGHT, 5);
+    boxSizer271->Add(m_staticText104, 0, wxALL, 5);
     
     m_textCtrlAmpYmax = new wxTextCtrl(m_panel187, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(50,-1), 0);
     #if wxVERSION_NUMBER >= 3000
@@ -275,7 +275,7 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     
     m_staticText1044 = new wxStaticText(m_panel187, wxID_ANY, _("max"), wxDefaultPosition, wxSize(-1,-1), 0);
     
-    boxSizer2711->Add(m_staticText1044, 0, wxALL|wxALIGN_RIGHT, 5);
+    boxSizer2711->Add(m_staticText1044, 0, wxALL, 5);
     
     m_textCtrlIntervalYmax = new wxTextCtrl(m_panel187, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(50,-1), 0);
     #if wxVERSION_NUMBER >= 3000
@@ -312,7 +312,7 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     
     m_staticText1241 = new wxStaticText(m_panel187, wxID_ANY, _("Belly"), wxDefaultPosition, wxSize(-1,-1), 0);
     
-    boxSizer291->Add(m_staticText1241, 0, wxALL|wxALIGN_RIGHT, 5);
+    boxSizer291->Add(m_staticText1241, 0, wxALL, 5);
     
     m_textCtrlROIBelly = new wxTextCtrl(m_panel187, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(50,-1), 0);
     #if wxVERSION_NUMBER >= 3000
