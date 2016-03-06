@@ -1471,7 +1471,7 @@ void CRat::findPeaks(vector<float>& inDataOri, vector<float>& inData, vector<Poi
 						maxIdx = i+k;
 					}
 				}
-				if(maxIdx==0) continue;
+				if(maxIdx<= 3) continue;
 				Point2f pt(maxIdx, inDataOri[maxIdx]);
 				peaks.push_back(pt);				
 		}
