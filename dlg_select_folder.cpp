@@ -53,7 +53,7 @@ DlgSelectFolderBase::DlgSelectFolderBase(wxWindow* parent, wxWindowID id, const 
     
     m_buttonSelFolder = new wxButton(m_panel85, wxID_ANY, _("Select Folder"), wxDefaultPosition, wxSize(-1,-1), 0);
     
-    boxSizer87->Add(m_buttonSelFolder, 0, wxALL|wxEXPAND|wxALIGN_RIGHT, 5);
+    boxSizer87->Add(m_buttonSelFolder, 0, wxALL|wxEXPAND, 5);
     
     m_panel39 = new wxPanel(m_panel29, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxTAB_TRAVERSAL);
     

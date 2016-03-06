@@ -1461,7 +1461,7 @@ void CRat::findPeaks(vector<float>& inDataOri, vector<float>& inData, vector<Poi
 		}
 	}*/
 	for(int i=3; i<n-3; i++) {
-		if(/*inData[i-6] < inData[i-5] && inData[i-4] < inData[i-3] && inData[i-3] < inData[i-2] &&*/ inData[i-2] < inData[i-1] && inData[i-1] < inData[i] &&
+		if(/*inData[i-6] < inData[i-5] && inData[i-4] < inData[i-3] &&*/ inData[i-3] < inData[i-2] && inData[i-2] < inData[i-1] && inData[i-1] < inData[i] &&
 			/*inData[i+6] < inData[i+5] && inData[i+4] < inData[i+3] && inData[i+3] < inData[i+2] &&*/ inData[i+2] < inData[i+1] && inData[i+1] < inData[i]) {
 				float maxV = -999;
 				int maxIdx;
@@ -1471,7 +1471,7 @@ void CRat::findPeaks(vector<float>& inDataOri, vector<float>& inData, vector<Poi
 						maxIdx = i+k;
 					}
 				}
-				
+				if(maxIdx==0) continue;
 				Point2f pt(maxIdx, inDataOri[maxIdx]);
 				peaks.push_back(pt);				
 		}
