@@ -42,22 +42,25 @@ void _gnuplotSoundOnset(Gnuplot& gnuPlot, int nLED2, int len, float baseline, fl
 	
 	float duration = msec * 60/1000.;
 	
-	vX.push_back(nLED2);
+	vX.push_back(nLED2-nLED2);
 	vYlow.push_back(baseline+deltaY);
 	vYhigh.push_back(baseline-deltaY);	
 	
-	vXlow.push_back(nLED2);
-	vXhigh.push_back(nLED2+duration);
+	vXlow.push_back(nLED2-nLED2);
+	vXhigh.push_back(nLED2+duration-nLED2);
 	vY.push_back(baseline);	
 	gnuPlot.plot_Boxxyerrorbars(vX, vY, vXlow, vXhigh, vYlow, vYhigh, "#00000000");
 		
+	int xStart = floor((0-nLED2)/100.) * 100;
+	int xEnd = ceil((len-nLED2)/100.) * 100;
+		
 	vX.clear();
 	vY.clear();
-	vX.push_back(0);
-	vX.push_back(len);
+	vX.push_back(xStart);
+	vX.push_back(xEnd);
 	vY.push_back(baseline);
 	vY.push_back(baseline);	
-	_gnuplotLineXY(gnuPlot, vX, vY, "#00888888");	
+	_gnuplotLineXY(gnuPlot, "", vX, vY, "#00888888");	
 	//_gnuplotLineXY(gPlotR, vX, vY, "#00888888");	
 }
 
@@ -77,7 +80,7 @@ void _gnuplotVerticalLine(Gnuplot& gnuPlot, float x, const char* color, const ch
 	}	
 }
 
-void _gnuplotHoriLine(Gnuplot& gnuPlot, float x, float y, const char* color, const char* dashtype, const char* dataName)
+void _gnuplotHoriLine(Gnuplot& gnuPlot, float x1, float x2, float y, const char* color, const char* dashtype, const char* dataName)
 {
 
 //	double xmin, xmax;
@@ -86,9 +89,9 @@ void _gnuplotHoriLine(Gnuplot& gnuPlot, float x, float y, const char* color, con
 	std::vector<double> vecx;
 	std::vector<double> vecy;
 	vecy.push_back(y);
-	vecx.push_back(0);
+	vecx.push_back(x1);
 	vecy.push_back(y);
-	vecx.push_back(x);	
+	vecx.push_back(x2);	
 	gnuPlot.set_style("lines").plot_xy(vecx, vecy, 1, color, dataName, dashtype);
 	
 }

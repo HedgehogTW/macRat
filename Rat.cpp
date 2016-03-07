@@ -1228,6 +1228,13 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	wxEndBusyCursor(); 
 	
 ///////////G N U P L O T//////////////////////////////////////////////////////////////////////////////
+	vector<float> 	vxTicks(m_nSlices);
+	for(int i=0; i<m_nSlices; i++)
+		vxTicks[i] = i- m_nLED2;
+	
+	int xStart = floor((0-m_nLED2)/100.) * 100;
+	int xEnd = ceil((m_nSlices-m_nLED2)/100.) * 100;
+	
 	_gnuplotInit(gPlotL, title.ToAscii(), ymin, ymax);
 	_gnuplotInit(gPlotR, title.ToAscii(), ymin, ymax);
 	_gnuplotInit(gPlotP, title.ToAscii(), intvymin, intvymax);
@@ -1298,15 +1305,19 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 		}
 		if(m_bShowBelly) {
             //_OutputVec(vecRedFlowPdf, "_redw.csv");
-			_gnuplotLine(gPlotL, "Abdomen", vecBellyPdf, "#00008000");
-			_gnuplotLine(gPlotR, "Abdomen", vecBellyPdf, "#00008000");
+			//_gnuplotLine(gPlotL, "Abdomen", vecBellyPdf, "#00008000");
+			//_gnuplotLine(gPlotR, "Abdomen", vecBellyPdf, "#00008000");
+
+			
+			_gnuplotLineXY(gPlotL, "Abdomen", vxTicks, vecBellyPdf, "#00008000");
+			_gnuplotLineXY(gPlotR, "Abdomen", vxTicks, vecBellyPdf, "#00008000");
 			
 			wxString strLine;
 			strLine.Printf("%.1fxSD", xSD);
-			_gnuplotHoriLine(gPlotL, m_nSlices, meanAmp + sdAmp*xSD, "#00100800", "..-", strLine);
-			_gnuplotHoriLine(gPlotR, m_nSlices, meanAmp + sdAmp*xSD, "#00100800", "..-", strLine);
-			_gnuplotHoriLine(gPlotL, m_nSlices, meanAmp - sdAmp*xSD, "#00100800",  "..-");
-			_gnuplotHoriLine(gPlotR, m_nSlices, meanAmp - sdAmp*xSD, "#00100800",  "..-");
+			_gnuplotHoriLine(gPlotL, xStart, xEnd, meanAmp + sdAmp*xSD, "#00100800", "..-", strLine);
+			_gnuplotHoriLine(gPlotR, xStart, xEnd, meanAmp + sdAmp*xSD, "#00100800", "..-", strLine);
+			_gnuplotHoriLine(gPlotL, xStart, xEnd, meanAmp - sdAmp*xSD, "#00100800",  "..-");
+			_gnuplotHoriLine(gPlotR, xStart, xEnd, meanAmp - sdAmp*xSD, "#00100800",  "..-");
 	
 			wxString  newMarkerName = title+"_Belly.csv";
 			wxFileName newFullMarkerName(strParentPath, newMarkerName);			
@@ -1319,10 +1330,14 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			if(bShowPeaks)
 				_gnuplotPoint(gPlotR, peakBelly, "#00008f00" );
 			
+			for(int i=0; i<vPeakDistX.size(); i++)
+				vPeakDistX[i] -= m_nLED2;
+				
 			_gnuplotSteps(gPlotP, vPeakDistX, vPeakDistY, "#00FF0000", "Inter-peak interval");
-			//_gnuplotHoriLine(gPlotP, m_nSlices, meanPeriod, "#000000FF");						
-			_gnuplotHoriLine(gPlotP, m_nSlices, meanPeriod+xSD*sdPeriod, "#00100800", "..-", strLine);			
-			_gnuplotHoriLine(gPlotP, m_nSlices, meanPeriod-xSD*sdPeriod, "#00100800", "..-");			
+			//_gnuplotHoriLine(gPlotP, m_nSlices, meanPeriod, "#000000FF");		
+
+			_gnuplotHoriLine(gPlotP, xStart, xEnd, meanPeriod+xSD*sdPeriod, "#00100800", "..-", strLine);			
+			_gnuplotHoriLine(gPlotP, xStart, xEnd, meanPeriod-xSD*sdPeriod, "#00100800", "..-");			
 			//_gnuplotVerticalLine(gPlotP, m_nLED2, "#000000FF");
  				
 		}
@@ -1333,8 +1348,8 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			vX.push_back(m_nSlices);
 			vY.push_back(sdHead);
 			vY.push_back(sdHead);	
-			_gnuplotLineXY(gPlotL, vX, vY, "#008B8800");	
-			_gnuplotLineXY(gPlotR, vX, vY, "#008B8800");
+			_gnuplotLineXY(gPlotL, "", vX, vY, "#008B8800");	
+			_gnuplotLineXY(gPlotR, "", vX, vY, "#008B8800");
 			
 			_gnuplotLine(gPlotL, "Head", vecEyeFlowPdfL, "#008B0000");
 			_gnuplotLine(gPlotR, "Head", vecEyeFlowPdfL, "#008B0000");	

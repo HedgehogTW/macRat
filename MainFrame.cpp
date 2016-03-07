@@ -1693,16 +1693,16 @@ void MainFrame::OnRatCheckAPB(wxCommandEvent& event)
 		strLine.Printf("%.1fxSD", xSD);
 		
 		_gnuplotLine(gPlotR, "Abdomen", vSignal, sColorAmp.c_str()); //"#00008000");			
-		_gnuplotHoriLine(gPlotR, n, meanAmp + sdAmp*xSD, "#00100800", "..-", strLine);	
-		_gnuplotHoriLine(gPlotR, n, meanAmp - sdAmp*xSD, "#00100800",  "..-");
+		_gnuplotHoriLine(gPlotR, 0-m_nUserLED2, m_nSlices-m_nUserLED2, meanAmp + sdAmp*xSD, "#00100800", "..-", strLine);	
+		_gnuplotHoriLine(gPlotR, 0-m_nUserLED2, m_nSlices-m_nUserLED2, meanAmp - sdAmp*xSD, "#00100800",  "..-");
 		
 		if(bShowSymbol)
 			_gnuplotPoint(gPlotR, peakBelly, "#00008f00" );
 		
 		_gnuplotSteps(gPlotP, vPeakDistX, vPeakDistY, sColorPeriod.c_str(), "Inter-peak interval");
 		//_gnuplotHoriLine(gPlotP, n, meanPeriod, "#000088FF");						
-		_gnuplotHoriLine(gPlotP, n, meanPeriod+xSD*sdPeriod, "#00100800", "..-", strLine);			
-		_gnuplotHoriLine(gPlotP, n, meanPeriod-xSD*sdPeriod, "#00100800", "..-");			
+		_gnuplotHoriLine(gPlotP, 0-m_nUserLED2, m_nSlices-m_nUserLED2, meanPeriod+xSD*sdPeriod, "#00100800", "..-", strLine);			
+		_gnuplotHoriLine(gPlotP, 0-m_nUserLED2, m_nSlices-m_nUserLED2, meanPeriod-xSD*sdPeriod, "#00100800", "..-");			
 		//_gnuplotVerticalLine(gPlotP, m_nUserLED2, "#000000FF");
 		
 		if(i < nFiles-1)
