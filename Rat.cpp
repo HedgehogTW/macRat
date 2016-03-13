@@ -1232,8 +1232,8 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	for(int i=0; i<m_nSlices; i++)
 		vxTicks[i] = i- m_nLED2;
 	
-	int xStart = floor((0-m_nLED2)/50.) * 50;
-	int xEnd = ceil((m_nSlices-m_nLED2)/50.) * 50;
+	int xStart = floor((0-m_nLED2)/25.) * 25;
+	int xEnd = ceil((m_nSlices-m_nLED2)/25.) * 25;
 
 	_gnuplotInit(gPlotL, title.ToAscii(), ymin, ymax);
 	_gnuplotInit(gPlotR, title.ToAscii(), ymin, ymax);

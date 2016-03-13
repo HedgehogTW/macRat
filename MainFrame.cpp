@@ -1678,8 +1678,8 @@ void MainFrame::OnRatCheckAPB(wxCommandEvent& event)
 		if(intvysnd >= lowerSD ) intvysnd = lowerSD - 15;
 		if(intvysnd < intvymin)  intvymin -=10;
 		
-		int xStart = floor((0-m_nUserLED2)/50.) * 50;
-		int xEnd = ceil((szSignal-m_nUserLED2)/50.) * 50;
+		int xStart = floor((0-m_nUserLED2)/25.) * 25;
+		int xEnd = ceil((szSignal-m_nUserLED2)/25.) * 25;
 		myMsgOutput("xstart %d, %d\n", xStart, xEnd);
 		
 		_gnuplotInit(gPlotR, fName.ToAscii(), ymin, ymax);
