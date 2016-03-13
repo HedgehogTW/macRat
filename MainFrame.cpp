@@ -1581,8 +1581,8 @@ void MainFrame::OnRatCheckAPB(wxCommandEvent& event)
 		myMsgOutput(s);
 		
 		vector<float> vSignal;
-		int n = _readCSVFile(files[i].ToStdString(), vSignal);
-		if(n< 0 ) {
+		int szSignal = _readCSVFile(files[i].ToStdString(), vSignal);
+		if(szSignal< 0 ) {
 			myMsgOutput("read data ERROR\n");
 			continue;
 		}
@@ -1677,6 +1677,11 @@ void MainFrame::OnRatCheckAPB(wxCommandEvent& event)
 		if(ysnd <= ymin || ysnd >= ymax) ysnd = ymin + 0.2;
 		if(intvysnd >= lowerSD ) intvysnd = lowerSD - 15;
 		if(intvysnd < intvymin)  intvymin -=10;
+		
+		int xStart = floor((0-m_nUserLED2)/50.) * 50;
+		int xEnd = ceil((szSignal-m_nUserLED2)/50.) * 50;
+		myMsgOutput("xstart %d, %d\n", xStart, xEnd);
+		
 		_gnuplotInit(gPlotR, fName.ToAscii(), ymin, ymax);
 		_gnuplotInit(gPlotP, fName.ToAscii(), intvymin, intvymax);
 		
@@ -1685,24 +1690,35 @@ void MainFrame::OnRatCheckAPB(wxCommandEvent& event)
 
 		gPlotR.cmd("set termoption noenhanced");
 		gPlotP.cmd("set termoption noenhanced");
+		
+		gPlotP.set_xrange(xStart, xEnd);
+		gPlotR.set_xrange(xStart, xEnd);
 
-		_gnuplotSoundOnset(gPlotR, m_nUserLED2, n, ysnd, highAmp, 100);	// -0.65
-		_gnuplotSoundOnset(gPlotP, m_nUserLED2, n, intvysnd, highIntv, 100);
+		_gnuplotSoundOnset(gPlotR, m_nUserLED2, szSignal, ysnd, highAmp, 100);	// -0.65
+		_gnuplotSoundOnset(gPlotP, m_nUserLED2, szSignal, intvysnd, highIntv, 100);
 //		myMsgOutput(" ymin %f %f, intvymin %f %f %f, sd [%f, %f]\n", ymin, ysnd, intvymin, intvymax, intvysnd, lowerSD, upperSD);
 		wxString strLine;
 		strLine.Printf("%.1fxSD", xSD);
 		
-		_gnuplotLine(gPlotR, "Abdomen", vSignal, sColorAmp.c_str()); //"#00008000");			
-		_gnuplotHoriLine(gPlotR, 0-m_nUserLED2, m_nSlices-m_nUserLED2, meanAmp + sdAmp*xSD, "#00100800", "..-", strLine);	
-		_gnuplotHoriLine(gPlotR, 0-m_nUserLED2, m_nSlices-m_nUserLED2, meanAmp - sdAmp*xSD, "#00100800",  "..-");
+		vector<float> 	vxTicks(szSignal);
+		for(int i=0; i<szSignal; i++)
+			vxTicks[i] = i- m_nUserLED2;
 		
-		if(bShowSymbol)
+		_gnuplotLineXY(gPlotR, "Abdomen", vxTicks, vSignal, sColorAmp.c_str()); //"#00008000");			
+		_gnuplotHoriLine(gPlotR, xStart, xEnd, meanAmp + sdAmp*xSD, "#00100800", "..-", strLine);	
+		_gnuplotHoriLine(gPlotR, xStart, xEnd, meanAmp - sdAmp*xSD, "#00100800",  "..-");
+		
+		if(bShowSymbol) {
+			for(int i=0; i<peakBelly.size(); i++)
+				peakBelly[i].x -= m_nUserLED2;
 			_gnuplotPoint(gPlotR, peakBelly, "#00008f00" );
-		
+		}
+		for(int i=0; i<vPeakDistX.size(); i++)
+			vPeakDistX[i] -= m_nUserLED2;
 		_gnuplotSteps(gPlotP, vPeakDistX, vPeakDistY, sColorPeriod.c_str(), "Inter-peak interval");
 		//_gnuplotHoriLine(gPlotP, n, meanPeriod, "#000088FF");						
-		_gnuplotHoriLine(gPlotP, 0-m_nUserLED2, m_nSlices-m_nUserLED2, meanPeriod+xSD*sdPeriod, "#00100800", "..-", strLine);			
-		_gnuplotHoriLine(gPlotP, 0-m_nUserLED2, m_nSlices-m_nUserLED2, meanPeriod-xSD*sdPeriod, "#00100800", "..-");			
+		_gnuplotHoriLine(gPlotP, xStart, xEnd, meanPeriod+xSD*sdPeriod, "#00100800", "..-", strLine);			
+		_gnuplotHoriLine(gPlotP, xStart, xEnd, meanPeriod-xSD*sdPeriod, "#00100800", "..-");			
 		//_gnuplotVerticalLine(gPlotP, m_nUserLED2, "#000000FF");
 		
 		if(i < nFiles-1)

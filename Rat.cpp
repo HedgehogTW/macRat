@@ -1232,9 +1232,9 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	for(int i=0; i<m_nSlices; i++)
 		vxTicks[i] = i- m_nLED2;
 	
-	int xStart = floor((0-m_nLED2)/100.) * 100;
-	int xEnd = ceil((m_nSlices-m_nLED2)/100.) * 100;
-	
+	int xStart = floor((0-m_nLED2)/50.) * 50;
+	int xEnd = ceil((m_nSlices-m_nLED2)/50.) * 50;
+
 	_gnuplotInit(gPlotL, title.ToAscii(), ymin, ymax);
 	_gnuplotInit(gPlotR, title.ToAscii(), ymin, ymax);
 	_gnuplotInit(gPlotP, title.ToAscii(), intvymin, intvymax);
@@ -1246,6 +1246,11 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	gPlotL.cmd("set termoption noenhanced");
 	gPlotR.cmd("set termoption noenhanced");
 	gPlotP.cmd("set termoption noenhanced");
+	
+	gPlotL.set_xrange(xStart, xEnd);
+	gPlotR.set_xrange(xStart, xEnd);
+	gPlotP.set_xrange(xStart, xEnd);
+	//gPlotR.cmd("set xtics -300,50,250");
 
 	float highAmp = (ymax-ymin) / 35.;
 	float highIntv = (intvymax-intvymin)/35.;
