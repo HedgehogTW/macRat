@@ -55,6 +55,7 @@ public:
 	bool	m_bSaveFile;
 	bool	m_bSaveSignalPlot;
 	bool	m_bShowPeaks;
+	bool	m_bShowAxisLabel;
 	double 	m_verLine;
 	double 	m_ymin;
 	double	m_ymax;	
@@ -91,6 +92,7 @@ public:
 		m_smoothWidth = 3;
 		m_bSaveSignalPlot = false;
 		m_bShowPeaks = false;
+		m_bShowAxisLabel = false;
 	}
 };
 

@@ -62,7 +62,7 @@ void _gnuplotSoundOnset(Gnuplot& gnuPlot, int nLED2, int len, float baseline, fl
 	vY.push_back(baseline);	
 	_gnuplotLineXY(gnuPlot, "", vX, vY, "#00888888");	
 	//_gnuplotLineXY(gPlotR, vX, vY, "#00888888");
-	MainFrame::myMsgOutput("x %d, %x, y %d, %d\n", xStart, xEnd, baseline, baseline);
+//	MainFrame::myMsgOutput("x %d, %x, y %d, %d\n", xStart, xEnd, baseline, baseline);
 }
 
 void _gnuplotVerticalLine(Gnuplot& gnuPlot, float x, const char* color, const char* dataName)

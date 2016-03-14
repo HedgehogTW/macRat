@@ -91,6 +91,7 @@ protected:
     wxTextCtrl* m_textCtrlReferFrame;
     wxStaticText* m_staticText130;
     wxTextCtrl* m_textCtrlXSD;
+    wxCheckBox* m_checkBoxShowAxisLabel;
     wxStaticLine* m_staticLine108;
     wxStdDialogButtonSizer* m_stdBtnSizer243;
     wxButton* m_button245;
@@ -157,6 +158,7 @@ public:
     wxTextCtrl* GetTextCtrlReferFrame() { return m_textCtrlReferFrame; }
     wxStaticText* GetStaticText130() { return m_staticText130; }
     wxTextCtrl* GetTextCtrlXSD() { return m_textCtrlXSD; }
+    wxCheckBox* GetCheckBoxShowAxisLabel() { return m_checkBoxShowAxisLabel; }
     wxPanel* GetPanel187() { return m_panel187; }
     wxStaticLine* GetStaticLine108() { return m_staticLine108; }
     DlgOpticalInputBase(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Optical Input Dialog"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(-1,-1), long style = wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER);

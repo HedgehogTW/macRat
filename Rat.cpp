@@ -951,6 +951,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	bool bSaveFile = configData.m_bSaveFile;
 	bool bSaveSignalPlot = configData.m_bSaveSignalPlot;
 	bool bShowPeaks = configData.m_bShowPeaks;
+	bool bShowAxisLabel = configData.m_bShowAxisLabel;
 
 	double verLine = configData.m_verLine;
 	double ymin = configData.m_ymin;
@@ -1239,14 +1240,15 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	_gnuplotInit(gPlotR, title.ToAscii(), ymin, ymax);
 	_gnuplotInit(gPlotP, title.ToAscii(), intvymin, intvymax);
 	
-	gPlotL.set_xlabel("Peri-stimulus Frame");
-	gPlotL.set_ylabel("Movement index (arb. unit)");	
-	gPlotR.set_xlabel("Peri-stimulus Frame");
-	gPlotR.set_ylabel("Movement index (arb. unit)");
+	if(bShowAxisLabel) {
+		gPlotL.set_xlabel("Peri-stimulus Frame");
+		gPlotL.set_ylabel("Movement index (arb. unit)");	
+		gPlotR.set_xlabel("Peri-stimulus Frame");
+		gPlotR.set_ylabel("Movement index (arb. unit)");
 
-	gPlotP.set_xlabel("Peri-stimulus Frame");
-	gPlotP.set_ylabel("Inter-peak interval (arb. unit)");
-
+		gPlotP.set_xlabel("Peri-stimulus Frame");
+		gPlotP.set_ylabel("Inter-peak interval (arb. unit)");
+	}
 
 	gPlotL.set_legend("left");
 	gPlotR.set_legend("left");	

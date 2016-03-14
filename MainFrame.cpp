@@ -705,7 +705,8 @@ bool MainFrame::inputDialog()
 	bool bSaveFile = m_configData.m_bSaveFile;
 	bool bSaveSignalPlot = m_configData.m_bSaveSignalPlot;
 	bool bShowPeaks = m_configData.m_bShowPeaks;
-
+	bool bShowAxisLabel = m_configData.m_bShowAxisLabel;
+	
 	double verLine = m_configData.m_verLine;
 	double ymin = m_configData.m_ymin;
 	double ymax = m_configData.m_ymax;
@@ -736,7 +737,7 @@ bool MainFrame::inputDialog()
 	
 	dlg.setVerticalLine(bLEDLine, bBigHead, bUserLED2, nLED2, bVerLine, verLine);
 	dlg.setSeriesLine(bEyeMove, bEar, bGrayDiff, bBelly);
-	dlg.setOptions(bOpticalPDF, bOpFlowV1, bSaveFile, bSaveSignalPlot, bShowPeaks, refSignal);
+	dlg.setOptions(bOpticalPDF, bOpFlowV1, bSaveFile, bSaveSignalPlot, bShowPeaks, bShowAxisLabel, refSignal);
 	dlg.setAmpYRange(ymin, ymax, ysnd, ROIEar, ROIBelly, referFrame);
 	dlg.setIntervalYRange(intvymin, intvymax, intvysnd);
 	dlg.setGain(gainHead, gainBelly, xSD);
@@ -747,7 +748,7 @@ bool MainFrame::inputDialog()
 	threshold = dlg.getThreshold();
 	dlg.getVerticalLine(bLEDLine, bBigHead, bUserLED2, nLED2, bVerLine, verLine);
 	dlg.getSeriesLine(bEyeMove, bEar, bGrayDiff, bBelly);
-	dlg.getOptions(bOpticalPDF, bOpFlowV1, bSaveFile, bSaveSignalPlot, bShowPeaks, refSignal);
+	dlg.getOptions(bOpticalPDF, bOpFlowV1, bSaveFile, bSaveSignalPlot, bShowPeaks, bShowAxisLabel, refSignal);
 	dlg.getAmpYRange(ymin, ymax, ysnd, ROIEar, ROIBelly, referFrame);
 	dlg.getIntervalYRange(intvymin, intvymax, intvysnd);
 	dlg.getGain(gainHead, gainBelly, xSD);
@@ -774,6 +775,7 @@ bool MainFrame::inputDialog()
 	m_configData.m_bSaveFile = bSaveFile;
 	m_configData.m_bSaveSignalPlot = bSaveSignalPlot;
 	m_configData.m_bShowPeaks = bShowPeaks;	
+	m_configData.m_bShowAxisLabel = bShowAxisLabel;
 
 	m_configData.m_verLine = verLine;
 	m_configData.m_ymin = ymin;
@@ -1680,7 +1682,7 @@ void MainFrame::OnRatCheckAPB(wxCommandEvent& event)
 		
 		int xStart = floor((0-m_nUserLED2)/25.) * 25;
 		int xEnd = ceil((szSignal-m_nUserLED2)/25.) * 25;
-		myMsgOutput("xstart %d, %d\n", xStart, xEnd);
+//		myMsgOutput("xstart %d, %d\n", xStart, xEnd);
 		
 		_gnuplotInit(gPlotR, fName.ToAscii(), ymin, ymax);
 		_gnuplotInit(gPlotP, fName.ToAscii(), intvymin, intvymax);
