@@ -1693,6 +1693,11 @@ void MainFrame::OnRatCheckAPB(wxCommandEvent& event)
 		
 		gPlotP.set_xrange(xStart, xEnd);
 		gPlotR.set_xrange(xStart, xEnd);
+		gPlotR.set_xlabel("Peri-stimulus Frame");
+		gPlotR.set_ylabel("Movement index (arb. unit)");
+
+		gPlotP.set_xlabel("Peri-stimulus Frame");
+		gPlotP.set_ylabel("Inter-peak interval (arb. unit)");
 
 		_gnuplotSoundOnset(gPlotR, m_nUserLED2, szSignal, ysnd, highAmp, 100);	// -0.65
 		_gnuplotSoundOnset(gPlotP, m_nUserLED2, szSignal, intvysnd, highIntv, 100);
