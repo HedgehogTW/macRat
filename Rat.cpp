@@ -1332,9 +1332,11 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			_OutputVec(vecBellyPdf, newFullMarkerName.GetFullPath());
 //			_gnuplotPoint(gPlotL, peakMinMax, "#00008f00" );
 //			_gnuplotPoint(gPlotR, peakMinMax /*peakBelly*/, "#00008f00" );
-			if(bShowPeaks)
+			if(bShowPeaks) {
+				for(int i=0; i<peakBelly.size(); i++)
+					peakBelly[i].x -= m_nLED2;
 				_gnuplotPoint(gPlotR, peakBelly, "#00008f00" );
-			
+			}
 			for(int i=0; i<vPeakDistX.size(); i++)
 				vPeakDistX[i] -= m_nLED2;
 				

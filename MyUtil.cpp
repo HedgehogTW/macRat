@@ -51,8 +51,8 @@ void _gnuplotSoundOnset(Gnuplot& gnuPlot, int nLED2, int len, float baseline, fl
 	vY.push_back(baseline);	
 	gnuPlot.plot_Boxxyerrorbars(vX, vY, vXlow, vXhigh, vYlow, vYhigh, "#00000000");
 		
-	int xStart = floor((0-nLED2)/100.) * 100;
-	int xEnd = ceil((len-nLED2)/100.) * 100;
+	int xStart = floor((0-nLED2)/25.) * 25;
+	int xEnd = ceil((len-nLED2)/25.) * 25;
 		
 	vX.clear();
 	vY.clear();
@@ -61,7 +61,8 @@ void _gnuplotSoundOnset(Gnuplot& gnuPlot, int nLED2, int len, float baseline, fl
 	vY.push_back(baseline);
 	vY.push_back(baseline);	
 	_gnuplotLineXY(gnuPlot, "", vX, vY, "#00888888");	
-	//_gnuplotLineXY(gPlotR, vX, vY, "#00888888");	
+	//_gnuplotLineXY(gPlotR, vX, vY, "#00888888");
+	MainFrame::myMsgOutput("x %d, %x, y %d, %d\n", xStart, xEnd, baseline, baseline);
 }
 
 void _gnuplotVerticalLine(Gnuplot& gnuPlot, float x, const char* color, const char* dataName)
