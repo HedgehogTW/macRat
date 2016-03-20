@@ -81,7 +81,7 @@ public:
 		m_szROIBelly = 80;
 		m_refSignal = 0;
 		m_ymin = -1;
-		m_ymax = 3;
+		m_ymax = 2;
 		m_ysnd = -0.65;
 		
 		m_intvymin = 00;

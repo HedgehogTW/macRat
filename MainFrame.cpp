@@ -21,6 +21,7 @@
 #include "gnuplot_i.h"
 #include "DlgSelectFolder.h"
 #include "DlgOpticalInput.h"
+#include "DlgProcessNext.h"
 
 using namespace std;
 //using namespace cv;
@@ -873,6 +874,8 @@ void MainFrame::writeMarks()
     wxString  newMarkerName = "_"+fileName.GetName()+"_Marks.txt";
     wxFileName newFullMarkerName(strParentPath, newMarkerName);
 
+	myMsgOutput("writeMarks: " + newFullMarkerName.GetFullPath());
+
 	//wxFileName dataName(m_strSourcePath, "_Marks.txt");
 	FILE* fp = fopen(newFullMarkerName.GetFullPath(), "w");
 	if(fp!=NULL) {
@@ -906,6 +909,8 @@ void MainFrame::writeMarks()
 		fprintf(fp, "y%f %f %f\n", m_configData.m_ymin, m_configData.m_ymax, m_configData.m_ysnd);	
 		fprintf(fp, "z%f %f %f\n", m_configData.m_intvymin, m_configData.m_intvymax, m_configData.m_intvysnd);	
 		fclose(fp);
+	}else {
+		myMsgOutput("writeMarks failed " + newFullMarkerName.GetFullPath());
 	}		
 }
 
@@ -1624,7 +1629,7 @@ void MainFrame::OnRatCheckAPB(wxCommandEvent& event)
 		int nLedPeak = CRat::peakAmplitudeAnalysis(peakBelly, m_nUserLED2, meanAmp, sdAmp);
 		
 		int both = -1;
-		
+		int counter = 0;
 		string sColorAmp= "#0000FF";
 		string sColorPeriod= "#0000FF";
 		for(int i=nLedPeak; i<peakBelly.size()-1; i++) {
@@ -1641,9 +1646,10 @@ void MainFrame::OnRatCheckAPB(wxCommandEvent& event)
 				both ++;
 				break;				
 			}
-			
-			if(bCheckOnlyFirst)  break;
+			counter ++;
+			if(bCheckOnlyFirst && counter <=2)  break;
 		}
+		counter = 0;
 		for(int i=nLedPeriod; i<vPeakDistY.size()-1; i++) {
 			float upper = meanPeriod + xSD*sdPeriod;
 			float lower = meanPeriod - xSD*sdPeriod;
@@ -1658,7 +1664,8 @@ void MainFrame::OnRatCheckAPB(wxCommandEvent& event)
 				both ++;				
 				break;
 			}
-			if(bCheckOnlyFirst)  break;
+			counter ++;
+			if(bCheckOnlyFirst && counter <=2)  break;
 		}
 		if(both>=1) bothAcc++;
 		//myMsgOutput("--amp mean %f, sd %f, [%f, %f]\n", meanAmp, sdAmp,  meanAmp- xSD*sdAmp, meanAmp+ xSD*sdAmp);
@@ -1728,9 +1735,28 @@ void MainFrame::OnRatCheckAPB(wxCommandEvent& event)
 		_gnuplotHoriLine(gPlotP, xStart, xEnd, meanPeriod-xSD*sdPeriod, "#00100800", "..-");			
 		//_gnuplotVerticalLine(gPlotP, m_nUserLED2, "#000000FF");
 		
-		if(i < nFiles-1)
-			wxMessageBox("press anykey ...");
-    }
-	 
+		if(i < nFiles-1) {
+			//int answer = wxMessageBox("Process next case ...", "Confirm", wxYES_NO);
+			//if (answer == wxNO)  break;			
+			DlgProcessNext dlg(this);
+			dlg.setValues(ymin, ymax, intvymin, intvymax, ysnd, intvysnd);
 
+			int  ret = dlg.ShowModal() ;
+			if(ret ==  wxID_CANCEL) break;
+			else if(ret ==999) {
+				dlg.getValues(ymin, ymax, intvymin, intvymax, ysnd, intvysnd);
+				m_configData.m_ymin = ymin;
+				m_configData.m_ymax = ymax; // 0.8 
+				m_configData.m_ysnd = ysnd;
+	
+				m_configData.m_intvymin = intvymin;
+				m_configData.m_intvymax = intvymax;
+				m_configData.m_intvysnd = intvysnd;
+				writeMarks();
+				i--;
+				
+				myMsgOutput("replot \n");
+			}
+		}
+	}
 }

@@ -48,21 +48,27 @@
     <File Name="DlgOpticalInput.cpp"/>
     <File Name="DlgSelectFolder.h"/>
     <File Name="DlgSelectFolder.cpp"/>
+    <File Name="DlgProcessNext.cpp"/>
+    <File Name="DlgProcessNext.h"/>
   </VirtualDirectory>
   <VirtualDirectory Name="wxcrafter">
     <VirtualDirectory Name="resources">
       <File Name="dlg_optical_macrat_bitmaps.cpp"/>
       <File Name="dlg_optical_input_base_macrat_bitmaps.cpp"/>
       <File Name="dlg_select_folder_macrat_bitmaps.cpp"/>
+      <File Name="dlg_process_next_macrat_bitmaps.cpp"/>
     </VirtualDirectory>
     <VirtualDirectory Name="base">
       <File Name="dlg_optical_input_base.h"/>
       <File Name="dlg_optical_input_base.cpp"/>
       <File Name="dlg_select_folder.h"/>
       <File Name="dlg_select_folder.cpp"/>
+      <File Name="dlg_process_next.h"/>
+      <File Name="dlg_process_next.cpp"/>
     </VirtualDirectory>
     <File Name="dlg_optical_input_base.wxcp"/>
     <File Name="dlg_select_folder.wxcp"/>
+    <File Name="dlg_process_next.wxcp"/>
   </VirtualDirectory>
   <Settings Type="Executable">
     <GlobalSettings>

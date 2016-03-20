@@ -13,7 +13,7 @@ void _gnuplotInit(Gnuplot& gnuPlot, const char* title, double ymin, double ymax)
 	gnuPlot.reset_all();
 
 #if defined(unix) || defined(__unix) || defined(__unix__) || defined(__APPLE__)
-	gnuPlot.cmd("set terminal aqua size 600, 300");
+	gnuPlot.cmd("set terminal aqua size 600, 300");  // x11, wxt, aqua
 #endif	
 	
 //	gnuPlot.cmd("set termoption noenhanced");
