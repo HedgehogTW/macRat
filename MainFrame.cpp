@@ -859,15 +859,23 @@ void MainFrame::OnRatProcess(wxCommandEvent& event)
 //	Refresh();
 	wxBell();	
 	
-	writeMarks();
+	wxFileName fileName = m_strSourcePath;
+    wxUniChar sep = fileName.GetPathSeparator();
+    wxString  strParentPath =  m_strSourcePath.BeforeLast(sep);
+    wxString  newMarkerName = "_"+fileName.GetName()+"_Marks.txt";
+    wxFileName newFullMarkerName(strParentPath, newMarkerName);
+
+	myMsgOutput("writeMarks: " + newFullMarkerName.GetFullPath());
+	wxString  markFilename = newFullMarkerName.GetFullPath();
+	writeMarks(markFilename);
 	myMsgOutput("-------------------------------------------------\n");	
 
 
 }
 
-void MainFrame::writeMarks()
+void MainFrame::writeMarks(wxString markFilename)
 {
-
+/*
     wxFileName fileName = m_strSourcePath;
     wxUniChar sep = fileName.GetPathSeparator();
     wxString 	strParentPath =  m_strSourcePath.BeforeLast(sep);
@@ -878,6 +886,9 @@ void MainFrame::writeMarks()
 
 	//wxFileName dataName(m_strSourcePath, "_Marks.txt");
 	FILE* fp = fopen(newFullMarkerName.GetFullPath(), "w");
+*/
+//	myMsgOutput("writeMarks: " + markFilename + "\n");
+	FILE* fp = fopen(markFilename, "w");
 	if(fp!=NULL) {
 		if(m_dqEyePts.size()>=2) {
 			fprintf(fp, "Y%d %d %d %d\n", m_dqEyePts[0].x, m_dqEyePts[0].y, m_dqEyePts[1].x, m_dqEyePts[1].y );
@@ -910,7 +921,8 @@ void MainFrame::writeMarks()
 		fprintf(fp, "z%f %f %f\n", m_configData.m_intvymin, m_configData.m_intvymax, m_configData.m_intvysnd);	
 		fclose(fp);
 	}else {
-		myMsgOutput("writeMarks failed " + newFullMarkerName.GetFullPath());
+		
+		myMsgOutput("writeMarks failed, " + markFilename + "\n" );
 	}		
 }
 
@@ -1529,7 +1541,19 @@ void MainFrame::OnBatchProcess(wxCommandEvent& event)
 		bool bRet = m_Rat.process(m_ptEyeL, m_ptEyeR, m_ptEarL, m_ptEarR, m_ptMostBelly, nLed2);
 		if(bRet ==false) return;		
 		//updateOutData(m_Rat.getResultImg(0));
-		writeMarks();
+		wxString last3 = dataDirs[i].Right(3);
+		wxString markName;
+		wxFileName fileName = dataDirs[i];
+		wxUniChar sep = fileName.GetPathSeparator();
+
+		if(last3.CmpNoCase("csv")==0) {
+			wxString  s1 = dataDirs[i].BeforeLast('_');
+			wxString  s2 = s1.Right(2);
+			markName = s2 + "_Marks.txt";	
+			writeMarks(markName);
+		}
+			
+		//writeMarks(dataDirs[i]);
 		myMsgOutput("-------------------------------------------------\n");		
 		wxBell();
 	}
@@ -1752,7 +1776,20 @@ void MainFrame::OnRatCheckAPB(wxCommandEvent& event)
 				m_configData.m_intvymin = intvymin;
 				m_configData.m_intvymax = intvymax;
 				m_configData.m_intvysnd = intvysnd;
-				writeMarks();
+				
+				wxString last3 = files[i].Right(3);
+				wxString markName;
+				wxFileName fileName = files[i];
+				wxUniChar sep = fileName.GetPathSeparator();
+				wxString strParentPath =  files[i].BeforeLast(sep);
+
+				if(last3.CmpNoCase("csv")==0) {
+					wxString  s1 = files[i].BeforeLast('_');
+					wxString  s2 = s1.Right(2);
+					markName = s2 + "_Marks.txt";	
+					wxFileName newFullMarkerName(strParentPath, markName);
+					writeMarks(newFullMarkerName.GetFullPath());
+				}
 				i--;
 				
 				myMsgOutput("replot \n");

@@ -35,16 +35,19 @@ void DlgProcessNext::getValues(double& ampL, double& ampU, double& intvalL, doub
 {
 	wxString  str = m_textCtrlAmpLow->GetValue();
 	str.ToDouble(&ampL);
+	
 	str = m_textCtrlAmpUp->GetValue();
 	str.ToDouble(&ampU);
 
-	m_textCtrlIntervalLow->GetValue();
+	str = m_textCtrlIntervalLow->GetValue();
 	str.ToDouble(&intvalL);
+	
 	str = m_textCtrlIntervalUp->GetValue();
 	str.ToDouble(&intvalU);
 
-	m_textCtrlAmpSnd->GetValue();
+	str = m_textCtrlAmpSnd->GetValue();
 	str.ToDouble(&ampSnd);
+	
 	str = m_textCtrlIntervalSnd->GetValue();
 	str.ToDouble(&intvalSnd);	
 }

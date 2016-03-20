@@ -32,7 +32,7 @@ public:
 	inline int		getStep() { return m_mOut.step[0]; }
 
 	bool	inputDialog();
-	void	writeMarks();
+	void	writeMarks(wxString filename);
 	void	getConfigData(MyConfigData& data)  { data = m_configData; }
 	void	setConfigData(MyConfigData& data)  { m_configData = data; }
 	
