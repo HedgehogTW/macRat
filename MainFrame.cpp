@@ -1587,6 +1587,16 @@ void MainFrame::OnRatCheckAPB(wxCommandEvent& event)
 		wxString str1;
 		str1.Printf("OnShowCSV dir: %s, sigma %.2f\n", inputPath, smoothWidth );
 		myMsgOutput(str1) ;
+		
+		wxFileName path = inputPath;
+		wxUniChar sep = path.GetPathSeparator();
+		int len = inputPath.Len();
+		int p1 = inputPath.find_last_of(sep, len -1);
+		int p2 = inputPath.find_last_of(sep, p1-1);
+		int p3 = inputPath.find_last_of(sep, p2-1);
+		wxString title = inputPath.Right(len-p3);
+		title.Replace("\\", "/");
+		SetTitle(wxString("Dataset: ") << title);
 	}else return;	
 	
 	wxString fileSpec = _T("*_Belly.csv");
