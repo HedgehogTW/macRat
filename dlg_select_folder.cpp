@@ -67,13 +67,14 @@ DlgSelectFolderBase::DlgSelectFolderBase(wxWindow* parent, wxWindowID id, const 
     boxSizer41->Add(m_staticText43, 0, wxALL, 5);
     
     m_textCtrlSmooth = new wxTextCtrl(m_panel39, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_textCtrlSmooth->Enable(false);
     #if wxVERSION_NUMBER >= 3000
     m_textCtrlSmooth->SetHint(wxT(""));
     #endif
     
     boxSizer41->Add(m_textCtrlSmooth, 0, wxALL, 5);
     
-    m_checkBoxSymbol = new wxCheckBox(m_panel39, wxID_ANY, _("Symbols on peaks"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_checkBoxSymbol = new wxCheckBox(m_panel39, wxID_ANY, _("Peak symbols"), wxDefaultPosition, wxSize(-1,-1), 0);
     m_checkBoxSymbol->SetValue(false);
     
     boxSizer41->Add(m_checkBoxSymbol, 0, wxALL, 5);

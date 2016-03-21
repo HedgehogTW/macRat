@@ -1614,6 +1614,7 @@ void MainFrame::OnRatCheckAPB(wxCommandEvent& event)
 	int periodInc = 0;
 	int periodDec = 0;
 	int bothAcc = 0;
+	wxString cycleAmpInc, cycleAmpDec, cycleIntvlInc, cycleIntvlDec;
     for(unsigned int i=0; i<nFiles; i++ ) {
 		wxFileName fileName = files[i];
 		wxString  fName = fileName.GetName();
@@ -1632,6 +1633,8 @@ void MainFrame::OnRatCheckAPB(wxCommandEvent& event)
 		//readMarks(dataDirs[i]);
 		m_configData.Init();
 		readMarks(files[i]);
+		smoothWidth = m_configData.m_smoothWidth;
+		
 		double xSD = m_configData.m_xSD;
 		double ymin = m_configData.m_ymin; // -0.8
 		double ymax = m_configData.m_ymax; // 0.8 
@@ -1662,12 +1665,15 @@ void MainFrame::OnRatCheckAPB(wxCommandEvent& event)
 		int nLedPeriod = CRat::peakPeriodAnalysis(peakBelly, vPeakDistX, vPeakDistY, m_nUserLED2, meanPeriod, sdPeriod);
 		int nLedPeak = CRat::peakAmplitudeAnalysis(peakBelly, m_nUserLED2, meanAmp, sdAmp);
 		
+
 		int ampInc = 0;
 		int ampDec = 0;
 		int itvlInc = 0;
 		int itvlDec = 0;	
 		int both = -1;
-		int counter = 0;
+		int ampCounter = 0;
+		int intvlCounter = 0;
+
 		string sColorAmp= "#0000FF";
 		string sColorPeriod= "#0000FF";
 		for(int i=nLedPeak; i<peakBelly.size()-1; i++) {
@@ -1684,10 +1690,15 @@ void MainFrame::OnRatCheckAPB(wxCommandEvent& event)
 				both ++;
 				break;				
 			}
-			counter ++;
-			if(bCheckOnlyFirst && counter <=2)  break;
+			ampCounter ++;
+			if(bCheckOnlyFirst && ampCounter <=2)  break;
 		}
-		counter = 0;
+		if(ampInc==0 && ampDec==0 )  ampCounter = -1;
+		ampCounter++;
+		
+		if(ampInc >0 )  cycleAmpInc << ampCounter << " ";
+		if(ampDec >0 )  cycleAmpDec << ampCounter << " ";
+		
 		for(int i=nLedPeriod; i<vPeakDistY.size()-1; i++) {
 			float upper = meanPeriod + xSD*sdPeriod;
 			float lower = meanPeriod - xSD*sdPeriod;
@@ -1702,9 +1713,14 @@ void MainFrame::OnRatCheckAPB(wxCommandEvent& event)
 				both ++;				
 				break;
 			}
-			counter ++;
-			if(bCheckOnlyFirst && counter <=2)  break;
+			intvlCounter ++;
+			if(bCheckOnlyFirst && intvlCounter <=2)  break;
 		}
+		if(itvlInc==0 && itvlDec==0 )  intvlCounter = -1;
+		intvlCounter++;
+
+		if(itvlInc >0 )  cycleIntvlInc << intvlCounter << " ";
+		if(itvlDec >0 )  cycleIntvlDec << intvlCounter << " ";
 		
 		if(both>=1) bothAcc++;
 		
@@ -1713,8 +1729,8 @@ void MainFrame::OnRatCheckAPB(wxCommandEvent& event)
 		periodInc += itvlInc;
 		periodDec += itvlDec;
 		//myMsgOutput("--amp mean %f, sd %f, [%f, %f]\n", meanAmp, sdAmp,  meanAmp- xSD*sdAmp, meanAmp+ xSD*sdAmp);
-		myMsgOutput("     [%d]-LED Peak %d %d --- amp (%d, %d), period (%d, %d), both %d ", 
-			i+1, nLedPeak, nLedPeriod, ampUpCounter, ampLowCounter, periodInc, periodDec, bothAcc);
+		myMsgOutput("     [%d]-LED Peak %d %d --- amp (%d, %d)C%d, period (%d, %d)C%d, both %d ", 
+			i+1, nLedPeak, nLedPeriod, ampUpCounter, ampLowCounter, ampCounter, periodInc, periodDec,intvlCounter, bothAcc);
 		if(both == -1)  myMsgOutput("\n");
 		else myMsgOutput(" **\n");
 
@@ -1779,7 +1795,7 @@ void MainFrame::OnRatCheckAPB(wxCommandEvent& event)
 		_gnuplotHoriLine(gPlotP, xStart, xEnd, meanPeriod-xSD*sdPeriod, "#00100800", "..-");			
 		//_gnuplotVerticalLine(gPlotP, m_nUserLED2, "#000000FF");
 		
-		if(i < nFiles-1) {
+		if(i < nFiles) {
 			//int answer = wxMessageBox("Process next case ...", "Confirm", wxYES_NO);
 			//if (answer == wxNO)  break;			
 			DlgProcessNext dlg(this);
@@ -1792,6 +1808,7 @@ void MainFrame::OnRatCheckAPB(wxCommandEvent& event)
 				dlg.getValues(ymin, ymax, intvymin, intvymax, ysnd, intvysnd);
 				dlg.getParam(smoothWidth, bCheckOnlyFirst, bShowSymbol);
 				
+				m_configData.m_smoothWidth = smoothWidth;
 				m_configData.m_ymin = ymin;
 				m_configData.m_ymax = ymax; // 0.8 
 				m_configData.m_ysnd = ysnd;
@@ -1824,4 +1841,5 @@ void MainFrame::OnRatCheckAPB(wxCommandEvent& event)
 			}
 		}
 	}
+	myMsgOutput("cycleAmpInc: " + cycleAmpInc + ", cycleAmpDec: "+ cycleAmpDec+ ", cycleIntvlInc: "+cycleIntvlInc+ ", cycleIntvlDec: "+ cycleIntvlDec + "\n");
 }

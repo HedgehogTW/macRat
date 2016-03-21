@@ -811,7 +811,7 @@
                 }, {
                  "type": "bool",
                  "m_label": "Disabled",
-                 "m_value": false
+                 "m_value": true
                 }, {
                  "type": "bool",
                  "m_label": "Focused",
