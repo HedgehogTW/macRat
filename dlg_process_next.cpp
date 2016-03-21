@@ -26,80 +26,110 @@ DlgProcessNextBase::DlgProcessNextBase(wxWindow* parent, wxWindowID id, const wx
     wxBoxSizer* boxSizer2 = new wxBoxSizer(wxVERTICAL);
     this->SetSizer(boxSizer2);
     
+    m_panel45 = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxTAB_TRAVERSAL);
+    
+    boxSizer2->Add(m_panel45, 0, wxALL|wxEXPAND, 5);
+    
+    wxBoxSizer* boxSizer53 = new wxBoxSizer(wxVERTICAL);
+    m_panel45->SetSizer(boxSizer53);
+    
     wxFlexGridSizer* flexGridSizer19 = new wxFlexGridSizer(0, 4, 0, 0);
     flexGridSizer19->SetFlexibleDirection( wxBOTH );
     flexGridSizer19->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
+    flexGridSizer19->AddGrowableCol(3);
     
-    boxSizer2->Add(flexGridSizer19, 1, wxALL|wxEXPAND, 5);
+    boxSizer53->Add(flexGridSizer19, 1, wxALL|wxEXPAND, 5);
     
-    m_staticText8 = new wxStaticText(this, wxID_ANY, _("Amplitude range (lower, upper) sound"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_staticText8 = new wxStaticText(m_panel45, wxID_ANY, _("Amp. range (min, max) sound"), wxDefaultPosition, wxSize(-1,-1), 0);
     
-    flexGridSizer19->Add(m_staticText8, 0, wxALL, 5);
+    flexGridSizer19->Add(m_staticText8, 0, wxALL|wxALIGN_RIGHT, 5);
     
-    m_textCtrlAmpLow = new wxTextCtrl(this, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(60,-1), 0);
+    m_textCtrlAmpLow = new wxTextCtrl(m_panel45, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(50,-1), 0);
     #if wxVERSION_NUMBER >= 3000
     m_textCtrlAmpLow->SetHint(wxT(""));
     #endif
     
     flexGridSizer19->Add(m_textCtrlAmpLow, 0, wxALL, 5);
     
-    m_textCtrlAmpUp = new wxTextCtrl(this, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(60,-1), 0);
+    m_textCtrlAmpUp = new wxTextCtrl(m_panel45, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(50,-1), 0);
     #if wxVERSION_NUMBER >= 3000
     m_textCtrlAmpUp->SetHint(wxT(""));
     #endif
     
     flexGridSizer19->Add(m_textCtrlAmpUp, 0, wxALL, 5);
     
-    m_textCtrlAmpSnd = new wxTextCtrl(this, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(60,-1), 0);
+    m_textCtrlAmpSnd = new wxTextCtrl(m_panel45, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(50,-1), 0);
     #if wxVERSION_NUMBER >= 3000
     m_textCtrlAmpSnd->SetHint(wxT(""));
     #endif
     
     flexGridSizer19->Add(m_textCtrlAmpSnd, 0, wxALL, 5);
     
-    m_staticText16 = new wxStaticText(this, wxID_ANY, _("Interval range (lower, upper) sound"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_staticText16 = new wxStaticText(m_panel45, wxID_ANY, _("Interval range (min, max) sound"), wxDefaultPosition, wxSize(-1,-1), 0);
     
     flexGridSizer19->Add(m_staticText16, 0, wxALL, 5);
     
-    m_textCtrlIntervalLow = new wxTextCtrl(this, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(60,-1), 0);
+    m_textCtrlIntervalLow = new wxTextCtrl(m_panel45, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(50,-1), 0);
     #if wxVERSION_NUMBER >= 3000
     m_textCtrlIntervalLow->SetHint(wxT(""));
     #endif
     
     flexGridSizer19->Add(m_textCtrlIntervalLow, 0, wxALL, 5);
     
-    m_textCtrlIntervalUp = new wxTextCtrl(this, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(60,-1), 0);
+    m_textCtrlIntervalUp = new wxTextCtrl(m_panel45, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(50,-1), 0);
     #if wxVERSION_NUMBER >= 3000
     m_textCtrlIntervalUp->SetHint(wxT(""));
     #endif
     
     flexGridSizer19->Add(m_textCtrlIntervalUp, 0, wxALL, 5);
     
-    m_textCtrlIntervalSnd = new wxTextCtrl(this, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(60,-1), 0);
+    m_textCtrlIntervalSnd = new wxTextCtrl(m_panel45, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(50,-1), 0);
     #if wxVERSION_NUMBER >= 3000
     m_textCtrlIntervalSnd->SetHint(wxT(""));
     #endif
     
     flexGridSizer19->Add(m_textCtrlIntervalSnd, 0, wxALL, 5);
     
+    m_staticText37 = new wxStaticText(m_panel45, wxID_ANY, _("Smooth width"), wxDefaultPosition, wxSize(-1,-1), 0);
+    
+    flexGridSizer19->Add(m_staticText37, 0, wxALL|wxALIGN_RIGHT, 5);
+    
+    m_textCtrlSmooth = new wxTextCtrl(m_panel45, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(50,-1), 0);
+    #if wxVERSION_NUMBER >= 3000
+    m_textCtrlSmooth->SetHint(wxT(""));
+    #endif
+    
+    flexGridSizer19->Add(m_textCtrlSmooth, 0, wxALL, 5);
+    
+    m_checkBoxSymbol = new wxCheckBox(m_panel45, wxID_ANY, _("Peak symbols"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_checkBoxSymbol->SetValue(false);
+    
+    flexGridSizer19->Add(m_checkBoxSymbol, 0, wxALL, 5);
+    
+    m_checkBoxFirst = new wxCheckBox(m_panel45, wxID_ANY, _("Check first cycle"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_checkBoxFirst->SetValue(false);
+    
+    flexGridSizer19->Add(m_checkBoxFirst, 0, wxALL, 5);
+    
     wxBoxSizer* boxSizer31 = new wxBoxSizer(wxHORIZONTAL);
     
-    boxSizer2->Add(boxSizer31, 1, wxALL|wxEXPAND|wxALIGN_RIGHT, 5);
+    boxSizer53->Add(boxSizer31, 1, wxALL|wxALIGN_RIGHT, 5);
     
-    m_buttonReplot = new wxButton(this, wxID_ANY, _("Replot"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_buttonReplot = new wxButton(m_panel45, wxID_ANY, _("Replot"), wxDefaultPosition, wxSize(-1,-1), 0);
     
     boxSizer31->Add(m_buttonReplot, 0, wxALL, 5);
     
-    m_buttonNext = new wxButton(this, wxID_OK, _("Next"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_buttonNext = new wxButton(m_panel45, wxID_OK, _("Next"), wxDefaultPosition, wxSize(-1,-1), 0);
     
     boxSizer31->Add(m_buttonNext, 0, wxALL, 5);
     
-    m_buttonBreak = new wxButton(this, wxID_CANCEL, _("Break"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_buttonBreak = new wxButton(m_panel45, wxID_CANCEL, _("Break"), wxDefaultPosition, wxSize(-1,-1), 0);
     
     boxSizer31->Add(m_buttonBreak, 0, wxALL, 5);
     
     SetName(wxT("DlgProcessNextBase"));
-    SetSize(500,300);
+    SetMinClientSize(wxSize(500,180));
+    SetSize(500,200);
     if (GetSizer()) {
          GetSizer()->Fit(this);
     }

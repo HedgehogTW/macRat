@@ -10,6 +10,9 @@ public:
 	
 	void setValues(double ampL, double ampU, double intvalL, double intvalU, double ampSnd, double intvalSnd);
 	void getValues(double& ampL, double& ampU, double& intvalL, double& intvalU, double& ampSnd, double& intvalSnd);
+	
+	void	setParam(double s, bool bCheckOnlyFirst, bool bShowSymbol);
+	void	getParam(double& s, bool &bCheckOnlyFirst, bool &bShowSymbol);
 protected:
     virtual void OnReplot(wxCommandEvent& event);
     

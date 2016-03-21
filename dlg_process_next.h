@@ -4,8 +4,8 @@
 // Do not modify this file by hand!
 //////////////////////////////////////////////////////////////////////
 
-#ifndef PROJECT_MACRAT_DLG_PROCESS_NEXT_BASE_CLASSES_H
-#define PROJECT_MACRAT_DLG_PROCESS_NEXT_BASE_CLASSES_H
+#ifndef MACRAT_DLG_PROCESS_NEXT_BASE_CLASSES_H
+#define MACRAT_DLG_PROCESS_NEXT_BASE_CLASSES_H
 
 #include <wx/settings.h>
 #include <wx/xrc/xmlres.h>
@@ -14,8 +14,10 @@
 #include <wx/iconbndl.h>
 #include <wx/artprov.h>
 #include <wx/sizer.h>
+#include <wx/panel.h>
 #include <wx/stattext.h>
 #include <wx/textctrl.h>
+#include <wx/checkbox.h>
 #include <wx/button.h>
 #if wxVERSION_NUMBER >= 2900
 #include <wx/persist.h>
@@ -27,6 +29,7 @@
 class DlgProcessNextBase : public wxDialog
 {
 protected:
+    wxPanel* m_panel45;
     wxStaticText* m_staticText8;
     wxTextCtrl* m_textCtrlAmpLow;
     wxTextCtrl* m_textCtrlAmpUp;
@@ -35,6 +38,10 @@ protected:
     wxTextCtrl* m_textCtrlIntervalLow;
     wxTextCtrl* m_textCtrlIntervalUp;
     wxTextCtrl* m_textCtrlIntervalSnd;
+    wxStaticText* m_staticText37;
+    wxTextCtrl* m_textCtrlSmooth;
+    wxCheckBox* m_checkBoxSymbol;
+    wxCheckBox* m_checkBoxFirst;
     wxButton* m_buttonReplot;
     wxButton* m_buttonNext;
     wxButton* m_buttonBreak;
@@ -51,10 +58,15 @@ public:
     wxTextCtrl* GetTextCtrlIntervalLow() { return m_textCtrlIntervalLow; }
     wxTextCtrl* GetTextCtrlIntervalUp() { return m_textCtrlIntervalUp; }
     wxTextCtrl* GetTextCtrlIntervalSnd() { return m_textCtrlIntervalSnd; }
+    wxStaticText* GetStaticText37() { return m_staticText37; }
+    wxTextCtrl* GetTextCtrlSmooth() { return m_textCtrlSmooth; }
+    wxCheckBox* GetCheckBoxSymbol() { return m_checkBoxSymbol; }
+    wxCheckBox* GetCheckBoxFirst() { return m_checkBoxFirst; }
     wxButton* GetButtonReplot() { return m_buttonReplot; }
     wxButton* GetButtonNext() { return m_buttonNext; }
     wxButton* GetButtonBreak() { return m_buttonBreak; }
-    DlgProcessNextBase(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Process next ..."), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(500,300), long style = wxDEFAULT_DIALOG_STYLE);
+    wxPanel* GetPanel45() { return m_panel45; }
+    DlgProcessNextBase(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Process next ..."), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(500,200), long style = wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER);
     virtual ~DlgProcessNextBase();
 };
 

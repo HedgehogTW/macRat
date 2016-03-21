@@ -1652,6 +1652,10 @@ void MainFrame::OnRatCheckAPB(wxCommandEvent& event)
 		int nLedPeriod = CRat::peakPeriodAnalysis(peakBelly, vPeakDistX, vPeakDistY, m_nUserLED2, meanPeriod, sdPeriod);
 		int nLedPeak = CRat::peakAmplitudeAnalysis(peakBelly, m_nUserLED2, meanAmp, sdAmp);
 		
+		int ampInc = 0;
+		int ampDec = 0;
+		int itvlInc = 0;
+		int itvlDec = 0;	
 		int both = -1;
 		int counter = 0;
 		string sColorAmp= "#0000FF";
@@ -1661,12 +1665,12 @@ void MainFrame::OnRatCheckAPB(wxCommandEvent& event)
 			float lower = meanAmp - xSD*sdAmp;
 			if(peakBelly[i].y >= upper) {
 				sColorAmp = "#FF0022";
-				ampUpCounter ++;
+				ampInc ++;
 				both ++;
 				break;
 			}else if(peakBelly[i].y <= lower) {
 				sColorAmp = "#FF0022";
-				ampLowCounter ++;
+				ampDec ++;
 				both ++;
 				break;				
 			}
@@ -1679,25 +1683,31 @@ void MainFrame::OnRatCheckAPB(wxCommandEvent& event)
 			float lower = meanPeriod - xSD*sdPeriod;
 			if(vPeakDistY[i] >= upper ) {
 				sColorPeriod = "#FF0022";
-				periodInc ++;
+				itvlInc ++;
 				both ++;				
 				break;
 			}else if(vPeakDistY[i] <= lower) {
 				sColorPeriod = "#FF0022";
-				periodDec ++;
+				itvlDec ++;
 				both ++;				
 				break;
 			}
 			counter ++;
 			if(bCheckOnlyFirst && counter <=2)  break;
 		}
+		
 		if(both>=1) bothAcc++;
+		
+		ampUpCounter += ampInc;
+		ampLowCounter += ampDec;
+		periodInc += itvlInc;
+		periodDec += itvlDec;
 		//myMsgOutput("--amp mean %f, sd %f, [%f, %f]\n", meanAmp, sdAmp,  meanAmp- xSD*sdAmp, meanAmp+ xSD*sdAmp);
 		myMsgOutput("     [%d]-LED Peak %d %d --- amp (%d, %d), period (%d, %d), both %d ", 
 			i+1, nLedPeak, nLedPeriod, ampUpCounter, ampLowCounter, periodInc, periodDec, bothAcc);
 		if(both == -1)  myMsgOutput("\n");
 		else myMsgOutput(" **\n");
-		
+
 		///////////G N U P L O T/////////////////////////////////////////////////
 		/////////////////////////////////////////////////////////////////////////
 		double upperSD = meanPeriod + xSD*sdPeriod;
@@ -1764,11 +1774,14 @@ void MainFrame::OnRatCheckAPB(wxCommandEvent& event)
 			//if (answer == wxNO)  break;			
 			DlgProcessNext dlg(this);
 			dlg.setValues(ymin, ymax, intvymin, intvymax, ysnd, intvysnd);
-
-			int  ret = dlg.ShowModal() ;
-			if(ret ==  wxID_CANCEL) break;
+			dlg.setParam(smoothWidth, bCheckOnlyFirst, bShowSymbol);
+	
+			int  ret = dlg.ShowModal() ;	
+			if(ret ==  wxID_CANCEL) break;		
 			else if(ret ==999) {
 				dlg.getValues(ymin, ymax, intvymin, intvymax, ysnd, intvysnd);
+				dlg.getParam(smoothWidth, bCheckOnlyFirst, bShowSymbol);
+				
 				m_configData.m_ymin = ymin;
 				m_configData.m_ymax = ymax; // 0.8 
 				m_configData.m_ysnd = ysnd;
@@ -1776,7 +1789,7 @@ void MainFrame::OnRatCheckAPB(wxCommandEvent& event)
 				m_configData.m_intvymin = intvymin;
 				m_configData.m_intvymax = intvymax;
 				m_configData.m_intvysnd = intvysnd;
-				
+						
 				wxString last3 = files[i].Right(3);
 				wxString markName;
 				wxFileName fileName = files[i];
@@ -1790,9 +1803,14 @@ void MainFrame::OnRatCheckAPB(wxCommandEvent& event)
 					wxFileName newFullMarkerName(strParentPath, markName);
 					writeMarks(newFullMarkerName.GetFullPath());
 				}
-				i--;
+								
+				if(both>=1) bothAcc--;
+				ampUpCounter -= ampInc;
+				ampLowCounter -= ampDec;
+				periodInc -= itvlInc;
+				periodDec -= itvlDec;
 				
-				myMsgOutput("replot \n");
+				i--;
 			}
 		}
 	}

@@ -918,7 +918,7 @@
                 }, {
                  "type": "string",
                  "m_label": "Label:",
-                 "m_value": "Symbols on peaks"
+                 "m_value": "Peak symbols"
                 }, {
                  "type": "bool",
                  "m_label": "Value:",

@@ -8,6 +8,29 @@ DlgProcessNext::DlgProcessNext(wxWindow* parent)
 DlgProcessNext::~DlgProcessNext()
 {
 }
+
+void DlgProcessNext::getParam(double& s, bool& bCheckOnlyFirst, bool& bShowSymbol)
+{
+	wxString  str = m_textCtrlSmooth->GetValue();
+	double  value;
+	str.ToDouble(&value);
+	s = value;
+	
+	bCheckOnlyFirst = m_checkBoxFirst->GetValue();
+	bShowSymbol = m_checkBoxSymbol->GetValue();
+}
+
+void DlgProcessNext::setParam(double s, bool bCheckOnlyFirst, bool bShowSymbol)
+{
+	wxString  str1;
+	str1 << s;
+//	*m_textCtrlVerLine << str1;
+	m_textCtrlSmooth->SetValue(str1);
+	
+	m_checkBoxFirst->SetValue(bCheckOnlyFirst);
+	m_checkBoxSymbol->SetValue(bShowSymbol);
+}
+
 void DlgProcessNext::setValues(double ampL, double ampU, double intvalL, double intvalU, 
 				double ampSnd, double intvalSnd)
 {
