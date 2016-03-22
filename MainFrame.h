@@ -76,7 +76,7 @@ public:
 	void DeleteContents();
 	
 	static MainFrame *	m_pThis;
-	
+	wxString  m_strCycleCSV;
 	
 protected:
     virtual void OnToolsCycleOccur(wxCommandEvent& event);

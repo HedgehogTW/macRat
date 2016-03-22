@@ -82,7 +82,7 @@ MainFrame::MainFrame(wxWindow* parent)
     m_configData.m_referFrame = pConfig->ReadLong("/optical/referFrame", 0);
 //	m_configData.m_gainHead = pConfig->ReadDouble("/optical/gainHead", 1);
 //	m_configData.m_gainBelly = pConfig->ReadDouble("/optical/gainBelly", 1);
-	
+	m_strCycleCSV = pConfig->Read("/location/csv", "");
 
 	this->Connect(wxID_FILE1, wxID_FILE9, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrame::OnMRUFile), NULL, this);
 	
@@ -99,6 +99,7 @@ MainFrame::MainFrame(wxWindow* parent)
 	wxLogDebug("Logging opened.");
 	wxLogTrace("%s", "log trace\n");
 	 * */
+
 	DeleteContents();
 
 }
@@ -143,7 +144,7 @@ void MainFrame::DeleteContents()
 //	pConfig->Write("/optical/ROIEar", m_configData.m_szROIEar);
 //	pConfig->Write("/optical/ROIAPB", m_configData.m_szROIAPB);
 	pConfig->Write("/optical/referFrame", m_configData.m_referFrame);
-
+	pConfig->Write("/location/csv", m_strCycleCSV);
 //	pConfig->Write("/optical/gainHead", m_configData.m_gainHead);
 //	pConfig->Write("/optical/gainBelly", m_configData.m_gainBelly);	
 	
@@ -1846,8 +1847,12 @@ void MainFrame::OnRatCheckAPB(wxCommandEvent& event)
 }
 void MainFrame::OnToolsCycleOccur(wxCommandEvent& event)
 {
-	wxString strFilename; 
-	DlgCycleOccur dlg(this, strFilename);
+
+	DlgCycleOccur dlg(this, m_strCycleCSV);
 	int  ret = dlg.ShowModal() ;	
 	if(ret ==  wxID_CANCEL) return;	
+	
+	m_strCycleCSV = dlg.m_strFilename;
+	
+
 }

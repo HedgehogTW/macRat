@@ -9,7 +9,11 @@ public:
     virtual ~DlgCycleOccur();
 	
 	wxString	m_strFilename;
+
 protected:
+    virtual void OnGroupAmpIntvl(wxCommandEvent& event);
+    virtual void OnGroupIncDec(wxCommandEvent& event);
+    virtual void OnGroupSound(wxCommandEvent& event);
     virtual void OnButtonBrowse(wxCommandEvent& event);
 };
 #endif // DLGCYCLEOCCUR_H

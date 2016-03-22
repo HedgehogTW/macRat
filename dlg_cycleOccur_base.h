@@ -4,8 +4,8 @@
 // Do not modify this file by hand!
 //////////////////////////////////////////////////////////////////////
 
-#ifndef PROJECT_MACRAT_DLG_CYCLEOCCUR_BASE_BASE_CLASSES_H
-#define PROJECT_MACRAT_DLG_CYCLEOCCUR_BASE_BASE_CLASSES_H
+#ifndef MACRAT_DLG_CYCLEOCCUR_BASE_BASE_CLASSES_H
+#define MACRAT_DLG_CYCLEOCCUR_BASE_BASE_CLASSES_H
 
 #include <wx/settings.h>
 #include <wx/xrc/xmlres.h>
@@ -18,6 +18,7 @@
 #include <wx/stattext.h>
 #include <wx/textctrl.h>
 #include <wx/button.h>
+#include <wx/statbox.h>
 #if wxVERSION_NUMBER >= 2900
 #include <wx/persist.h>
 #include <wx/persist/toplevel.h>
@@ -29,22 +30,35 @@ class DlgCycleOccurBase : public wxDialog
 {
 protected:
     wxPanel* m_panel4;
+    wxPanel* m_panel33;
     wxStaticText* m_staticText10;
     wxTextCtrl* m_textCtrlFilename;
     wxButton* m_buttonBrowse;
+    wxPanel* m_panel35;
+    wxButton* m_buttonGroupAmpIntvl;
+    wxButton* m_buttonGroupSound;
+    wxButton* m_buttonGroupIncDec;
     wxStdDialogButtonSizer* m_stdBtnSizer18;
     wxButton* m_buttonOk;
     wxButton* m_buttonCancel;
 
 protected:
     virtual void OnButtonBrowse(wxCommandEvent& event) { event.Skip(); }
+    virtual void OnGroupAmpIntvl(wxCommandEvent& event) { event.Skip(); }
+    virtual void OnGroupSound(wxCommandEvent& event) { event.Skip(); }
+    virtual void OnGroupIncDec(wxCommandEvent& event) { event.Skip(); }
 
 public:
     wxStaticText* GetStaticText10() { return m_staticText10; }
     wxTextCtrl* GetTextCtrlFilename() { return m_textCtrlFilename; }
     wxButton* GetButtonBrowse() { return m_buttonBrowse; }
+    wxPanel* GetPanel33() { return m_panel33; }
+    wxButton* GetButtonGroupAmpIntvl() { return m_buttonGroupAmpIntvl; }
+    wxButton* GetButtonGroupSound() { return m_buttonGroupSound; }
+    wxButton* GetButtonGroupIncDec() { return m_buttonGroupIncDec; }
+    wxPanel* GetPanel35() { return m_panel35; }
     wxPanel* GetPanel4() { return m_panel4; }
-    DlgCycleOccurBase(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Process Cycle Occur"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(500,300), long style = wxDEFAULT_DIALOG_STYLE);
+    DlgCycleOccurBase(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Process Cycle Occur"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(500,400), long style = wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER);
     virtual ~DlgCycleOccurBase();
 };
 

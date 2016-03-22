@@ -33,15 +33,18 @@ DlgCycleOccurBase::DlgCycleOccurBase(wxWindow* parent, wxWindowID id, const wxSt
     wxBoxSizer* boxSizer6 = new wxBoxSizer(wxVERTICAL);
     m_panel4->SetSizer(boxSizer6);
     
+    m_panel33 = new wxPanel(m_panel4, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxTAB_TRAVERSAL);
+    
+    boxSizer6->Add(m_panel33, 0, wxALL, 5);
+    
     wxBoxSizer* boxSizer8 = new wxBoxSizer(wxHORIZONTAL);
+    m_panel33->SetSizer(boxSizer8);
     
-    boxSizer6->Add(boxSizer8, 1, wxALL|wxEXPAND, 5);
-    
-    m_staticText10 = new wxStaticText(m_panel4, wxID_ANY, _("File"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_staticText10 = new wxStaticText(m_panel33, wxID_ANY, _("File"), wxDefaultPosition, wxSize(-1,-1), 0);
     
     boxSizer8->Add(m_staticText10, 0, wxALL, 5);
     
-    m_textCtrlFilename = new wxTextCtrl(m_panel4, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_textCtrlFilename = new wxTextCtrl(m_panel33, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(-1,-1), 0);
     #if wxVERSION_NUMBER >= 3000
     m_textCtrlFilename->SetHint(wxT(""));
     #endif
@@ -49,9 +52,28 @@ DlgCycleOccurBase::DlgCycleOccurBase(wxWindow* parent, wxWindowID id, const wxSt
     boxSizer8->Add(m_textCtrlFilename, 0, wxALL, 5);
     m_textCtrlFilename->SetMinSize(wxSize(350,-1));
     
-    m_buttonBrowse = new wxButton(m_panel4, wxID_ANY, _("Browse"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_buttonBrowse = new wxButton(m_panel33, wxID_ANY, _("Browse"), wxDefaultPosition, wxSize(-1,-1), 0);
     
     boxSizer8->Add(m_buttonBrowse, 0, wxALL, 5);
+    
+    m_panel35 = new wxPanel(m_panel4, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxTAB_TRAVERSAL);
+    
+    boxSizer6->Add(m_panel35, 0, wxALL, 5);
+    
+    wxStaticBoxSizer* staticBoxSizer29 = new wxStaticBoxSizer( new wxStaticBox(m_panel35, wxID_ANY, _("Group by")), wxHORIZONTAL);
+    m_panel35->SetSizer(staticBoxSizer29);
+    
+    m_buttonGroupAmpIntvl = new wxButton(m_panel35, wxID_ANY, _("amp and intvl"), wxDefaultPosition, wxSize(-1,-1), 0);
+    
+    staticBoxSizer29->Add(m_buttonGroupAmpIntvl, 0, wxALL, 5);
+    
+    m_buttonGroupSound = new wxButton(m_panel35, wxID_ANY, _("sound (dB)"), wxDefaultPosition, wxSize(-1,-1), 0);
+    
+    staticBoxSizer29->Add(m_buttonGroupSound, 0, wxALL, 5);
+    
+    m_buttonGroupIncDec = new wxButton(m_panel35, wxID_ANY, _("Inc and Dec"), wxDefaultPosition, wxSize(-1,-1), 0);
+    
+    staticBoxSizer29->Add(m_buttonGroupIncDec, 0, wxALL, 5);
     
     m_stdBtnSizer18 = new wxStdDialogButtonSizer();
     
@@ -65,7 +87,7 @@ DlgCycleOccurBase::DlgCycleOccurBase(wxWindow* parent, wxWindowID id, const wxSt
     m_stdBtnSizer18->Realize();
     
     SetName(wxT("DlgCycleOccurBase"));
-    SetSize(500,300);
+    SetSize(500,400);
     if (GetSizer()) {
          GetSizer()->Fit(this);
     }
@@ -83,11 +105,17 @@ DlgCycleOccurBase::DlgCycleOccurBase(wxWindow* parent, wxWindowID id, const wxSt
 #endif
     // Connect events
     m_buttonBrowse->Connect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(DlgCycleOccurBase::OnButtonBrowse), NULL, this);
+    m_buttonGroupAmpIntvl->Connect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(DlgCycleOccurBase::OnGroupAmpIntvl), NULL, this);
+    m_buttonGroupSound->Connect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(DlgCycleOccurBase::OnGroupSound), NULL, this);
+    m_buttonGroupIncDec->Connect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(DlgCycleOccurBase::OnGroupIncDec), NULL, this);
     
 }
 
 DlgCycleOccurBase::~DlgCycleOccurBase()
 {
     m_buttonBrowse->Disconnect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(DlgCycleOccurBase::OnButtonBrowse), NULL, this);
+    m_buttonGroupAmpIntvl->Disconnect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(DlgCycleOccurBase::OnGroupAmpIntvl), NULL, this);
+    m_buttonGroupSound->Disconnect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(DlgCycleOccurBase::OnGroupSound), NULL, this);
+    m_buttonGroupIncDec->Disconnect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(DlgCycleOccurBase::OnGroupIncDec), NULL, this);
     
 }
