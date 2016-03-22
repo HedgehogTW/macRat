@@ -93,6 +93,9 @@ MainFrameBaseClass::MainFrameBaseClass(wxWindow* parent, wxWindowID id, const wx
     m_menuItemCleanOutput = new wxMenuItem(m_menuTools, wxID_ANY, _("Clean output folders"), wxT(""), wxITEM_NORMAL);
     m_menuTools->Append(m_menuItemCleanOutput);
     
+    m_menuItemCycleOccur = new wxMenuItem(m_menuTools, wxID_ANY, _("CycleOccur"), wxT(""), wxITEM_NORMAL);
+    m_menuTools->Append(m_menuItemCycleOccur);
+    
     m_nameHelp = new wxMenu();
     m_menuBar->Append(m_nameHelp, _("Help"));
     
@@ -212,6 +215,7 @@ MainFrameBaseClass::MainFrameBaseClass(wxWindow* parent, wxWindowID id, const wx
     this->Connect(m_menuItemBatch->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnBatchProcess), NULL, this);
     this->Connect(m_menuItemCheckAPB->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnRatCheckAPB), NULL, this);
     this->Connect(m_menuItemCleanOutput->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnToolsCleanOutput), NULL, this);
+    this->Connect(m_menuItemCycleOccur->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnToolsCycleOccur), NULL, this);
     this->Connect(m_menuItem9->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnAbout), NULL, this);
     m_scrollWin->Connect(wxEVT_MOTION, wxMouseEventHandler(MainFrameBaseClass::OnMouseMotion), NULL, this);
     m_scrollWin->Connect(wxEVT_LEFT_DOWN, wxMouseEventHandler(MainFrameBaseClass::OnMouseLButtonDown), NULL, this);
@@ -249,6 +253,7 @@ MainFrameBaseClass::~MainFrameBaseClass()
     this->Disconnect(m_menuItemBatch->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnBatchProcess), NULL, this);
     this->Disconnect(m_menuItemCheckAPB->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnRatCheckAPB), NULL, this);
     this->Disconnect(m_menuItemCleanOutput->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnToolsCleanOutput), NULL, this);
+    this->Disconnect(m_menuItemCycleOccur->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnToolsCycleOccur), NULL, this);
     this->Disconnect(m_menuItem9->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrameBaseClass::OnAbout), NULL, this);
     m_scrollWin->Disconnect(wxEVT_MOTION, wxMouseEventHandler(MainFrameBaseClass::OnMouseMotion), NULL, this);
     m_scrollWin->Disconnect(wxEVT_LEFT_DOWN, wxMouseEventHandler(MainFrameBaseClass::OnMouseLButtonDown), NULL, this);

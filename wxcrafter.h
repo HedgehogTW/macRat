@@ -73,6 +73,7 @@ protected:
     wxMenuItem* m_menuItemCheckAPB;
     wxMenu* m_menuTools;
     wxMenuItem* m_menuItemCleanOutput;
+    wxMenuItem* m_menuItemCycleOccur;
     wxMenu* m_nameHelp;
     wxMenuItem* m_menuItem9;
     wxAuiManager* m_auimgr11;
@@ -108,6 +109,7 @@ protected:
     virtual void OnBatchProcess(wxCommandEvent& event) { event.Skip(); }
     virtual void OnRatCheckAPB(wxCommandEvent& event) { event.Skip(); }
     virtual void OnToolsCleanOutput(wxCommandEvent& event) { event.Skip(); }
+    virtual void OnToolsCycleOccur(wxCommandEvent& event) { event.Skip(); }
     virtual void OnAbout(wxCommandEvent& event) { event.Skip(); }
     virtual void OnMouseMotion(wxMouseEvent& event) { event.Skip(); }
     virtual void OnMouseLButtonDown(wxMouseEvent& event) { event.Skip(); }

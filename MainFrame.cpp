@@ -22,6 +22,7 @@
 #include "DlgSelectFolder.h"
 #include "DlgOpticalInput.h"
 #include "DlgProcessNext.h"
+#include "DlgCycleOccur.h"
 
 using namespace std;
 //using namespace cv;
@@ -1842,4 +1843,11 @@ void MainFrame::OnRatCheckAPB(wxCommandEvent& event)
 		}
 	}
 	myMsgOutput("cycleAmpInc: " + cycleAmpInc + ", cycleAmpDec: "+ cycleAmpDec+ ", cycleIntvlInc: "+cycleIntvlInc+ ", cycleIntvlDec: "+ cycleIntvlDec + "\n");
+}
+void MainFrame::OnToolsCycleOccur(wxCommandEvent& event)
+{
+	wxString strFilename; 
+	DlgCycleOccur dlg(this, strFilename);
+	int  ret = dlg.ShowModal() ;	
+	if(ret ==  wxID_CANCEL) return;	
 }

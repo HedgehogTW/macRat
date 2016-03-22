@@ -50,6 +50,8 @@
     <File Name="DlgSelectFolder.cpp"/>
     <File Name="DlgProcessNext.cpp"/>
     <File Name="DlgProcessNext.h"/>
+    <File Name="DlgCycleOccur.h"/>
+    <File Name="DlgCycleOccur.cpp"/>
   </VirtualDirectory>
   <VirtualDirectory Name="wxcrafter">
     <VirtualDirectory Name="resources">
@@ -57,6 +59,7 @@
       <File Name="dlg_optical_input_base_macrat_bitmaps.cpp"/>
       <File Name="dlg_select_folder_macrat_bitmaps.cpp"/>
       <File Name="dlg_process_next_macrat_bitmaps.cpp"/>
+      <File Name="dlg_cycleOccur_base_macrat_bitmaps.cpp"/>
     </VirtualDirectory>
     <VirtualDirectory Name="base">
       <File Name="dlg_optical_input_base.h"/>
@@ -65,10 +68,13 @@
       <File Name="dlg_select_folder.cpp"/>
       <File Name="dlg_process_next.h"/>
       <File Name="dlg_process_next.cpp"/>
+      <File Name="dlg_cycleOccur_base.h"/>
+      <File Name="dlg_cycleOccur_base.cpp"/>
     </VirtualDirectory>
     <File Name="dlg_optical_input_base.wxcp"/>
     <File Name="dlg_select_folder.wxcp"/>
     <File Name="dlg_process_next.wxcp"/>
+    <File Name="dlg_cycleOccur_base.wxcp"/>
   </VirtualDirectory>
   <Settings Type="Executable">
     <GlobalSettings>

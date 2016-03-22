@@ -79,6 +79,7 @@ public:
 	
 	
 protected:
+    virtual void OnToolsCycleOccur(wxCommandEvent& event);
     virtual void OnUpdateViewBellyROI(wxUpdateUIEvent& event);
     virtual void OnViewBellyROI(wxCommandEvent& event);
     virtual void OnRatGenRefFrame(wxCommandEvent& event);
