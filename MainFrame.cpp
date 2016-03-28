@@ -1693,7 +1693,7 @@ void MainFrame::OnRatCheckAPB(wxCommandEvent& event)
 				break;				
 			}
 			ampCounter ++;
-			if(bCheckOnlyFirst && ampCounter <=2)  break;
+			if(bCheckOnlyFirst /*&& ampCounter <=2*/)  break;
 		}
 		if(ampInc==0 && ampDec==0 )  ampCounter = -1;
 		ampCounter++;
@@ -1716,7 +1716,7 @@ void MainFrame::OnRatCheckAPB(wxCommandEvent& event)
 				break;
 			}
 			intvlCounter ++;
-			if(bCheckOnlyFirst && intvlCounter <=2)  break;
+			if(bCheckOnlyFirst /*&& intvlCounter <=2*/)  break;
 		}
 		if(itvlInc==0 && itvlDec==0 )  intvlCounter = -1;
 		intvlCounter++;
