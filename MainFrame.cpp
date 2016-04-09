@@ -1074,9 +1074,14 @@ void MainFrame::OnViewResultSeries(wxCommandEvent& event)
 		wxLogMessage("no data\n");
 		return;
 	}
-
+	if(m_Rat.m_vecDest.empty()) {
+		OnViewSeries(event);
+		return;
+	}
+	
 	cv::namedWindow("ResultSeries");
 	Mat &mSrc = getResultMat(0);
+
 	cv::imshow("ResultSeries", mSrc);
 	int pos = 0;
 	cv::createTrackbar("slice", "ResultSeries", &pos, m_nSlices-1, ResultSlice, this);
