@@ -1060,7 +1060,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	vector <float>  vecRedFlowPdf;
 //	vector <float>  vecCyanFlowPdf;
 	vector <float>  vecBellyPdf;
-	vector <float>  vecBellySmooth;
+
 	
 	int szVecFlow = m_vecFlow.size();
     if(bOpticalPDF ) {
@@ -1122,15 +1122,26 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 		}
 	}
 	
-	float sdHead, sdBelly;
-	vector<Rect> 		vDrawRect;
+	float sdHead; //, sdBelly, sdLEar, sdREar;
+	vector <float>  vecBellySmooth;
+	vector <float>  vecLEarSmooth;	
+	vector <float>  vecREarSmooth;	
+	
+	vector<Point2f> peakBelly;	
+	vector<Point2f> peakLEar;	
+	vector<Point2f> peakREar;	
+	
+	vector<Rect> 	vDrawRect;
 	vector<Point> 	vDrawPt;
-	vector<Point2f> 	peakBelly;
-	vector<Point2f> 	peakMinMax;
-	vector<Point2f> 	vPeakDist;
-	vector<float> 	vPeakDistX;
-	vector<float> 	vPeakDistY;
-	float meanPeriod, sdPeriod, meanAmp, sdAmp;
+
+	vector<Point2f> peakMinMax;
+	
+	vector<float> 	vPeakBellyDistX, vPeakBellyDistY;
+	vector<float> 	vPeakLEarDistX, vPeakLEarDistY;
+	vector<float> 	vPeakREarDistX, vPeakREarDistY;
+	float meanPeriodBelly, sdPeriodBelly, meanAmpBelly, sdAmpBelly;
+	float meanPeriodLEar, sdPeriodLEar, meanAmpLEar, sdAmpLEar;
+	float meanPeriodREar, sdPeriodREar, meanAmpREar, sdAmpREar;
 	
 	if(bOpticalPDF) {
 		int sz = m_vecFlow.size();
@@ -1150,6 +1161,18 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			Notch_removal(vecLEarFlowPdf, m_referFrame);
 			Notch_removal(vecREarFlowPdf, m_referFrame);
 		
+			smoothData(vecLEarFlowPdf, vecLEarSmooth, smoothWidth);	
+			smoothData(vecREarFlowPdf, vecREarSmooth, smoothWidth);	
+			
+			findPeaks(vecLEarFlowPdf, vecLEarSmooth, peakLEar);
+			findPeaks(vecREarFlowPdf, vecREarSmooth, peakREar);
+			
+			peakPeriodAnalysis(peakLEar, vPeakLEarDistX, vPeakLEarDistY, m_nLED2, meanPeriodLEar, sdPeriodLEar);
+			peakAmplitudeAnalysis(peakLEar, m_nLED2, meanAmpLEar, sdAmpLEar);
+
+			peakPeriodAnalysis(peakREar, vPeakREarDistX, vPeakREarDistY, m_nLED2, meanPeriodREar, sdPeriodREar);
+			peakAmplitudeAnalysis(peakREar, m_nLED2, meanAmpREar, sdAmpREar);
+	
 			if(bSaveFile) {
                 opticalAssignThresholdMap(m_vmDistEarL, threshold, m_rectEarL);
                 opticalAssignThresholdMap(m_vmDistEarR, threshold, m_rectEarR);
@@ -1185,8 +1208,8 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			
 			smoothData(vecBellyPdf, vecBellySmooth, smoothWidth);	
 			findPeaks(vecBellyPdf, vecBellySmooth, peakBelly);
-			peakPeriodAnalysis(peakBelly, vPeakDistX, vPeakDistY, m_nLED2, meanPeriod, sdPeriod);
-			peakAmplitudeAnalysis(peakBelly, m_nLED2, meanAmp, sdAmp);
+			peakPeriodAnalysis(peakBelly, vPeakBellyDistX, vPeakBellyDistY, m_nLED2, meanPeriodBelly, sdPeriodBelly);
+			peakAmplitudeAnalysis(peakBelly, m_nLED2, meanAmpBelly, sdAmpBelly);
 			
 			Point2f pt(314, vecBellyPdf[314]);
 			peakMinMax.push_back(pt);
@@ -1299,6 +1322,9 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 		}		
 	}
 	
+	wxString strLine;
+	strLine.Printf("%.1fxSD", xSD);
+			
 	wxUniChar sep = fileName.GetPathSeparator();
 	wxString  strParentPath =  m_strSrcPath.BeforeLast(sep);	
 	int len = title.Len();
@@ -1307,8 +1333,10 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	if(bOpticalPDF) {
 		vector <float>  vX, vY;
 		if(m_bShowEar) {
-			_gnuplotLine(gPlotL, "LEar", vecLEarFlowPdf, "#000000ff");
-			_gnuplotLine(gPlotR, "REar", vecREarFlowPdf, "#000000ff");
+			//_gnuplotLine(gPlotL, "LEar", vecLEarFlowPdf, "#000000ff");
+			//_gnuplotLine(gPlotR, "REar", vecREarFlowPdf, "#000000ff");
+			_gnuplotLineXY(gPlotL, "LEar", vxTicks, vecLEarFlowPdf, "#000000ff");
+			_gnuplotLineXY(gPlotR, "REar", vxTicks, vecREarFlowPdf, "#000000ff");
 
 			wxString  newMarkerName = title+"_LEar.csv";
 			wxFileName newFullMarkerName(strParentPath, newMarkerName);
@@ -1316,7 +1344,28 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			
 			newMarkerName =  title+"_REar.csv";
 			wxFileName newFullMarkerName1(strParentPath, newMarkerName);
-			_OutputVec(vecREarFlowPdf, newFullMarkerName1.GetFullPath());			
+			_OutputVec(vecREarFlowPdf, newFullMarkerName1.GetFullPath());	
+
+			if(bShowPeaks) {
+				for(int i=0; i<peakLEar.size(); i++) {
+					peakLEar[i].x -= m_nLED2;
+					peakREar[i].x -= m_nLED2;
+				}
+				_gnuplotPoint(gPlotR, peakREar, "#00008f00" );
+				_gnuplotPoint(gPlotL, peakLEar, "#00008f00" );
+			}
+			for(int i=0; i<vPeakLEarDistX.size(); i++) {
+				vPeakLEarDistX[i] -= m_nLED2;
+				vPeakREarDistX[i] -= m_nLED2;
+			}
+			_gnuplotSteps(gPlotP, vPeakLEarDistX, vPeakLEarDistY, "#00FF0000", "Inter-peak interval");
+			_gnuplotSteps(gPlotP, vPeakREarDistX, vPeakREarDistY, "#00FF0000", "Inter-peak interval");		
+
+			_gnuplotHoriLine(gPlotP, xStart, xEnd, meanPeriodLEar+xSD*sdPeriodLEar, "#00100800", "..-", strLine);			
+			_gnuplotHoriLine(gPlotP, xStart, xEnd, meanPeriodLEar-xSD*sdPeriodLEar, "#00100800", "..-");
+
+			_gnuplotHoriLine(gPlotP, xStart, xEnd, meanPeriodREar+xSD*sdPeriodREar, "#00100800", "..-", strLine);			
+			_gnuplotHoriLine(gPlotP, xStart, xEnd, meanPeriodREar-xSD*sdPeriodREar, "#00100800", "..-");		
 		}
 		if(m_bShowBelly) {
             //_OutputVec(vecRedFlowPdf, "_redw.csv");
@@ -1327,12 +1376,11 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			_gnuplotLineXY(gPlotL, "Abdomen", vxTicks, vecBellyPdf, "#00008000");
 			_gnuplotLineXY(gPlotR, "Abdomen", vxTicks, vecBellyPdf, "#00008000");
 			
-			wxString strLine;
-			strLine.Printf("%.1fxSD", xSD);
-			_gnuplotHoriLine(gPlotL, xStart, xEnd, meanAmp + sdAmp*xSD, "#00100800", "..-", strLine);
-			_gnuplotHoriLine(gPlotR, xStart, xEnd, meanAmp + sdAmp*xSD, "#00100800", "..-", strLine);
-			_gnuplotHoriLine(gPlotL, xStart, xEnd, meanAmp - sdAmp*xSD, "#00100800",  "..-");
-			_gnuplotHoriLine(gPlotR, xStart, xEnd, meanAmp - sdAmp*xSD, "#00100800",  "..-");
+
+			_gnuplotHoriLine(gPlotL, xStart, xEnd, meanAmpBelly + sdAmpBelly*xSD, "#00100800", "..-", strLine);
+			_gnuplotHoriLine(gPlotR, xStart, xEnd, meanAmpBelly + sdAmpBelly*xSD, "#00100800", "..-", strLine);
+			_gnuplotHoriLine(gPlotL, xStart, xEnd, meanAmpBelly - sdAmpBelly*xSD, "#00100800",  "..-");
+			_gnuplotHoriLine(gPlotR, xStart, xEnd, meanAmpBelly - sdAmpBelly*xSD, "#00100800",  "..-");
 	
 			wxString  newMarkerName = title+"_Belly.csv";
 			wxFileName newFullMarkerName(strParentPath, newMarkerName);			
@@ -1347,14 +1395,14 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 					peakBelly[i].x -= m_nLED2;
 				_gnuplotPoint(gPlotR, peakBelly, "#00008f00" );
 			}
-			for(int i=0; i<vPeakDistX.size(); i++)
-				vPeakDistX[i] -= m_nLED2;
+			for(int i=0; i<vPeakBellyDistX.size(); i++)
+				vPeakBellyDistX[i] -= m_nLED2;
 				
-			_gnuplotSteps(gPlotP, vPeakDistX, vPeakDistY, "#00FF0000", "Inter-peak interval");
-			//_gnuplotHoriLine(gPlotP, m_nSlices, meanPeriod, "#000000FF");		
+			_gnuplotSteps(gPlotP, vPeakBellyDistX, vPeakBellyDistY, "#00FF0000", "Inter-peak interval");
+			//_gnuplotHoriLine(gPlotP, m_nSlices, meanPeriodBelly, "#000000FF");		
 
-			_gnuplotHoriLine(gPlotP, xStart, xEnd, meanPeriod+xSD*sdPeriod, "#00100800", "..-", strLine);			
-			_gnuplotHoriLine(gPlotP, xStart, xEnd, meanPeriod-xSD*sdPeriod, "#00100800", "..-");			
+			_gnuplotHoriLine(gPlotP, xStart, xEnd, meanPeriodBelly+xSD*sdPeriodBelly, "#00100800", "..-", strLine);			
+			_gnuplotHoriLine(gPlotP, xStart, xEnd, meanPeriodBelly-xSD*sdPeriodBelly, "#00100800", "..-");			
 			//_gnuplotVerticalLine(gPlotP, m_nLED2, "#000000FF");
  				
 		}
@@ -1446,16 +1494,16 @@ int CRat::peakAmplitudeAnalysis(vector<Point2f>& peaks, int nLED2, float& mean, 
 	return led;
 }
 
-int CRat::peakPeriodAnalysis(vector<Point2f>& peaks, vector<float>& vPeakDistX, vector<float>& vPeakDistY, int nLED2, float& mean, float& sd)
+int CRat::peakPeriodAnalysis(vector<Point2f>& peaks, vector<float>& vPeakBellyDistX, vector<float>& vPeakBellyDistY, int nLED2, float& mean, float& sd)
 {
 	int n = peaks.size();
 	int led = -1;
 
-	vPeakDistX.resize(n-1);
-	vPeakDistY.resize(n-1);
+	vPeakBellyDistX.resize(n-1);
+	vPeakBellyDistY.resize(n-1);
 	for(int i=0; i<n-1; i++) {
-		vPeakDistY[i] = peaks[i+1].x - peaks[i].x;
-		vPeakDistX[i] = peaks[i].x;
+		vPeakBellyDistY[i] = peaks[i+1].x - peaks[i].x;
+		vPeakBellyDistX[i] = peaks[i].x;
 		if(peaks[i+1].x > nLED2 && led<0) led = i;
 //		MainFrame::myMsgOutput("peaks[i+1].x %.2f  ", peaks[i+1].x);
 	}
@@ -1463,7 +1511,7 @@ int CRat::peakPeriodAnalysis(vector<Point2f>& peaks, vector<float>& vPeakDistX, 
 	
 	vector<float> vPeakBefore;
 	vPeakBefore.resize(led);
-	std::copy ( vPeakDistY.begin(), vPeakDistY.begin()+led, vPeakBefore.begin() );
+	std::copy ( vPeakBellyDistY.begin(), vPeakBellyDistY.begin()+led, vPeakBefore.begin() );
 	
 	cv::Scalar meanS, stddev;
 	cv::meanStdDev(vPeakBefore, meanS, stddev);
@@ -1471,7 +1519,7 @@ int CRat::peakPeriodAnalysis(vector<Point2f>& peaks, vector<float>& vPeakDistX, 
 	mean = meanS(0);
 /*	
 	for(int i=0; i<n-1; i++)  {
-		MainFrame::myMsgOutput("%.2f  ", vPeakDistY[i]);
+		MainFrame::myMsgOutput("%.2f  ", vPeakBellyDistY[i]);
 		if(i==led-1)  MainFrame::myMsgOutput(" | ");
 	}
 */
