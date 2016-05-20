@@ -303,34 +303,45 @@ DlgOpticalInputBase::DlgOpticalInputBase(wxWindow* parent, wxWindowID id, const 
     
     boxSizer291->Add(m_staticText124, 0, wxALL, 5);
     
-    m_textCtrlROIEar = new wxTextCtrl(m_panel187, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(50,-1), 0);
+    m_textCtrlROIEar = new wxTextCtrl(m_panel187, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(40,-1), 0);
     #if wxVERSION_NUMBER >= 3000
     m_textCtrlROIEar->SetHint(wxT(""));
     #endif
     
     boxSizer291->Add(m_textCtrlROIEar, 0, wxALL, 5);
     
+    m_staticTextSmooth = new wxStaticText(m_panel187, wxID_ANY, _("Smooth"), wxDefaultPosition, wxSize(-1,-1), 0);
+    
+    boxSizer291->Add(m_staticTextSmooth, 0, wxALL, 5);
+    
+    m_textCtrlSmoothEar = new wxTextCtrl(m_panel187, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(40,-1), 0);
+    #if wxVERSION_NUMBER >= 3000
+    m_textCtrlSmoothEar->SetHint(wxT(""));
+    #endif
+    
+    boxSizer291->Add(m_textCtrlSmoothEar, 0, wxALL, 5);
+    
     m_staticText1241 = new wxStaticText(m_panel187, wxID_ANY, _("Belly"), wxDefaultPosition, wxSize(-1,-1), 0);
     
     boxSizer291->Add(m_staticText1241, 0, wxALL, 5);
     
-    m_textCtrlROIBelly = new wxTextCtrl(m_panel187, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(50,-1), 0);
+    m_textCtrlROIBelly = new wxTextCtrl(m_panel187, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(40,-1), 0);
     #if wxVERSION_NUMBER >= 3000
     m_textCtrlROIBelly->SetHint(wxT(""));
     #endif
     
     boxSizer291->Add(m_textCtrlROIBelly, 0, wxALL, 5);
     
-    m_staticTextSmooth = new wxStaticText(m_panel187, wxID_ANY, _("Smooth"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_staticText305 = new wxStaticText(m_panel187, wxID_ANY, _("Smooth"), wxDefaultPosition, wxSize(-1,-1), 0);
     
-    boxSizer291->Add(m_staticTextSmooth, 0, wxALL, 5);
+    boxSizer291->Add(m_staticText305, 0, wxALL, 5);
     
-    m_textCtrlSmooth = new wxTextCtrl(m_panel187, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(50,-1), 0);
+    m_textCtrlSmoothBelly = new wxTextCtrl(m_panel187, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(40,-1), 0);
     #if wxVERSION_NUMBER >= 3000
-    m_textCtrlSmooth->SetHint(wxT(""));
+    m_textCtrlSmoothBelly->SetHint(wxT(""));
     #endif
     
-    boxSizer291->Add(m_textCtrlSmooth, 0, wxALL, 5);
+    boxSizer291->Add(m_textCtrlSmoothBelly, 0, wxALL, 5);
     
     wxBoxSizer* boxSizer293 = new wxBoxSizer(wxHORIZONTAL);
     

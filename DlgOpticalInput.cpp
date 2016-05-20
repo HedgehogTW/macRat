@@ -115,11 +115,14 @@ void DlgOpticalInput::setGain(double gainHead, double gainBelly, double xSD)
 	*m_textCtrlXSD << str3;	
 }
 
-void DlgOpticalInput::setSmooth(double smoothWidth)
+void DlgOpticalInput::setSmooth(double smoothWidthEar, double smoothWidthBelly)
 {
-	wxString  str1;
-	str1 << smoothWidth;
-	*m_textCtrlSmooth << str1;	
+	wxString  str1, str2;
+	str1 << smoothWidthEar;
+	*m_textCtrlSmoothEar << str1;	
+    
+    str2 << smoothWidthBelly;
+	*m_textCtrlSmoothBelly << str2;
 }
 void DlgOpticalInput::getVerticalLine(bool& bLED, bool& bBigHead, bool& bUserLED2, int& nLED2, bool& bVerLine, double& x)
 {
@@ -226,10 +229,14 @@ void DlgOpticalInput::getGain(double& gainHead, double &gainBelly, double &xSD)
 	str.ToDouble(&value);	
 	xSD = value;	
 }
-void DlgOpticalInput::getSmooth(double& smoothWidth)
+void DlgOpticalInput::getSmooth(double& smoothWidthEar, double& smoothWidthBelly)
 {
-	wxString  str = m_textCtrlSmooth->GetValue();
+	wxString  str = m_textCtrlSmoothEar->GetValue();
 	double  value;
 	str.ToDouble(&value);	
-	smoothWidth = value;
+	smoothWidthEar = value;
+    
+    str = m_textCtrlSmoothBelly->GetValue();
+	str.ToDouble(&value);	
+	smoothWidthBelly = value;
 }

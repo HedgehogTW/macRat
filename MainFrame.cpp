@@ -349,12 +349,16 @@ void MainFrame::readMarks(wxString &dirName)
 					myMsgOutput("m_refSignal load error\n");
 				break;	
 			case 'm': // m_refSignal
-				float  smoothWidth;
-				n = fscanf(fp, "%f\n", &smoothWidth);
+				float  smoothEar, smoothBelly;
+				n = fscanf(fp, "%f %f\n", &smoothEar, &smoothBelly);
 				if(n==1) {
-					m_configData.m_smoothWidth = smoothWidth;
-				}else
-					myMsgOutput("m_smoothWidth load error\n");
+					m_configData.m_smoothEar = smoothEar;
+                    m_configData.m_smoothBelly = smoothEar;
+				}else if(n==2) {
+                    m_configData.m_smoothEar = smoothEar;
+                    m_configData.m_smoothBelly = smoothBelly;
+                }else
+					myMsgOutput("m_smoothWidth load error, n=%d\n", n);
 				break;					
 			case 'y': // m_ymin, m_ymax
 				float ymin, ymax, ysnd;
@@ -719,7 +723,8 @@ bool MainFrame::inputDialog()
 	double intvymax = m_configData.m_intvymax;
 	double intvysnd = m_configData.m_intvysnd;
 	
-	double  smoothWidth = m_configData.m_smoothWidth;
+	double  smoothWidthEar = m_configData.m_smoothEar;
+    double  smoothWidthBelly = m_configData.m_smoothBelly;
 	long ROIEar = m_configData.m_szROIEar;
 	long ROIBelly = m_configData.m_szROIBelly;
 	long referFrame = m_configData.m_referFrame;
@@ -744,7 +749,7 @@ bool MainFrame::inputDialog()
 	dlg.setAmpYRange(ymin, ymax, ysnd, ROIEar, ROIBelly, referFrame);
 	dlg.setIntervalYRange(intvymin, intvymax, intvysnd);
 	dlg.setGain(gainHead, gainBelly, xSD);
-	dlg.setSmooth(smoothWidth);
+	dlg.setSmooth(smoothWidthEar, smoothWidthBelly);
 
 	if(dlg.ShowModal() !=  wxID_OK) return false;
 	frameStep = dlg.getFrameSteps();
@@ -755,7 +760,7 @@ bool MainFrame::inputDialog()
 	dlg.getAmpYRange(ymin, ymax, ysnd, ROIEar, ROIBelly, referFrame);
 	dlg.getIntervalYRange(intvymin, intvymax, intvysnd);
 	dlg.getGain(gainHead, gainBelly, xSD);
-	dlg.getSmooth(smoothWidth);
+	dlg.getSmooth(smoothWidthEar, smoothWidthBelly);
 //	dlg.Destroy();
 	
 	if(bUserLED2 && nLED2 > 0) {
@@ -789,7 +794,8 @@ bool MainFrame::inputDialog()
 	m_configData.m_intvymax = intvymax;
 	m_configData.m_intvysnd = intvysnd;
 	
-	m_configData.m_smoothWidth = smoothWidth;
+	m_configData.m_smoothEar = smoothWidthEar;
+    m_configData.m_smoothBelly = smoothWidthBelly;
 	m_configData.m_szROIEar = ROIEar;
 	m_configData.m_szROIBelly = ROIBelly;
 	m_configData.m_referFrame = referFrame;
@@ -918,7 +924,7 @@ void MainFrame::writeMarks(wxString markFilename)
 		fprintf(fp, "G%f %f %f\n", m_configData.m_gainHead, m_configData.m_gainBelly, m_configData.m_xSD);	
 		fprintf(fp, "S%d %d\n", m_configData.m_szROIEar, m_configData.m_szROIBelly);
 		fprintf(fp, "R%d\n", m_configData.m_refSignal);
-		fprintf(fp, "m%f\n", m_configData.m_smoothWidth);
+		fprintf(fp, "m%f %f\n", m_configData.m_smoothEar, m_configData.m_smoothBelly);
 		fprintf(fp, "y%f %f %f\n", m_configData.m_ymin, m_configData.m_ymax, m_configData.m_ysnd);	
 		fprintf(fp, "z%f %f %f\n", m_configData.m_intvymin, m_configData.m_intvymax, m_configData.m_intvysnd);	
 		fclose(fp);
@@ -1577,22 +1583,24 @@ void MainFrame::OnBatchProcess(wxCommandEvent& event)
 }
 void MainFrame::OnRatCheckAPB(wxCommandEvent& event)
 {
-	static double smoothWidth = 3;
+//	static double smoothEar = 3;
+    static double smoothBelly = 3;
+    
 	static bool  bShowSymbol = true;
 	static bool  bCheckOnlyFirst = false;
 	wxString inputPath;
 	static wxString strIniDir="";
 	DlgSelectFolder dlg(this, strIniDir);
-	dlg.setParam(smoothWidth, bCheckOnlyFirst);
+	dlg.setParam(smoothBelly, bCheckOnlyFirst);
 	dlg.setShowSymbol(bShowSymbol);
 	int ret = dlg.ShowModal();
 	if(ret == wxID_OK) {
 		inputPath = dlg.m_strDir;
 		strIniDir = dlg.m_strDir;
-		dlg.getParam(smoothWidth, bCheckOnlyFirst);
+		dlg.getParam(smoothBelly, bCheckOnlyFirst);
 		bShowSymbol = dlg.showSymbol();
 		wxString str1;
-		str1.Printf("OnShowCSV dir: %s, sigma %.2f\n", inputPath, smoothWidth );
+		str1.Printf("OnShowCSV dir: %s, sigma %.2f\n", inputPath, smoothBelly );
 		myMsgOutput(str1) ;
 		
 		wxFileName path = inputPath;
@@ -1626,7 +1634,7 @@ void MainFrame::OnRatCheckAPB(wxCommandEvent& event)
 		wxFileName fileName = files[i];
 		wxString  fName = fileName.GetName();
 		wxString s;
-		s.Printf("Read [%d/%d], %s, sigma %.3f\n", i+1, nFiles, fName, smoothWidth);
+		s.Printf("Read [%d/%d], %s, sigma %.3f\n", i+1, nFiles, fName, smoothBelly);
 		myMsgOutput(s);
 		
 		vector<float> vSignal;
@@ -1640,7 +1648,8 @@ void MainFrame::OnRatCheckAPB(wxCommandEvent& event)
 		//readMarks(dataDirs[i]);
 		m_configData.Init();
 		readMarks(files[i]);
-		smoothWidth = m_configData.m_smoothWidth;
+//		smoothEar = m_configData.m_smoothEar;
+        smoothBelly = m_configData.m_smoothBelly;
 		
 		double xSD = m_configData.m_xSD;
 		double ymin = m_configData.m_ymin; // -0.8
@@ -1661,7 +1670,7 @@ void MainFrame::OnRatCheckAPB(wxCommandEvent& event)
 		vector<float> 	vPeakDistY;
 		float meanPeriod, sdPeriod, meanAmp, sdAmp;
 	
-		CRat::smoothData(vSignal, vecBellySmooth, smoothWidth);	
+		CRat::smoothData(vSignal, vecBellySmooth, smoothBelly);	
 		CRat::findPeaks(vSignal, vecBellySmooth, peakBelly);
 		
 		FILE* fp = fopen("_tmp.csv", "w");
@@ -1807,15 +1816,15 @@ void MainFrame::OnRatCheckAPB(wxCommandEvent& event)
 			//if (answer == wxNO)  break;			
 			DlgProcessNext dlg(this);
 			dlg.setValues(ymin, ymax, intvymin, intvymax, ysnd, intvysnd);
-			dlg.setParam(smoothWidth, bCheckOnlyFirst, bShowSymbol);
+			dlg.setParam(smoothBelly, bCheckOnlyFirst, bShowSymbol);
 	
 			int  ret = dlg.ShowModal() ;	
 			if(ret ==  wxID_CANCEL) break;		
 			else if(ret ==999) {
 				dlg.getValues(ymin, ymax, intvymin, intvymax, ysnd, intvysnd);
-				dlg.getParam(smoothWidth, bCheckOnlyFirst, bShowSymbol);
+				dlg.getParam(smoothBelly, bCheckOnlyFirst, bShowSymbol);
 				
-				m_configData.m_smoothWidth = smoothWidth;
+				m_configData.m_smoothBelly = smoothBelly;
 				m_configData.m_ymin = ymin;
 				m_configData.m_ymax = ymax; // 0.8 
 				m_configData.m_ysnd = ysnd;

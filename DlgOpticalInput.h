@@ -14,7 +14,7 @@ public:
 	void setAmpYRange(double min, double max, double ysnd, long szROIEar, long szROIBelly, long referFrame);
 	void setIntervalYRange(double min, double max, double ysnd);
 	void setGain(double gainHead, double gainBelly, double xSD);
-	void setSmooth(double smoothWidth);
+	void setSmooth(double smoothWidthEar, double smoothWidthBelly);
 		
 	void getVerticalLine(bool& bLED, bool& bBigHead, bool& bUserLED2, int& nLED2, bool& bVerLine, double& x);
 	void getSeriesLine(bool& bEyeMove, bool& bEar, bool& bGrayDiff, bool& bBelly);
@@ -22,7 +22,7 @@ public:
 	void getAmpYRange(double& min, double& max, double& ysnd, long& szROIEar, long& szROIBelly, long& referFrame);
 	void getIntervalYRange(double& min, double& max, double& ysnd);
 	void getGain(double& gainHead, double &gainBelly, double &xSD);
-	void getSmooth(double& smoothWidth);
+	void getSmooth(double& smoothWidthEar, double& smoothWidthBelly);
 	
 	double getThreshold() { 
 		wxString  str = m_textCtrlThreshold->GetValue();

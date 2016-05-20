@@ -962,7 +962,8 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	double intvymax = configData.m_intvymax;
 	double intvysnd = configData.m_intvysnd;
 	
-	double  smoothWidth = configData.m_smoothWidth;
+	double  smoothEar = configData.m_smoothEar;
+    double  smoothBelly = configData.m_smoothBelly;
 	
 	m_ROIEar = configData.m_szROIEar;
 	m_ROIBelly = configData.m_szROIBelly;
@@ -1075,8 +1076,8 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 //	frameStep = newFrameSteps;
 	m_referFrame = newReferFrame;
     
-	MainFrame:: myMsgOutput("y range [%.2f, %.2f], Ear ROI %d, APB ROI %d, m_nLED2 %d, bSave %d, smooth %.2f\n", 
-			ymin, ymax, m_ROIEar, m_ROIBelly, m_nLED2, bSaveFile, smoothWidth);	
+	MainFrame:: myMsgOutput("y range [%.2f, %.2f], Ear ROI %d, APB ROI %d, m_nLED2 %d, bSave %d, smooth %.2f %.2f\n", 
+			ymin, ymax, m_ROIEar, m_ROIBelly, m_nLED2, bSaveFile, smoothEar, smoothBelly);	
 	MainFrame:: myMsgOutput("PDF threshold %f, frame steps %d, bOpFlowV1 %d, headGain %.2f, bellyGain %.2f\n", 
 			threshold, frameStep, bOpFlowV1, gainHead, gainBelly);
 			
@@ -1161,8 +1162,8 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			Notch_removal(vecLEarFlowPdf, m_referFrame);
 			Notch_removal(vecREarFlowPdf, m_referFrame);
 		
-			smoothData(vecLEarFlowPdf, vecLEarSmooth, smoothWidth);	
-			smoothData(vecREarFlowPdf, vecREarSmooth, smoothWidth);	
+			smoothData(vecLEarFlowPdf, vecLEarSmooth, smoothEar);	
+			smoothData(vecREarFlowPdf, vecREarSmooth, smoothEar);	
 			
 			findPeaks(vecLEarFlowPdf, vecLEarSmooth, peakLEar);
 			findPeaks(vecREarFlowPdf, vecREarSmooth, peakREar);
@@ -1206,7 +1207,7 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			Notch_removal(vecBellyPdf, m_referFrame);
 			//sdBelly = computeSD(vecBellyPdf, m_nLED2);
 			
-			smoothData(vecBellyPdf, vecBellySmooth, smoothWidth);	
+			smoothData(vecBellyPdf, vecBellySmooth, smoothBelly);	
 			findPeaks(vecBellyPdf, vecBellySmooth, peakBelly);
 			peakPeriodAnalysis(peakBelly, vPeakBellyDistX, vPeakBellyDistY, m_nLED2, meanPeriodBelly, sdPeriodBelly);
 			peakAmplitudeAnalysis(peakBelly, m_nLED2, meanAmpBelly, sdAmpBelly);
@@ -1409,16 +1410,17 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 		if(m_bShowEye) {
 			vX.clear();
 			vY.clear();
-			vX.push_back(0);
-			vX.push_back(m_nSlices);
+			vX.push_back(xStart);
+			vX.push_back(xEnd);
 			vY.push_back(sdHead);
 			vY.push_back(sdHead);	
 			_gnuplotLineXY(gPlotL, "", vX, vY, "#008B8800");	
 			_gnuplotLineXY(gPlotR, "", vX, vY, "#008B8800");
 			
-			_gnuplotLine(gPlotL, "Head", vecEyeFlowPdfL, "#008B0000");
-			_gnuplotLine(gPlotR, "Head", vecEyeFlowPdfL, "#008B0000");	
-			
+            _gnuplotLineXY(gPlotL, "Head", vxTicks, vecEyeFlowPdfL, "#008B0000");
+			_gnuplotLineXY(gPlotR, "Head", vxTicks, vecEyeFlowPdfL, "#008B0000");
+            
+		
 			wxString  newMarkerName = title+"_Head.csv";
 			wxFileName newFullMarkerName(strParentPath, newMarkerName);	
 			_OutputVec(vecEyeFlowPdfL, newFullMarkerName.GetFullPath()); 

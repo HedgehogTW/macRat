@@ -64,7 +64,8 @@ public:
 	double	m_intvymax;	
 	double  m_intvysnd;	
 	double 	m_xSD;
-	double  m_smoothWidth;
+	double  m_smoothEar;
+    double  m_smoothBelly;
 	
 	long	m_szROIEar;
 	long	m_szROIBelly;
@@ -89,7 +90,8 @@ public:
 		m_intvysnd = 20;
 		
 		m_xSD = 3;
-		m_smoothWidth = 3;
+		m_smoothEar = 3;
+        m_smoothBelly = 3;
 		m_bSaveSignalPlot = false;
 		m_bShowPeaks = false;
 		m_bShowAxisLabel = false;
