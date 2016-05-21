@@ -1186,17 +1186,11 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 		
 		if(m_bShowBelly) {
 			opticalMovement(m_rectBelly, vecRedFlowPdf, m_vmDistRed, threshold, bOpFlowV1);
-//			opticalMovement(m_rectCyan, vecCyanFlowPdf, m_vmDistCyan, threshold, bOpFlowV1);      
-//			m_BigRedPdf = isRedSignificant(vecRedFlowPdf, vecCyanFlowPdf);
 			vecBellyPdf.resize(vecRedFlowPdf.size());
-//			if(m_BigRedPdf>0) {
-				std::copy ( vecRedFlowPdf.begin(), vecRedFlowPdf.end(), vecBellyPdf.begin() );
-//			}else {
-//				std::copy ( vecCyanFlowPdf.begin(), vecCyanFlowPdf.end(), vecBellyPdf.begin() );
-//			}
+
+			std::copy ( vecRedFlowPdf.begin(), vecRedFlowPdf.end(), vecBellyPdf.begin() );
 			vecRedFlowPdf.clear();
-//			vecCyanFlowPdf.clear();
-			
+		
 			if(gainBelly!=1) {
 				for(int i=0; i<sz; i++) {
 					vecBellyPdf[i] = vecBellyPdf[i]*gainBelly;
@@ -1334,11 +1328,14 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 	if(bOpticalPDF) {
 		vector <float>  vX, vY;
 		if(m_bShowEar) {
-			//_gnuplotLine(gPlotL, "LEar", vecLEarFlowPdf, "#000000ff");
-			//_gnuplotLine(gPlotR, "REar", vecREarFlowPdf, "#000000ff");
 			_gnuplotLineXY(gPlotL, "LEar", vxTicks, vecLEarFlowPdf, "#000000ff");
 			_gnuplotLineXY(gPlotR, "REar", vxTicks, vecREarFlowPdf, "#000000ff");
 
+			_gnuplotHoriLine(gPlotL, xStart, xEnd, meanAmpLEar + sdAmpLEar*xSD, "#00100800", "..-", strLine);
+			_gnuplotHoriLine(gPlotR, xStart, xEnd, meanAmpREar + sdAmpREar*xSD, "#00100800", "..-", strLine);
+			_gnuplotHoriLine(gPlotL, xStart, xEnd, meanAmpLEar - sdAmpLEar*xSD, "#00100800",  "..-");
+			_gnuplotHoriLine(gPlotR, xStart, xEnd, meanAmpREar - sdAmpREar*xSD, "#00100800",  "..-");
+	
 			wxString  newMarkerName = title+"_LEar.csv";
 			wxFileName newFullMarkerName(strParentPath, newMarkerName);
 			_OutputVec(vecLEarFlowPdf, newFullMarkerName.GetFullPath());
@@ -1355,10 +1352,12 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 				_gnuplotPoint(gPlotR, peakREar, "#00008f00" );
 				_gnuplotPoint(gPlotL, peakLEar, "#00008f00" );
 			}
-			for(int i=0; i<vPeakLEarDistX.size(); i++) {
+			
+			for(int i=0; i<vPeakLEarDistX.size(); i++) 
 				vPeakLEarDistX[i] -= m_nLED2;
+			for(int i=0; i<vPeakREarDistX.size(); i++) 	
 				vPeakREarDistX[i] -= m_nLED2;
-			}
+					
 			_gnuplotSteps(gPlotP, vPeakLEarDistX, vPeakLEarDistY, "#00FF0000", "Inter-peak interval");
 			_gnuplotSteps(gPlotP, vPeakREarDistX, vPeakREarDistY, "#00FF0000", "Inter-peak interval");		
 
