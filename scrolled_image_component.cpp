@@ -138,6 +138,32 @@ void ScrolledImageComponent::OnDraw(wxDC& dc)
 			dc.DrawRectangle(x, y, configData.m_szROIBelly, configData.m_szROIBelly);	
 		}
 	}
+	
+	
+	// draw left ear roi
+	cv::Point ptLEar, ptREar;
+	MainFrame::m_pThis->getEarPts(ptLEar, ptREar);
+	
+    bool bViewLEarROI = MainFrame::m_pThis->isViewLEarROI();
+    if( bViewLEarROI)  {
+		dc.SetBrush(*wxTRANSPARENT_BRUSH);
+		dc.SetPen(*wxRED_PEN);	
+		if(ptLEar != Point(0,0)) {
+			wxCoord x =ptLEar.x - configData.m_szROIEar/2;
+			wxCoord y = ptLEar.y - configData.m_szROIEar/2;
+			dc.DrawRectangle(x, y, configData.m_szROIEar, configData.m_szROIEar);	
+		}
+	}
+    bool bViewREarROI = MainFrame::m_pThis->isViewREarROI();
+    if( bViewREarROI)  {
+		dc.SetBrush(*wxTRANSPARENT_BRUSH);
+		dc.SetPen(*wxRED_PEN);	
+		if(ptLEar != Point(0,0)) {
+			wxCoord x =ptREar.x - configData.m_szROIEar/2;
+			wxCoord y = ptREar.y - configData.m_szROIEar/2;
+			dc.DrawRectangle(x, y, configData.m_szROIEar, configData.m_szROIEar);	
+		}
+	}		
 }
 
 

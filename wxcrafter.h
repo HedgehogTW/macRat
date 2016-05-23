@@ -4,8 +4,8 @@
 // Do not modify this file by hand!
 //////////////////////////////////////////////////////////////////////
 
-#ifndef PROJECT_MACRAT_WXCRAFTER_BASE_CLASSES_H
-#define PROJECT_MACRAT_WXCRAFTER_BASE_CLASSES_H
+#ifndef MACRAT_WXCRAFTER_BASE_CLASSES_H
+#define MACRAT_WXCRAFTER_BASE_CLASSES_H
 
 #include <wx/settings.h>
 #include <wx/xrc/xmlres.h>
@@ -65,6 +65,8 @@ protected:
     wxMenuItem* m_menuItemView3D;
     wxMenuItem* m_menuItemViewMarks;
     wxMenuItem* m_menuItemViewBellyROI;
+    wxMenuItem* m_menuItemViewLEarROI;
+    wxMenuItem* m_menuItemViewREarROI;
     wxMenu* m_menuRat;
     wxMenuItem* m_menuItemProcess;
     wxMenuItem* m_menuItemRatGenRefFrame;
@@ -104,6 +106,10 @@ protected:
     virtual void OnUpdateViewMarks(wxUpdateUIEvent& event) { event.Skip(); }
     virtual void OnViewBellyROI(wxCommandEvent& event) { event.Skip(); }
     virtual void OnUpdateViewBellyROI(wxUpdateUIEvent& event) { event.Skip(); }
+    virtual void OnViewLEarROI(wxCommandEvent& event) { event.Skip(); }
+    virtual void OnUpdateViewLEarROI(wxUpdateUIEvent& event) { event.Skip(); }
+    virtual void OnViewREarROI(wxCommandEvent& event) { event.Skip(); }
+    virtual void OnUpdateViewREarROI(wxUpdateUIEvent& event) { event.Skip(); }
     virtual void OnRatProcess(wxCommandEvent& event) { event.Skip(); }
     virtual void OnRatGenRefFrame(wxCommandEvent& event) { event.Skip(); }
     virtual void OnBatchProcess(wxCommandEvent& event) { event.Skip(); }

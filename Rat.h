@@ -40,7 +40,6 @@ public:
 class MyConfigData{
 public:	
 	long 	m_frameStep;	
-	double 	m_threshold;
 	bool 	m_bLED;
 	bool   	m_bBigHead;
 	bool 	m_bVerLine;
@@ -71,6 +70,7 @@ public:
 	long	m_szROIBelly;
 	long   	m_referFrame;
 
+	double 	m_threshold;
 	double	m_gainHead;
 	double	m_gainBelly;
 	int		m_refSignal;

@@ -52,7 +52,9 @@ public:
 	
 	bool    isViewMarks() { return m_bViewMarks; };
 	bool    isViewBellyROI() { return m_bViewBellyROI; };	
-    
+ 	bool    isViewLEarROI() { return m_bViewLEarROI; };	
+	bool    isViewREarROI() { return m_bViewREarROI; };	
+   
 	int		getCageline() { return m_nCageLine; }
 	bool	getCroppedStatus()  { return m_bCutTop; }
 	bool	preprocessing();
@@ -79,6 +81,10 @@ public:
 	wxString  m_strCycleCSV;
 	
 protected:
+    virtual void OnUpdateViewLEarROI(wxUpdateUIEvent& event);
+    virtual void OnUpdateViewREarROI(wxUpdateUIEvent& event);
+    virtual void OnViewLEarROI(wxCommandEvent& event);
+    virtual void OnViewREarROI(wxCommandEvent& event);
     virtual void OnToolsCycleOccur(wxCommandEvent& event);
     virtual void OnUpdateViewBellyROI(wxUpdateUIEvent& event);
     virtual void OnViewBellyROI(wxCommandEvent& event);
@@ -146,7 +152,9 @@ protected:
 	bool    m_bMarkCageline;
     bool    m_bViewMarks;
 	bool	m_bViewBellyROI;
-	
+	bool	m_bViewLEarROI;
+    bool	m_bViewREarROI;
+    
 //	double	m_gainHead;
 //	double	m_gainBelly;
 	

@@ -160,6 +160,8 @@ void MainFrame::DeleteContents()
 	m_bMarkCageline = false;
     m_bViewMarks = true;
 	m_bViewBellyROI = false;
+	m_bViewLEarROI = true;
+    m_bViewREarROI = true;
 	
 	m_bAlreadyCrop = false;
 	
@@ -320,15 +322,20 @@ void MainFrame::readMarks(wxString &dirName)
 				//myMsgOutput("L %d\n", led2);
 				break;	
 			case 'G': // head, belly gain, m_xSD
-				float gainHead, gainBelly, xSD;
-				n = fscanf(fp, "%f %f %f\n", &gainHead, &gainBelly, &xSD);
+				float gainHead, gainBelly, xSD, threshold;
+				n = fscanf(fp, "%f %f %f %f\n", &gainHead, &gainBelly, &xSD, &threshold);
 				if(n==3) {
 					m_configData.m_gainHead = gainHead;
 					m_configData.m_gainBelly = gainBelly;
 					m_configData.m_xSD = xSD;
 					//myMsgOutput("head, belly gain %.2f %.2f, xSD %.2f\n", gainHead, gainBelly, xSD);
+				}else if(n==4) {
+					m_configData.m_gainHead = gainHead;
+					m_configData.m_gainBelly = gainBelly;
+					m_configData.m_xSD = xSD;
+					m_configData.m_threshold = threshold;
 				}else
-					myMsgOutput("head, belly gain load error\n");
+					myMsgOutput("head, belly gain, and threshold load error\n");
 				break;		
 			case 'S': // ear, belly size
 				int szEar, szBelly;
@@ -921,7 +928,7 @@ void MainFrame::writeMarks(wxString markFilename)
 		if(m_nUserLED2 >0)
 			fprintf(fp, "L%d\n", m_nUserLED2 );	
 
-		fprintf(fp, "G%f %f %f\n", m_configData.m_gainHead, m_configData.m_gainBelly, m_configData.m_xSD);	
+		fprintf(fp, "G%f %f %f %f\n", m_configData.m_gainHead, m_configData.m_gainBelly, m_configData.m_xSD, m_configData.m_threshold);	
 		fprintf(fp, "S%d %d\n", m_configData.m_szROIEar, m_configData.m_szROIBelly);
 		fprintf(fp, "R%d\n", m_configData.m_refSignal);
 		fprintf(fp, "m%f %f\n", m_configData.m_smoothEar, m_configData.m_smoothBelly);
@@ -1407,6 +1414,24 @@ void MainFrame::OnUpdateViewBellyROI(wxUpdateUIEvent& event)
 	m_menuItemViewBellyROI->Check(m_bViewBellyROI);
 }
 
+void MainFrame::OnUpdateViewLEarROI(wxUpdateUIEvent& event)
+{
+	m_menuItemViewLEarROI->Check(m_bViewLEarROI);
+}
+void MainFrame::OnUpdateViewREarROI(wxUpdateUIEvent& event)
+{
+	m_menuItemViewREarROI->Check(m_bViewREarROI);
+}
+void MainFrame::OnViewLEarROI(wxCommandEvent& event)
+{
+	m_bViewLEarROI = !m_bViewLEarROI;
+	Refresh();	
+}
+void MainFrame::OnViewREarROI(wxCommandEvent& event)
+{
+	m_bViewREarROI = !m_bViewREarROI;
+	Refresh();	
+}
 
 void MainFrame::readDirList(wxString& basepath, wxArrayString& dataDirs)
 {
