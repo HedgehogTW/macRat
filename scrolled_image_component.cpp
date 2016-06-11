@@ -157,7 +157,7 @@ void ScrolledImageComponent::OnDraw(wxDC& dc)
     bool bViewREarROI = MainFrame::m_pThis->isViewREarROI();
     if( bViewREarROI)  {
 		dc.SetBrush(*wxTRANSPARENT_BRUSH);
-		dc.SetPen(*wxRED_PEN);	
+		dc.SetPen(*wxBLUE_PEN);	
 		if(ptLEar != Point(0,0)) {
 			wxCoord x =ptREar.x - configData.m_szROIEar/2;
 			wxCoord y = ptREar.y - configData.m_szROIEar/2;
