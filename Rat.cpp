@@ -2176,7 +2176,11 @@ void CRat::opticalDrawFlowmapWithPDF(vector<Rect>& vDrawRect, vector<Point>& vPt
 		Mat& mFlowmapColor = vecFlowmap[i];
 		
         cvtColor(mSrc2, mFlowmapColor, CV_GRAY2BGR);
-		drawOptFlowMapWithPDF(mFlowmapColor, mFlow, 4, mThMap);
+        
+        Mat mROI(mFlowmapColor, vDrawRect[0]);  // only draw in rect
+        Mat mROIFlow(mFlow, vDrawRect[0]);  // only draw in rect
+        Mat mROIThMap(mThMap, vDrawRect[0]);  // only draw in rect
+		drawOptFlowMapWithPDF(mROI, mROIFlow, 4, mROIThMap);  // only draw in rect
 
         for(int k=0; k<vDrawRect.size(); k++) {
             Rect rect = vDrawRect[k];
