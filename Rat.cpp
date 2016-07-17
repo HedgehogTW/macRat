@@ -2198,16 +2198,19 @@ void CRat::drawOptFlowMapWithPDF(Mat& cflowmap, const Mat& flow,  int step, Mat 
 {
     const Scalar& colorIn = cv::Scalar(255, 0, 0);
     const Scalar& colorOut = cv::Scalar(0, 0, 255);
+
     for(int y = 0; y < cflowmap.rows; y += step)
         for(int x = 0; x < cflowmap.cols; x += step)
         {
             const Point2f& fxy = flow.at<Point2f>(y, x);
-            if( mPdfMap.at<uchar>(y, x) >0 )
+            if( mPdfMap.at<uchar>(y, x) >0 ) {
                 line(cflowmap, Point(x,y), Point(cvRound(x+fxy.x), cvRound(y+fxy.y)), colorIn);
+			}	
             else
                 line(cflowmap, Point(x,y), Point(cvRound(x+fxy.x), cvRound(y+fxy.y)), colorOut);
             //circle(cflowmap, Point(x,y), 1, color, -1);
         }
+
 }
 void CRat::opticalDrawFlowmap(Point pt1, Point pt2, Point offset, int nFrameSteps, char type)
 {
@@ -2484,8 +2487,10 @@ void CRat::plotDotScatter(Gnuplot& plotSavePGN, Mat& mFlow, Rect rect, wxString&
 			}
 			
 			float probability = mPdf.at<float>(fxy1.y+0.5, fxy1.x+0.5);
-			if(probability >= threshold) 	vDataUp.push_back(fxy);
-			else vDataBelow.push_back(fxy);
+			if(probability >= threshold) 	
+				vDataUp.push_back(fxy);
+			else 
+				vDataBelow.push_back(fxy);
 			
 		}
 		
@@ -2506,6 +2511,26 @@ void CRat::plotDotScatter(Gnuplot& plotSavePGN, Mat& mFlow, Rect rect, wxString&
 	std::ostringstream cmdstr1;
     cmdstr1 << "plot '" << fName.ToAscii() << "'  with points pointtype 1 linecolor '#FF0022'";
     plotSavePGN.cmd(cmdstr1.str());	
+	
+	Mat mData(vDataUp.size(), 2, CV_32F);
+	for(int i=0; i<vDataUp.size(); i++) {
+		mData.at<float>(i, 0) = vDataUp[i].x;
+		mData.at<float>(i, 1) = vDataUp[i].y;
+	}
+
+	PCA pca(mData, Mat(), CV_PCA_DATA_AS_ROW, 1);
+	fName = strOutName + "_eigVec.csv";
+	_OutputMatPoint2f(pca.eigenvectors, fName.ToAscii(), false);
+	
+	std::ostringstream cmdstr2;
+    cmdstr2 << "plot '" << fName.ToAscii() << "'  with lines linecolor '#FF0022'";
+    plotSavePGN.cmd(cmdstr2.str());	
+/*	
+	Mat  mEig = pca.eigenvectors;
+	wxString str;
+	str.Printf("eigenvectors: (%.2f %.2f)-(%.2f %.2f)\n", mEig.at<float>(0, 0), mEig.at<float>(0, 1), mEig.at<float>(1, 0), mEig.at<float>(1, 1));
+	wxLogMessage(str);	
+	 */
 }
 
 
