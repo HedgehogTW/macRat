@@ -2512,19 +2512,54 @@ void CRat::plotDotScatter(Gnuplot& plotSavePGN, Mat& mFlow, Rect rect, wxString&
     cmdstr1 << "plot '" << fName.ToAscii() << "'  with points pointtype 1 linecolor '#FF0022'";
     plotSavePGN.cmd(cmdstr1.str());	
 	
-	Mat mData(vDataUp.size(), 2, CV_32F);
+	Mat mData(vDataUp.size(), 2, CV_64FC1);
 	for(int i=0; i<vDataUp.size(); i++) {
-		mData.at<float>(i, 0) = vDataUp[i].x;
-		mData.at<float>(i, 1) = vDataUp[i].y;
+		mData.at<double>(i, 0) = vDataUp[i].x;
+		mData.at<double>(i, 1) = vDataUp[i].y;
 	}
-
-	PCA pca(mData, Mat(), CV_PCA_DATA_AS_ROW, 1);
-	fName = strOutName + "_eigVec.csv";
-	_OutputMatPoint2f(pca.eigenvectors, fName.ToAscii(), false);
+	PCA pca(mData, Mat(), CV_PCA_DATA_AS_ROW);
+    //Store the position of the object
+    Point2d pos = Point2d(pca.mean.at<double>(0, 0),
+                        pca.mean.at<double>(0, 1));
+ 
+    //Store the eigenvalues and eigenvectors
+    vector<Point2d> eigen_vecs(2);
+    vector<double> eigen_val(2);
+    for (int i = 0; i < 2; ++i)
+    {
+        eigen_vecs[i] = Point2d(pca.eigenvectors.at<double>(i, 0),
+                                pca.eigenvectors.at<double>(i, 1));
+ 
+        eigen_val[i] = pca.eigenvalues.at<double>(0, i);
+    }
+ 
+	
+	fName = strOutName + "_eigVec1.csv";
+	FILE *fp = fopen(fName.ToAscii(), "w");
+	fprintf(fp, "%f, %f\n", 0, 0);//pos.x, pos.y);
+	fprintf(fp, "%f, %f\n", 2 * eigen_vecs[0].x * eigen_val[0], 2 *eigen_vecs[0].y * eigen_val[0]);
+	fclose(fp);
+	
+//	Mat mEign = pca.eigenvectors;//(Range(0,2), Range::all());//.rowRange(0, 2); 
+//	_OutputMatPoint2f(mEign, fName.ToAscii(), false);
 	
 	std::ostringstream cmdstr2;
     cmdstr2 << "plot '" << fName.ToAscii() << "'  with lines linecolor '#FF0022'";
     plotSavePGN.cmd(cmdstr2.str());	
+	
+	////////////////////////////////////////////////
+	fName = strOutName + "_eigVec2.csv";
+	fp = fopen(fName.ToAscii(), "w");
+	fprintf(fp, "%f, %f\n", 0, 0);//pos.x, pos.y);
+	fprintf(fp, "%f, %f\n",  2 * eigen_vecs[1].x * eigen_val[1],  2 *eigen_vecs[1].y * eigen_val[1]);
+	fclose(fp);
+	
+//	Mat mEign = pca.eigenvectors;//(Range(0,2), Range::all());//.rowRange(0, 2); 
+//	_OutputMatPoint2f(mEign, fName.ToAscii(), false);
+	
+	std::ostringstream cmdstr3;
+    cmdstr3 << "plot '" << fName.ToAscii() << "'  with lines linecolor '#FF0022'";
+    plotSavePGN.cmd(cmdstr3.str());		
 /*	
 	Mat  mEig = pca.eigenvectors;
 	wxString str;
