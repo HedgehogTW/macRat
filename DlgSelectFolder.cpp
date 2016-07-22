@@ -44,4 +44,16 @@ void DlgSelectFolder::OnButtonSelectFolder(wxCommandEvent& event)
 }
 void DlgSelectFolder::OnOK(wxCommandEvent& event)
 {
+	m_strDir = m_textCtrlFolder->GetValue();
+	
+	if ( Validate() && TransferDataFromWindow() )
+	{
+		if ( IsModal() )
+			EndModal(wxID_OK); // If modal
+		else
+		{
+			SetReturnCode(wxID_OK);
+			this->Show(false); // If modeless
+		}
+	}	
 }

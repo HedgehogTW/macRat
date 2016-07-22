@@ -26,6 +26,16 @@
 #include <wx/persist/treebook.h>
 #endif
 
+#ifdef WXC_FROM_DIP
+#undef WXC_FROM_DIP
+#endif
+#if wxVERSION_NUMBER >= 3100
+#define WXC_FROM_DIP(x) wxWindow::FromDIP(x, NULL)
+#else
+#define WXC_FROM_DIP(x) x
+#endif
+
+
 class DlgSelectFolderBase : public wxDialog
 {
 protected:
@@ -40,11 +50,12 @@ protected:
     wxCheckBox* m_checkBoxSymbol;
     wxCheckBox* m_checkBoxFirst;
     wxStdDialogButtonSizer* m_stdBtnSizer75;
-    wxButton* m_button77;
+    wxButton* m_buttonOK;
     wxButton* m_button79;
 
 protected:
     virtual void OnButtonSelectFolder(wxCommandEvent& event) { event.Skip(); }
+    virtual void OnOK(wxCommandEvent& event) { event.Skip(); }
 
 public:
     wxStaticText* GetStaticText33() { return m_staticText33; }

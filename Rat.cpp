@@ -1390,11 +1390,24 @@ bool CRat::process(Point& ptEyeL, Point& ptEyeR, Point& ptEarL, Point& ptEarR, P
 			_OutputVec(vecBellyPdf, newFullMarkerName.GetFullPath());
 //			_gnuplotPoint(gPlotL, peakMinMax, "#00008f00" );
 //			_gnuplotPoint(gPlotR, peakMinMax /*peakBelly*/, "#00008f00" );
-			if(bShowPeaks) {
-				for(int i=0; i<peakBelly.size(); i++)
+
+			if(bShowPeaks) 
+			{
+				for(int i=0; i<peakBelly.size(); i++) 
 					peakBelly[i].x -= m_nLED2;
 				_gnuplotPoint(gPlotR, peakBelly, "#00008f00" );
 			}
+			
+			///// add an open symbol to the beginning of the each staircase  
+			vector<Point2f> staircase(peakBelly.size()-1);	
+			for(int i=0; i<staircase.size(); i++) {
+				staircase[i].x = peakBelly[i].x - m_nLED2;
+				staircase[i].y = vPeakBellyDistY[i];
+			}			
+			_gnuplotPoint(gPlotP, staircase, "#00008f00" );
+			
+			
+			
 			for(int i=0; i<vPeakBellyDistX.size(); i++)
 				vPeakBellyDistX[i] -= m_nLED2;
 				
@@ -2514,6 +2527,9 @@ void CRat::plotDotScatter(Gnuplot& plotSavePGN, Mat& mFlow, Rect rect, wxString&
 	std::ostringstream cmdstr1;
     cmdstr1 << "plot '" << fName.ToAscii() << "'  with points pointtype 1 linecolor '#FF0022'";
     plotSavePGN.cmd(cmdstr1.str());	
+	
+	///////////////////////////////////////////////////////
+	// plot PCA axis
 	
 	Mat mData(vDataUp.size(), 2, CV_64FC1);
 	for(int i=0; i<vDataUp.size(); i++) {

@@ -26,72 +26,72 @@ DlgSelectFolderBase::DlgSelectFolderBase(wxWindow* parent, wxWindowID id, const 
     wxBoxSizer* boxSizer19 = new wxBoxSizer(wxVERTICAL);
     this->SetSizer(boxSizer19);
     
-    m_panel29 = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxTAB_TRAVERSAL);
+    m_panel29 = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDLG_UNIT(this, wxSize(-1,-1)), wxTAB_TRAVERSAL);
     
-    boxSizer19->Add(m_panel29, 0, wxALL|wxEXPAND, 5);
+    boxSizer19->Add(m_panel29, 0, wxALL|wxEXPAND, WXC_FROM_DIP(5));
     
     wxBoxSizer* boxSizer31 = new wxBoxSizer(wxVERTICAL);
     m_panel29->SetSizer(boxSizer31);
     
-    m_panel85 = new wxPanel(m_panel29, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxTAB_TRAVERSAL);
+    m_panel85 = new wxPanel(m_panel29, wxID_ANY, wxDefaultPosition, wxDLG_UNIT(m_panel29, wxSize(-1,-1)), wxTAB_TRAVERSAL);
     
-    boxSizer31->Add(m_panel85, 0, wxALL|wxEXPAND, 5);
+    boxSizer31->Add(m_panel85, 0, wxALL|wxEXPAND, WXC_FROM_DIP(5));
     
     wxBoxSizer* boxSizer87 = new wxBoxSizer(wxHORIZONTAL);
     m_panel85->SetSizer(boxSizer87);
     
-    m_staticText33 = new wxStaticText(m_panel85, wxID_ANY, _("Folder"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_staticText33 = new wxStaticText(m_panel85, wxID_ANY, _("Folder"), wxDefaultPosition, wxDLG_UNIT(m_panel85, wxSize(-1,-1)), 0);
     
-    boxSizer87->Add(m_staticText33, 0, wxALL, 5);
+    boxSizer87->Add(m_staticText33, 0, wxALL, WXC_FROM_DIP(5));
     
-    m_textCtrlFolder = new wxTextCtrl(m_panel85, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(350,-1), wxTE_READONLY);
+    m_textCtrlFolder = new wxTextCtrl(m_panel85, wxID_ANY, wxT(""), wxDefaultPosition, wxDLG_UNIT(m_panel85, wxSize(350,-1)), 0);
     #if wxVERSION_NUMBER >= 3000
     m_textCtrlFolder->SetHint(wxT(""));
     #endif
     
-    boxSizer87->Add(m_textCtrlFolder, 1, wxALL, 5);
+    boxSizer87->Add(m_textCtrlFolder, 1, wxALL, WXC_FROM_DIP(5));
     
-    m_buttonSelFolder = new wxButton(m_panel85, wxID_ANY, _("Select Folder"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_buttonSelFolder = new wxButton(m_panel85, wxID_ANY, _("Select Folder"), wxDefaultPosition, wxDLG_UNIT(m_panel85, wxSize(-1,-1)), 0);
     
-    boxSizer87->Add(m_buttonSelFolder, 0, wxALL|wxEXPAND, 5);
+    boxSizer87->Add(m_buttonSelFolder, 0, wxALL|wxEXPAND, WXC_FROM_DIP(5));
     
-    m_panel39 = new wxPanel(m_panel29, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxTAB_TRAVERSAL);
+    m_panel39 = new wxPanel(m_panel29, wxID_ANY, wxDefaultPosition, wxDLG_UNIT(m_panel29, wxSize(-1,-1)), wxTAB_TRAVERSAL);
     
-    boxSizer31->Add(m_panel39, 0, wxALL|wxEXPAND, 5);
+    boxSizer31->Add(m_panel39, 0, wxALL|wxEXPAND, WXC_FROM_DIP(5));
     
     wxBoxSizer* boxSizer41 = new wxBoxSizer(wxHORIZONTAL);
     m_panel39->SetSizer(boxSizer41);
     
-    m_staticText43 = new wxStaticText(m_panel39, wxID_ANY, _("Smooth width"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_staticText43 = new wxStaticText(m_panel39, wxID_ANY, _("Smooth width"), wxDefaultPosition, wxDLG_UNIT(m_panel39, wxSize(-1,-1)), 0);
     
-    boxSizer41->Add(m_staticText43, 0, wxALL, 5);
+    boxSizer41->Add(m_staticText43, 0, wxALL, WXC_FROM_DIP(5));
     
-    m_textCtrlSmooth = new wxTextCtrl(m_panel39, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_textCtrlSmooth = new wxTextCtrl(m_panel39, wxID_ANY, wxT(""), wxDefaultPosition, wxDLG_UNIT(m_panel39, wxSize(-1,-1)), 0);
     m_textCtrlSmooth->Enable(false);
     #if wxVERSION_NUMBER >= 3000
     m_textCtrlSmooth->SetHint(wxT(""));
     #endif
     
-    boxSizer41->Add(m_textCtrlSmooth, 0, wxALL, 5);
+    boxSizer41->Add(m_textCtrlSmooth, 0, wxALL, WXC_FROM_DIP(5));
     
-    m_checkBoxSymbol = new wxCheckBox(m_panel39, wxID_ANY, _("Peak symbols"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_checkBoxSymbol = new wxCheckBox(m_panel39, wxID_ANY, _("Peak symbols"), wxDefaultPosition, wxDLG_UNIT(m_panel39, wxSize(-1,-1)), 0);
     m_checkBoxSymbol->SetValue(false);
     
-    boxSizer41->Add(m_checkBoxSymbol, 0, wxALL, 5);
+    boxSizer41->Add(m_checkBoxSymbol, 0, wxALL, WXC_FROM_DIP(5));
     
-    m_checkBoxFirst = new wxCheckBox(m_panel39, wxID_ANY, _("Check first interval"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_checkBoxFirst = new wxCheckBox(m_panel39, wxID_ANY, _("Check first interval"), wxDefaultPosition, wxDLG_UNIT(m_panel39, wxSize(-1,-1)), 0);
     m_checkBoxFirst->SetValue(false);
     
-    boxSizer41->Add(m_checkBoxFirst, 0, wxALL, 5);
+    boxSizer41->Add(m_checkBoxFirst, 0, wxALL, WXC_FROM_DIP(5));
     
     m_stdBtnSizer75 = new wxStdDialogButtonSizer();
     
-    boxSizer31->Add(m_stdBtnSizer75, 0, wxALL|wxEXPAND, 5);
+    boxSizer31->Add(m_stdBtnSizer75, 0, wxALL|wxEXPAND, WXC_FROM_DIP(5));
     
-    m_button77 = new wxButton(m_panel29, wxID_OK, wxT(""), wxDefaultPosition, wxSize(-1, -1), 0);
-    m_stdBtnSizer75->AddButton(m_button77);
+    m_buttonOK = new wxButton(m_panel29, wxID_OK, wxT(""), wxDefaultPosition, wxDLG_UNIT(m_panel29, wxSize(-1, -1)), 0);
+    m_stdBtnSizer75->AddButton(m_buttonOK);
     
-    m_button79 = new wxButton(m_panel29, wxID_CANCEL, wxT(""), wxDefaultPosition, wxSize(-1, -1), 0);
+    m_button79 = new wxButton(m_panel29, wxID_CANCEL, wxT(""), wxDefaultPosition, wxDLG_UNIT(m_panel29, wxSize(-1, -1)), 0);
     m_stdBtnSizer75->AddButton(m_button79);
     m_stdBtnSizer75->Realize();
     
@@ -114,11 +114,13 @@ DlgSelectFolderBase::DlgSelectFolderBase(wxWindow* parent, wxWindowID id, const 
 #endif
     // Connect events
     m_buttonSelFolder->Connect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(DlgSelectFolderBase::OnButtonSelectFolder), NULL, this);
+    m_buttonOK->Connect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(DlgSelectFolderBase::OnOK), NULL, this);
     
 }
 
 DlgSelectFolderBase::~DlgSelectFolderBase()
 {
     m_buttonSelFolder->Disconnect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(DlgSelectFolderBase::OnButtonSelectFolder), NULL, this);
+    m_buttonOK->Disconnect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(DlgSelectFolderBase::OnOK), NULL, this);
     
 }

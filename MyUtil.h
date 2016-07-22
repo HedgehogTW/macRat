@@ -78,7 +78,7 @@ void _gnuplotPoint(Gnuplot& gnuPlot, const X& pts, const char* color="", const c
 		x[i] = pts[i].x;
 		y[i] = pts[i].y;
 	}
-	gnuPlot.set_style("points").plot_xy(x, y, 1, color, titleName);
+	gnuPlot.set_style("points pt 6 ").plot_xy(x, y, 1, color, titleName);
 }
 
 void	_scalingTraining(cv::Mat& mTrainData);
