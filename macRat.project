@@ -50,7 +50,7 @@
     <File Name="DlgSelectFolder.cpp"/>
     <File Name="DlgProcessNext.cpp"/>
     <File Name="DlgProcessNext.h"/>
-	<File Name="DlgCycleOccur.h"/>
+    <File Name="DlgCycleOccur.h"/>
     <File Name="DlgCycleOccur.cpp"/>
   </VirtualDirectory>
   <VirtualDirectory Name="wxcrafter">
@@ -59,7 +59,7 @@
       <File Name="dlg_optical_input_base_macrat_bitmaps.cpp"/>
       <File Name="dlg_select_folder_macrat_bitmaps.cpp"/>
       <File Name="dlg_process_next_macrat_bitmaps.cpp"/>
-	  <File Name="dlg_cycleOccur_base_macrat_bitmaps.cpp"/>
+      <File Name="dlg_cycleOccur_base_macrat_bitmaps.cpp"/>
     </VirtualDirectory>
     <VirtualDirectory Name="base">
       <File Name="dlg_optical_input_base.h"/>
@@ -68,13 +68,13 @@
       <File Name="dlg_select_folder.cpp"/>
       <File Name="dlg_process_next.h"/>
       <File Name="dlg_process_next.cpp"/>
-	  <File Name="dlg_cycleOccur_base.h"/>
+      <File Name="dlg_cycleOccur_base.h"/>
       <File Name="dlg_cycleOccur_base.cpp"/>
     </VirtualDirectory>
     <File Name="dlg_optical_input_base.wxcp"/>
     <File Name="dlg_select_folder.wxcp"/>
     <File Name="dlg_process_next.wxcp"/>
-	<File Name="dlg_cycleOccur_base.wxcp"/>
+    <File Name="dlg_cycleOccur_base.wxcp"/>
   </VirtualDirectory>
   <Settings Type="Executable">
     <GlobalSettings>
@@ -97,14 +97,15 @@
         <LibraryPath Value="C:/opencv/build/x64/mingw/lib"/>
         <Library Value="libgsl.a"/>
         <Library Value="libgslcblas.a"/>
-        <Library Value="libopencv_core300.dll.a"/>
-        <Library Value="libopencv_highgui300.dll.a"/>
-        <Library Value="libopencv_imgcodecs300.dll.a"/>
-        <Library Value="libopencv_imgproc300.dll.a"/>
-        <Library Value="libopencv_video300.dll.a"/>
+        <Library Value="libopencv_core310.dll.a"/>
+        <Library Value="libopencv_highgui310.dll.a"/>
+        <Library Value="libopencv_imgcodecs310.dll.a"/>
+        <Library Value="libopencv_imgproc310.dll.a"/>
+        <Library Value="libopencv_video310.dll.a"/>
       </Linker>
       <ResourceCompiler Options="$(shell wx-config --rcflags)" Required="no"/>
       <General OutputFile="$(IntermediateDirectory)/$(ProjectName)" IntermediateDirectory="./Debug" Command="./$(ProjectName)" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="no" IsGUIProgram="yes" IsEnabled="yes"/>
+      <BuildSystem Name="Default"/>
       <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
         <![CDATA[]]>
       </Environment>
@@ -144,6 +145,7 @@
       <Linker Options="$(shell wx-config --libs);-mwindows" Required="yes"/>
       <ResourceCompiler Options="$(shell wx-config --rcflags)" Required="no"/>
       <General OutputFile="$(IntermediateDirectory)/$(ProjectName)" IntermediateDirectory="./Release" Command="./$(ProjectName)" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="no" IsGUIProgram="no" IsEnabled="yes"/>
+      <BuildSystem Name="Default"/>
       <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
         <![CDATA[]]>
       </Environment>
